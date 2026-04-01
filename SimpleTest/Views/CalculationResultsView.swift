@@ -1,18 +1,37 @@
-//
-//  CalculationResultsView.swift
-//  SimpleTest
-//
-//  Created by David Berry on 01/04/2026.
-//
-
 import SwiftUI
 
 struct CalculationResultsView: View {
+    @ObservedObject var profile: ProfileInputViewModel
+
     var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Results")
+                .font(.title3).bold()
+
+            Group {
+//                HStack { Text("Age"); Spacer(); Text("\(profile.gender)") }
+                HStack { Text("Gender"); Spacer(); Text("\(profile.gender)") }
+                HStack { Text("Age"); Spacer(); Text("\(profile.age)") }
+                HStack { Text("Height"); Spacer(); Text("\(profile.height)") }
+                HStack { Text("Weight"); Spacer(); Text("\(profile.weight)") }
+//                HStack { Text("Body Fat"); Spacer(); Text("\(profile.bodyFatPercentage)") }
+            }
+            .font(.body)
+            .foregroundStyle(.primary)
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(Color(.secondarySystemBackground))
+        )
     }
 }
 
 #Preview {
-    CalculationResultsView()
+    ScrollView {
+        VStack(spacing: 12) {
+            CalculationResultsView(profile: ProfileInputViewModel())
+        }
+        .padding()
+    }
 }

@@ -16,7 +16,7 @@ final class SectionGenderViewModel: SectionViewModelIdentifiable {
     let details: String
     
     // custom properties
-    let gender : Int
+    @Published var  gender : Int
 
     init(title: String = "Gender", summary: String = "Overview for B", details: String = "Detailed information for Section B goes here.", isExpanded: Bool = false) {
         self.title = title

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct ExpandableSectionView<M: SectionViewModelIdentifiable>: View {
     @ObservedObject var model: M
+    var section: AppEnums.enumSection
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -45,7 +46,7 @@ struct ExpandableSectionView<M: SectionViewModelIdentifiable>: View {
 #Preview {
     ScrollView {
         VStack(spacing: 12) {
-            ExpandableSectionView(model: SectionAgeViewModel())
+            ExpandableSectionView(model: SectionAgeViewModel(), section: AppEnums.enumSection.age)
         }
         .padding()
     }
