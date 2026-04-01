@@ -1,21 +1,24 @@
-//
-//  ContentView.swift
-//  SimpleTest
-//
-//  Created by David Berry on 31/03/2026.
-//
-
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject private var sectionA = SectionAgeViewModel()
+    @StateObject private var sectionB = SectionHeightViewModel()
+    @StateObject private var sectionC = SectionActivityLevelViewModel()
+    @StateObject private var sectionD = SectionWeightViewModel()
+    @StateObject private var sectionE = SectionBodyFatViewModel()
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        ScrollView {
+            VStack(alignment: .leading, spacing: 12) {
+                ExpandableSectionView(model: sectionA)
+                ExpandableSectionView(model: sectionB)
+                ExpandableSectionView(model: sectionC)
+                ExpandableSectionView(model: sectionD)
+                ExpandableSectionView(model: sectionE)
+            }
+            .padding()
         }
-        .padding()
+        .background(Color(.systemGroupedBackground).ignoresSafeArea())
     }
 }
 
