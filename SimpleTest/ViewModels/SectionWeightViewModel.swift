@@ -19,7 +19,7 @@ final class SectionWeightViewModel: SectionViewModelIdentifiable {
     // custom properties
     let weight: Int
 
-    init(title: String = "Section D", summary: String = "Overview for D", details: String = "Detailed information for Section D goes here.", isExpanded: Bool = false) {
+    init(title: String = "Weight", summary: String = "Overview for D", details: String = "Detailed information for Section D goes here.", isExpanded: Bool = false) {
         self.title = title
         self.summary = summary
         self.details = details

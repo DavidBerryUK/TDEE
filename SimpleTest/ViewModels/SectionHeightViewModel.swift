@@ -18,7 +18,7 @@ final class SectionHeightViewModel: SectionViewModelIdentifiable {
     // custom properties
     let height: Int
 
-    init(title: String = "Section B", summary: String = "Overview for B", details: String = "Detailed information for Section B goes here.", isExpanded: Bool = false) {
+    init(title: String = "Height", summary: String = "Overview for B", details: String = "Detailed information for Section B goes here.", isExpanded: Bool = false) {
         self.title = title
         self.summary = summary
         self.details = details

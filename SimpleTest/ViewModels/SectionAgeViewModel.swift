@@ -18,7 +18,7 @@ final class SectionAgeViewModel: SectionViewModelIdentifiable {
     // custom properties
     let age: Int
 
-    init(title: String = "Section A", summary: String = "Overview for A", details: String = "Detailed information for Section A goes here.", isExpanded: Bool = false) {
+    init(title: String = "Age", summary: String = "Overview for A", details: String = "Detailed information for Section A goes here.", isExpanded: Bool = false) {
         self.title = title
         self.summary = summary
         self.details = details

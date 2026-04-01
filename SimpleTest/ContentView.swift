@@ -1,20 +1,24 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject private var sectionA = SectionAgeViewModel()
-    @StateObject private var sectionB = SectionHeightViewModel()
-    @StateObject private var sectionC = SectionActivityLevelViewModel()
-    @StateObject private var sectionD = SectionWeightViewModel()
-    @StateObject private var sectionE = SectionBodyFatViewModel()
+    @StateObject private var sectionAge = SectionAgeViewModel()
+    @StateObject private var sectionHeight = SectionHeightViewModel()
+    @StateObject private var sectionActivityLevel = SectionActivityLevelViewModel()
+    @StateObject private var sectionWeight = SectionWeightViewModel()
+    @StateObject private var sectionBodyFat = SectionBodyFatViewModel()
+    @StateObject private var sectionGender = SectionGenderViewModel()
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
-                ExpandableSectionView(model: sectionA)
-                ExpandableSectionView(model: sectionB)
-                ExpandableSectionView(model: sectionC)
-                ExpandableSectionView(model: sectionD)
-                ExpandableSectionView(model: sectionE)
+                ExpandableSectionView(model: sectionGender)
+                ExpandableSectionView(model: sectionAge)
+                ExpandableSectionView(model: sectionHeight)
+                ExpandableSectionView(model: sectionWeight)
+                ExpandableSectionView(model: sectionActivityLevel)                
+                ExpandableSectionView(model: sectionBodyFat)
+                CalculationResultsView()
+              
             }
             .padding()
         }

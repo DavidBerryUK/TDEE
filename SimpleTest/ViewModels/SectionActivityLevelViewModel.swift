@@ -19,7 +19,7 @@ final class SectionActivityLevelViewModel: SectionViewModelIdentifiable {
     // custom properties
     let activityLevel : Int;
 
-    init(title: String = "Section C", summary: String = "Overview for C", details: String = "Detailed information for Section C goes here.", isExpanded: Bool = false) {
+    init(title: String = "Activity Level", summary: String = "Overview for C", details: String = "Detailed information for Section C goes here.", isExpanded: Bool = false) {
         self.title = title
         self.summary = summary
         self.details = details

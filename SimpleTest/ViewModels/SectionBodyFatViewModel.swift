@@ -21,7 +21,7 @@ final class SectionBodyFatViewModel: SectionViewModelIdentifiable {
     // custom properties
     let bodyFatPercentage : Int
 
-    init(title: String = "Section E", summary: String = "Overview for E", details: String = "Detailed information for Section E goes here.", isExpanded: Bool = false) {
+    init(title: String = "Fat Percentage", summary: String = "Overview for E", details: String = "Detailed information for Section E goes here.", isExpanded: Bool = false) {
         self.title = title
         self.summary = summary
         self.details = details
