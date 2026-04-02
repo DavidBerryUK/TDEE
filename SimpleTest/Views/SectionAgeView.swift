@@ -38,6 +38,7 @@ struct SectionAgeView: View {
                 }
                 .foregroundStyle(.primary)
                 .transition(.opacity.combined(with: .move(edge: .top)))
+                
             }
         }
         .padding(16)

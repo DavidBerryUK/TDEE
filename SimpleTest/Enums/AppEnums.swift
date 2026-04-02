@@ -55,4 +55,24 @@ class AppEnums {
         case Bulk = 3
         case Custom = 4
     }
+    
+    enum enumActivityLevel : Int, CaseIterable {
+        case Sedentary = 0
+        case LightExercise = 1
+        case ModerateExercise = 2
+        case HeavyExercise = 3
+        case Athlete = 4
+    }
+}
+
+extension AppEnums.enumActivityLevel {
+    var displayName: String {
+        switch self {
+        case .Sedentary: return "Sedentary (office job)"
+        case .LightExercise: return "Light Exercise (1-2 days)"
+        case .ModerateExercise: return "Moderate Exercise (3-5 days)"
+        case .HeavyExercise: return "Heavy Exercise (3-5 days)"
+        case .Athlete: return "Athlete (2x per day)"
+        }
+    }
 }
