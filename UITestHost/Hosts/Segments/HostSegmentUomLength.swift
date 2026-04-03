@@ -13,15 +13,14 @@ struct HostSegmentUomLength: View {
     var body: some View {
         TestHostContainer(
             title:"Unit Of Measure - Length",
-            instructions: "Use the picker below to select a unit of length. This is a test host for SegmentUomLength control."
-        ) {
-            VStack {
-                SegmentUomLength(option: $option)
-                Text("Unit Of Measure: \(option)")
+            instructions: "Use the picker below to select a unit of length. This is a test host for SegmentUomLength control.",
+            content: {SegmentUomLength(option: $option)},
+            valueView:{
+                Text("Unit Of Measure: \(option.displayName)")
                     .font(.subheadline)
                     .foregroundColor(.gray)
             }
-        }
+        )
     }
 }
 

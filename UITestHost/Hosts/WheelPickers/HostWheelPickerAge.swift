@@ -13,15 +13,13 @@ struct HostWheelPickerAge: View {
     var body: some View {
         TestHostContainer(
             title: "Age Picker Test",
-            instructions: "Use the picker below to select an age. This is a test host for the WheelPickerAgeView control."
-        ) {
-            VStack {
-                WheelPickerAgeView(value: $selectedAge)
-                Text("Selected Age: \(selectedAge)")
+            instructions: "Use the picker below to select an age. This is a test host for the WheelPickerAgeView control.",
+            content: { WheelPickerAgeView(value: $selectedAge) },
+            valueView: {Text("Selected Age: \(selectedAge)")
                     .font(.subheadline)
-                    .foregroundColor(.gray)
-            }
-        }
+                .foregroundColor(.gray)}
+        )
+    
     }
 }
 

@@ -16,17 +16,12 @@ struct WheelPickerAgeView: View {
             .pickerStyle(.wheel)
             
             UITextPickerLabel("age in years")
-                .offset(x: 60)
-            
+                .offset(x: 60)            
         }
     }
 }
 
-struct PickerAgeView_Previews: PreviewProvider {
-    @State static var selectedAge: Int = 21
-    
-    static var previews: some View {
-        
-        WheelPickerAgeView(value: $selectedAge)
-    }
+#Preview("age") {
+    @Previewable @State var selectedAge: Int = 21
+    WheelPickerAgeView(value: $selectedAge)
 }

@@ -13,17 +13,17 @@ struct HostWheelPickerWeight: View {
     var body: some View {
         TestHostContainer(
             title: "Weight Picker Test",
-            instructions: "Use the picker below to select a weight. This is a test host for the WheelPickerWeightView control."
-        ) {
-            VStack {
-                WheelPickerWeightView(value: $selectedWeight)
+            instructions: "Use the picker below to select a weight. This is a test host for the WheelPickerWeightView control.",
+            content: {WheelPickerWeightView(value: $selectedWeight)},
+            valueView: {
                 Text("Selected Weight: \(selectedWeight) kg")
                     .font(.subheadline)
                     .foregroundColor(.gray)
             }
-        }
+        )
     }
 }
+
 
 #Preview {
     NavigationStack {

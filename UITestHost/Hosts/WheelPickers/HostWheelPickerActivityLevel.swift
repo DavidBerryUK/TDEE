@@ -13,17 +13,16 @@ struct HostWheelPickerActivityLevel: View {
     var body: some View {
         TestHostContainer(
             title: "Activity Level Picker Test",
-            instructions: "Use the picker below to select an activity level. This is a test host for the WheelPickerActivityLevelView control."
-        ) {
-            VStack {
-                WheelPickerActivityLevelView(value: $activityLevel)
-                Text("Activity Level: \(activityLevel)")
+            instructions: "Use the picker below to select an activity level. This is a test host for the WheelPickerActivityLevelView control.",
+            content: {WheelPickerActivityLevelView(value: $activityLevel) },
+            valueView:{
+                Text("Activity Level: \(activityLevel.displayName)")
                     .font(.subheadline)
                     .foregroundColor(.gray)
-            }
-        }
+            })
     }
 }
+
 
 #Preview {
     HostWheelPickerActivityLevel()

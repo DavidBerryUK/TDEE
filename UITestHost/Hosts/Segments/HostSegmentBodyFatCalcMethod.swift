@@ -13,15 +13,13 @@ struct HostSegmentBodyFatCalcMethod: View {
     var body: some View {
         TestHostContainer(
             title: "Segment - Bodyfat Calculation Method",
-            instructions: "Use the select below to select a calculation method. This is a test host for the SegmentBodyFatCalcMethodView control."
-        ) {
-            VStack {
-                SegmentBodyFatCalcMethodView(option: $option)
-                Text("Method: \(option.displayName)")
+            instructions: "Use the select below to select a calculation method. This is a test host for the SegmentBodyFatCalcMethodView control.",
+            content: { SegmentBodyFatCalcMethodView(option: $option) },
+            valueView:{    Text("Method: \(option.displayName)")
                     .font(.subheadline)
                     .foregroundColor(.gray)
             }
-        }
+        )
     }
 }
 

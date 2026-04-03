@@ -13,15 +13,14 @@ struct HostSegmentGender: View {
     var body: some View {
         TestHostContainer(
             title: "Segment - Gender",
-            instructions: "Use the select below to select a Gender. This is a test host for the SegmentGenderView control."
-        ) {
-            VStack {
-                SegmentGenderView(option: $option)
-                Text("Gender: \(option)")
+            instructions: "Use the select below to select a Gender. This is a test host for the SegmentGenderView control.",
+            content:{SegmentGenderView(option: $option)},
+            valueView:{
+                Text("Gender: \(option.displayName)")
                     .font(.subheadline)
                     .foregroundColor(.gray)
             }
-        }
+        )
     }
 }
 

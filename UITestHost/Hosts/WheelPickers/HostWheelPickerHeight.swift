@@ -9,19 +9,19 @@ import SwiftUI
 
 struct HostWheelPickerHeight: View {
     @State private var selectedHeight: Int = 170 // example starting value
+    @State private var unitOfMeasure: enumOptionLength = enumOptionLength.centimeters
     
     var body: some View {
         TestHostContainer(
             title: "Height Picker Test",
-            instructions: "Use the picker below to select a height. This is a test host for the WheelPickerHeightView control."
-        ) {
-            VStack {
-                WheelPickerHeightView(value: $selectedHeight)
-                Text("Selected Height: \(selectedHeight) cm")
+            instructions: "Use the picker below to select a height. This is a test host for the WheelPickerHeightView control.",
+            content: { WheelPickerHeightView(value: $selectedHeight, unitOfMeasure: $unitOfMeasure) },
+            inputView:{ SegmentUomLength(option: $unitOfMeasure) },
+            valueView: { Text("Selected Height: \(selectedHeight) cm")
                     .font(.subheadline)
                     .foregroundColor(.gray)
             }
-        }
+        )
     }
 }
 
