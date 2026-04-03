@@ -43,14 +43,15 @@
 				Enums/enumOptionWeight.swift,
 				Enums/enumSection.swift,
 				ViewModels/ProfileInputViewModel.swift,
-				ViewsPickers/WheelPickerActivityLevelView.swift,
-				ViewsPickers/WheelPickerAgeView.swift,
-				ViewsPickers/WheelPickerHeightView.swift,
-				ViewsPickers/WheelPickerWeightView.swift,
 				ViewsSegments/SegmentBodyFatCalcMethodView.swift,
 				ViewsSegments/SegmentGenderView.swift,
 				ViewsSegments/SegmentUomLength.swift,
 				ViewsSegments/SegmentUomWeightView.swift,
+				ViewsUI/UITextPickerLabel.swift,
+				ViewsWheelPickers/WheelPickerActivityLevelView.swift,
+				ViewsWheelPickers/WheelPickerAgeView.swift,
+				ViewsWheelPickers/WheelPickerHeightView.swift,
+				ViewsWheelPickers/WheelPickerWeightView.swift,
 			);
 			target = FAE95A282F7FD05400391EF3 /* UITestHost */;
 		};
