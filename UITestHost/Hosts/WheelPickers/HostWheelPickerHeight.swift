@@ -16,7 +16,7 @@ struct HostWheelPickerHeight: View {
             title: "Height Picker Test",
             instructions: "Use the picker below to select a height. This is a test host for the WheelPickerHeightView control.",
             content: { WheelPickerHeightView(value: $selectedHeight, unitOfMeasure: $unitOfMeasure) },
-            inputView:{ SegmentUomLength(option: $unitOfMeasure) },
+            inputView:{ SegmentUomLengthView(option: $unitOfMeasure) },
             valueView: { Text("Selected Height: \(selectedHeight) cm")
                     .font(.subheadline)
                     .foregroundColor(.gray)

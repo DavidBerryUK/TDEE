@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct SegmentUomLength: View {
+struct SegmentUomLengthView: View {
     
     @Binding var option: enumOptionLength
     
@@ -23,5 +23,5 @@ struct SegmentUomLength: View {
 
 #Preview {
     @Previewable @State var option: enumOptionLength = enumOptionLength.centimeters
-    SegmentUomLength(option: $option)
+    SegmentUomLengthView(option: $option)
 }

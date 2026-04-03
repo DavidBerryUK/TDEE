@@ -14,7 +14,7 @@ struct HostSegmentUomLength: View {
         TestHostContainer(
             title:"Unit Of Measure - Length",
             instructions: "Use the picker below to select a unit of length. This is a test host for SegmentUomLength control.",
-            content: {SegmentUomLength(option: $option)},
+            content: {SegmentUomLengthView(option: $option)},
             valueView:{
                 Text("Unit Of Measure: \(option.displayName)")
                     .font(.subheadline)
