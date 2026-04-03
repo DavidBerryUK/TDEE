@@ -9,19 +9,19 @@ import SwiftUI
 
 struct SegmentUomWeightView: View {
     
-    @Binding var option: AppEnums.enumOptionWeight
+    @Binding var option: enumOptionWeight
     
     var body: some View {
         Picker("Weight Unit Of Measure", selection: $option) {
-            Text("Kg").tag(AppEnums.enumOptionWeight.kilograms)
-            Text("Pounds").tag(AppEnums.enumOptionWeight.pounds)
-            Text("Stones & Pounds").tag(AppEnums.enumOptionWeight.StonesAndPounds)
+            Text("Kg").tag(enumOptionWeight.kilograms)
+            Text("Pounds").tag(enumOptionWeight.pounds)
+            Text("Stones & Pounds").tag(enumOptionWeight.stonesAndPounds)
         }
         .pickerStyle(.segmented)
     }
 }
 
 #Preview {
-    @Previewable @State var option: AppEnums.enumOptionWeight = AppEnums.enumOptionWeight.kilograms
+    @Previewable @State var option: enumOptionWeight = enumOptionWeight.kilograms
     SegmentUomWeightView(option: $option)
 }

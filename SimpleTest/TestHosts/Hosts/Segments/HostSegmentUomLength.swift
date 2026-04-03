@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct HostSegmentUomLength: View {
-    @State private var option: AppEnums.enumOptionLength = AppEnums.enumOptionLength.centimeters // example starting value
+    @State private var option: enumOptionLength = enumOptionLength.centimeters // example starting value
     
     var body: some View {
         TestHostContainer(

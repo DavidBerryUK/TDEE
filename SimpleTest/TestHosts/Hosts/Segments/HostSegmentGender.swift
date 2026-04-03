@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct HostSegmentGender: View {
-    @State private var option: AppEnums.enumGender = AppEnums.enumGender.male
+    @State private var option: enumGender = enumGender.male
     
     var body: some View {
         TestHostContainer(

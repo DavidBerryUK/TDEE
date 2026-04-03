@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct HostWheelPickerActivityLevel: View {
-    @State private var activityLevel: AppEnums.enumActivityLevel = AppEnums.enumActivityLevel.Sedentary
+    @State private var activityLevel: enumActivityLevel = enumActivityLevel.sedentary
     
     var body: some View {
         TestHostContainer(

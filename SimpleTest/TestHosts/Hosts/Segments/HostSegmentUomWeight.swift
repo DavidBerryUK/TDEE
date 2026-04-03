@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct HostSegmentUomWeight: View {
-    @State private var option: AppEnums.enumOptionWeight = AppEnums.enumOptionWeight.pounds // example starting value
+    @State private var option: enumOptionWeight = enumOptionWeight.pounds // example starting value
     
     var body: some View {
         TestHostContainer(

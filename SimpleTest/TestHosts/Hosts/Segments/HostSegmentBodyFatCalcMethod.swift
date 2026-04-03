@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct HostSegmentBodyFatCalcMethod: View {
-    @State private var option: AppEnums.enumBodyFatOption = AppEnums.enumBodyFatOption.Estimate
+    @State private var option: enumBodyFatOption = enumBodyFatOption.estimate
     
     var body: some View {
         TestHostContainer(
@@ -17,7 +17,7 @@ struct HostSegmentBodyFatCalcMethod: View {
         ) {
             VStack {
                 SegmentBodyFatCalcMethodView(option: $option)
-                Text("Method: \($option)")
+                Text("Method: \(option.displayName)")
                     .font(.subheadline)
                     .foregroundColor(.gray)
             }
@@ -27,6 +27,6 @@ struct HostSegmentBodyFatCalcMethod: View {
 
 #Preview {
     NavigationStack {
-        HostSegmentGender()
+        HostSegmentBodyFatCalcMethod()
     }
 }

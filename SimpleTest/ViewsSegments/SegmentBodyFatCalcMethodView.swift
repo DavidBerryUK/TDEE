@@ -9,19 +9,20 @@ import SwiftUI
 
 struct SegmentBodyFatCalcMethodView: View {
     
-    @Binding var option: AppEnums.enumBodyFatOption
+    @Binding var option: enumBodyFatOption
     
     var body: some View {
         Picker("Gender", selection: $option) {
-            Text("Omitted").tag(AppEnums.enumBodyFatOption.DoNoUse)
-            Text("Automatic").tag(AppEnums.enumBodyFatOption.Estimate)
-            Text("Manual Entry").tag(AppEnums.enumBodyFatOption.ManualEntry)
+            ForEach(enumBodyFatOption.allCases, id: \.self) { level in
+                Text(level.displayName)
+                    .tag(level) 
+            }
         }
         .pickerStyle(.segmented)
     }
 }
 
 #Preview {
-    @Previewable @State var option: AppEnums.enumBodyFatOption = AppEnums.enumBodyFatOption.DoNoUse
+    @Previewable @State var option: enumBodyFatOption = enumBodyFatOption.omit
     SegmentBodyFatCalcMethodView(option: $option)
 }
