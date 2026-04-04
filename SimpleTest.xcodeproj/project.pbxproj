@@ -42,6 +42,7 @@
 				Enums/enumOptionLength.swift,
 				Enums/enumOptionWeight.swift,
 				Enums/enumSection.swift,
+				Utilities/ConversionUtility.swift,
 				ViewModels/ProfileInputViewModel.swift,
 				ViewsSegments/SegmentBodyFatCalcMethodView.swift,
 				ViewsSegments/SegmentGenderView.swift,

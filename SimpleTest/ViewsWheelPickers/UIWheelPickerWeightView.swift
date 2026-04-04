@@ -1,20 +1,20 @@
 import SwiftUI
 
-import SwiftUI
-
 struct UIWheelPickerWeightView: View {
     
     //
-    // weight value is always in kilograms
+    // Source of truth: always kilograms
     //
     @Binding var value: Double
     @Binding var unitOfMeasure: enumOptionWeight
     
-    @State private var valueKg: Int = 1
-    @State private var valueStones: Int = 1
-    @State private var valueStonePounds: Int = 1
-    @State private var valuePounds: Int = 1
+    // Picker state
+    @State private var valueKg: Int = 0
+    @State private var valuePounds: Int = 0
+    @State private var valueStones: Int = 0
+    @State private var valueStonePounds: Int = 0
     
+    // Options
     var optionsKg: [Int] = Array(0...250)
     var optionsPounds: [Int] = Array(0...550)
     var optionsStones: [Int] = Array(0...40)
@@ -25,8 +25,8 @@ struct UIWheelPickerWeightView: View {
         let viewIsKg = unitOfMeasure == .kilograms
         let viewIsPounds = unitOfMeasure == .pounds
         let viewIsStonesAndPounds = unitOfMeasure == .stonesAndPounds
-        
-        ZStack {
+
+        return ZStack {
             
             // KG
             UIPickerKgView
@@ -49,8 +49,81 @@ struct UIWheelPickerWeightView: View {
                 .scaleEffect(viewIsStonesAndPounds ? 1 : 0.98)
                 .allowsHitTesting(viewIsStonesAndPounds)
         }
-        .frame(height: 150) // prevents layout jumping
+        .frame(height: 150)
         .animation(.easeInOut(duration: 0.2), value: unitOfMeasure)
+        .onAppear {
+            initialiseValues()
+        }
+        .onChange(of: unitOfMeasure) { oldMeasure, newMeasure in
+            syncStateFromPreviousUnit(oldMeasure: oldMeasure)
+        }
+        .onChange(of: valueKg) { _, newValue in
+            convertFromKgToValue(kg: newValue)
+        }
+        .onChange(of: valuePounds) { _, newValue in
+            convertFromPoundsToValue(pounds: newValue)
+        }
+        .onChange(of: valueStones) { _, newValue in
+            convertFromStonesAndPoundsToValue(stones: newValue, pounds: valueStonePounds)
+        }
+        .onChange(of: valueStonePounds) { _, newValue in
+            convertFromStonesAndPoundsToValue(stones: valueStones, pounds: newValue)
+        }
+    }
+}
+
+private extension UIWheelPickerWeightView {
+    
+    func initialiseValues() {
+        valueKg = Int(round( value))
+        let totalPounds = ConversionUtility.ToPounds(kilograms: valueKg)
+        valuePounds = totalPounds
+        valueStones = totalPounds / 14
+        valueStonePounds = totalPounds % 14
+    }
+    
+    func syncStateFromPreviousUnit(oldMeasure: enumOptionWeight) {
+        
+        switch oldMeasure
+        {
+        case .kilograms:
+            let totalPounds = ConversionUtility.ToPounds(kilograms: valueKg)
+            valuePounds = totalPounds
+            valueStones = totalPounds / 14
+            valueStonePounds = totalPounds % 14
+            break
+            
+        case .pounds:
+            let totalPounds = valuePounds
+            valueKg = ConversionUtility.ToKilograms(pounds: totalPounds)
+            valueStones = totalPounds / 14
+            valueStonePounds = totalPounds % 14
+            break
+            
+        case .stonesAndPounds:
+            let totalPounds = valueStones * 14 + valueStonePounds
+            valueKg = ConversionUtility.ToKilograms(pounds: totalPounds)
+            valuePounds = totalPounds
+            break
+        }
+    }
+    
+    func convertFromKgToValue(kg: Int) {
+        guard unitOfMeasure == .kilograms else { return }
+        value = Double(kg)
+    }
+    
+    func convertFromPoundsToValue(pounds: Int) {
+        guard unitOfMeasure == .pounds else { return }
+        let kg = ConversionUtility.ToKilograms(pounds: pounds)
+        value = Double(kg)
+    }
+    
+    func convertFromStonesAndPoundsToValue(stones: Int, pounds: Int) {
+        guard unitOfMeasure == .stonesAndPounds else { return }
+        let totalPounds = (stones * 14) + pounds
+        let kg = ConversionUtility.ToKilograms(pounds: totalPounds)
+        value = Double(kg)
     }
 }
 
@@ -66,7 +139,7 @@ private extension UIWheelPickerWeightView {
             .pickerStyle(.wheel)
             
             UITextPickerLabel("kg")
-                .offset(x: 40)
+                .offset(x: 36)
         }
     }
     
@@ -80,7 +153,7 @@ private extension UIWheelPickerWeightView {
             .pickerStyle(.wheel)
             
             UITextPickerLabel("pounds")
-                .offset(x: 40)
+                .offset(x: 50)
         }
     }
     
@@ -106,7 +179,6 @@ private extension UIWheelPickerWeightView {
                     }
                 }
                 .pickerStyle(.wheel)
-                
                 UITextPickerLabel("pounds")
                     .offset(x: 36)
             }
@@ -117,15 +189,15 @@ private extension UIWheelPickerWeightView {
 
 
 #Preview("kg") {
-    @Previewable @State var weightInKg: Double = 21
+    @Previewable @State var value: Double = 21
     @Previewable @State var unitOfMeasure : enumOptionWeight = enumOptionWeight.kilograms
-    UIWheelPickerWeightView(value: $weightInKg, unitOfMeasure: $unitOfMeasure)
+    UIWheelPickerWeightView(value: $value, unitOfMeasure: $unitOfMeasure)
 }
 
 #Preview("Pounds") {
-    @Previewable @State var weightInKg: Double = 21
+    @Previewable @State var value: Double = 21
     @Previewable @State var unitOfMeasure : enumOptionWeight = enumOptionWeight.pounds
-    UIWheelPickerWeightView(value: $weightInKg, unitOfMeasure: $unitOfMeasure)
+    UIWheelPickerWeightView(value: $value, unitOfMeasure: $unitOfMeasure)
 }
 
 #Preview("Stones and Pounds") {
