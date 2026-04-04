@@ -7,14 +7,16 @@
 
 import SwiftUI
 
-struct SegmentGenderView: View {
+struct UISegmentGenderView: View {
     
     @Binding var option: enumGender
     
     var body: some View {
         Picker("Gender", selection: $option) {
-            Text("Male").tag(enumGender.male)
-            Text("Female").tag(enumGender.female)
+            ForEach(enumGender.allCases, id: \.self) { level in
+                Text(level.displayName)
+                    .tag(level)
+            }
         }
         .pickerStyle(.segmented)
     }
@@ -22,5 +24,5 @@ struct SegmentGenderView: View {
 
 #Preview {
     @Previewable @State var option: enumGender = enumGender.male
-    SegmentGenderView(option: $option)
+    UISegmentGenderView(option: $option)
 }

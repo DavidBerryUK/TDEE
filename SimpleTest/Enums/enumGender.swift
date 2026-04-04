@@ -5,7 +5,7 @@
 //  Created by David Berry on 03/04/2026.
 //
 
-enum enumGender : Int {
+enum enumGender : Int, CaseIterable {
     case male = 0
     case female = 1
 }

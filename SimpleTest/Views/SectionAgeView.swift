@@ -15,7 +15,7 @@ struct SectionAgeView: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            SectionHeaderView(title: title, isExpanded: isExpanded)
+            UISectionHeaderView(title: title, isExpanded: isExpanded)
             
             Text(summary)
                 .font(.subheadline)

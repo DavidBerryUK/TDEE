@@ -5,7 +5,7 @@
 //  Created by David Berry on 03/04/2026.
 //
 
-enum enumMacroSplitMethod : Int {
+enum enumMacroSplitMethod : Int, CaseIterable {
     case ketogenic = 0
     case lowCarb = 1
     case paleo = 2

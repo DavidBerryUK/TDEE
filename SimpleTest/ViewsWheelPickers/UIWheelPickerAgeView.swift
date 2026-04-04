@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct WheelPickerAgeView: View {
+struct UIWheelPickerAgeView: View {
     
     @Binding var value: Int
     var optionsAge: [Int] = Array(16...99)
@@ -23,5 +23,5 @@ struct WheelPickerAgeView: View {
 
 #Preview("age") {
     @Previewable @State var selectedAge: Int = 21
-    WheelPickerAgeView(value: $selectedAge)
+    UIWheelPickerAgeView(value: $selectedAge)
 }

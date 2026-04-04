@@ -7,12 +7,12 @@
 
 import SwiftUI
 
-struct SegmentBodyFatCalcMethodView: View {
+struct UISegmentBodyFatCalcMethodView: View {
     
     @Binding var option: enumBodyFatOption
     
     var body: some View {
-        Picker("Gender", selection: $option) {
+        Picker("BodyFatOption", selection: $option) {
             ForEach(enumBodyFatOption.allCases, id: \.self) { level in
                 Text(level.displayName)
                     .tag(level) 
@@ -24,5 +24,5 @@ struct SegmentBodyFatCalcMethodView: View {
 
 #Preview {
     @Previewable @State var option: enumBodyFatOption = enumBodyFatOption.omit
-    SegmentBodyFatCalcMethodView(option: $option)
+    UISegmentBodyFatCalcMethodView(option: $option)
 }

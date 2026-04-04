@@ -5,7 +5,7 @@
 //  Created by David Berry on 03/04/2026.
 //
 
-enum enumCalorieAdjustmentMethod : Int {
+enum enumCalorieAdjustmentMethod : Int, CaseIterable {
     case cut = 0
     case maintain = 1
     case bulk = 2

@@ -14,7 +14,7 @@ struct HostSegmentGender: View {
         TestHostContainer(
             title: "Segment - Gender",
             instructions: "Use the select below to select a Gender. This is a test host for the SegmentGenderView control.",
-            content:{SegmentGenderView(option: $option)},
+            content:{UISegmentGenderView(option: $option)},
             valueView:{
                 Text("Gender: \(option.displayName)")
                     .font(.subheadline)

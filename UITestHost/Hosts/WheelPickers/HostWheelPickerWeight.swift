@@ -16,7 +16,7 @@ struct HostWheelPickerWeight: View {
             title: "Weight Picker Test",
             instructions: "Use the picker below to select a weight. This is a test host for the WheelPickerWeightView control.",
             content: {UIWheelPickerWeightView(value: $weightInKg, unitOfMeasure: $unitOfMeasure)},
-            inputView:{ SegmentUomWeightView(option: $unitOfMeasure) },
+            inputView:{ UISegmentUomWeightView(option: $unitOfMeasure) },
             valueView: {
                 Text("Selected Weight: \(weightInKg) kg")
                     .font(.subheadline)

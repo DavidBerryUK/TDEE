@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct SectionHeaderView: View {
+struct UISectionHeaderView: View {
     let title: String
     @Binding var isExpanded: Bool
 
@@ -26,8 +26,8 @@ struct SectionHeaderView: View {
 
 #Preview {
     VStack(spacing: 16) {
-        SectionHeaderView(title: "Age", isExpanded: .constant(false))
-        SectionHeaderView(title: "Age", isExpanded: .constant(true))
+        UISectionHeaderView(title: "Age", isExpanded: .constant(false))
+        UISectionHeaderView(title: "Age", isExpanded: .constant(true))
     }
     .padding()
 }

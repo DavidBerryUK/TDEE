@@ -14,7 +14,7 @@ struct HostWheelPickerAge: View {
         TestHostContainer(
             title: "Age Picker Test",
             instructions: "Use the picker below to select an age. This is a test host for the WheelPickerAgeView control.",
-            content: { WheelPickerAgeView(value: $selectedAge) },
+            content: { UIWheelPickerAgeView(value: $selectedAge) },
             valueView: {Text("Selected Age: \(selectedAge)")
                     .font(.subheadline)
                 .foregroundColor(.gray)}

@@ -44,16 +44,16 @@
 				Enums/enumSection.swift,
 				Utilities/ConversionUtility.swift,
 				ViewModels/ProfileInputViewModel.swift,
-				ViewsSegments/SegmentBodyFatCalcMethodView.swift,
-				ViewsSegments/SegmentGenderView.swift,
-				ViewsSegments/SegmentUomLengthView.swift,
-				ViewsSegments/SegmentUomWeightView.swift,
+				ViewsSegments/UISegmentBodyFatCalcMethodView.swift,
+				ViewsSegments/UISegmentGenderView.swift,
+				ViewsSegments/UISegmentUomLengthView.swift,
+				ViewsSegments/UISegmentUomWeightView.swift,
 				ViewsUI/UITextPickerLabel.swift,
+				ViewsWheelPickers/UIWheelPickerActivityLevelView.swift,
+				ViewsWheelPickers/UIWheelPickerAgeView.swift,
+				ViewsWheelPickers/UIWheelPickerBodyFatView.swift,
 				ViewsWheelPickers/UIWheelPickerHeightView.swift,
 				ViewsWheelPickers/UIWheelPickerWeightView.swift,
-				ViewsWheelPickers/WheelPickerActivityLevelView.swift,
-				ViewsWheelPickers/WheelPickerAgeView.swift,
-				ViewsWheelPickers/WheelPickerBodyFatView.swift,
 			);
 			target = FAE95A282F7FD05400391EF3 /* UITestHost */;
 		};

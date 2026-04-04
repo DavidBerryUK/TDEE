@@ -5,7 +5,7 @@
 //  Created by David Berry on 03/04/2026.
 //
 
-enum enumOptionLength : Int {
+enum enumOptionLength : Int, CaseIterable {
     case centimeters = 0
     case inches = 1
     case feetAndInches = 2

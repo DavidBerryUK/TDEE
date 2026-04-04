@@ -14,7 +14,7 @@ struct HostSegmentUomWeight: View {
         TestHostContainer(
             title: "Unit Of Measure - Weight",
             instructions: "Use the picker below to select a unit of weigh. This is a test host for the SegmentUomWeightView control.",
-            content:{SegmentUomWeightView(option: $option)},
+            content:{UISegmentUomWeightView(option: $option)},
             valueView:{
                 Text("Unit Of Measure: \(option.displayName)")
                     .font(.subheadline)

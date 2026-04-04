@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct WheelPickerBodyFatView: View {
+struct UIWheelPickerBodyFatView: View {
     
     @Binding var value: Double
     
@@ -11,13 +11,15 @@ struct WheelPickerBodyFatView: View {
     var optionsDecimal: [Int] = Array(0...9)
     
     var body: some View {
-        HStack {
+        HStack(spacing: 4) {
+            
             Picker("Integer", selection: $valueInteger) {
                 ForEach(optionsInteger, id: \.self) { value in
                     Text("\(value)").tag(value)
                 }
             }
             .pickerStyle(.wheel)
+            .frame(width: 110)   // key change
             
             Text(".")
                 .foregroundStyle(.secondary)
@@ -29,7 +31,13 @@ struct WheelPickerBodyFatView: View {
                 }
             }
             .pickerStyle(.wheel)
+            .frame(width: 110)   // key change
+            
+            Text("%")
+                .foregroundStyle(.secondary)
+                .padding(.leading, 2) // keeps it tight to picker
         }
+        .padding(.horizontal, 16) // page padding
         .onChange(of: valueInteger) {
             updateValue()
         }
@@ -46,4 +54,9 @@ struct WheelPickerBodyFatView: View {
     private func updateValue() {
         value = Double(valueInteger) + Double(valueDecimal) / 10.0
     }
+}
+
+#Preview("age") {
+    @Previewable @State var bodyFat: Double = 15.7
+    UIWheelPickerBodyFatView(value: $bodyFat)
 }

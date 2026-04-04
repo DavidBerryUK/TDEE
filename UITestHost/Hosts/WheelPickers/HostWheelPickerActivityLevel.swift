@@ -14,7 +14,7 @@ struct HostWheelPickerActivityLevel: View {
         TestHostContainer(
             title: "Activity Level Picker Test",
             instructions: "Use the picker below to select an activity level. This is a test host for the WheelPickerActivityLevelView control.",
-            content: {WheelPickerActivityLevelView(value: $activityLevel) },
+            content: {UIWheelPickerActivityLevelView(value: $activityLevel) },
             valueView:{
                 Text("Activity Level: \(activityLevel.displayName)")
                     .font(.subheadline)

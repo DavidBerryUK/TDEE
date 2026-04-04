@@ -7,15 +7,16 @@
 
 import SwiftUI
 
-struct SegmentUomWeightView: View {
+struct UISegmentUomWeightView: View {
     
     @Binding var option: enumOptionWeight
     
     var body: some View {
-        Picker("Weight Unit Of Measure", selection: $option) {
-            Text("Kg").tag(enumOptionWeight.kilograms)
-            Text("Pounds").tag(enumOptionWeight.pounds)
-            Text("Stones & Pounds").tag(enumOptionWeight.stonesAndPounds)
+        Picker("Weight", selection: $option) {
+            ForEach(enumOptionWeight.allCases, id: \.self) { level in
+                Text(level.displayName)
+                    .tag(level)
+            }
         }
         .pickerStyle(.segmented)
     }
@@ -23,5 +24,5 @@ struct SegmentUomWeightView: View {
 
 #Preview {
     @Previewable @State var option: enumOptionWeight = enumOptionWeight.kilograms
-    SegmentUomWeightView(option: $option)
+    UISegmentUomWeightView(option: $option)
 }

@@ -14,7 +14,7 @@ struct HostSegmentBodyFatCalcMethod: View {
         TestHostContainer(
             title: "Segment - Bodyfat Calculation Method",
             instructions: "Use the select below to select a calculation method. This is a test host for the SegmentBodyFatCalcMethodView control.",
-            content: { SegmentBodyFatCalcMethodView(option: $option) },
+            content: { UISegmentBodyFatCalcMethodView(option: $option) },
             valueView:{    Text("Method: \(option.displayName)")
                     .font(.subheadline)
                     .foregroundColor(.gray)

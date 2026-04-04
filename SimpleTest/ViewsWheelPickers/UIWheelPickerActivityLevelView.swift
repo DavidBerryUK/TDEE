@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct WheelPickerActivityLevelView: View {
+struct UIWheelPickerActivityLevelView: View {
     
     @Binding var value: enumActivityLevel
     
@@ -24,6 +24,6 @@ struct PickerActivityLevel_Previews: PreviewProvider {
     
     static var previews: some View {
         // Make sure the binding value exists in pickerData
-        WheelPickerActivityLevelView(value: $option)
+        UIWheelPickerActivityLevelView(value: $option)
     }
 }
