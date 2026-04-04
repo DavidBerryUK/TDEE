@@ -14,6 +14,16 @@ struct UIWheelPickerWeightView: View {
     @State private var valueStones: Int = 0
     @State private var valueStonePounds: Int = 0
     
+    // Animation Constants
+    let animOffsetUp : CGFloat = -24
+    let animOffsetDown : CGFloat = 24
+    let animOffsetNone : CGFloat = 0
+    let animZoomOut : CGFloat = 0.98
+    let animZoomFull : CGFloat = 1.00
+    let animOpacityClear : CGFloat = 0
+    let animOpacitySolid : CGFloat = 1
+    let animDuration : CGFloat = 0.30
+    
     // Options
     var optionsKg: [Int] = Array(0...250)
     var optionsPounds: [Int] = Array(0...550)
@@ -30,27 +40,27 @@ struct UIWheelPickerWeightView: View {
             
             // KG
             UIPickerKgView
-                .opacity(viewIsKg ? 1 : 0)
-                .offset(y: viewIsKg ? 0 : 12)
-                .scaleEffect(viewIsKg ? 1 : 0.98)
+                .opacity(viewIsKg ? animOpacitySolid : animOpacityClear)
+                .offset(y: viewIsKg ? animOffsetNone : animOffsetDown)
+                .scaleEffect(viewIsKg ? animZoomFull : animZoomOut)
                 .allowsHitTesting(viewIsKg)
             
             // Pounds
             UIPickerPoundsView
-                .opacity(viewIsPounds ? 1 : 0)
-                .offset(y: viewIsPounds ? 0 : 12)
-                .scaleEffect(viewIsPounds ? 1 : 0.98)
+                .opacity(viewIsPounds ? animOpacitySolid : animOpacityClear)
+                .offset(y: viewIsPounds ? animOffsetNone : animOffsetDown)
+                .scaleEffect(viewIsPounds ? animZoomFull : animZoomOut)
                 .allowsHitTesting(viewIsPounds)
             
             // Stones + Pounds
             UIPickerStonesAndPoundsView
-                .opacity(viewIsStonesAndPounds ? 1 : 0)
-                .offset(y: viewIsStonesAndPounds ? 0 : 12)
-                .scaleEffect(viewIsStonesAndPounds ? 1 : 0.98)
+                .opacity(viewIsStonesAndPounds ? animOpacitySolid : animOpacityClear)
+                .offset(y: viewIsStonesAndPounds ? animOffsetNone : animOffsetDown)
+                .scaleEffect(viewIsStonesAndPounds ? animZoomFull : animZoomOut)
                 .allowsHitTesting(viewIsStonesAndPounds)
         }
         .frame(height: 150)
-        .animation(.easeInOut(duration: 0.2), value: unitOfMeasure)
+        .animation(.easeInOut(duration: animDuration), value: unitOfMeasure)
         .onAppear {
             initialiseValues()
         }
