@@ -15,8 +15,7 @@ struct UIWheelPickerWeightView: View {
     @State private var valueStonePounds: Int = 0
     
     // Animation Constants
-    let animOffsetUp : CGFloat = -24
-    let animOffsetDown : CGFloat = 24
+    let animOffsetOffset : CGFloat = 24
     let animOffsetNone : CGFloat = 0
     let animZoomOut : CGFloat = 0.98
     let animZoomFull : CGFloat = 1.00
@@ -32,39 +31,39 @@ struct UIWheelPickerWeightView: View {
     
     var body: some View {
         
-        let viewIsKg = unitOfMeasure == .kilograms
-        let viewIsPounds = unitOfMeasure == .pounds
-        let viewIsStonesAndPounds = unitOfMeasure == .stonesAndPounds
+        let showIsKg = unitOfMeasure == .kilograms
+        let showIsPounds = unitOfMeasure == .pounds
+        let showIsStonesAndPounds = unitOfMeasure == .stonesAndPounds
 
         return ZStack {
             
             // KG
             UIPickerKgView
-                .opacity(viewIsKg ? animOpacitySolid : animOpacityClear)
-                .offset(y: viewIsKg ? animOffsetNone : animOffsetDown)
-                .scaleEffect(viewIsKg ? animZoomFull : animZoomOut)
-                .allowsHitTesting(viewIsKg)
+                .opacity(showIsKg ? animOpacitySolid : animOpacityClear)
+                .offset(y: showIsKg ? animOffsetNone : animOffsetOffset)
+                .scaleEffect(showIsKg ? animZoomFull : animZoomOut)
+                .allowsHitTesting(showIsKg)
             
             // Pounds
             UIPickerPoundsView
-                .opacity(viewIsPounds ? animOpacitySolid : animOpacityClear)
-                .offset(y: viewIsPounds ? animOffsetNone : animOffsetDown)
-                .scaleEffect(viewIsPounds ? animZoomFull : animZoomOut)
-                .allowsHitTesting(viewIsPounds)
+                .opacity(showIsPounds ? animOpacitySolid : animOpacityClear)
+                .offset(y: showIsPounds ? animOffsetNone : animOffsetOffset)
+                .scaleEffect(showIsPounds ? animZoomFull : animZoomOut)
+                .allowsHitTesting(showIsPounds)
             
             // Stones + Pounds
             UIPickerStonesAndPoundsView
-                .opacity(viewIsStonesAndPounds ? animOpacitySolid : animOpacityClear)
-                .offset(y: viewIsStonesAndPounds ? animOffsetNone : animOffsetDown)
-                .scaleEffect(viewIsStonesAndPounds ? animZoomFull : animZoomOut)
-                .allowsHitTesting(viewIsStonesAndPounds)
+                .opacity(showIsStonesAndPounds ? animOpacitySolid : animOpacityClear)
+                .offset(y: showIsStonesAndPounds ? animOffsetNone : animOffsetOffset)
+                .scaleEffect(showIsStonesAndPounds ? animZoomFull : animZoomOut)
+                .allowsHitTesting(showIsStonesAndPounds)
         }
         .frame(height: 150)
         .animation(.easeInOut(duration: animDuration), value: unitOfMeasure)
         .onAppear {
             initialiseValues()
         }
-        .onChange(of: unitOfMeasure) { oldMeasure, newMeasure in
+        .onChange(of: unitOfMeasure) { oldMeasure, _ in
             syncStateFromPreviousUnit(oldMeasure: oldMeasure)
         }
         .onChange(of: valueKg) { _, newValue in

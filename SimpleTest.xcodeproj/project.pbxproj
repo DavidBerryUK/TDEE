@@ -49,11 +49,11 @@
 				ViewsSegments/SegmentUomLengthView.swift,
 				ViewsSegments/SegmentUomWeightView.swift,
 				ViewsUI/UITextPickerLabel.swift,
+				ViewsWheelPickers/UIWheelPickerHeightView.swift,
 				ViewsWheelPickers/UIWheelPickerWeightView.swift,
 				ViewsWheelPickers/WheelPickerActivityLevelView.swift,
 				ViewsWheelPickers/WheelPickerAgeView.swift,
 				ViewsWheelPickers/WheelPickerBodyFatView.swift,
-				ViewsWheelPickers/WheelPickerHeightView.swift,
 			);
 			target = FAE95A282F7FD05400391EF3 /* UITestHost */;
 		};
