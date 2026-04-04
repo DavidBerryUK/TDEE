@@ -5,7 +5,7 @@ final class ProfileInputViewModel: ObservableObject {
     // custom properties
     private var isUpdatingExpansion = false
 
-    @Published var gender: Int
+    @Published var gender: enumGender
     @Published var genderIsExpanded: Bool
 
     @Published var age: Int
@@ -55,7 +55,7 @@ final class ProfileInputViewModel: ObservableObject {
         isUpdatingExpansion = false
     }
 
-    init(gender: Int = 0, age: Int = 18, weight: Int = 70, height: Int = 170, activityLevel: Int = 0) {
+    init(gender: enumGender = enumGender.male, age: Int = 18, weight: Int = 70, height: Int = 170, activityLevel: Int = 0) {
         self.gender = gender
         self.age = age
         self.weight = weight

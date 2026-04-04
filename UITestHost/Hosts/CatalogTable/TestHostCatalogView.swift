@@ -18,8 +18,10 @@ struct TestHostCatalogView: View {
                 Section(header: Text("Segment Pickers")) {
                     NavigationLink("Bodyfat Calculation Method", destination: HostSegmentBodyFatCalcMethod())
                     NavigationLink("Gender", destination: HostSegmentGender())
+                    NavigationLink("Calorie Adjustment Method", destination: HostSegmentCalorieAdjustmentMethod())
                     NavigationLink("Length", destination: HostSegmentUomLength())
                     NavigationLink("Weight", destination: HostSegmentUomWeight())
+                    NavigationLink("Macro Split Method", destination: HostSegmentMacroSplitMethod())
                 }
             }
             .listStyle(.insetGrouped) // modern grouped table style

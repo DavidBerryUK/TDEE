@@ -34,6 +34,7 @@
 		FAE95A532F7FD0BD00391EF3 /* Exceptions for "SimpleTest" folder in "UITestHost" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Constants/UIStyle.swift,
 				Enums/enumActivityLevel.swift,
 				Enums/enumBodyFatOption.swift,
 				Enums/enumCalorieAdjustmentMethod.swift,
@@ -45,9 +46,13 @@
 				Utilities/ConversionUtility.swift,
 				ViewModels/ProfileInputViewModel.swift,
 				ViewsSegments/UISegmentBodyFatCalcMethodView.swift,
+				ViewsSegments/UISegmentCalorieAdjustmentMethodView.swift,
 				ViewsSegments/UISegmentGenderView.swift,
+				ViewsSegments/UISegmentMacroSplitMethodView.swift,
 				ViewsSegments/UISegmentUomLengthView.swift,
 				ViewsSegments/UISegmentUomWeightView.swift,
+				ViewsTextValues/UITextAge.swift,
+				ViewsTextValues/UITextGender.swift,
 				ViewsUI/UITextPickerLabel.swift,
 				ViewsWheelPickers/UIWheelPickerActivityLevelView.swift,
 				ViewsWheelPickers/UIWheelPickerAgeView.swift,
