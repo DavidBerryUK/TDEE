@@ -31,39 +31,16 @@ struct UITextValueWeightValue: View {
         }
     }
     
-    private var labelMajorValue: String {
-        switch model.weightUom {
-        case .kilograms:
-            return "\(DisplayFormat.WeightAsKg(kilograms: model.weight))"
-        case .pounds:
-            return "\(DisplayFormat.WeightAsPounds(kilograms: model.weight))"
-        case .stonesAndPounds:
-            return "\(DisplayFormat.WeightAsStonesOnly(kilograms: model.weight))"
-        }
-    }
-    
-    private var labelMinorValue: String {
-        switch model.weightUom {
-        case .kilograms:
-            return ""
-        case .pounds:
-            return ""
-        case .stonesAndPounds:
-            return "\(DisplayFormat.WeightAsPoundsOnly(kilograms: model.weight))"
-        }
-    }
-    
-    
     var body: some View {
 
         let isExpanded = model.weightIsExpanded
         
         HStack{
-            Text(labelMajorValue)
+            Text(displayWeight.asMajorValue(weight: model.weight, unit: model.weightUom))
                 .foregroundColor(UITextStyleResolver.color(isExpanded: isExpanded))
                 .fontWeight(UITextStyleResolver.weight(isExpanded: isExpanded))
             Text(labelMajorUnit)
-            Text(labelMinorValue)
+            Text(displayWeight.asMinorValue(weight: model.weight, unit: model.weightUom))
                 .foregroundColor(UITextStyleResolver.color(isExpanded: isExpanded))
                 .fontWeight(UITextStyleResolver.weight(isExpanded: isExpanded))
             Text(labelMinorUnit)
@@ -91,7 +68,7 @@ struct UITextValueWeightValue: View {
 #Preview("Read pounds") {
     @Previewable @State var model = ProfileInputViewModel()
     model.weightUom = .pounds
-    model.weight = ConversionUtility.toKilograms(pounds: 175)
+    model.weight = WeightConvertor.toKilograms(pounds: 175)
     model.weightIsExpanded = false
     return UITextValueWeightValue(model: $model)
 }
@@ -99,7 +76,7 @@ struct UITextValueWeightValue: View {
 #Preview("Edit pounds") {
     @Previewable @State var model = ProfileInputViewModel()
     model.weightUom = .pounds
-    model.weight = ConversionUtility.toKilograms(pounds: 175)
+    model.weight = WeightConvertor.toKilograms(pounds: 175)
     model.weightIsExpanded = true
     return UITextValueWeightValue(model: $model)
 }
@@ -108,7 +85,7 @@ struct UITextValueWeightValue: View {
     @Previewable @State var model = ProfileInputViewModel()
     model.weightUom = .stonesAndPounds
     model.weightIsExpanded = false
-    model.weight = ConversionUtility.toKilograms(stones: 18, pounds: 7)
+    model.weight = WeightConvertor.toKilograms(stones: 18, pounds: 7)
     return UITextValueWeightValue(model: $model)
 }
 
@@ -116,6 +93,6 @@ struct UITextValueWeightValue: View {
     @Previewable @State var model = ProfileInputViewModel()
     model.weightUom = .stonesAndPounds
     model.weightIsExpanded = true
-    model.weight = ConversionUtility.toKilograms(stones: 18, pounds: 7)
+    model.weight = WeightConvertor.toKilograms(stones: 18, pounds: 7)
     return UITextValueWeightValue(model: $model)
 }

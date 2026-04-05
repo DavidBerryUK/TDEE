@@ -14,28 +14,57 @@ struct HostTextValuesGallery: View {
     @State private var modelPounds: ProfileInputViewModel = ProfileInputViewModel()
     @State private var modelStonesAndPounds: ProfileInputViewModel = ProfileInputViewModel()
     
-    func setUpData() {
-        // generic
-        model.gender = .male
-        model.age = 34
+    @State private var modelCm: ProfileInputViewModel = ProfileInputViewModel()
+    @State private var modelInches: ProfileInputViewModel = ProfileInputViewModel()
+    @State private var modelFeedAndInches: ProfileInputViewModel = ProfileInputViewModel()
+    
+    init() {
+        let base = ProfileInputViewModel()
+        base.gender = .female
+        base.age = 34
+        _model = State(initialValue: base)
         
-        // kg
-        modelKg.weightUom = .kilograms
+        let kg = ProfileInputViewModel()
+        kg.weightUom = .kilograms
+        _modelKg = State(initialValue: kg)
         
-        // pounds
-        modelPounds.weightUom = .pounds
-        modelPounds.weight = ConversionUtility.toKilograms(pounds: 95)
+        let pounds = ProfileInputViewModel()
+        pounds.weightUom = .pounds
+        pounds.weight = WeightConvertor.toKilograms(pounds: 95)
+        _modelPounds = State(initialValue: pounds)
         
-        // stones and pounds
-        modelStonesAndPounds.weightUom = .stonesAndPounds
-        modelStonesAndPounds.weight = ConversionUtility.toKilograms(stones: 15, pounds: 7)
+        let stones = ProfileInputViewModel()
+        stones.weightUom = .stonesAndPounds
+        stones.weight = WeightConvertor.toKilograms(stones: 15, pounds: 7)
+        _modelStonesAndPounds = State(initialValue: stones)
+        
+        let cm = ProfileInputViewModel()
+        cm.heightUom = .centimeters
+        cm.height = 120
+        _modelCm = State(initialValue: cm)
+        
+        let inches = ProfileInputViewModel()
+        inches.heightUom = .inches
+        inches.height = LengthConverter.toCentimeters(inches: 75)
+        _modelInches = State(initialValue: inches)
+        
+        let feetAndInches = ProfileInputViewModel()
+        feetAndInches.heightUom = .feetAndInches
+        feetAndInches.height = LengthConverter.toCentimeters(feet: 6, inches: 2)
+        _modelFeedAndInches = State(initialValue: feetAndInches)
     }
     
     var body: some View {
         VStack{
             UITextAgeValueView(model: $model)
             UITextValueGenderView(model: $model)
-        }.onAppear{setUpData()}
+            UITextValueWeightValue(model: $modelKg)
+            UITextValueWeightValue(model: $modelPounds)
+            UITextValueWeightValue(model: $modelStonesAndPounds)
+            UITextValueHeightValue(model: $modelCm)
+            UITextValueHeightValue(model: $modelInches)
+            UITextValueHeightValue(model: $modelFeedAndInches)
+        }
     }
 }
 

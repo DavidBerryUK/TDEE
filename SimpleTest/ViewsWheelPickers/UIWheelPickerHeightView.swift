@@ -79,7 +79,7 @@ private extension UIWheelPickerHeightView {
     
     func initialiseValues() {
         valueCm = Int(round( value))
-        let totalInches = ConversionUtility.toInches(valueCm)
+        let totalInches = LengthConverter.toInches(valueCm)
         valueInches = totalInches
         valueFeet = totalInches / 12
         valueFeetInches = totalInches % 12
@@ -90,7 +90,7 @@ private extension UIWheelPickerHeightView {
         switch oldMeasure
         {
         case .centimeters:
-            let totalInches = ConversionUtility.toInches(valueCm)
+            let totalInches = LengthConverter.toInches(valueCm)
             valueInches = totalInches
             valueFeet = totalInches / 12
             valueFeetInches = totalInches % 12
@@ -98,14 +98,14 @@ private extension UIWheelPickerHeightView {
             
         case .inches:
             let totalInches = valueInches
-            valueCm = ConversionUtility.toCentimeters(totalInches)
+            valueCm = LengthConverter.toCentimeters(totalInches)
             valueFeet = totalInches / 12
             valueFeetInches = totalInches % 12
             break
             
         case .feetAndInches:
             let totalInches = valueFeet * 12 + valueFeetInches
-            valueCm = ConversionUtility.toCentimeters(totalInches)
+            valueCm = LengthConverter.toCentimeters(totalInches)
             valueInches = totalInches
             break
         }
@@ -118,14 +118,14 @@ private extension UIWheelPickerHeightView {
     
     func convertFromInchesToValue(inches: Int) {
         guard unitOfMeasure == .inches else { return }
-        let cm = ConversionUtility.toCentimeters(inches)
+        let cm = LengthConverter.toCentimeters(inches)
         value = Double(cm)
     }
     
     func convertFromFeetAndInchesToValue(feet: Int, inches: Int) {
         guard unitOfMeasure == .feetAndInches else { return }
         let totalInches = (feet * 12) + inches
-        let cm = ConversionUtility.toCentimeters(totalInches)
+        let cm = LengthConverter.toCentimeters(totalInches)
         value = Double(cm)
     }
 }
