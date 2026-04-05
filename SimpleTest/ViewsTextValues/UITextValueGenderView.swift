@@ -11,15 +11,11 @@ struct UITextValueGenderView: View {
     
     @Bindable var model: ProfileInputViewModel
     
-    let label = "gender"
-    
-    
     var body: some View {
         
         let isExpanded = model.genderIsExpanded
         
         HStack{
-            Text(label)
             Text(model.gender.displayName)
                 .foregroundColor(UITextStyleResolver.color(isExpanded: isExpanded))
                 .fontWeight(UITextStyleResolver.weight(isExpanded: isExpanded))

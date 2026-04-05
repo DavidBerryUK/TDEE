@@ -39,11 +39,11 @@ enum WeightConvertor {
     }
     
     static func toPounds(_ kilograms: Double) -> Int {
-        Int(round(kilograms * poundsPerKg))
+        Int(floor(kilograms * poundsPerKg))
     }
     
     static func toPounds(_ kilograms: Int) -> Int {
-        Int(round(Double(kilograms) * poundsPerKg))
+        Int(floor(Double(kilograms) * poundsPerKg))
     }
     
     static func toStones(_ kilograms: Double) -> Int {

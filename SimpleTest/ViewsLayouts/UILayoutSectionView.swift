@@ -20,12 +20,9 @@ struct UILayoutSectionView<ValueView: View, Content: View>: View {
             
             HStack {
                 Text(title)
-                    .font(.headline)
-                
+                    .font(.headline)                
                 Spacer()
-                
                 valueView()
-                
                 Image(systemName: "chevron.down")
                     .rotationEffect(.degrees(isExpanded ? 180 : 0))
                     .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isExpanded)
@@ -40,14 +37,12 @@ struct UILayoutSectionView<ValueView: View, Content: View>: View {
             }
             
             if isExpanded {
+                
                 content()
+                    .padding(.top, 12)
+                    .padding(.bottom, 8)
             }
-        }.padding(16)
-            .background(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(Color(.systemBackground))
-                    .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 2)
-            )
+        }.padding()
     }
 }
 

@@ -98,14 +98,14 @@ private extension UIWheelPickerHeightView {
             
         case .inches:
             let totalInches = valueInches
-            valueCm = LengthConverter.toCentimeters(totalInches)
+            valueCm = LengthConverter.toCentimetersInt(totalInches)
             valueFeet = totalInches / 12
             valueFeetInches = totalInches % 12
             break
             
         case .feetAndInches:
             let totalInches = valueFeet * 12 + valueFeetInches
-            valueCm = LengthConverter.toCentimeters(totalInches)
+            valueCm = LengthConverter.toCentimetersInt(totalInches)
             valueInches = totalInches
             break
         }
@@ -118,15 +118,13 @@ private extension UIWheelPickerHeightView {
     
     func convertFromInchesToValue(inches: Int) {
         guard unitOfMeasure == .inches else { return }
-        let cm = LengthConverter.toCentimeters(inches)
-        value = Double(cm)
+        value = LengthConverter.toCentimeters(inches)
     }
     
     func convertFromFeetAndInchesToValue(feet: Int, inches: Int) {
         guard unitOfMeasure == .feetAndInches else { return }
         let totalInches = (feet * 12) + inches
-        let cm = LengthConverter.toCentimeters(totalInches)
-        value = Double(cm)
+        value = LengthConverter.toCentimeters(totalInches)
     }
 }
 

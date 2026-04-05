@@ -124,15 +124,13 @@ private extension UIWheelPickerWeightView {
     
     func convertFromPoundsToValue(pounds: Int) {
         guard unitOfMeasure == .pounds else { return }
-        let kg = WeightConvertor.toKilogramsInt(pounds: pounds)
-        value = Double(kg)
+        value = WeightConvertor.toKilograms(pounds: pounds)
     }
     
     func convertFromStonesAndPoundsToValue(stones: Int, pounds: Int) {
         guard unitOfMeasure == .stonesAndPounds else { return }
         let totalPounds = (stones * 14) + pounds
-        let kg = WeightConvertor.toKilogramsInt(pounds: totalPounds)
-        value = Double(kg)
+        value = WeightConvertor.toKilograms(pounds: totalPounds)
     }
 }
 

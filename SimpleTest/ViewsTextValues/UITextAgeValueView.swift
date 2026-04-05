@@ -10,15 +10,12 @@ import SwiftUI
 struct UITextAgeValueView: View {
     
     @Bindable var model: ProfileInputViewModel
-    
-    let label = "age"
-    
+        
     var body: some View {
         
         let isExpanded = model.ageIsExpanded
         
         HStack{
-            Text(label)
             Text("\(model.age)")
                 .foregroundColor(UITextStyleResolver.color(isExpanded: isExpanded))
                 .fontWeight(UITextStyleResolver.weight(isExpanded: isExpanded))

@@ -13,7 +13,7 @@ struct SectionGender: View {
     
     var body: some View {
         UILayoutSectionView(
-            title: "Activity Level",
+            title: "Gender",
             isExpanded: $model.genderIsExpanded,
             valueView: {
                 UITextValueGenderView(model: model)

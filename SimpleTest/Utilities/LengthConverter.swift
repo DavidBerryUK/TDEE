@@ -17,6 +17,14 @@ enum LengthConverter {
         Double(12 * feet + inches) * 2.54
     }
     
+    static func toCentimeters(_ inches: Int) -> Double {
+        Double(inches) * 2.54
+    }
+    
+    static func toCentimetersInt(_ inches: Int) -> Int {
+        Int(floor(Double(inches) * 2.54))
+    }
+    
     static func toInches(_ centimeters: Double) -> Int {
         Int(round(centimeters * 0.3937007874))
     }
@@ -24,11 +32,7 @@ enum LengthConverter {
     static func toInches(_ centimeters: Int) -> Int {
         Int(round(Double(centimeters) * 0.3937007874))
     }
-    
-    static func toCentimeters(_ inches: Int) -> Int {
-        Int(round(Double(inches) * 2.54))
-    }
-    
+  
     static func toFeet(_ centimeters: Double) -> Int {
         let totalInches = toInches(centimeters)
         return totalInches / 12
