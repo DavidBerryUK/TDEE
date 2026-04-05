@@ -15,14 +15,16 @@ final class ProfileInputViewModel: ObservableObject {
         }
     }
 
-    @Published var weight: Int
+    @Published var weightUom: enumOptionWeight = enumOptionWeight.kilograms
+    @Published var weight: Double
     @Published var weightIsExpanded: Bool {
         didSet {
             enforceExclusiveExpansion(changed: .weight, newValue: weightIsExpanded)
         }
     }
 
-    @Published var height: Int
+    @Published var heightUom: enumOptionLength = enumOptionLength.centimeters
+    @Published var height: Double
     @Published var heightIsExpanded: Bool {
         didSet {
             enforceExclusiveExpansion(changed: .height, newValue: heightIsExpanded)
@@ -55,7 +57,7 @@ final class ProfileInputViewModel: ObservableObject {
         isUpdatingExpansion = false
     }
 
-    init(gender: enumGender = enumGender.male, age: Int = 18, weight: Int = 70, height: Int = 170, activityLevel: Int = 0) {
+    init(gender: enumGender = enumGender.male, age: Int = 18, weight: Double = 70, height: Double = 170, activityLevel: Int = 0) {
         self.gender = gender
         self.age = age
         self.weight = weight

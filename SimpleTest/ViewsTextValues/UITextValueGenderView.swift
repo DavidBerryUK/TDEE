@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct UITextGender: View {
+struct UITextValueGenderView: View {
     
     @Binding var model: ProfileInputViewModel
     
@@ -31,12 +31,12 @@ struct UITextGender: View {
     @Previewable @State var model = ProfileInputViewModel()
     model.gender = .male
     model.genderIsExpanded = false
-    return UITextGender(model: $model)
+    return UITextValueGenderView(model: $model)
 }
 
 #Preview("Edit Mode") {
     @Previewable @State var model = ProfileInputViewModel()
     model.gender = .female
     model.genderIsExpanded = true
-    return UITextGender(model: $model)
+    return UITextValueGenderView(model: $model)
 }

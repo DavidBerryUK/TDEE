@@ -23,6 +23,11 @@ struct TestHostCatalogView: View {
                     NavigationLink("Weight", destination: HostSegmentUomWeight())
                     NavigationLink("Macro Split Method", destination: HostSegmentMacroSplitMethod())
                 }
+                
+                // Group #3 - Text Values
+                Section(header: Text("Text Values")) {
+                    NavigationLink("Gallery", destination: HostTextValuesGallery())
+                }
             }
             .listStyle(.insetGrouped) // modern grouped table style
             .navigationTitle("Host Catalog")

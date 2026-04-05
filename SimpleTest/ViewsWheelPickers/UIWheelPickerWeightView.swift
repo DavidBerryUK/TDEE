@@ -85,7 +85,7 @@ private extension UIWheelPickerWeightView {
     
     func initialiseValues() {
         valueKg = Int(round( value))
-        let totalPounds = ConversionUtility.ToPounds(kilograms: valueKg)
+        let totalPounds = ConversionUtility.toPounds(valueKg)
         valuePounds = totalPounds
         valueStones = totalPounds / 14
         valueStonePounds = totalPounds % 14
@@ -96,7 +96,7 @@ private extension UIWheelPickerWeightView {
         switch oldMeasure
         {
         case .kilograms:
-            let totalPounds = ConversionUtility.ToPounds(kilograms: valueKg)
+            let totalPounds = ConversionUtility.toPounds( valueKg)
             valuePounds = totalPounds
             valueStones = totalPounds / 14
             valueStonePounds = totalPounds % 14
@@ -104,14 +104,14 @@ private extension UIWheelPickerWeightView {
             
         case .pounds:
             let totalPounds = valuePounds
-            valueKg = ConversionUtility.ToKilograms(pounds: totalPounds)
+            valueKg = ConversionUtility.toKilogramsInt(pounds: totalPounds)
             valueStones = totalPounds / 14
             valueStonePounds = totalPounds % 14
             break
             
         case .stonesAndPounds:
             let totalPounds = valueStones * 14 + valueStonePounds
-            valueKg = ConversionUtility.ToKilograms(pounds: totalPounds)
+            valueKg = ConversionUtility.toKilogramsInt(pounds: totalPounds)
             valuePounds = totalPounds
             break
         }
@@ -124,14 +124,14 @@ private extension UIWheelPickerWeightView {
     
     func convertFromPoundsToValue(pounds: Int) {
         guard unitOfMeasure == .pounds else { return }
-        let kg = ConversionUtility.ToKilograms(pounds: pounds)
+        let kg = ConversionUtility.toKilogramsInt(pounds: pounds)
         value = Double(kg)
     }
     
     func convertFromStonesAndPoundsToValue(stones: Int, pounds: Int) {
         guard unitOfMeasure == .stonesAndPounds else { return }
         let totalPounds = (stones * 14) + pounds
-        let kg = ConversionUtility.ToKilograms(pounds: totalPounds)
+        let kg = ConversionUtility.toKilogramsInt(pounds: totalPounds)
         value = Double(kg)
     }
 }
@@ -146,7 +146,6 @@ private extension UIWheelPickerWeightView {
                 }
             }
             .pickerStyle(.wheel)
-            
             UITextPickerLabel("kg")
                 .offset(x: 36)
         }
@@ -160,7 +159,6 @@ private extension UIWheelPickerWeightView {
                 }
             }
             .pickerStyle(.wheel)
-            
             UITextPickerLabel("pounds")
                 .offset(x: 50)
         }

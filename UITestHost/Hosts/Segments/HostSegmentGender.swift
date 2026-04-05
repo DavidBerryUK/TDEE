@@ -9,6 +9,7 @@ import SwiftUI
 
 struct HostSegmentGender: View {
     @State private var option: enumGender = enumGender.male
+    private let title :String = "Gallery - Text Values"
     
     var body: some View {
         TestHostContainer(
@@ -21,6 +22,8 @@ struct HostSegmentGender: View {
                     .foregroundColor(.gray)
             }
         )
+        .navigationTitle(title)
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
