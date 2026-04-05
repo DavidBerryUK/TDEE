@@ -56,14 +56,14 @@ struct HostTextValuesGallery: View {
     
     var body: some View {
         VStack{
-            UITextAgeValueView(model: $model)
-            UITextValueGenderView(model: $model)
-            UITextValueWeightValue(model: $modelKg)
-            UITextValueWeightValue(model: $modelPounds)
-            UITextValueWeightValue(model: $modelStonesAndPounds)
-            UITextValueHeightValue(model: $modelCm)
-            UITextValueHeightValue(model: $modelInches)
-            UITextValueHeightValue(model: $modelFeedAndInches)
+            UITextAgeValueView(model: model)
+            UITextValueGenderView(model: model)
+            UITextValueWeightValue(model: modelKg)
+            UITextValueWeightValue(model: modelPounds)
+            UITextValueWeightValue(model: modelStonesAndPounds)
+            UITextValueHeightValue(model: modelCm)
+            UITextValueHeightValue(model: modelInches)
+            UITextValueHeightValue(model: modelFeedAndInches)
         }
     }
 }

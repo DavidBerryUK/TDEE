@@ -9,7 +9,7 @@ import SwiftUI
 
 struct UITextAgeValueView: View {
     
-    @Binding var model: ProfileInputViewModel
+    @Bindable var model: ProfileInputViewModel
     
     let label = "age"
     
@@ -28,15 +28,15 @@ struct UITextAgeValueView: View {
 }
 
 #Preview("Read Only") {
-    @Previewable @State var model = ProfileInputViewModel()
+    let model = ProfileInputViewModel()
     model.age = 34
     model.ageIsExpanded = false
-    return UITextAgeValueView(model: $model)
+    return UITextAgeValueView(model: model)
 }
 
 #Preview("Being Edited") {
-    @Previewable @State var model = ProfileInputViewModel()
+    let model = ProfileInputViewModel()
     model.age = 34
     model.ageIsExpanded = true
-    return UITextAgeValueView(model: $model)
+    return UITextAgeValueView(model: model)
 }

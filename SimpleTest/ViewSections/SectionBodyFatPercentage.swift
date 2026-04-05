@@ -1,0 +1,31 @@
+//
+//  SectionAge.swift
+//  SimpleTest
+//
+//  Created by David Berry on 05/04/2026.
+//
+
+import SwiftUI
+
+struct SectionBodyFatPercentage: View {
+    
+    @Bindable var model: ProfileInputViewModel
+    
+    var body: some View {
+        UILayoutSectionView(
+            title: "Body Fat Percentage",
+            isExpanded: $model.bodyFatPercentageIsExpanded,
+            valueView: {
+                Text("BF Percentage")
+            },
+            content: {
+                SectionEditorBodyFatPercentage(model: model)
+            }
+        )
+    }
+}
+
+#Preview {
+    @Previewable @State var model = ProfileInputViewModel()
+    SectionBodyFatPercentage(model: model)
+}

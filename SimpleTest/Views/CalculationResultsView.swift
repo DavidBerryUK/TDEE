@@ -10,7 +10,7 @@ struct CalculationResultsView: View {
 
             Group {
 //                HStack { Text("Age"); Spacer(); Text("\(profile.gender)") }
-                HStack { Text("Gender"); Spacer(); Text("\(profile.gender)") }
+                HStack { Text("Gender"); Spacer(); Text("\(profile.gender.displayName)") }
                 HStack { Text("Age"); Spacer(); Text("\(profile.age)") }
                 HStack { Text("Height"); Spacer(); Text("\(profile.height)") }
                 HStack { Text("Weight"); Spacer(); Text("\(profile.weight)") }

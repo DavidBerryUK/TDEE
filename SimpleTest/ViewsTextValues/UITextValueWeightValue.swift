@@ -9,7 +9,7 @@ import SwiftUI
 
 struct UITextValueWeightValue: View {
     
-    @Binding var model: ProfileInputViewModel
+    @Bindable var model: ProfileInputViewModel
     
     private var labelMajorUnit: String {
         switch model.weightUom {
@@ -50,49 +50,49 @@ struct UITextValueWeightValue: View {
 }
 
 #Preview("Read kg") {
-    @Previewable @State var model = ProfileInputViewModel()
+    let model = ProfileInputViewModel()
     model.weightUom = .kilograms
     model.weight = 95
     model.weightIsExpanded = false
-    return UITextValueWeightValue(model: $model)
+    return UITextValueWeightValue(model: model)
 }
 
 #Preview("Edit kg") {
-    @Previewable @State var model = ProfileInputViewModel()
+    let model = ProfileInputViewModel()
     model.weightUom = .kilograms
     model.weight = 95
     model.weightIsExpanded = true
-    return UITextValueWeightValue(model: $model)
+    return UITextValueWeightValue(model: model)
 }
 
 #Preview("Read pounds") {
-    @Previewable @State var model = ProfileInputViewModel()
+    let model = ProfileInputViewModel()
     model.weightUom = .pounds
     model.weight = WeightConvertor.toKilograms(pounds: 175)
     model.weightIsExpanded = false
-    return UITextValueWeightValue(model: $model)
+    return UITextValueWeightValue(model: model)
 }
 
 #Preview("Edit pounds") {
-    @Previewable @State var model = ProfileInputViewModel()
+    let model = ProfileInputViewModel()
     model.weightUom = .pounds
     model.weight = WeightConvertor.toKilograms(pounds: 175)
     model.weightIsExpanded = true
-    return UITextValueWeightValue(model: $model)
+    return UITextValueWeightValue(model: model)
 }
 
 #Preview("Read stones & pounds") {
-    @Previewable @State var model = ProfileInputViewModel()
+    let model = ProfileInputViewModel()
     model.weightUom = .stonesAndPounds
     model.weightIsExpanded = false
     model.weight = WeightConvertor.toKilograms(stones: 18, pounds: 7)
-    return UITextValueWeightValue(model: $model)
+    return UITextValueWeightValue(model: model)
 }
 
 #Preview("Edit stones & pounds") {
-    @Previewable @State var model = ProfileInputViewModel()
+    let model = ProfileInputViewModel()
     model.weightUom = .stonesAndPounds
     model.weightIsExpanded = true
     model.weight = WeightConvertor.toKilograms(stones: 18, pounds: 7)
-    return UITextValueWeightValue(model: $model)
+    return UITextValueWeightValue(model: model)
 }

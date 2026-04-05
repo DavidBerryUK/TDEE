@@ -1,44 +1,47 @@
 import Foundation
 import Combine
+import Observation
 
+@Observable
 final class ProfileInputViewModel: ObservableObject {
     // custom properties
     private var isUpdatingExpansion = false
-
-    @Published var gender: enumGender
-    @Published var genderIsExpanded: Bool
-
-    @Published var age: Int
-    @Published var ageIsExpanded: Bool {
+    
+    var gender: enumGender
+    var genderIsExpanded: Bool
+    
+    var age: Int
+    var ageIsExpanded: Bool {
         didSet {
             enforceExclusiveExpansion(changed: .age, newValue: ageIsExpanded)
         }
     }
-
-    @Published var weightUom: enumOptionWeight = enumOptionWeight.kilograms
-    @Published var weight: Double
-    @Published var weightIsExpanded: Bool {
+    
+    var weightUom: enumOptionWeight = enumOptionWeight.kilograms
+    var weight: Double
+    var weightIsExpanded: Bool {
         didSet {
             enforceExclusiveExpansion(changed: .weight, newValue: weightIsExpanded)
         }
     }
-
-    @Published var heightUom: enumOptionLength = enumOptionLength.centimeters
-    @Published var height: Double
-    @Published var heightIsExpanded: Bool {
+    
+    var heightUom: enumOptionLength = enumOptionLength.centimeters
+    var height: Double
+    var heightIsExpanded: Bool {
         didSet {
             enforceExclusiveExpansion(changed: .height, newValue: heightIsExpanded)
         }
     }
-
-    @Published var activityLevel: Int
-    @Published var activityLevelIsExpanded: Bool
-
-    @Published var bodyFatPercentage: Int
-    @Published var bodyFatPercentageIsExpanded: Bool
-
+    
+    var activityLevel: enumActivityLevel
+    var activityLevelIsExpanded: Bool
+    
+    var bodyFatPercentageMethod: enumBodyFatOption
+    var bodyFatPercentage: Double
+    var bodyFatPercentageIsExpanded: Bool
+    
     private enum EnumExpansionField { case age, weight, height }
-
+    
     private func enforceExclusiveExpansion(changed: EnumExpansionField, newValue: Bool) {
         if isUpdatingExpansion { return }
         guard newValue == true else { return }
@@ -56,15 +59,15 @@ final class ProfileInputViewModel: ObservableObject {
         }
         isUpdatingExpansion = false
     }
-
-    init(gender: enumGender = enumGender.male, age: Int = 18, weight: Double = 70, height: Double = 170, activityLevel: Int = 0) {
+    
+    init(gender: enumGender = enumGender.male, age: Int = 18, weight: Double = 70, height: Double = 170, activityLevel: enumActivityLevel = enumActivityLevel.sedentary) {
         self.gender = gender
         self.age = age
         self.weight = weight
         self.height = height
         self.bodyFatPercentage = 15
         self.activityLevel = activityLevel
-
+        
         // Initialize expansion flags without triggering observers
         self.isUpdatingExpansion = true
         self.ageIsExpanded = false
@@ -74,6 +77,7 @@ final class ProfileInputViewModel: ObservableObject {
         self.activityLevelIsExpanded = false
         self.bodyFatPercentageIsExpanded = false
         self.isUpdatingExpansion = false
+        self.bodyFatPercentageMethod = .omit
     }
     
     func collapseAll() {

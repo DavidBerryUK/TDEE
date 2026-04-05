@@ -9,7 +9,7 @@ import SwiftUI
 
 struct UITextValueHeightValue: View {
     
-    @Binding var model: ProfileInputViewModel
+    @Bindable var model: ProfileInputViewModel
     
     private var labelMajorUnit: String {
         switch model.heightUom {
@@ -50,49 +50,49 @@ struct UITextValueHeightValue: View {
 }
 
 #Preview("Read cm") {
-    @Previewable @State var model = ProfileInputViewModel()
+    let model = ProfileInputViewModel()
     model.heightUom = .centimeters
     model.height = 120
     model.heightIsExpanded = false
-    return UITextValueHeightValue(model: $model)
+    return UITextValueHeightValue(model: model)
 }
 
 #Preview("Edit cm") {
-    @Previewable @State var model = ProfileInputViewModel()
+    let model = ProfileInputViewModel()
     model.heightUom = .centimeters
     model.height = 120
     model.heightIsExpanded = true
-    return UITextValueHeightValue(model: $model)
+    return UITextValueHeightValue(model: model)
 }
 
 #Preview("Read inches") {
-    @Previewable @State var model = ProfileInputViewModel()
+    let model = ProfileInputViewModel()
     model.heightUom = .inches
     model.height = LengthConverter.toCentimeters(inches: 200)
     model.heightIsExpanded = false
-    return UITextValueHeightValue(model: $model)
+    return UITextValueHeightValue(model: model)
 }
 
 #Preview("Edit inches") {
-    @Previewable @State var model = ProfileInputViewModel()
+    let model = ProfileInputViewModel()
     model.heightUom = .inches
     model.height = LengthConverter.toCentimeters(inches: 100)
     model.heightIsExpanded = true
-    return UITextValueHeightValue(model: $model)
+    return UITextValueHeightValue(model: model)
 }
 
 #Preview("Read feet & inches") {
-    @Previewable @State var model = ProfileInputViewModel()
+    let model = ProfileInputViewModel()
     model.heightUom = .feetAndInches
     model.heightIsExpanded = false
     model.height = LengthConverter.toCentimeters(feet: 5, inches: 7)
-    return UITextValueHeightValue(model: $model)
+    return UITextValueHeightValue(model: model)
 }
 
 #Preview("Edit feet & inches") {
-    @Previewable @State var model = ProfileInputViewModel()
+    let model = ProfileInputViewModel()
     model.heightUom = .feetAndInches
     model.heightIsExpanded = true
     model.height = LengthConverter.toCentimeters(feet: 5, inches: 10)
-    return UITextValueHeightValue(model: $model)
+    return UITextValueHeightValue(model: model)
 }
