@@ -47,10 +47,16 @@ struct UITextValueBodyFatValue: View {
         
         HStack{
             Text(labelValue)
+                .contentTransition(.interpolate)
+                .animation(.easeInOut, value: model.bodyFatPercentageMethod)
             Text(dataValue)
+                .contentTransition(.numericText())
+                .animation(.easeInOut, value: model.bodyFatPercentage)
                 .foregroundColor(UITextStyleResolver.color(isExpanded: isExpanded))
                 .fontWeight(UITextStyleResolver.weight(isExpanded: isExpanded))
             Text(labelSuffix)
+                .contentTransition(.interpolate)
+                .animation(.easeInOut, value: model.bodyFatPercentageMethod)
         }
     }
 }

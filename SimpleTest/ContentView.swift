@@ -34,8 +34,9 @@ struct ContentView: View {
                         
                     }
                     .padding(16)
-                    SectionValidation(model: profile)
-                }               
+                    UICardValidation(model: profile)
+                        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+                }
             }.onTapGesture {
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                     profile.collapseAll()

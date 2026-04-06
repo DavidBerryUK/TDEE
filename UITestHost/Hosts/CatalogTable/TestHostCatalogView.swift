@@ -6,7 +6,6 @@ struct TestHostCatalogView: View {
             List {
                 
                 // Group - Sections
-                
                 Section(header: Text("Sections")) {
                     NavigationLink("Gender", destination: HostSectionGender())
                     NavigationLink("Age", destination: HostSectionAge())
@@ -14,6 +13,10 @@ struct TestHostCatalogView: View {
                     NavigationLink("Weight", destination: HostSectionWeight())
                     NavigationLink("Activity Level", destination: HostSectionActivityLevel())
                     NavigationLink("Body Fat", destination: HostSectionBodyFatPercentage())
+                }
+                
+                Section(header: Text("Cards")) {
+                    NavigationLink("Numeric Result", destination: HostCardNumericResult())
                 }
                 
                 // Group - Wheel Pickers

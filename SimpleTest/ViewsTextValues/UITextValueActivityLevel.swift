@@ -17,6 +17,8 @@ struct UITextValueActivityLevel: View {
         
         HStack{
             Text( model.activityLevel.displayShortName)
+                .contentTransition(.interpolate)
+                .animation(.easeInOut, value: model.activityLevel)
                 .foregroundColor(UITextStyleResolver.color(isExpanded: isExpanded))
                 .fontWeight(UITextStyleResolver.weight(isExpanded: isExpanded))
         }

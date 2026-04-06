@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct SectionValidation: View {
+struct UICardValidation: View {
     
     @Bindable var model: ProfileInputViewModel
     
@@ -17,8 +17,11 @@ struct SectionValidation: View {
                 VStack(alignment: .leading, spacing: 10) {
                     
                     // Header (no icon – cleaner)
-                    Text("Please complete the required fields")
-                        .font(.headline)
+                    Text("Enter following details to view results")
+                        .font(.system(size: 17, weight: .semibold))
+                        .frame(maxWidth: .infinity)
+                        .multilineTextAlignment(.center)
+                        
                     
                     // Validation rows
                     VStack(alignment: .leading, spacing: 6) {
@@ -89,21 +92,21 @@ private struct ValidationRow: View {
     let model = ProfileInputViewModel()
     model.weight = 0
     model.height = 100
-    return SectionValidation(model: model)
+    return UICardValidation(model: model)
 }
 
 #Preview("Error - Height") {
     let model = ProfileInputViewModel()
     model.weight = 100
     model.height = 0
-    return SectionValidation(model: model)
+    return UICardValidation(model: model)
 }
 
 #Preview("Error - Both") {
     let model = ProfileInputViewModel()
     model.weight = 0
     model.height = 0
-    return SectionValidation(model: model)
+    return UICardValidation(model: model)
 }
 
 #Preview("Valid") {
@@ -111,5 +114,5 @@ private struct ValidationRow: View {
     model.age = 21
     model.weight = 74
     model.height = 70
-    return SectionValidation(model: model)
+    return UICardValidation(model: model)
 }

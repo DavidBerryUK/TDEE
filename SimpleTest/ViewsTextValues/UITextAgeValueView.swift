@@ -17,6 +17,8 @@ struct UITextAgeValueView: View {
         
         HStack{
             Text("\(model.age)")
+                .contentTransition(.numericText())
+                .animation(.easeInOut, value: model.age)
                 .foregroundColor(UITextStyleResolver.color(isExpanded: isExpanded))
                 .fontWeight(UITextStyleResolver.weight(isExpanded: isExpanded))
             Text("years")

@@ -36,3 +36,20 @@ extension enumActivityLevel {
         }
     }
 }
+
+extension enumActivityLevel {
+    var KatchMcArdleMultipliers: Double {
+        switch self {
+        case .sedentary:
+            return 1.2
+        case .lightExercise:
+            return 1.375
+        case .moderateExercise:
+            return 1.55
+        case .heavyExercise:
+            return 1.725
+        case .athlete:
+            return 1.9
+        }
+    }
+}

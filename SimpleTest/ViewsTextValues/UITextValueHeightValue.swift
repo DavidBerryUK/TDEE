@@ -37,13 +37,21 @@ struct UITextValueHeightValue: View {
         
         HStack{
             Text(displayLength.asMajorValue(length: model.height, unit: model.heightUom))
+                .contentTransition(.numericText())
+                .animation(.easeInOut, value: model.height)
                 .foregroundColor(UITextStyleResolver.color(isExpanded: isExpanded))
                 .fontWeight(UITextStyleResolver.weight(isExpanded: isExpanded))
             Text(labelMajorUnit)
+                .contentTransition(.interpolate)
+                .animation(.easeInOut, value: model.height)
             Text(displayLength.asMinorValue(length: model.height, unit: model.heightUom))
+                .contentTransition(.numericText())
+                .animation(.easeInOut, value: model.height)
                 .foregroundColor(UITextStyleResolver.color(isExpanded: isExpanded))
                 .fontWeight(UITextStyleResolver.weight(isExpanded: isExpanded))
             Text(labelMinorUnit)
+                .contentTransition(.interpolate)
+                .animation(.easeInOut, value: model.height)
             
         }
     }

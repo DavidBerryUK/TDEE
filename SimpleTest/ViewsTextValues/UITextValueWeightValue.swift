@@ -37,13 +37,21 @@ struct UITextValueWeightValue: View {
         
         HStack{
             Text(displayWeight.asMajorValue(weight: model.weight, unit: model.weightUom))
+                .contentTransition(.numericText())
+                .animation(.easeInOut, value: model.weight)
                 .foregroundColor(UITextStyleResolver.color(isExpanded: isExpanded))
                 .fontWeight(UITextStyleResolver.weight(isExpanded: isExpanded))
             Text(labelMajorUnit)
+                .contentTransition(.interpolate)
+                .animation(.easeInOut, value: model.weight)
             Text(displayWeight.asMinorValue(weight: model.weight, unit: model.weightUom))
+                .contentTransition(.numericText())
+                .animation(.easeInOut, value: model.weight)
                 .foregroundColor(UITextStyleResolver.color(isExpanded: isExpanded))
                 .fontWeight(UITextStyleResolver.weight(isExpanded: isExpanded))
             Text(labelMinorUnit)
+                .contentTransition(.interpolate)
+                .animation(.easeInOut, value: model.weight)
             
         }
     }
