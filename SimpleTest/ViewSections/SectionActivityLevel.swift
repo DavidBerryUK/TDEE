@@ -16,7 +16,7 @@ struct SectionActivityLevel: View {
             title: "Activity Level",
             isExpanded: $model.activityLevelIsExpanded,
             valueView: {
-                Text("Pending Activty Level")
+                UITextValueActivityLevel(model: model)
             },
             content: {
                 SectionEditorActivityLevel(model: model)

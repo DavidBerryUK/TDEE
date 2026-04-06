@@ -7,92 +7,32 @@
 
 import SwiftUI
 
-struct UITextValueHeightValue: View {
+struct UITextValueActivityLevel: View {
     
     @Bindable var model: ProfileInputViewModel
     
-    private var labelMajorUnit: String {
-        switch model.heightUom {
-        case .centimeters:
-            return "cm"
-        case .inches:
-            return "inches"
-        case .feetAndInches:
-            return "feet"
-        }
-    }
-    
-    private var labelMinorUnit: String {
-        switch model.heightUom {
-        case .feetAndInches:
-            return "inches"
-        default:
-            return ""
-        }
-    }
-    
     var body: some View {
 
-        let isExpanded = model.heightIsExpanded
+        let isExpanded = model.activityLevelIsExpanded
         
         HStack{
-            Text(displayLength.asMajorValue(length: model.height, unit: model.heightUom))
+            Text( model.activityLevel.displayShortName)
                 .foregroundColor(UITextStyleResolver.color(isExpanded: isExpanded))
                 .fontWeight(UITextStyleResolver.weight(isExpanded: isExpanded))
-            Text(labelMajorUnit)
-            Text(displayLength.asMinorValue(length: model.height, unit: model.heightUom))
-                .foregroundColor(UITextStyleResolver.color(isExpanded: isExpanded))
-                .fontWeight(UITextStyleResolver.weight(isExpanded: isExpanded))
-            Text(labelMinorUnit)
-            
         }
     }
 }
 
-#Preview("Read cm") {
+#Preview("Read Athlete") {
     let model = ProfileInputViewModel()
-    model.heightUom = .centimeters
-    model.height = 120
-    model.heightIsExpanded = false
-    return UITextValueHeightValue(model: model)
+    model.activityLevel = .athlete
+    model.activityLevelIsExpanded = false
+    return UITextValueActivityLevel(model: model)
 }
 
-#Preview("Edit cm") {
+#Preview("Edit Light") {
     let model = ProfileInputViewModel()
-    model.heightUom = .centimeters
-    model.height = 120
-    model.heightIsExpanded = true
-    return UITextValueHeightValue(model: model)
-}
-
-#Preview("Read inches") {
-    let model = ProfileInputViewModel()
-    model.heightUom = .inches
-    model.height = LengthConverter.toCentimeters(inches: 200)
-    model.heightIsExpanded = false
-    return UITextValueHeightValue(model: model)
-}
-
-#Preview("Edit inches") {
-    let model = ProfileInputViewModel()
-    model.heightUom = .inches
-    model.height = LengthConverter.toCentimeters(inches: 100)
-    model.heightIsExpanded = true
-    return UITextValueHeightValue(model: model)
-}
-
-#Preview("Read feet & inches") {
-    let model = ProfileInputViewModel()
-    model.heightUom = .feetAndInches
-    model.heightIsExpanded = false
-    model.height = LengthConverter.toCentimeters(feet: 5, inches: 7)
-    return UITextValueHeightValue(model: model)
-}
-
-#Preview("Edit feet & inches") {
-    let model = ProfileInputViewModel()
-    model.heightUom = .feetAndInches
-    model.heightIsExpanded = true
-    model.height = LengthConverter.toCentimeters(feet: 5, inches: 10)
-    return UITextValueHeightValue(model: model)
+    model.activityLevel = .lightExercise
+    model.activityLevelIsExpanded = true
+    return UITextValueActivityLevel(model: model)
 }

@@ -6,8 +6,8 @@
 //
 
 enum enumGender : Int, CaseIterable {
-    case male = 0
-    case female = 1
+    case male = 0,
+         female = 1
 }
 
 extension enumGender {

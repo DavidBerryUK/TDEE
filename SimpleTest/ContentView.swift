@@ -23,6 +23,8 @@ struct ContentView: View {
                         SectionHeight(model: profile)
                         Divider()
                         SectionBodyFatPercentage(model: profile)
+                        Divider()
+                        SectionActivityLevel(model: profile)
                     }
                     .background(Color.white)
                     .clipShape(RoundedRectangle(cornerRadius: 12))

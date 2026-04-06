@@ -6,9 +6,9 @@
 //
 
 enum enumCalorieAdjustmentMethod : Int, CaseIterable {
-    case cut = 0
-    case maintain = 1
-    case bulk = 2
+    case cut = 0,
+         maintain = 1,
+         bulk = 2
 }
 
 extension enumCalorieAdjustmentMethod {

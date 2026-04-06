@@ -18,6 +18,12 @@ struct HostTextValuesGallery: View {
     @State private var modelInches: ProfileInputViewModel = ProfileInputViewModel()
     @State private var modelFeedAndInches: ProfileInputViewModel = ProfileInputViewModel()
     
+    @State private var modelBodyFatOmit : ProfileInputViewModel = ProfileInputViewModel()
+    @State private var modelBodyFatEstimated : ProfileInputViewModel = ProfileInputViewModel()
+    @State private var modelBodyFatManualEntry : ProfileInputViewModel = ProfileInputViewModel()
+    
+    @State private var modelActivtyLevel : ProfileInputViewModel = ProfileInputViewModel()
+    
     init() {
         let base = ProfileInputViewModel()
         base.gender = .female
@@ -52,6 +58,25 @@ struct HostTextValuesGallery: View {
         feetAndInches.heightUom = .feetAndInches
         feetAndInches.height = LengthConverter.toCentimeters(feet: 6, inches: 2)
         _modelFeedAndInches = State(initialValue: feetAndInches)
+        
+        let omit = ProfileInputViewModel()
+        omit.bodyFatPercentageMethod = .omit
+        omit.bodyFatPercentage = 15.4
+        _modelBodyFatOmit = State(initialValue: omit)
+        
+        let estimated = ProfileInputViewModel()
+        estimated.bodyFatPercentageMethod = .estimate
+        estimated.bodyFatPercentage = 15.4
+        _modelBodyFatEstimated = State(initialValue: estimated)
+        
+        let manualEntry = ProfileInputViewModel()
+        manualEntry.bodyFatPercentageMethod = .manualEntry
+        manualEntry.bodyFatPercentage = 15.4
+        _modelBodyFatManualEntry = State(initialValue: manualEntry)
+        
+        let modelActivtyLevel = ProfileInputViewModel()
+        modelActivtyLevel.activityLevel = .heavyExercise
+        _modelActivtyLevel = State(initialValue: modelActivtyLevel)
     }
     
     var body: some View {
@@ -64,6 +89,10 @@ struct HostTextValuesGallery: View {
             UITextValueHeightValue(model: modelCm)
             UITextValueHeightValue(model: modelInches)
             UITextValueHeightValue(model: modelFeedAndInches)
+            UITextValueBodyFatValue(model: modelBodyFatOmit)
+            UITextValueBodyFatValue(model: modelBodyFatEstimated)
+            UITextValueBodyFatValue(model: modelBodyFatManualEntry)
+            UITextValueActivityLevel(model: modelActivtyLevel)
         }
     }
 }

@@ -6,11 +6,11 @@
 //
 
 enum enumMacroSplitMethod : Int, CaseIterable {
-    case ketogenic = 0
-    case lowCarb = 1
-    case paleo = 2
-    case bulk = 3
-    case custom = 4
+    case ketogenic = 0,
+         lowCarb = 1,
+         paleo = 2,
+         bulk = 3,
+         custom = 4
 }
 
 extension enumMacroSplitMethod {

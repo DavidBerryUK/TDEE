@@ -6,10 +6,11 @@
 //
 
 enum enumSection {
-    case activityLevel
-    case age
-    case bodyFat
-    case genger
-    case height
-    case weight
+    case none,
+         gender,
+         age,
+         weight,
+         height,
+         activityLevel,
+         bodyFatPercentage
 }

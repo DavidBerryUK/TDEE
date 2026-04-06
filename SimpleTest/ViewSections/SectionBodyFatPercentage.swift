@@ -16,7 +16,7 @@ struct SectionBodyFatPercentage: View {
             title: "Body Fat Percentage",
             isExpanded: $model.bodyFatPercentageIsExpanded,
             valueView: {
-                Text("BF Percentage")
+                UITextValueBodyFatValue(model: model)
             },
             content: {
                 SectionEditorBodyFatPercentage(model: model)

@@ -68,6 +68,8 @@
 				ViewsSegments/UISegmentUomLengthView.swift,
 				ViewsSegments/UISegmentUomWeightView.swift,
 				ViewsTextValues/UITextAgeValueView.swift,
+				ViewsTextValues/UITextValueActivityLevel.swift,
+				ViewsTextValues/UITextValueBodyFatValue.swift,
 				ViewsTextValues/UITextValueGenderView.swift,
 				ViewsTextValues/UITextValueHeightValue.swift,
 				ViewsTextValues/UITextValueWeightValue.swift,

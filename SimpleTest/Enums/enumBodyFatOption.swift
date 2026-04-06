@@ -6,9 +6,9 @@
 //
 
 enum enumBodyFatOption : Int ,CaseIterable {
-    case omit = 0
-    case estimate = 1
-    case manualEntry = 2
+    case omit = 0,
+         estimate = 1,
+         manualEntry = 2
 }
 
 extension enumBodyFatOption {

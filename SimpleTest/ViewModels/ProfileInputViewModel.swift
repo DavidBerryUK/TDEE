@@ -53,50 +53,20 @@ final class ProfileInputViewModel: ObservableObject {
         }
     }
     
-    private enum EnumExpansionField { case gender, age, weight, height, activityLevel, bodyFatPercentage }
+   
     
-    private func enforceExclusiveExpansion(changed: EnumExpansionField, newValue: Bool) {
+    private func enforceExclusiveExpansion(changed: enumSection, newValue: Bool) {
         if isUpdatingExpansion { return }
         guard newValue == true else { return }
         isUpdatingExpansion = true
-        switch changed {
-        case .gender:
-            if ageIsExpanded { ageIsExpanded = false }
-            if heightIsExpanded { heightIsExpanded = false }
-            if weightIsExpanded { weightIsExpanded = false }
-            if activityLevelIsExpanded { activityLevelIsExpanded = false }
-            if bodyFatPercentageIsExpanded { bodyFatPercentageIsExpanded = false }
-        case .age:
-            if genderIsExpanded { genderIsExpanded = false }
-            if weightIsExpanded { weightIsExpanded = false }
-            if heightIsExpanded { heightIsExpanded = false }
-            if bodyFatPercentageIsExpanded { bodyFatPercentageIsExpanded = false }
-            if activityLevelIsExpanded { activityLevelIsExpanded = false }
-        case .weight:
-            if genderIsExpanded { genderIsExpanded = false }
-            if ageIsExpanded { ageIsExpanded = false }
-            if heightIsExpanded { heightIsExpanded = false }
-            if bodyFatPercentageIsExpanded { bodyFatPercentageIsExpanded = false }
-            if activityLevelIsExpanded { activityLevelIsExpanded = false }
-        case .height:
-            if genderIsExpanded { genderIsExpanded = false }
-            if ageIsExpanded { ageIsExpanded = false }
-            if weightIsExpanded { weightIsExpanded = false }
-            if bodyFatPercentageIsExpanded { bodyFatPercentageIsExpanded = false }
-            if activityLevelIsExpanded { activityLevelIsExpanded = false }
-        case .activityLevel:
-            if genderIsExpanded { genderIsExpanded = false }
-            if ageIsExpanded { ageIsExpanded = false }
-            if heightIsExpanded { heightIsExpanded = false }
-            if weightIsExpanded { weightIsExpanded = false }
-            if bodyFatPercentageIsExpanded { bodyFatPercentageIsExpanded = false }
-        case .bodyFatPercentage:
-            if genderIsExpanded { genderIsExpanded = false }
-            if ageIsExpanded { ageIsExpanded = false }
-            if heightIsExpanded { heightIsExpanded = false }
-            if weightIsExpanded { weightIsExpanded = false }
-            if activityLevelIsExpanded { activityLevelIsExpanded = false }
-        }
+        
+        if ( changed != .age && ageIsExpanded) { ageIsExpanded = false }
+        if ( changed != .gender && genderIsExpanded) { genderIsExpanded = false }
+        if ( changed != .height && heightIsExpanded) { heightIsExpanded = false }
+        if ( changed != .weight && weightIsExpanded) { weightIsExpanded = false }
+        if ( changed != .bodyFatPercentage && bodyFatPercentageIsExpanded) { bodyFatPercentageIsExpanded = false }
+        if ( changed != .activityLevel && activityLevelIsExpanded) { activityLevelIsExpanded = false }
+
         isUpdatingExpansion = false
     }
     
@@ -121,13 +91,6 @@ final class ProfileInputViewModel: ObservableObject {
     }
     
     func collapseAll() {
-        self.isUpdatingExpansion = true
-        self.ageIsExpanded = false
-        self.genderIsExpanded = false
-        self.weightIsExpanded = false
-        self.heightIsExpanded = false
-        self.activityLevelIsExpanded = false
-        self.bodyFatPercentageIsExpanded = false
-        self.isUpdatingExpansion = false
+        enforceExclusiveExpansion(changed: .none, newValue: true)
     }
 }

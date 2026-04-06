@@ -6,9 +6,9 @@
 //
 
 enum enumOptionWeight : Int, CaseIterable {
-    case kilograms = 0
-    case pounds = 1
-    case stonesAndPounds = 2
+    case kilograms = 0,
+         pounds = 1,
+         stonesAndPounds = 2
 }
 
 extension enumOptionWeight {

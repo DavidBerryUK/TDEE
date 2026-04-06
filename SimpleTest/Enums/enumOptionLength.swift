@@ -6,9 +6,9 @@
 //
 
 enum enumOptionLength : Int, CaseIterable {
-    case centimeters = 0
-    case inches = 1
-    case feetAndInches = 2
+    case centimeters = 0,
+         inches = 1,
+         feetAndInches = 2
 }
 
 extension enumOptionLength {
