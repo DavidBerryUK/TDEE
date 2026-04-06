@@ -26,6 +26,5 @@ struct SectionWeight: View {
 }
 
 #Preview {
-
     SectionWeight(model: ProfileInputViewModel())
 }

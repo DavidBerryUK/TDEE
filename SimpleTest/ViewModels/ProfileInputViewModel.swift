@@ -53,7 +53,12 @@ final class ProfileInputViewModel: ObservableObject {
         }
     }
     
-   
+    //*******************************
+    // Computed Properties          */
+    //*******************************
+    var hasError: Bool {
+        weight == 0 || height == 0 
+    }
     
     private func enforceExclusiveExpansion(changed: enumSection, newValue: Bool) {
         if isUpdatingExpansion { return }
@@ -70,13 +75,13 @@ final class ProfileInputViewModel: ObservableObject {
         isUpdatingExpansion = false
     }
     
-    init(gender: enumGender = enumGender.male, age: Int = 18, weight: Double = 70, height: Double = 170, activityLevel: enumActivityLevel = enumActivityLevel.sedentary) {
-        self.gender = gender
-        self.age = age
-        self.weight = weight
-        self.height = height
-        self.bodyFatPercentage = 15
-        self.activityLevel = activityLevel
+    init() {
+        self.gender = .male
+        self.age = 16
+        self.weight = 0
+        self.height = 0
+        self.bodyFatPercentage = 0
+        self.activityLevel = .sedentary
         
         // Initialize expansion flags without triggering observers
         self.isUpdatingExpansion = true

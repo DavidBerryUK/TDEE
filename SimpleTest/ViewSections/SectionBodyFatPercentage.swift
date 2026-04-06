@@ -26,6 +26,5 @@ struct SectionBodyFatPercentage: View {
 }
 
 #Preview {
-    @Previewable @State var model = ProfileInputViewModel()
-    SectionBodyFatPercentage(model: model)
+    SectionBodyFatPercentage(model: ProfileInputViewModel())
 }

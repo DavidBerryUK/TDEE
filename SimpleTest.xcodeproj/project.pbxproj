@@ -58,6 +58,7 @@
 				ViewSections/SectionBodyFatPercentage.swift,
 				ViewSections/SectionGender.swift,
 				ViewSections/SectionHeight.swift,
+				ViewSections/SectionValidation.swift,
 				ViewSections/SectionWeight.swift,
 				ViewsLabels/UITextPickerLabel.swift,
 				ViewsLayouts/UILayoutSectionView.swift,

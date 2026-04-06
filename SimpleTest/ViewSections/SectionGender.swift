@@ -26,6 +26,5 @@ struct SectionGender: View {
 }
 
 #Preview {
-    let model = ProfileInputViewModel()
-    SectionGender(model: model)
+    SectionGender(model: ProfileInputViewModel())
 }
