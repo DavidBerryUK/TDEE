@@ -10,15 +10,17 @@ import SwiftUI
 struct UILayoutSectionView<ValueView: View, Content: View>: View {
     
     let title: String
+    let icon : enumIcon
     @Binding var isExpanded: Bool
     
     let valueView: () -> ValueView
     let content: () -> Content
     
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 4) {
             
             HStack {
+                UIIcon(icon: icon, style: .coloredBackgroundSolid)
                 Text(title)
                     .font(.headline)                
                 Spacer()
@@ -42,7 +44,7 @@ struct UILayoutSectionView<ValueView: View, Content: View>: View {
                     .padding(.top, 12)
                     .padding(.bottom, 8)
             }
-        }.padding()
+        }.padding(16) // padding around the row
     }
 }
 
@@ -51,6 +53,7 @@ struct UILayoutSectionView<ValueView: View, Content: View>: View {
     
     UILayoutSectionView(
         title: "Weight",
+        icon: .weight,
         isExpanded: $model.weightIsExpanded,
         valueView: {
             Text("75 kg")

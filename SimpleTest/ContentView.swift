@@ -12,10 +12,10 @@ struct ContentView: View {
                     .ignoresSafeArea()
                 
                 ScrollView {
-                    VStack(spacing: 16) {
+                    VStack(spacing: 8) {
                         
-                        VStack(spacing: 6) {
-                            SectionGender(model: profile)
+                        VStack(spacing: 0) {
+                            SectionGender(model: profile)           
                             Divider()
                             SectionAge(model: profile)
                             Divider()
@@ -33,6 +33,7 @@ struct ContentView: View {
                         .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
                         
                     }
+                    // padding around table
                     .padding(16)
                     UICardValidation(model: profile)
                         .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)

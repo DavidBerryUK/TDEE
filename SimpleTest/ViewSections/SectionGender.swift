@@ -14,6 +14,7 @@ struct SectionGender: View {
     var body: some View {
         UILayoutSectionView(
             title: "Gender",
+            icon: .gender,
             isExpanded: $model.genderIsExpanded,
             valueView: {
                 UITextValueGenderView(model: model)

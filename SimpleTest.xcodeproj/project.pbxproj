@@ -50,6 +50,7 @@
 				ViewCards/UICardNumericResult.swift,
 				ViewCards/UICardValidation.swift,
 				ViewModels/ProfileInputViewModel.swift,
+				ViewsComponents/UIIcon.swift,
 				ViewSectionEditors/SectionEditorActivityLevel.swift,
 				ViewSectionEditors/SectionEditorAge.swift,
 				ViewSectionEditors/SectionEditorBodyFatPercentage.swift,

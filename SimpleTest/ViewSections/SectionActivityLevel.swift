@@ -14,6 +14,7 @@ struct SectionActivityLevel: View {
     var body: some View {
         UILayoutSectionView(
             title: "Activity Level",
+            icon: .activityLevel,
             isExpanded: $model.activityLevelIsExpanded,
             valueView: {
                 UITextValueActivityLevel(model: model)

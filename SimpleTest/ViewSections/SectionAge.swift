@@ -15,6 +15,7 @@ struct SectionAge: View {
     var body: some View {
         UILayoutSectionView(
             title: "Age",
+            icon: .age,
             isExpanded: $model.ageIsExpanded,
             valueView: {
                 UITextAgeValueView(model: model)

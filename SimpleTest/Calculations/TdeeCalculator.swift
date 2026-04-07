@@ -22,8 +22,8 @@
 //final class TdeeCalculator {
 //    
 //    func calculate(person: ProfileInputViewModel, createAudit: Bool = false) -> TdeeResult {
-//        var audit: [AuditItem] = []
-//        let logger = AuditLogger(enabled: createAudit, audit: &audit)
+//        
+//        var logger = AuditLogger(enabled: createAudit)
 //        
 //        logger.log(AuditItem(title: "Total Daily Energy Expenditure"))
 //        logger.logInputs(person: person)
@@ -39,7 +39,7 @@
 //                tdee: 0,
 //                adjustedCalories: 0,
 //                message: message,
-//                audit: audit
+//                audit: logger.items
 //            )
 //        }
 //        
@@ -66,7 +66,7 @@
 //            tdee: tdee,
 //            adjustedCalories: adjustedCalories,
 //            message: nil,
-//            audit: audit
+//            audit: logger.items
 //        )
 //    }
 //}
@@ -184,35 +184,35 @@
 //        logger.log(AuditItem(key: "Fats", value: "\(Int(fats))g"))
 //    }
 //}
-//
-//// MARK: - Logger
-//
-//private struct AuditLogger {
-//    let enabled: Bool
-//    private var auditRef: UnsafeMutablePointer<[AuditItem]>
-//    
-//    init(enabled: Bool, audit: inout [AuditItem]) {
-//        self.enabled = enabled
-//        self.auditRef = UnsafeMutablePointer(&audit)
-//    }
-//    
-//    func log(_ item: AuditItem) {
-//        guard enabled else { return }
-//        auditRef.pointee.append(item)
-//    }
-//    
-//    func logInputs(person: ProfileInputViewModel) {
-//        guard enabled else { return }
-//        auditRef.pointee.append(AuditItem(subTitle: "Inputs"))
-//        auditRef.pointee.append(AuditItem(key: "Age", value: "\(person.age)"))
-//        auditRef.pointee.append(AuditItem(key: "Height", value: "\(person.height)"))
-//        auditRef.pointee.append(AuditItem(key: "Weight", value: "\(person.weight)"))
-//    }
-//    
-//    func logFormula(title: String, formula: String, calculation: String) {
-//        guard enabled else { return }
-//        auditRef.pointee.append(AuditItem(formulaTitle: title))
-//        auditRef.pointee.append(AuditItem(formula: formula))
-//        auditRef.pointee.append(AuditItem(formula: calculation))
-//    }
-//}
+////
+////// MARK: - Logger
+////
+////private struct AuditLogger {
+////    let enabled: Bool
+////    private var auditRef: UnsafeMutablePointer<[AuditItem]>
+////    
+////    init(enabled: Bool, audit: inout [AuditItem]) {
+////        self.enabled = enabled
+////        self.auditRef = UnsafeMutablePointer(&audit)
+////    }
+////    
+////    func log(_ item: AuditItem) {
+////        guard enabled else { return }
+////        auditRef.pointee.append(item)
+////    }
+////    
+////    func logInputs(person: ProfileInputViewModel) {
+////        guard enabled else { return }
+////        auditRef.pointee.append(AuditItem(subTitle: "Inputs"))
+////        auditRef.pointee.append(AuditItem(key: "Age", value: "\(person.age)"))
+////        auditRef.pointee.append(AuditItem(key: "Height", value: "\(person.height)"))
+////        auditRef.pointee.append(AuditItem(key: "Weight", value: "\(person.weight)"))
+////    }
+////    
+////    func logFormula(title: String, formula: String, calculation: String) {
+////        guard enabled else { return }
+////        auditRef.pointee.append(AuditItem(formulaTitle: title))
+////        auditRef.pointee.append(AuditItem(formula: formula))
+////        auditRef.pointee.append(AuditItem(formula: calculation))
+////    }
+////}

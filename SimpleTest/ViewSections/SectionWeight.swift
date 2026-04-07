@@ -14,6 +14,7 @@ struct SectionWeight: View {
     var body: some View {
         UILayoutSectionView(
             title: "Weight",
+            icon: .weight,
             isExpanded: $model.weightIsExpanded,
             valueView: {
                 UITextValueWeightValue(model: model)

@@ -14,6 +14,7 @@ struct SectionBodyFatPercentage: View {
     var body: some View {
         UILayoutSectionView(
             title: "Body Fat Percentage",
+            icon: .bodyFat,
             isExpanded: $model.bodyFatPercentageIsExpanded,
             valueView: {
                 UITextValueBodyFatValue(model: model)

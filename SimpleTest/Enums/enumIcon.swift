@@ -1,0 +1,16 @@
+//
+//  enumIcon.swift
+//  SimpleTest
+//
+//  Created by David Berry on 07/04/2026.
+//
+
+
+enum enumIcon : Int, CaseIterable {
+    case gender,
+         age,
+         weight,
+         height,
+         activityLevel,
+         bodyFat
+}

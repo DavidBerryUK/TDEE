@@ -14,6 +14,7 @@ struct SectionHeight: View {
     var body: some View {
         UILayoutSectionView(
             title: "Height",
+            icon: .height,
             isExpanded: $model.heightIsExpanded,
             valueView: {
                 UITextValueHeightValue(model: model)
