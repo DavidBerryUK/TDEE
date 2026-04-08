@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum LengthConverter {
+struct LengthConverter {
     
     static func toCentimeters(inches: Double) -> Double {
         inches * 2.54

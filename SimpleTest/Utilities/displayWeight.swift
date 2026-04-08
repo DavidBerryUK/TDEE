@@ -6,7 +6,7 @@
 //
 import Foundation
 
-enum displayWeight {
+struct displayWeight {
 
     static func asKg(kilograms : Double) -> Int {
         return Int(round(kilograms))

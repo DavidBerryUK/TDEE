@@ -8,6 +8,7 @@ final class ProfileInputViewModel: ObservableObject {
     private var isUpdatingExpansion = false
     
     var gender: enumGender
+
     var genderIsExpanded: Bool
     {
         didSet {
@@ -16,6 +17,7 @@ final class ProfileInputViewModel: ObservableObject {
     }
     
     var age: Int
+    
     var ageIsExpanded: Bool {
         didSet {
             enforceExclusiveExpansion(changed: .age, newValue: ageIsExpanded)
@@ -24,6 +26,7 @@ final class ProfileInputViewModel: ObservableObject {
     
     var weightUom: enumOptionWeight = enumOptionWeight.kilograms
     var weight: Double
+    
     var weightIsExpanded: Bool {
         didSet {
             enforceExclusiveExpansion(changed: .weight, newValue: weightIsExpanded)
@@ -47,6 +50,7 @@ final class ProfileInputViewModel: ObservableObject {
     
     var bodyFatPercentageMethod: enumBodyFatOption
     var bodyFatPercentage: Double
+    
     var bodyFatPercentageIsExpanded: Bool {
         didSet {
             enforceExclusiveExpansion(changed: .bodyFatPercentage, newValue: bodyFatPercentageIsExpanded)
@@ -54,27 +58,8 @@ final class ProfileInputViewModel: ObservableObject {
     }
     
     //*******************************
-    // Computed Properties          */
+    // Initialiser                  *
     //*******************************
-    var hasError: Bool {
-        weight == 0 || height == 0 
-    }
-    
-    private func enforceExclusiveExpansion(changed: enumSection, newValue: Bool) {
-        if isUpdatingExpansion { return }
-        guard newValue == true else { return }
-        isUpdatingExpansion = true
-        
-        if ( changed != .age && ageIsExpanded) { ageIsExpanded = false }
-        if ( changed != .gender && genderIsExpanded) { genderIsExpanded = false }
-        if ( changed != .height && heightIsExpanded) { heightIsExpanded = false }
-        if ( changed != .weight && weightIsExpanded) { weightIsExpanded = false }
-        if ( changed != .bodyFatPercentage && bodyFatPercentageIsExpanded) { bodyFatPercentageIsExpanded = false }
-        if ( changed != .activityLevel && activityLevelIsExpanded) { activityLevelIsExpanded = false }
-
-        isUpdatingExpansion = false
-    }
-    
     init() {
         self.gender = .male
         self.age = 16
@@ -93,6 +78,37 @@ final class ProfileInputViewModel: ObservableObject {
         self.bodyFatPercentageIsExpanded = false
         self.isUpdatingExpansion = false
         self.bodyFatPercentageMethod = .omit
+    }
+    
+    //*******************************
+    // Computed Properties          */
+    //*******************************
+    var hasError: Bool {
+        weight == 0 || height == 0 
+    }
+    
+    var usValue: Bool {
+        weight != 0 && height != 0
+    }
+    
+    private func enforceExclusiveExpansion(changed: enumSection, newValue: Bool) {
+        if isUpdatingExpansion { return }
+        guard newValue == true else { return }
+        isUpdatingExpansion = true
+        
+        if ( changed != .age && ageIsExpanded) { ageIsExpanded = false }
+        if ( changed != .gender && genderIsExpanded) { genderIsExpanded = false }
+        if ( changed != .height && heightIsExpanded) { heightIsExpanded = false }
+        if ( changed != .weight && weightIsExpanded) { weightIsExpanded = false }
+        if ( changed != .bodyFatPercentage && bodyFatPercentageIsExpanded) { bodyFatPercentageIsExpanded = false }
+        if ( changed != .activityLevel && activityLevelIsExpanded) { activityLevelIsExpanded = false }
+
+        isUpdatingExpansion = false
+    }
+    
+    // get the result of tde calculations
+    var tdeeResult: TdeeResult {
+        TdeeCalculator.calculate(person: self)
     }
     
     func collapseAll() {

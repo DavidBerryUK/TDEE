@@ -14,19 +14,33 @@ struct ContentView: View {
                 ScrollView {
                     VStack(spacing: 8) {
                         
+                        //
+                        // Input Section
+                        //
                         VStack(spacing: 0) {
                             SectionGender(model: profile)           
                             Divider()
                             SectionAge(model: profile)
                             Divider()
-                            SectionWeight(model: profile)
-                            Divider()
                             SectionHeight(model: profile)
+                            Divider()
+                            SectionWeight(model: profile)
                             Divider()
                             SectionActivityLevel(model: profile)
                             Divider()
                             SectionBodyFatPercentage(model: profile)
                             
+                        }
+                        .background(Color.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+                        
+                        //
+                        // Results Section
+                        //
+                        VStack(spacing: 0) {
+                            SectionMaintenanceCalories(model: profile)
+                            Divider()
                         }
                         .background(Color.white)
                         .clipShape(RoundedRectangle(cornerRadius: 12))

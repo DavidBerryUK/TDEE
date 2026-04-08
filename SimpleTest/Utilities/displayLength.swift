@@ -6,7 +6,7 @@
 //
 import Foundation
 
-enum displayLength {
+struct displayLength {
 
     static func asCentimeters(cm : Double) -> Int {
         return Int(round(cm))

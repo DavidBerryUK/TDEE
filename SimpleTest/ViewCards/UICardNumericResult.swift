@@ -14,6 +14,7 @@ struct UICardNumericResult: View {
     var suffix : String = ""
     
     var body: some View {
+        
         VStack(alignment: .center, spacing: 6.0) {
             HStack(alignment: .firstTextBaseline,spacing:0) {
                 Text("\(Int(value))")
@@ -39,18 +40,18 @@ struct UICardNumericResult: View {
     }
 }
 
-#Preview {
-    VStack{
-        HStack{
-            UICardNumericResult(title: "Calories per day", value: 2500)
-            UICardNumericResult(title: "Calories per week", value: 2500 * 7)
-        }
-        HStack{
-            UICardNumericResult(title: "Carbs", value: 230, suffix:"g")
-            UICardNumericResult(title: "Fats", value: 142, suffix:"g")
-            UICardNumericResult(title: "Protien", value: 222, suffix:"g")
-        }
-    }.padding(8)
-    
-    
-}
+//#Preview {
+//    VStack{
+//        HStack{
+//            UICardNumericResult(title: "Calories per day", value: 2500)
+//            UICardNumericResult(title: "Calories per week", value: 2500 * 7)
+//        }
+//        HStack{
+//            UICardNumericResult(title: "Carbs", value: 230, suffix:"g")
+//            UICardNumericResult(title: "Fats", value: 142, suffix:"g")
+//            UICardNumericResult(title: "Protien", value: 222, suffix:"g")
+//        }
+//    }.padding(8)
+//    
+//    
+//}

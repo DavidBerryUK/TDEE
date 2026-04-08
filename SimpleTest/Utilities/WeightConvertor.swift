@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum WeightConvertor {
+struct WeightConvertor {
     
     private static let poundsPerKg = 2.20462262185
     private static let kgPerPound = 0.45359237
