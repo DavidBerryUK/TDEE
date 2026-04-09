@@ -57,6 +57,9 @@ final class ProfileInputViewModel: ObservableObject {
         }
     }
     
+    var calorieAdjustmentMethod: enumCalorieAdjustmentMethod = .maintain
+    var calorieAdjustment : Double
+    
     //*******************************
     // Initialiser                  *
     //*******************************
@@ -67,6 +70,7 @@ final class ProfileInputViewModel: ObservableObject {
         self.height = 0
         self.bodyFatPercentage = 0
         self.activityLevel = .sedentary
+        self.calorieAdjustment = 0;
         
         // Initialize expansion flags without triggering observers
         self.isUpdatingExpansion = true

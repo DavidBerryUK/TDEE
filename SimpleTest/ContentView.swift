@@ -41,6 +41,7 @@ struct ContentView: View {
                         VStack(spacing: 0) {
                             SectionMaintenanceCalories(model: profile)
                             Divider()
+                            SectionCalorieAdjustment(model: profile)
                         }
                         .background(Color.white)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
