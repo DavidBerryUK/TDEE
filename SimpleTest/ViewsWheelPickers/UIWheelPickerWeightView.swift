@@ -84,8 +84,8 @@ struct UIWheelPickerWeightView: View {
 private extension UIWheelPickerWeightView {
     
     func initialiseValues() {
-        valueKg = Int(round( value))
-        let totalPounds = WeightConvertor.toPounds(valueKg)
+        //valueKg = Int(round( value))
+        let totalPounds = WeightConvertor.toPounds(value)
         valuePounds = totalPounds
         valueStones = totalPounds / 14
         valueStonePounds = totalPounds % 14
@@ -109,7 +109,7 @@ private extension UIWheelPickerWeightView {
             valueStonePounds = totalPounds % 14
             break
             
-        case .stonesAndPounds:
+        case .stonesAndPounds:            
             let totalPounds = valueStones * 14 + valueStonePounds
             valueKg = WeightConvertor.toKilogramsInt(pounds: totalPounds)
             valuePounds = totalPounds

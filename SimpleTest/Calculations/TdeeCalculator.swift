@@ -81,8 +81,8 @@ struct TdeeCalculator {
     private static func calculateMifflinStJeor(person: ProfileInputViewModel, logger: AuditLogger) -> Double {
         //  logger.log(AuditItem(subTitle: "Mifflin St Jeor Formula"))
         
-        let weight = Double(person.weight)
-        let height = Double(person.height)
+        let weight = person.weight
+        let height = person.height
         let age = Double(person.age)
         let adjustment = person.gender == .male ? 5.0 : -161.0
         
