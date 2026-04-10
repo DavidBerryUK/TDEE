@@ -23,42 +23,34 @@ struct WeightConvertor {
     //*******************************************************
     
     static func toKilograms( pounds: Double) -> Double {
-        
         let result =  pounds * kgPerPound
-        print("toKilograms(double) pounds:\(pounds)   kilograms:\(result)")
         return result
     }
     
     static func toKilograms( pounds: Int) -> Double {
         let result = Double(pounds) * kgPerPound
-        print("toKilograms(Int) pounds:\(pounds)   kilograms:\(result)")
         return result
     }
     
     static func toKilogramsInt( pounds: Int) -> Int {
-        print("*** toKilogramsInt ***")
         return Int(floor(  Double(pounds) * kgPerPound))
     }
     
     static func toKilograms(stones: Int, pounds: Int) -> Double {
-        print("toKilograms")
         return Double(stones * 14 + pounds) * kgPerPound
     }
     
     static func toPounds(_ kilograms: Double) -> Int {
         let result = Int(floor(kilograms * poundsPerKg))
-        print("toPounds kilograms:\(kilograms)   pounds:\(result)")
         return result
     }
     
     static func toPounds(_ kilograms: Int) -> Int {
         let result = Int(floor(Double(kilograms) * poundsPerKg))
-        print("toPounds(Int) kilograms:\(kilograms)   pounds:\(result)")
         return result
     }
     
     static func toStones(_ kilograms: Double) -> Int {
-        print("toStones")
         let totalPounds = toPounds(kilograms)
         return totalPounds / 14
     }
@@ -66,7 +58,6 @@ struct WeightConvertor {
     static func toRemainingPounds(_ kilograms: Double) -> Int {
         let totalPounds = toPounds(kilograms)
         let result = totalPounds % 14
-        print("toRemainingPounds kilograms:\(kilograms)  pounds:\(totalPounds)  result:\(result)")
         return result
     }
 }
