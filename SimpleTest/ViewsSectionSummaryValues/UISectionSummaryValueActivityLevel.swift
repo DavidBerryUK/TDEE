@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct UITextValueActivityLevel: View {
+struct UISectionSummaryValueActivityLevel: View {
     
     @Bindable var model: ProfileInputViewModel
     
@@ -29,12 +29,12 @@ struct UITextValueActivityLevel: View {
     let model = ProfileInputViewModel()
     model.activityLevel = .athlete
     model.activityLevelIsExpanded = false
-    return UITextValueActivityLevel(model: model)
+    return UISectionSummaryValueActivityLevel(model: model)
 }
 
 #Preview("Edit Light") {
     let model = ProfileInputViewModel()
     model.activityLevel = .lightExercise
     model.activityLevelIsExpanded = true
-    return UITextValueActivityLevel(model: model)
+    return UISectionSummaryValueActivityLevel(model: model)
 }

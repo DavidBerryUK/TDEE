@@ -16,10 +16,10 @@ struct SectionBodyFatPercentage: View {
             title: "Body Fat Percentage",
             icon: .bodyFat,
             isExpanded: $model.bodyFatPercentageIsExpanded,
-            valueView: {
-                UITextValueBodyFatValue(model: model)
+            sectionSummaryValueView: {
+                UISectionSummaryValueBodyFat(model: model)
             },
-            content: {
+            editorView: {
                 SectionEditorBodyFatPercentage(model: model)
             }
         )

@@ -7,14 +7,14 @@
 
 import SwiftUI
 
-struct UILayoutSectionView<ValueView: View, Content: View>: View {
+struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: View {
     
     let title: String
     let icon : enumIcon
     @Binding var isExpanded: Bool
     
-    let valueView: () -> ValueView
-    let content: () -> Content
+    let sectionSummaryValueView: () -> SectionSummaryValueView
+    let editorView: () -> EditorView
     
     var body: some View {
         VStack(spacing: 4) {
@@ -24,7 +24,7 @@ struct UILayoutSectionView<ValueView: View, Content: View>: View {
                 Text(title)
                     .font(.headline)                
                 Spacer()
-                valueView()
+                sectionSummaryValueView()
                 Image(systemName: "chevron.down")
                     .rotationEffect(.degrees(isExpanded ? 180 : 0))
                     .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isExpanded)
@@ -40,7 +40,7 @@ struct UILayoutSectionView<ValueView: View, Content: View>: View {
             
             if isExpanded {
                 
-                content()
+                editorView()
                     .padding(.top, 12)
                     .padding(.bottom, 8)
             }
@@ -55,10 +55,10 @@ struct UILayoutSectionView<ValueView: View, Content: View>: View {
         title: "Weight",
         icon: .weight,
         isExpanded: $model.weightIsExpanded,
-        valueView: {
+        sectionSummaryValueView: {
             Text("75 kg")
         },
-        content: {
+        editorView: {
             HStack {
                 Text("Content goes here")
                 Spacer()

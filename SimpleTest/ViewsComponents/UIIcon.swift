@@ -8,12 +8,16 @@
 import SwiftUI
 
 private let iconCatalog: [enumIcon: IconModel] = [
-    .gender: IconModel(id:.gender, label: "Gender", symbolSolid: "person.fill", symbolOutlined: "person", color: .blue),
-    .age: IconModel(id:.age, label: "Age", symbolSolid: "calendar", symbolOutlined: "calendar", color: .red),
+    .gender: IconModel(id: .gender, label: "Gender", symbolSolid: "person.fill", symbolOutlined: "person", color: .blue),
+    .age: IconModel(id: .age, label: "Age", symbolSolid: "calendar", symbolOutlined: "calendar", color: .red),
     .weight: IconModel(id: .weight, label: "Weight", symbolSolid: "scalemass.fill", symbolOutlined: "scalemass", color: .green),
     .height: IconModel(id: .height, label: "Height", symbolSolid: "ruler.fill", symbolOutlined: "ruler", color: .orange),
-    .activityLevel: IconModel(id:.activityLevel, label: "Activity Level", symbolSolid: "bolt.fill", symbolOutlined: "bolt", color: .yellow),
-    .bodyFat: IconModel(id:.bodyFat, label: "Body Fat %", symbolSolid: "chart.pie.fill", symbolOutlined: "chart.pie", color: .purple)
+    .activityLevel: IconModel(id: .activityLevel, label: "Activity Level", symbolSolid: "bolt.fill", symbolOutlined: "bolt", color: .yellow),
+    .bodyFat: IconModel(id: .bodyFat, label: "Body Fat %", symbolSolid: "chart.pie.fill", symbolOutlined: "chart.pie", color: .purple),
+    .calorie: IconModel(id: .calorie, label: "Calories", symbolSolid: "flame.fill", symbolOutlined: "flame", color: .orange),
+    .protein: IconModel(id: .protein, label: "Protein", symbolSolid: "dumbbell.fill", symbolOutlined: "dumbbell", color: .red),
+    .carbs: IconModel(id: .carbs, label: "Carbs", symbolSolid: "leaf.fill", symbolOutlined: "leaf", color: .green),
+    .fats: IconModel(id: .fats, label: "Fats", symbolSolid: "drop.fill", symbolOutlined: "drop", color: .yellow),
 ]
 
 struct UIIcon: View {
@@ -59,31 +63,32 @@ struct UIIcon: View {
 
 
 #Preview {
-    Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 12) {
-        // Loop over the enum cases
-        ForEach(enumIcon.allCases, id: \.self) { metric in
-            if let iconInfo = iconCatalog[metric] {
-                // Label row spans all columns
-                GridRow {
-                    Text(iconInfo.label)
-                        .font(.body)
-                        .fontWeight(.medium)
-                        .foregroundColor(.primary)
-                        .gridCellColumns(6) // <-- span all 6 icon columns
-                }
-                
-                // Icons row
-                GridRow {
-                    UIIcon(icon: metric, style: .plainOutline)
-                    UIIcon(icon: metric, style: .plainSolid)
-                    UIIcon(icon: metric, style: .coloredOutline)
-                    UIIcon(icon: metric, style: .coloredSolid)
-                    UIIcon(icon: metric, style: .coloredBackgroundOutline)
-                    UIIcon(icon: metric, style: .coloredBackgroundSolid)
+    ScrollView{
+        Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 12) {
+            // Loop over the enum cases
+            ForEach(enumIcon.allCases, id: \.self) { metric in
+                if let iconInfo = iconCatalog[metric] {
+                    // Label row spans all columns
+                    GridRow {
+                        Text(iconInfo.label)
+                            .font(.body)
+                            .fontWeight(.medium)
+                            .foregroundColor(.primary)
+                            .gridCellColumns(6) // <-- span all 6 icon columns
+                    }
+                    
+                    // Icons row
+                    GridRow {
+                        UIIcon(icon: metric, style: .plainOutline)
+                        UIIcon(icon: metric, style: .plainSolid)
+                        UIIcon(icon: metric, style: .coloredOutline)
+                        UIIcon(icon: metric, style: .coloredSolid)
+                        UIIcon(icon: metric, style: .coloredBackgroundOutline)
+                        UIIcon(icon: metric, style: .coloredBackgroundSolid)
+                    }
                 }
             }
-        }
+        }.padding()
     }
-    .padding()
     .background(Color(.systemBackground))
 }

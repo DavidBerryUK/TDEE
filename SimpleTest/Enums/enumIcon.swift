@@ -12,5 +12,9 @@ enum enumIcon : Int, CaseIterable {
          weight,
          height,
          activityLevel,
-         bodyFat
+         bodyFat,
+         calorie,
+         protein,
+         carbs,
+         fats
 }

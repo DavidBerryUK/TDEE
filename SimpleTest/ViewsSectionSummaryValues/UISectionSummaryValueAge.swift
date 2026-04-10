@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct UITextAgeValueView: View {
+struct UISectionSummaryValueAge: View {
     
     @Bindable var model: ProfileInputViewModel
         
@@ -30,12 +30,12 @@ struct UITextAgeValueView: View {
     let model = ProfileInputViewModel()
     model.age = 34
     model.ageIsExpanded = false
-    return UITextAgeValueView(model: model)
+    return UISectionSummaryValueAge(model: model)
 }
 
 #Preview("Being Edited") {
     let model = ProfileInputViewModel()
     model.age = 34
     model.ageIsExpanded = true
-    return UITextAgeValueView(model: model)
+    return UISectionSummaryValueAge(model: model)
 }

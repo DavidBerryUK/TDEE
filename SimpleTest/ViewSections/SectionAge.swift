@@ -17,10 +17,10 @@ struct SectionAge: View {
             title: "Age",
             icon: .age,
             isExpanded: $model.ageIsExpanded,
-            valueView: {
-                UITextAgeValueView(model: model)
+            sectionSummaryValueView: {
+                UISectionSummaryValueAge(model: model)
             },
-            content: {
+            editorView: {
                 SectionEditorAge(model: model)
             }
         )

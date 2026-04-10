@@ -16,10 +16,10 @@ struct SectionHeight: View {
             title: "Height",
             icon: .height,
             isExpanded: $model.heightIsExpanded,
-            valueView: {
-                UITextValueHeightValue(model: model)
+            sectionSummaryValueView: {
+                UISectionSummaryValueHeight(model: model)
             },
-            content: {
+            editorView: {
                 SectionEditorHeight(model: model)
             }
         )

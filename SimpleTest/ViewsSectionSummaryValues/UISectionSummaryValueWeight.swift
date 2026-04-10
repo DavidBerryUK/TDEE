@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct UITextValueWeightValue: View {
+struct UISectionSummaryValueWeight: View {
     
     @Bindable var model: ProfileInputViewModel
     
@@ -62,7 +62,7 @@ struct UITextValueWeightValue: View {
     model.weightUom = .kilograms
     model.weight = 95
     model.weightIsExpanded = false
-    return UITextValueWeightValue(model: model)
+    return UISectionSummaryValueWeight(model: model)
 }
 
 #Preview("Edit kg") {
@@ -70,7 +70,7 @@ struct UITextValueWeightValue: View {
     model.weightUom = .kilograms
     model.weight = 95
     model.weightIsExpanded = true
-    return UITextValueWeightValue(model: model)
+    return UISectionSummaryValueWeight(model: model)
 }
 
 #Preview("Read pounds") {
@@ -78,7 +78,7 @@ struct UITextValueWeightValue: View {
     model.weightUom = .pounds
     model.weight = WeightConvertor.toKilograms(pounds: 175)
     model.weightIsExpanded = false
-    return UITextValueWeightValue(model: model)
+    return UISectionSummaryValueWeight(model: model)
 }
 
 #Preview("Edit pounds") {
@@ -86,7 +86,7 @@ struct UITextValueWeightValue: View {
     model.weightUom = .pounds
     model.weight = WeightConvertor.toKilograms(pounds: 175)
     model.weightIsExpanded = true
-    return UITextValueWeightValue(model: model)
+    return UISectionSummaryValueWeight(model: model)
 }
 
 #Preview("Read stones & pounds") {
@@ -94,7 +94,7 @@ struct UITextValueWeightValue: View {
     model.weightUom = .stonesAndPounds
     model.weightIsExpanded = false
     model.weight = WeightConvertor.toKilograms(stones: 18, pounds: 7)
-    return UITextValueWeightValue(model: model)
+    return UISectionSummaryValueWeight(model: model)
 }
 
 #Preview("Edit stones & pounds") {
@@ -102,5 +102,5 @@ struct UITextValueWeightValue: View {
     model.weightUom = .stonesAndPounds
     model.weightIsExpanded = true
     model.weight = WeightConvertor.toKilograms(stones: 18, pounds: 7)
-    return UITextValueWeightValue(model: model)
+    return UISectionSummaryValueWeight(model: model)
 }

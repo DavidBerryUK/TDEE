@@ -16,10 +16,10 @@ struct SectionGender: View {
             title: "Gender",
             icon: .gender,
             isExpanded: $model.genderIsExpanded,
-            valueView: {
-                UITextValueGenderView(model: model)
+            sectionSummaryValueView: {
+                UISectionSummaryValueGender(model: model)
             },
-            content: {
+            editorView: {
                 UISegmentGenderView(option: $model.gender)
             }
         )

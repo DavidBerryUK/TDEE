@@ -28,41 +28,45 @@ struct SectionEditorCalorieAdjustment: View {
             adjustmentText = "Increase"
         }
         
+        // TODO: export this to a different control like a picker control.
         
-        return Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 12) {
-            GridRow {
-                Text("\(adjustmentText) Calories per day by")
-                    .font(.body)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.5)
-                    .allowsTightening(true)
-                    .gridColumnAlignment(.leading)
+        return VStack{
+            UISegmentCalorieAdjustmentMethodView(option: $model.calorieAdjustmentMethod)
+            Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 12) {
+                GridRow {
+                    Text("\(adjustmentText) Calories per day by")
+                        .font(.body)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
+                        .allowsTightening(true)
+                        .gridColumnAlignment(.leading)
+                    
+                    Text("\(perDay)")
+                        .font(.largeTitle)
+                        .gridColumnAlignment(.trailing)
+                }
                 
-                Text("\(perDay)")
-                    .font(.largeTitle)
-                    .gridColumnAlignment(.trailing)
-            }
-            
-            GridRow {
-                Text("\(adjustmentText) Calories per Week by")
-                    .font(.body)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.5)
-                    .allowsTightening(true)
-                    .gridColumnAlignment(.leading)
+                GridRow {
+                    Text("\(adjustmentText) Calories per Week by")
+                        .font(.body)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.5)
+                        .allowsTightening(true)
+                        .gridColumnAlignment(.leading)
+                    
+                    Text("\(perWeek)")
+                        .font(.largeTitle)
+                        .gridColumnAlignment(.trailing)
+                }
                 
-                Text("\(perWeek)")
-                    .font(.largeTitle)
-                    .gridColumnAlignment(.trailing)
-            }
-            
-            GridRow {
-                Slider(
-                    value: $model.calorieAdjustment,
-                    in: 0...1000,
-                    step: 25
-                )
-                .gridCellColumns(2)
+                GridRow {
+                    Slider(
+                        value: $model.calorieAdjustment,
+                        in: 0...1000,
+                        step: 25
+                    )
+                    .gridCellColumns(2)
+                }
             }
         }
     }

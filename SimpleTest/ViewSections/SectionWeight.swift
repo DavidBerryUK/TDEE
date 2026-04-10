@@ -16,10 +16,10 @@ struct SectionWeight: View {
             title: "Weight",
             icon: .weight,
             isExpanded: $model.weightIsExpanded,
-            valueView: {
-                UITextValueWeightValue(model: model)
+            sectionSummaryValueView: {
+                UISectionSummaryValueWeight(model: model)
             },
-            content: {
+            editorView: {
                 SectionEditorWeight(model: model)
             }
         )

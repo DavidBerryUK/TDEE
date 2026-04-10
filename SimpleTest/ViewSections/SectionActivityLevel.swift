@@ -16,10 +16,10 @@ struct SectionActivityLevel: View {
             title: "Activity Level",
             icon: .activityLevel,
             isExpanded: $model.activityLevelIsExpanded,
-            valueView: {
-                UITextValueActivityLevel(model: model)
+            sectionSummaryValueView: {
+                UISectionSummaryValueActivityLevel(model: model)
             },
-            content: {
+            editorView: {
                 SectionEditorActivityLevel(model: model)
             }
         )

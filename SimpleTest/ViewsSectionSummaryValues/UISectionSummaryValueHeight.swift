@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct UITextValueHeightValue: View {
+struct UISectionSummaryValueHeight: View {
     
     @Bindable var model: ProfileInputViewModel
     
@@ -62,7 +62,7 @@ struct UITextValueHeightValue: View {
     model.heightUom = .centimeters
     model.height = 120
     model.heightIsExpanded = false
-    return UITextValueHeightValue(model: model)
+    return UISectionSummaryValueHeight(model: model)
 }
 
 #Preview("Edit cm") {
@@ -70,7 +70,7 @@ struct UITextValueHeightValue: View {
     model.heightUom = .centimeters
     model.height = 120
     model.heightIsExpanded = true
-    return UITextValueHeightValue(model: model)
+    return UISectionSummaryValueHeight(model: model)
 }
 
 #Preview("Read inches") {
@@ -78,7 +78,7 @@ struct UITextValueHeightValue: View {
     model.heightUom = .inches
     model.height = LengthConverter.toCentimeters(inches: 200)
     model.heightIsExpanded = false
-    return UITextValueHeightValue(model: model)
+    return UISectionSummaryValueHeight(model: model)
 }
 
 #Preview("Edit inches") {
@@ -86,7 +86,7 @@ struct UITextValueHeightValue: View {
     model.heightUom = .inches
     model.height = LengthConverter.toCentimeters(inches: 100)
     model.heightIsExpanded = true
-    return UITextValueHeightValue(model: model)
+    return UISectionSummaryValueHeight(model: model)
 }
 
 #Preview("Read feet & inches") {
@@ -94,7 +94,7 @@ struct UITextValueHeightValue: View {
     model.heightUom = .feetAndInches
     model.heightIsExpanded = false
     model.height = LengthConverter.toCentimeters(feet: 5, inches: 7)
-    return UITextValueHeightValue(model: model)
+    return UISectionSummaryValueHeight(model: model)
 }
 
 #Preview("Edit feet & inches") {
@@ -102,5 +102,5 @@ struct UITextValueHeightValue: View {
     model.heightUom = .feetAndInches
     model.heightIsExpanded = true
     model.height = LengthConverter.toCentimeters(feet: 5, inches: 10)
-    return UITextValueHeightValue(model: model)
+    return UISectionSummaryValueHeight(model: model)
 }

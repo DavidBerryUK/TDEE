@@ -46,9 +46,14 @@ struct ContentView: View {
                         .background(Color.white)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
-                        
+                        .frame(
+                            maxHeight: profile.isValid ? .infinity : 0,
+                            alignment: .top
+                        )
+                        .clipped()
+                        .opacity(profile.isValid ? 1 : 0)
+                        .animation(.easeInOut(duration: 0.25), value: profile.isValid)
                     }
-                    // padding around table
                     .padding(16)
                     UICardValidation(model: profile)
                         .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)

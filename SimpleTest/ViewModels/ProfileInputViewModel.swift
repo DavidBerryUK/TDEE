@@ -60,6 +60,12 @@ final class ProfileInputViewModel: ObservableObject {
     var calorieAdjustmentMethod: enumCalorieAdjustmentMethod = .maintain
     var calorieAdjustment : Double
     
+    var calorieAdjustmentExpanded: Bool {
+        didSet {
+            enforceExclusiveExpansion(changed: .calorieAdjustmentMethod, newValue: calorieAdjustmentExpanded)
+        }
+    }
+    
     //*******************************
     // Initialiser                  *
     //*******************************
@@ -80,6 +86,7 @@ final class ProfileInputViewModel: ObservableObject {
         self.heightIsExpanded = false
         self.activityLevelIsExpanded = false
         self.bodyFatPercentageIsExpanded = false
+        self.calorieAdjustmentExpanded = false
         self.isUpdatingExpansion = false
         self.bodyFatPercentageMethod = .omit
     }
@@ -91,8 +98,12 @@ final class ProfileInputViewModel: ObservableObject {
         weight == 0 || height == 0 
     }
     
-    var usValue: Bool {
+    var isValid: Bool {
         weight != 0 && height != 0
+    }
+    
+    var showCalorieAdjustmentDetail: Bool {
+        return calorieAdjustmentMethod != .maintain
     }
     
     private func enforceExclusiveExpansion(changed: enumSection, newValue: Bool) {
@@ -106,6 +117,7 @@ final class ProfileInputViewModel: ObservableObject {
         if ( changed != .weight && weightIsExpanded) { weightIsExpanded = false }
         if ( changed != .bodyFatPercentage && bodyFatPercentageIsExpanded) { bodyFatPercentageIsExpanded = false }
         if ( changed != .activityLevel && activityLevelIsExpanded) { activityLevelIsExpanded = false }
+        if ( changed != .calorieAdjustmentMethod && calorieAdjustmentExpanded) { calorieAdjustmentExpanded = false }
 
         isUpdatingExpansion = false
     }

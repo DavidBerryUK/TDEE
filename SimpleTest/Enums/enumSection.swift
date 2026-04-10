@@ -12,5 +12,6 @@ enum enumSection {
          weight,
          height,
          activityLevel,
-         bodyFatPercentage
+         bodyFatPercentage,
+         calorieAdjustmentMethod
 }
