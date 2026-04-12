@@ -22,7 +22,9 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
             HStack {
                 UIIcon(icon: icon, style: .coloredBackgroundSolid)
                 Text(title)
-                    .font(.headline)                
+                    .font(.headline)
+                    .contentTransition(.interpolate)
+                    .animation(.easeInOut, value: title)
                 Spacer()
                 sectionSummaryValueView()
                 Image(systemName: "chevron.down")

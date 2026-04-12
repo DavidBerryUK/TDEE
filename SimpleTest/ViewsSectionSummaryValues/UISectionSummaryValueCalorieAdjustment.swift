@@ -12,25 +12,34 @@ struct UISectionSummaryValueCalorieAdjustment: View {
     
     var body: some View {
         
-        let isExpanded = model.calorieAdjustmentExpanded
+        if ( model.calorieAdjustmentMethod == .maintain) {
+            EmptyView()
+        }
         
-        HStack{
-            Text("\(model.calorieAdjustmentMethod.displayName)")
-                .contentTransition(.interpolate)
-                .animation(.easeInOut, value: model.age)
-                .foregroundColor(UITextStyleResolver.color(isExpanded: isExpanded))
-                .fontWeight(UITextStyleResolver.weight(isExpanded: isExpanded))
-            
-            Text("\(Int(model.calorieAdjustment))")
-                .contentTransition(.numericText())
-                .animation(.easeInOut, value: model.age)
-                .foregroundColor(UITextStyleResolver.color(isExpanded: isExpanded))
-                .fontWeight(UITextStyleResolver.weight(isExpanded: isExpanded))
-            
-            Text("calories")
-                .contentTransition(.interpolate)
-                .animation(.easeInOut, value: model.height)
-            
+        
+        
+        else {
+            let isExpanded = model.calorieAdjustmentExpanded
+            HStack {
+                // Nested stack to kill the gap between prefix and number
+                HStack(spacing: 0) {
+                    Text("\(model.calorieAdjustmentMethod.adjustmentPrefix)")
+                        .contentTransition(.interpolate)
+                        .animation(.easeInOut, value: model.age)
+                        .foregroundColor(UITextStyleResolver.color(isExpanded: isExpanded))
+                        .fontWeight(UITextStyleResolver.weight(isExpanded: isExpanded))
+                    
+                    Text("\(Int(model.calorieAdjustment))")
+                        .contentTransition(.numericText())
+                        .animation(.easeInOut, value: model.age)
+                        .foregroundColor(UITextStyleResolver.color(isExpanded: isExpanded))
+                        .fontWeight(UITextStyleResolver.weight(isExpanded: isExpanded))
+                }
+                
+                Text("kCals")
+                    .contentTransition(.interpolate)
+                    .animation(.easeInOut, value: model.height)
+            }
         }
     }
 }

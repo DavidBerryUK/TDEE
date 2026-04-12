@@ -14,7 +14,7 @@ struct SectionCalorieAdjustment: View {
     var body: some View {
         
         UILayoutSectionView(
-            title: "Calorie Adjustment",
+            title: "\(model.calorieAdjustmentMethod.sectionTitle)",
             icon: .calorie,
             isExpanded: $model.calorieAdjustmentExpanded,
             sectionSummaryValueView: {
@@ -26,35 +26,6 @@ struct SectionCalorieAdjustment: View {
         )
     }
 }
-        
-//        VStack {
-//            
-//            UISegmentCalorieAdjustmentMethodView(
-//                // NOTE:
-//                // This uses a custom Binding so we can wrap the state change in `withAnimation`.
-//                // SwiftUI only animates layout changes (e.g. view insertion/removal, height)
-//                // when the *state mutation itself* happens inside an animation block.
-//                // If replaced with a plain `$model.property`, the UI will update instantly
-//                // with no height/transition animation.
-//                //
-//                option: Binding(
-//                    get: { model.calorieAdjustmentMethod },
-//                    set: { newValue in
-//                        withAnimation(.easeInOut(duration: 0.25)) {
-//                            model.calorieAdjustmentMethod = newValue
-//                        }
-//                    }
-//                )
-//            )
-//            
-//            if model.calorieAdjustmentMethod != .maintain {
-//                SectionEditorCalorieAdjustment(model: model)
-//                    .padding(.top, 12)
-//            }
-//        }
-//        .padding(16)
-//    }
-//}
 
 #Preview("Cut") {
     let model = ProfileInputViewModel()

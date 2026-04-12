@@ -7,70 +7,50 @@
 
 import SwiftUI
 
+
+    
 struct SectionEditorCalorieAdjustment: View {
     
     @Bindable var model: ProfileInputViewModel
+    @State private var isVisible = false
+    
+    init(model: ProfileInputViewModel) {
+        self.model = model
+        _isVisible = State(initialValue: model.calorieAdjustmentShowSliders)
+    }
+
     
     var body: some View {
         
-        var perDay = Int(model.calorieAdjustment)
-        var perWeek = Int(model.calorieAdjustment * 7)
-        var adjustmentText = ""
-        
-        switch(model.calorieAdjustmentMethod ) {
-        case .cut:
-            adjustmentText = "Reduce"
-        case .maintain:
-            adjustmentText = "Adjust"
-            perDay = 0
-            perWeek = 0
-        case .bulk:
-            adjustmentText = "Increase"
-        }
-        
-        // TODO: export this to a different control like a picker control.
-        
-        return VStack{
+        VStack {
             UISegmentCalorieAdjustmentMethodView(option: $model.calorieAdjustmentMethod)
-            Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 12) {
-                GridRow {
-                    Text("\(adjustmentText) Calories per day by")
-                        .font(.body)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.5)
-                        .allowsTightening(true)
-                        .gridColumnAlignment(.leading)
-                    
-                    Text("\(perDay)")
-                        .font(.largeTitle)
-                        .gridColumnAlignment(.trailing)
+            
+            VStack {
+                if model.calorieAdjustmentShowSliders || isVisible {
+                    UISliderCalorieAdjustmentValue(model: model)
+                        .opacity(isVisible ? 1 : 0)
                 }
-                
-                GridRow {
-                    Text("\(adjustmentText) Calories per Week by")
-                        .font(.body)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.5)
-                        .allowsTightening(true)
-                        .gridColumnAlignment(.leading)
-                    
-                    Text("\(perWeek)")
-                        .font(.largeTitle)
-                        .gridColumnAlignment(.trailing)
+            }
+            .animation(.spring(response: 0.5, dampingFraction: 0.85),
+                       value: model.calorieAdjustmentShowSliders)
+        }
+        .onChange(of: model.calorieAdjustmentShowSliders) { _, newValue in
+            
+            if newValue {
+                // EXPAND FIRST
+                withAnimation(.spring(response: 0.5, dampingFraction: 0.85)) {
+                    isVisible = true
                 }
-                
-                GridRow {
-                    Slider(
-                        value: $model.calorieAdjustment,
-                        in: 0...1000,
-                        step: 25
-                    )
-                    .gridCellColumns(2)
+            } else {
+                // FADE OUT FIRST
+                withAnimation(.easeInOut(duration: 0.1)) {
+                    isVisible = false
                 }
             }
         }
     }
 }
+
 
 #Preview("Cut") {
     let model = ProfileInputViewModel()

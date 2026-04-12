@@ -31,6 +31,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		FA0B83782F899A07006D80FB /* Exceptions for "SimpleTest" folder in "SimpleTest" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				ViewsSectionSummaryValues/README.md,
+			);
+			target = FAFE3E3B2F7C6CC200F46D16 /* SimpleTest */;
+		};
 		FAE95A532F7FD0BD00391EF3 /* Exceptions for "SimpleTest" folder in "UITestHost" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -66,8 +73,8 @@
 				ViewSections/SectionMaintenanceCalories.swift,
 				ViewSections/SectionWeight.swift,
 				ViewsLabels/UITextPickerLabel.swift,
+				ViewsLayouts/UILayoutExpandingPanel.swift,
 				ViewsLayouts/UILayoutSectionView.swift,
-				ViewsSectionSummaryValues/README.md,
 				ViewsSectionSummaryValues/UISectionSummaryValueActivityLevel.swift,
 				ViewsSectionSummaryValues/UISectionSummaryValueAge.swift,
 				ViewsSectionSummaryValues/UISectionSummaryValueBodyFat.swift,
@@ -75,17 +82,18 @@
 				ViewsSectionSummaryValues/UISectionSummaryValueGender.swift,
 				ViewsSectionSummaryValues/UISectionSummaryValueHeight.swift,
 				ViewsSectionSummaryValues/UISectionSummaryValueWeight.swift,
-				ViewsSegments/UISegmentBodyFatCalcMethodView.swift,
-				ViewsSegments/UISegmentCalorieAdjustmentMethodView.swift,
-				ViewsSegments/UISegmentGenderView.swift,
-				ViewsSegments/UISegmentMacroSplitMethodView.swift,
-				ViewsSegments/UISegmentUomLengthView.swift,
-				ViewsSegments/UISegmentUomWeightView.swift,
-				ViewsWheelPickers/UIWheelPickerActivityLevelView.swift,
-				ViewsWheelPickers/UIWheelPickerAgeView.swift,
-				ViewsWheelPickers/UIWheelPickerBodyFatView.swift,
-				ViewsWheelPickers/UIWheelPickerHeightView.swift,
-				ViewsWheelPickers/UIWheelPickerWeightView.swift,
+				ViewsValueEditors/UISegmentBodyFatCalcMethodView.swift,
+				ViewsValueEditors/UISegmentCalorieAdjustmentMethodView.swift,
+				ViewsValueEditors/UISegmentGenderView.swift,
+				ViewsValueEditors/UISegmentMacroSplitMethodView.swift,
+				ViewsValueEditors/UISegmentUomLengthView.swift,
+				ViewsValueEditors/UISegmentUomWeightView.swift,
+				ViewsValueEditors/UISliderCalorieAdjustmentValue.swift,
+				ViewsValueEditors/UIWheelPickerActivityLevelView.swift,
+				ViewsValueEditors/UIWheelPickerAgeView.swift,
+				ViewsValueEditors/UIWheelPickerBodyFatView.swift,
+				ViewsValueEditors/UIWheelPickerHeightView.swift,
+				ViewsValueEditors/UIWheelPickerWeightView.swift,
 			);
 			target = FAE95A282F7FD05400391EF3 /* UITestHost */;
 		};
@@ -100,6 +108,7 @@
 		FAFE3E3E2F7C6CC200F46D16 /* SimpleTest */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
+				FA0B83782F899A07006D80FB /* Exceptions for "SimpleTest" folder in "SimpleTest" target */,
 				FAE95A532F7FD0BD00391EF3 /* Exceptions for "SimpleTest" folder in "UITestHost" target */,
 			);
 			path = SimpleTest;

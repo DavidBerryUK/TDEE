@@ -19,4 +19,20 @@ extension enumCalorieAdjustmentMethod {
         case .bulk: return "Bulk"
         }
     }
+    
+    var sectionTitle: String {
+        switch self {
+        case .cut: return "Daily Deficit"
+        case .maintain: return "Adjust Daily Calories"
+        case .bulk: return "Daily Surplus"
+        }
+    }
+    
+    var adjustmentPrefix: String {
+        switch self {
+        case .cut: return "-"
+        case .maintain: return ""
+        case .bulk: return "+"
+        }
+    }
 }
