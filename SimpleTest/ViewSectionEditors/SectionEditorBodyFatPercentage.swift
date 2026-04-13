@@ -10,15 +10,35 @@ import SwiftUI
 struct SectionEditorBodyFatPercentage: View {
     
     @Bindable var model: ProfileInputViewModel
-    
+        
     var body: some View {
-        VStack {
-            UISegmentBodyFatCalcMethodView(option: $model.bodyFatPercentageMethod)
+        UILayoutExpandingPanel(
+            isOpen: $model.bodyFatPercentageShowManualEntry,
+            header: {
+                UISegmentBodyFatCalcMethodView(option: $model.bodyFatPercentageMethod)
+            }
+        ) {
             UIWheelPickerBodyFatView(value: $model.bodyFatPercentage)
         }
     }
 }
 
-#Preview {
-    SectionEditorBodyFatPercentage(model: ProfileInputViewModel())
+#Preview("omit") {
+    let model = ProfileInputViewModel()
+    model.bodyFatPercentageMethod = .omit
+    return SectionEditorBodyFatPercentage(model: model)
 }
+
+#Preview("Estimate") {
+    let model = ProfileInputViewModel()
+    model.bodyFatPercentageMethod = .estimate
+    return SectionEditorBodyFatPercentage(model: model)
+}
+
+#Preview("Manual Entry") {
+    let model = ProfileInputViewModel()
+    model.bodyFatPercentageMethod = .manualEntry
+    model.bodyFatPercentage = 15.2
+    return SectionEditorBodyFatPercentage(model: model)
+}
+

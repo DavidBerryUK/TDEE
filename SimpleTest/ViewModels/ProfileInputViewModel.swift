@@ -48,13 +48,18 @@ final class ProfileInputViewModel: ObservableObject {
         }
     }
     
-    var bodyFatPercentageMethod: enumBodyFatOption
+    var bodyFatPercentageMethod: enumBodyFatOption{
+        didSet {
+            bodyFatPercentageShowManualEntry = bodyFatPercentageMethod == .manualEntry
+        }
+    }
     var bodyFatPercentage: Double
     var bodyFatPercentageIsExpanded: Bool {
         didSet {
             enforceExclusiveExpansion(changed: .bodyFatPercentage, newValue: bodyFatPercentageIsExpanded)
         }
     }
+    var bodyFatPercentageShowManualEntry: Bool
     
     var calorieAdjustmentMethod: enumCalorieAdjustmentMethod = .maintain {
         didSet {
@@ -83,7 +88,6 @@ final class ProfileInputViewModel: ObservableObject {
         
         // Initialize expansion flags without triggering observers
         self.isUpdatingExpansion = true
-        self.calorieAdjustmentShowSliders = false
         self.ageIsExpanded = false
         self.genderIsExpanded = false
         self.weightIsExpanded = false
@@ -92,6 +96,8 @@ final class ProfileInputViewModel: ObservableObject {
         self.bodyFatPercentageIsExpanded = false
         self.calorieAdjustmentExpanded = false
         self.isUpdatingExpansion = false
+        self.calorieAdjustmentShowSliders = false
+        self.bodyFatPercentageShowManualEntry = false
         self.bodyFatPercentageMethod = .omit
     }
     

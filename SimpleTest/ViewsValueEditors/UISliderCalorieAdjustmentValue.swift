@@ -15,22 +15,28 @@ struct UISliderCalorieAdjustmentValue: View {
         
         var perDay = Int(model.calorieAdjustment)
         var perWeek = Int(model.calorieAdjustment * 7)
-        var adjustmentText = ""
+        var adjustmentTextPerDay = ""
+        var adjustmentTextPerWeek = ""
         
         switch(model.calorieAdjustmentMethod ) {
         case .cut:
-            adjustmentText = "Reduce"
+            adjustmentTextPerDay = "Reduce Calories per day by"
+            adjustmentTextPerWeek = "Reduce Calories per week by"
         case .maintain:
-            adjustmentText = "Adjust"
+            adjustmentTextPerDay = "Maintain"
+            adjustmentTextPerWeek = "Maintain"
             perDay = 0
             perWeek = 0
         case .bulk:
-            adjustmentText = "Increase"
+            adjustmentTextPerDay = "Increase Calories per day by"
+            adjustmentTextPerWeek = "Increase Calories per week by"
         }
         
         return Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 12) {
             GridRow {
-                Text("\(adjustmentText) Calories per day by")
+                Text(adjustmentTextPerDay)
+                    .contentTransition(.interpolate)
+                    .animation(.easeInOut, value: adjustmentTextPerDay)
                     .font(.body)
                     .lineLimit(1)
                     .minimumScaleFactor(0.5)
@@ -43,7 +49,9 @@ struct UISliderCalorieAdjustmentValue: View {
             }
             
             GridRow {
-                Text("\(adjustmentText) Calories per Week by")
+                Text(adjustmentTextPerWeek)
+                    .contentTransition(.interpolate)
+                    .animation(.easeInOut, value: adjustmentTextPerWeek)
                     .font(.body)
                     .lineLimit(1)
                     .minimumScaleFactor(0.5)

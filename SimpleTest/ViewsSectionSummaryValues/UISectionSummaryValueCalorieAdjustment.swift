@@ -16,8 +16,6 @@ struct UISectionSummaryValueCalorieAdjustment: View {
             EmptyView()
         }
         
-        
-        
         else {
             let isExpanded = model.calorieAdjustmentExpanded
             HStack {

@@ -7,30 +7,18 @@
 
 import SwiftUI
 
-
-    
 struct SectionEditorCalorieAdjustment: View {
     
     @Bindable var model: ProfileInputViewModel
-        
-    init(model: ProfileInputViewModel) {
-        self.model = model
-    }
-
     
     var body: some View {
-        
-        VStack {
-         
-            UILayoutExpandingPanel(
-                isOpen: $model.calorieAdjustmentShowSliders,
-                header: {
-                    UISegmentCalorieAdjustmentMethodView(option: $model.calorieAdjustmentMethod)
-                }
-            ) {
-                UISliderCalorieAdjustmentValue(model: model)
+        UILayoutExpandingPanel(
+            isOpen: $model.calorieAdjustmentShowSliders,
+            header: {
+                UISegmentCalorieAdjustmentMethodView(option: $model.calorieAdjustmentMethod)
             }
-            
+        ) {
+            UISliderCalorieAdjustmentValue(model: model)
         }
     }
 }
