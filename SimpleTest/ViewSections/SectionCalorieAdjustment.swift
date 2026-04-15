@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SectionCalorieAdjustment: View {
     
-    @Bindable var model: ProfileInputViewModel
+    @Bindable var model: ProfileViewModel
     
     var body: some View {
         
@@ -28,20 +28,20 @@ struct SectionCalorieAdjustment: View {
 }
 
 #Preview("Cut") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.calorieAdjustmentMethod = .cut
     model.calorieAdjustment = 250
     return SectionCalorieAdjustment(model: model)
 }
 
 #Preview("Maintain") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.calorieAdjustmentMethod = .maintain
     return SectionCalorieAdjustment(model: model)
 }
 
 #Preview("Bulk") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.calorieAdjustmentMethod = .bulk
     model.calorieAdjustment = 500
     return SectionCalorieAdjustment(model: model)

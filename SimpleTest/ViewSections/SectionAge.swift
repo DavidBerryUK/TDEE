@@ -10,7 +10,7 @@ import Observation
 
 struct SectionAge: View {
     
-    @Bindable var model: ProfileInputViewModel
+    @Bindable var model: ProfileViewModel
     
     var body: some View {
         UILayoutSectionView(
@@ -28,5 +28,5 @@ struct SectionAge: View {
 }
 
 #Preview {
-    SectionAge(model: ProfileInputViewModel())
+    SectionAge(model: ProfileViewModel())
 }

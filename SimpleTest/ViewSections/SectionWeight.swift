@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SectionWeight: View {
     
-    @Bindable var model: ProfileInputViewModel
+    @Bindable var model: ProfileViewModel
     
     var body: some View {
         UILayoutSectionView(
@@ -27,5 +27,5 @@ struct SectionWeight: View {
 }
 
 #Preview {
-    SectionWeight(model: ProfileInputViewModel())
+    SectionWeight(model: ProfileViewModel())
 }

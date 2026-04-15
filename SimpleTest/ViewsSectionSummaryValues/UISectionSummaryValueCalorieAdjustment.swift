@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct UISectionSummaryValueCalorieAdjustment: View {
-    @Bindable var model: ProfileInputViewModel
+    @Bindable var model: ProfileViewModel
     
     var body: some View {
         
@@ -43,7 +43,7 @@ struct UISectionSummaryValueCalorieAdjustment: View {
 }
 
 #Preview("Cut - Closed") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.calorieAdjustmentMethod = .cut
     model.calorieAdjustment = 250
     model.calorieAdjustmentExpanded = false
@@ -51,7 +51,7 @@ struct UISectionSummaryValueCalorieAdjustment: View {
 }
 
 #Preview("Cut - Open") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.calorieAdjustmentMethod = .cut
     model.calorieAdjustment = 250
     model.calorieAdjustmentExpanded = true
@@ -59,7 +59,7 @@ struct UISectionSummaryValueCalorieAdjustment: View {
 }
 
 #Preview("Maintain - Closed") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.calorieAdjustmentMethod = .maintain
     model.calorieAdjustment = 250
     model.calorieAdjustmentExpanded = false
@@ -68,7 +68,7 @@ struct UISectionSummaryValueCalorieAdjustment: View {
 }
 
 #Preview("Maintain - Open") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.calorieAdjustmentMethod = .maintain
     model.calorieAdjustment = 250
     model.calorieAdjustmentExpanded = true
@@ -77,7 +77,7 @@ struct UISectionSummaryValueCalorieAdjustment: View {
 
 
 #Preview("Bulk - Closed") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.calorieAdjustmentMethod = .bulk
     model.calorieAdjustment = 500
     model.calorieAdjustmentExpanded = false
@@ -85,7 +85,7 @@ struct UISectionSummaryValueCalorieAdjustment: View {
 }
 
 #Preview("Bulk - Open") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.calorieAdjustmentMethod = .bulk
     model.calorieAdjustment = 500
     model.calorieAdjustmentExpanded = true

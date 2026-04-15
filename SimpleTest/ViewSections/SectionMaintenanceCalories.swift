@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SectionMaintenanceCalories: View {
     
-    @Bindable var model: ProfileInputViewModel
+    @Bindable var model: ProfileViewModel
     
     var body: some View {
         
@@ -29,7 +29,7 @@ struct SectionMaintenanceCalories: View {
 }
 
 #Preview {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.age = 21
     model.height = 80
     model.weight = 56

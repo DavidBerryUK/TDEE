@@ -9,7 +9,7 @@ import SwiftUI
 
 struct UISectionSummaryValueAge: View {
     
-    @Bindable var model: ProfileInputViewModel
+    @Bindable var model: ProfileViewModel
         
     var body: some View {
         
@@ -27,14 +27,14 @@ struct UISectionSummaryValueAge: View {
 }
 
 #Preview("Read Only") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.age = 34
     model.ageIsExpanded = false
     return UISectionSummaryValueAge(model: model)
 }
 
 #Preview("Being Edited") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.age = 34
     model.ageIsExpanded = true
     return UISectionSummaryValueAge(model: model)

@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     
-    private var profile = ProfileInputViewModel()
+    private var profile = ProfileViewModel()
     
     var body: some View {
         VStack {

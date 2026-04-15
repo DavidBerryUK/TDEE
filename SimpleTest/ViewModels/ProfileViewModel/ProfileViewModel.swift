@@ -3,12 +3,14 @@ import Combine
 import Observation
 
 @Observable
-final class ProfileInputViewModel: ObservableObject {
+final class ProfileViewModel: ObservableObject {
     // custom properties
-    private var isUpdatingExpansion = false
+    internal var isUpdatingExpansion = false
     
+    /****************************************************/
+    /*  Gender                                          */
+    /****************************************************/
     var gender: enumGender
-
     var genderIsExpanded: Bool
     {
         didSet {
@@ -16,23 +18,30 @@ final class ProfileInputViewModel: ObservableObject {
         }
     }
     
+    /****************************************************/
+    /*  Age                                             */
+    /****************************************************/
     var age: Int
-    
     var ageIsExpanded: Bool {
         didSet {
             enforceExclusiveExpansion(changed: .age, newValue: ageIsExpanded)
         }
     }
     
+    /****************************************************/
+    /*  Weight                                          */
+    /****************************************************/
     var weightUom: enumOptionWeight = enumOptionWeight.kilograms
     var weight: Double
-    
     var weightIsExpanded: Bool {
         didSet {
             enforceExclusiveExpansion(changed: .weight, newValue: weightIsExpanded)
         }
     }
     
+    /****************************************************/
+    /*  Weight                                          */
+    /****************************************************/
     var heightUom: enumOptionLength = enumOptionLength.centimeters
     var height: Double
     var heightIsExpanded: Bool {
@@ -41,6 +50,9 @@ final class ProfileInputViewModel: ObservableObject {
         }
     }
     
+    /****************************************************/
+    /*  Activity Level                                  */
+    /****************************************************/
     var activityLevel: enumActivityLevel
     var activityLevelIsExpanded: Bool {
         didSet {
@@ -48,6 +60,9 @@ final class ProfileInputViewModel: ObservableObject {
         }
     }
     
+    /****************************************************/
+    /*  Body Fat Percentage                             */
+    /****************************************************/
     var bodyFatPercentageMethod: enumBodyFatOption{
         didSet {
             bodyFatPercentageShowManualEntry = bodyFatPercentageMethod == .manualEntry
@@ -61,6 +76,9 @@ final class ProfileInputViewModel: ObservableObject {
     }
     var bodyFatPercentageShowManualEntry: Bool
     
+    /****************************************************/
+    /*  Calorie Adjustment                              */
+    /****************************************************/
     var calorieAdjustmentMethod: enumCalorieAdjustmentMethod = .maintain {
         didSet {
             calorieAdjustmentShowSliders = calorieAdjustmentMethod != .maintain
@@ -73,6 +91,13 @@ final class ProfileInputViewModel: ObservableObject {
         }
     }
     var calorieAdjustmentShowSliders : Bool
+    
+    /****************************************************/
+    /*  Macro Mix                                       */
+    /****************************************************/
+    var protein: Int
+    var carbs: Int
+    var fats: Int
     
     //*******************************
     // Initialiser                  *
@@ -99,45 +124,10 @@ final class ProfileInputViewModel: ObservableObject {
         self.calorieAdjustmentShowSliders = false
         self.bodyFatPercentageShowManualEntry = false
         self.bodyFatPercentageMethod = .omit
-    }
-    
-    //*******************************
-    // Computed Properties          */
-    //*******************************
-    var hasError: Bool {
-        weight == 0 || height == 0 
-    }
-    
-    var isValid: Bool {
-        weight != 0 && height != 0
-    }
-    
-    var showCalorieAdjustmentDetail: Bool {
-        return calorieAdjustmentMethod != .maintain
-    }
-    
-    private func enforceExclusiveExpansion(changed: enumSection, newValue: Bool) {
-        if isUpdatingExpansion { return }
-        guard newValue == true else { return }
-        isUpdatingExpansion = true
         
-        if ( changed != .age && ageIsExpanded) { ageIsExpanded = false }
-        if ( changed != .gender && genderIsExpanded) { genderIsExpanded = false }
-        if ( changed != .height && heightIsExpanded) { heightIsExpanded = false }
-        if ( changed != .weight && weightIsExpanded) { weightIsExpanded = false }
-        if ( changed != .bodyFatPercentage && bodyFatPercentageIsExpanded) { bodyFatPercentageIsExpanded = false }
-        if ( changed != .activityLevel && activityLevelIsExpanded) { activityLevelIsExpanded = false }
-        if ( changed != .calorieAdjustmentMethod && calorieAdjustmentExpanded) { calorieAdjustmentExpanded = false }
-
-        isUpdatingExpansion = false
-    }
-    
-    // get the result of tde calculations
-    var tdeeResult: TdeeResult {
-        TdeeCalculator.calculate(person: self)
-    }
-    
-    func collapseAll() {
-        enforceExclusiveExpansion(changed: .none, newValue: true)
+        // Macro Mix
+        self.protein = 40
+        self.carbs = 30
+        self.fats = 30
     }
 }

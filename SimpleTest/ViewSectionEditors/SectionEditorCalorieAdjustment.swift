@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SectionEditorCalorieAdjustment: View {
     
-    @Bindable var model: ProfileInputViewModel
+    @Bindable var model: ProfileViewModel
     
     var body: some View {
         UILayoutExpandingPanel(
@@ -25,21 +25,21 @@ struct SectionEditorCalorieAdjustment: View {
 
 
 #Preview("Cut") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.calorieAdjustmentMethod = .cut
     model.calorieAdjustment = 250
     return SectionEditorCalorieAdjustment(model: model)
 }
 
 #Preview("Bulk") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.calorieAdjustmentMethod = .bulk
     model.calorieAdjustment = 500
     return SectionEditorCalorieAdjustment(model: model)
 }
 
 #Preview("Maintain") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.calorieAdjustmentMethod = .maintain
     return SectionEditorCalorieAdjustment(model: model)
 }

@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct CalculationResultsView: View {
-    @ObservedObject var profile: ProfileInputViewModel
+    @ObservedObject var profile: ProfileViewModel
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -30,7 +30,7 @@ struct CalculationResultsView: View {
 #Preview {
     ScrollView {
         VStack(spacing: 12) {
-            CalculationResultsView(profile: ProfileInputViewModel())
+            CalculationResultsView(profile: ProfileViewModel())
         }
         .padding()
     }

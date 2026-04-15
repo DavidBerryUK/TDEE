@@ -9,7 +9,7 @@ import SwiftUI
 
 struct UISectionSummaryValueWeight: View {
     
-    @Bindable var model: ProfileInputViewModel
+    @Bindable var model: ProfileViewModel
     
     private var labelMajorUnit: String {
         switch model.weightUom {
@@ -58,7 +58,7 @@ struct UISectionSummaryValueWeight: View {
 }
 
 #Preview("Read kg") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.weightUom = .kilograms
     model.weight = 95
     model.weightIsExpanded = false
@@ -66,7 +66,7 @@ struct UISectionSummaryValueWeight: View {
 }
 
 #Preview("Edit kg") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.weightUom = .kilograms
     model.weight = 95
     model.weightIsExpanded = true
@@ -74,7 +74,7 @@ struct UISectionSummaryValueWeight: View {
 }
 
 #Preview("Read pounds") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.weightUom = .pounds
     model.weight = WeightConvertor.toKilograms(pounds: 175)
     model.weightIsExpanded = false
@@ -82,7 +82,7 @@ struct UISectionSummaryValueWeight: View {
 }
 
 #Preview("Edit pounds") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.weightUom = .pounds
     model.weight = WeightConvertor.toKilograms(pounds: 175)
     model.weightIsExpanded = true
@@ -90,7 +90,7 @@ struct UISectionSummaryValueWeight: View {
 }
 
 #Preview("Read stones & pounds") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.weightUom = .stonesAndPounds
     model.weightIsExpanded = false
     model.weight = WeightConvertor.toKilograms(stones: 18, pounds: 7)
@@ -98,7 +98,7 @@ struct UISectionSummaryValueWeight: View {
 }
 
 #Preview("Edit stones & pounds") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.weightUom = .stonesAndPounds
     model.weightIsExpanded = true
     model.weight = WeightConvertor.toKilograms(stones: 18, pounds: 7)

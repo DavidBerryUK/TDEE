@@ -9,7 +9,7 @@ import SwiftUI
 
 struct UISectionSummaryValueActivityLevel: View {
     
-    @Bindable var model: ProfileInputViewModel
+    @Bindable var model: ProfileViewModel
     
     var body: some View {
 
@@ -26,14 +26,14 @@ struct UISectionSummaryValueActivityLevel: View {
 }
 
 #Preview("Read Athlete") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.activityLevel = .athlete
     model.activityLevelIsExpanded = false
     return UISectionSummaryValueActivityLevel(model: model)
 }
 
 #Preview("Edit Light") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.activityLevel = .lightExercise
     model.activityLevelIsExpanded = true
     return UISectionSummaryValueActivityLevel(model: model)

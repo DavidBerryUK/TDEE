@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SectionBodyFatPercentage: View {
     
-    @Bindable var model: ProfileInputViewModel
+    @Bindable var model: ProfileViewModel
     
     var body: some View {
         UILayoutSectionView(
@@ -27,5 +27,5 @@ struct SectionBodyFatPercentage: View {
 }
 
 #Preview {
-    SectionBodyFatPercentage(model: ProfileInputViewModel())
+    SectionBodyFatPercentage(model: ProfileViewModel())
 }

@@ -9,7 +9,7 @@ import SwiftUI
 
 struct UISectionSummaryValueGender: View {
     
-    @Bindable var model: ProfileInputViewModel
+    @Bindable var model: ProfileViewModel
     
     var body: some View {
         
@@ -26,14 +26,14 @@ struct UISectionSummaryValueGender: View {
 }
 
 #Preview("Read Mode") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.gender = .male
     model.genderIsExpanded = false
     return UISectionSummaryValueGender(model: model)
 }
 
 #Preview("Edit Mode") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.gender = .female
     model.genderIsExpanded = true
     return UISectionSummaryValueGender(model: model)

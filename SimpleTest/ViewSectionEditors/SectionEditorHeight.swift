@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SectionEditorHeight: View {
     
-    @Bindable var model: ProfileInputViewModel
+    @Bindable var model: ProfileViewModel
     
     var body: some View {
         VStack {
@@ -20,5 +20,5 @@ struct SectionEditorHeight: View {
 }
 
 #Preview {
-    SectionEditorHeight(model: ProfileInputViewModel())
+    SectionEditorHeight(model: ProfileViewModel())
 }

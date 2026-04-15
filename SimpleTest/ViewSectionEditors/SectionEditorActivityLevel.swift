@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SectionEditorActivityLevel: View {
     
-    @Bindable var model: ProfileInputViewModel
+    @Bindable var model: ProfileViewModel
     
     var body: some View {
         VStack {
@@ -19,5 +19,5 @@ struct SectionEditorActivityLevel: View {
 }
 
 #Preview {
-    SectionEditorActivityLevel(model: ProfileInputViewModel())
+    SectionEditorActivityLevel(model: ProfileViewModel())
 }

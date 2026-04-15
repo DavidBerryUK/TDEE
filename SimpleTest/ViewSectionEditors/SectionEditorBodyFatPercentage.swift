@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SectionEditorBodyFatPercentage: View {
     
-    @Bindable var model: ProfileInputViewModel
+    @Bindable var model: ProfileViewModel
         
     var body: some View {
         UILayoutExpandingPanel(
@@ -24,19 +24,19 @@ struct SectionEditorBodyFatPercentage: View {
 }
 
 #Preview("omit") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.bodyFatPercentageMethod = .omit
     return SectionEditorBodyFatPercentage(model: model)
 }
 
 #Preview("Estimate") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.bodyFatPercentageMethod = .estimate
     return SectionEditorBodyFatPercentage(model: model)
 }
 
 #Preview("Manual Entry") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.bodyFatPercentageMethod = .manualEntry
     model.bodyFatPercentage = 15.2
     return SectionEditorBodyFatPercentage(model: model)

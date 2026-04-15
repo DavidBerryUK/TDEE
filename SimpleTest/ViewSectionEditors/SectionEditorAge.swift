@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SectionEditorAge: View {
     
-    @Bindable var model: ProfileInputViewModel
+    @Bindable var model: ProfileViewModel
     
     var body: some View {
         VStack {
@@ -19,5 +19,5 @@ struct SectionEditorAge: View {
 }
 
 #Preview {
-    SectionEditorAge(model: ProfileInputViewModel())
+    SectionEditorAge(model: ProfileViewModel())
 }

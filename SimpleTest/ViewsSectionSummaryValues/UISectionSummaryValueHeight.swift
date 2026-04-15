@@ -9,7 +9,7 @@ import SwiftUI
 
 struct UISectionSummaryValueHeight: View {
     
-    @Bindable var model: ProfileInputViewModel
+    @Bindable var model: ProfileViewModel
     
     private var labelMajorUnit: String {
         switch model.heightUom {
@@ -58,7 +58,7 @@ struct UISectionSummaryValueHeight: View {
 }
 
 #Preview("Read cm") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.heightUom = .centimeters
     model.height = 120
     model.heightIsExpanded = false
@@ -66,7 +66,7 @@ struct UISectionSummaryValueHeight: View {
 }
 
 #Preview("Edit cm") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.heightUom = .centimeters
     model.height = 120
     model.heightIsExpanded = true
@@ -74,7 +74,7 @@ struct UISectionSummaryValueHeight: View {
 }
 
 #Preview("Read inches") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.heightUom = .inches
     model.height = LengthConverter.toCentimeters(inches: 200)
     model.heightIsExpanded = false
@@ -82,7 +82,7 @@ struct UISectionSummaryValueHeight: View {
 }
 
 #Preview("Edit inches") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.heightUom = .inches
     model.height = LengthConverter.toCentimeters(inches: 100)
     model.heightIsExpanded = true
@@ -90,7 +90,7 @@ struct UISectionSummaryValueHeight: View {
 }
 
 #Preview("Read feet & inches") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.heightUom = .feetAndInches
     model.heightIsExpanded = false
     model.height = LengthConverter.toCentimeters(feet: 5, inches: 7)
@@ -98,7 +98,7 @@ struct UISectionSummaryValueHeight: View {
 }
 
 #Preview("Edit feet & inches") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.heightUom = .feetAndInches
     model.heightIsExpanded = true
     model.height = LengthConverter.toCentimeters(feet: 5, inches: 10)

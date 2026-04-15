@@ -9,7 +9,7 @@ import SwiftUI
 
 struct UISectionSummaryValueBodyFat: View {
     
-    @Bindable var model: ProfileInputViewModel
+    @Bindable var model: ProfileViewModel
         
     private var labelValue: String {
         switch model.bodyFatPercentageMethod {
@@ -62,7 +62,7 @@ struct UISectionSummaryValueBodyFat: View {
 }
 
 #Preview("Read Omit") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.bodyFatPercentageMethod = .omit
     model.bodyFatPercentage = 15.75
     model.bodyFatPercentageIsExpanded = false
@@ -70,7 +70,7 @@ struct UISectionSummaryValueBodyFat: View {
 }
 
 #Preview("Read Only Estimated") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.bodyFatPercentageMethod = .estimate
     model.bodyFatPercentage = 15.75
     model.bodyFatPercentageIsExpanded = false
@@ -78,7 +78,7 @@ struct UISectionSummaryValueBodyFat: View {
 }
 
 #Preview("Read Only Manual Entry") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.bodyFatPercentageMethod = .manualEntry
     model.bodyFatPercentage = 15.75
     model.bodyFatPercentageIsExpanded = false

@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SectionGender: View {
     
-    @Bindable var model: ProfileInputViewModel
+    @Bindable var model: ProfileViewModel
     
     var body: some View {
         UILayoutSectionView(
@@ -27,5 +27,5 @@ struct SectionGender: View {
 }
 
 #Preview {
-    SectionGender(model: ProfileInputViewModel())
+    SectionGender(model: ProfileViewModel())
 }

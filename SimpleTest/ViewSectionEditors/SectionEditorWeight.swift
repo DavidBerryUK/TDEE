@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SectionEditorWeight: View {
     
-    @Bindable var model: ProfileInputViewModel
+    @Bindable var model: ProfileViewModel
     
     var body: some View {
         VStack {
@@ -20,5 +20,5 @@ struct SectionEditorWeight: View {
 }
 
 #Preview {
-    SectionEditorWeight(model: ProfileInputViewModel())
+    SectionEditorWeight(model: ProfileViewModel())
 }

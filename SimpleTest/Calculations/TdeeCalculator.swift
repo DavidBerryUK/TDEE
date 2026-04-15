@@ -21,7 +21,7 @@ struct TdeeResult {
 
 struct TdeeCalculator {
     
-    static func calculate(person: ProfileInputViewModel, createAudit: Bool = false) -> TdeeResult {
+    static func calculate(person: ProfileViewModel, createAudit: Bool = false) -> TdeeResult {
         
         var logger = AuditLogger(enabled: createAudit)
         
@@ -70,7 +70,7 @@ struct TdeeCalculator {
         )
     }
     
-    private static func missingFields(for person: ProfileInputViewModel) -> [String] {
+    private static func missingFields(for person: ProfileViewModel) -> [String] {
         var fields: [String] = []
         if person.age == 0 { fields.append("Age") }
         if person.height == 0 { fields.append("Height") }
@@ -78,7 +78,7 @@ struct TdeeCalculator {
         return fields
     }
     
-    private static func calculateMifflinStJeor(person: ProfileInputViewModel, logger: AuditLogger) -> Double {
+    private static func calculateMifflinStJeor(person: ProfileViewModel, logger: AuditLogger) -> Double {
         //  logger.log(AuditItem(subTitle: "Mifflin St Jeor Formula"))
         
         let weight = person.weight
@@ -97,7 +97,7 @@ struct TdeeCalculator {
         return bmr
     }
     
-    private static func calculateKatchMcArdle(person: ProfileInputViewModel, logger: AuditLogger) -> Double {
+    private static func calculateKatchMcArdle(person: ProfileViewModel, logger: AuditLogger) -> Double {
         //    logger.log(AuditItem(subTitle: "Katch-McArdle Formula"))
         
         let lbm = calculateLeanBodyMass(person: person, logger: logger)
@@ -112,7 +112,7 @@ struct TdeeCalculator {
         return bmr
     }
     
-    private  static func calculateLeanBodyMass(person: ProfileInputViewModel, logger: AuditLogger) -> Double {
+    private  static func calculateLeanBodyMass(person: ProfileViewModel, logger: AuditLogger) -> Double {
         let weight = Double(person.weight)
         let height = Double(person.height)
         
@@ -156,7 +156,7 @@ struct TdeeCalculator {
         return result
     }
     
-    static func adjustCalories(base: Double, person: ProfileInputViewModel, logger: AuditLogger) -> Double {
+    static func adjustCalories(base: Double, person: ProfileViewModel, logger: AuditLogger) -> Double {
         //        switch person.calorieAdjustmentMethod {
         //        case .Maintain:
         return base
@@ -167,7 +167,7 @@ struct TdeeCalculator {
         //        }
     }
     
-    private  static func logMacros(calories: Double, person: ProfileInputViewModel, logger: AuditLogger) {
+    private  static func logMacros(calories: Double, person: ProfileViewModel, logger: AuditLogger) {
         //        logger.log(AuditItem(subTitle: "Macro Split"))
         
         //        let protein = (Double(person.protein) / 100.0) * calories / 4.0

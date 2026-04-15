@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SectionActivityLevel: View {
     
-    @Bindable var model: ProfileInputViewModel
+    @Bindable var model: ProfileViewModel
     
     var body: some View {
         UILayoutSectionView(
@@ -27,5 +27,5 @@ struct SectionActivityLevel: View {
 }
 
 #Preview {
-    SectionActivityLevel(model: ProfileInputViewModel())
+    SectionActivityLevel(model: ProfileViewModel())
 }

@@ -14,7 +14,7 @@ struct AuditLogger {
         items.append(item)
     }
     
-    mutating func logInputs(person: ProfileInputViewModel) {
+    mutating func logInputs(person: ProfileViewModel) {
         guard enabled else { return }
         
         items.append(AuditItem(subTitle: "Inputs"))

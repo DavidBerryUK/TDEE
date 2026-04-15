@@ -9,7 +9,7 @@ import SwiftUI
 
 struct UICardValidation: View {
     
-    @Bindable var model: ProfileInputViewModel
+    @Bindable var model: ProfileViewModel
     
     var body: some View {
         VStack {
@@ -89,28 +89,28 @@ private struct ValidationRow: View {
 // MARK: - Previews
 
 #Preview("Error - weight") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.weight = 0
     model.height = 100
     return UICardValidation(model: model)
 }
 
 #Preview("Error - Height") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.weight = 100
     model.height = 0
     return UICardValidation(model: model)
 }
 
 #Preview("Error - Both") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.weight = 0
     model.height = 0
     return UICardValidation(model: model)
 }
 
 #Preview("Valid") {
-    let model = ProfileInputViewModel()
+    let model = ProfileViewModel()
     model.age = 21
     model.weight = 74
     model.height = 70

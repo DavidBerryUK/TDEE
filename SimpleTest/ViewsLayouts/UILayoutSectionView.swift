@@ -51,7 +51,7 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
 }
 
 #Preview {
-    @Previewable @State var model = ProfileInputViewModel()
+    @Previewable @State var model = ProfileViewModel()
     
     UILayoutSectionView(
         title: "Weight",
