@@ -19,6 +19,11 @@ struct TestHostCatalogView: View {
                     NavigationLink("Numeric Result", destination: HostCardNumericResult())
                 }
                 
+                // Group - Value Editors
+                Section(header: Text("Value Editord")) {
+                    NavigationLink("Macro Mixer", destination: HostMacroMixer())
+                }
+                
                 // Group - Wheel Pickers
                 Section(header: Text("Wheel Pickers")) {
                     NavigationLink("Age", destination: HostWheelPickerAge())

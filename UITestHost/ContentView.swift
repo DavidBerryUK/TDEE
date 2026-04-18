@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject private var profile = ProfileInputViewModel()
+    @StateObject private var profile = ProfileViewModel()
     
     var body: some View {
         

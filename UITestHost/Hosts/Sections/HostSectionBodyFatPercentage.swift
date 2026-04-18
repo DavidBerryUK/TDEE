@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct HostSectionBodyFatPercentage: View {
-    @State private var model = ProfileInputViewModel()
+    @State private var model = ProfileViewModel()
     
     var body: some View {
         TestHostContainer(

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct HostSectionHeight: View {
-    @State private var model = ProfileInputViewModel()
+    @State private var model = ProfileViewModel()
     
     var body: some View {
         TestHostContainer(
