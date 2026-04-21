@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct SectionMaintenanceCalories: View {
+struct SectionCaloriesMaintenance: View {
     
     @Bindable var model: ProfileViewModel
     
@@ -17,7 +17,6 @@ struct SectionMaintenanceCalories: View {
         
         VStack{
             HStack{
-                //TODO: need a control for this to keep consistant header formatting??
                 Text("Maintenance Calories")
             }
             HStack{
@@ -33,5 +32,5 @@ struct SectionMaintenanceCalories: View {
     model.age = 21
     model.height = 80
     model.weight = 56
-    return SectionMaintenanceCalories(model: model)
+    return SectionCaloriesMaintenance(model: model)
 }

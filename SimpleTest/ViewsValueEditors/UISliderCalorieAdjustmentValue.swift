@@ -44,7 +44,8 @@ struct UISliderCalorieAdjustmentValue: View {
                     .gridColumnAlignment(.leading)
                 
                 Text("\(perDay)")
-                    .font(.largeTitle)
+                    .font(.system(size: 28, weight: .regular, design: .default))
+                    .monospacedDigit()
                     .gridColumnAlignment(.trailing)
             }
             
@@ -59,7 +60,8 @@ struct UISliderCalorieAdjustmentValue: View {
                     .gridColumnAlignment(.leading)
                 
                 Text("\(perWeek)")
-                    .font(.largeTitle)
+                    .font(.system(size: 28, weight: .regular, design: .default))
+                    .monospacedDigit()
                     .gridColumnAlignment(.trailing)
             }
             

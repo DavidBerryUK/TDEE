@@ -19,6 +19,7 @@ struct SectionEditorCalorieAdjustment: View {
             }
         ) {
             UISliderCalorieAdjustmentValue(model: model)
+                .padding(.top, 16)                
         }
     }
 }

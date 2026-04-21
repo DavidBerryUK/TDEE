@@ -56,7 +56,7 @@ struct UIWheelPickerBodyFatView: View {
     }
 }
 
-#Preview("age") {
+#Preview() {
     @Previewable @State var bodyFat: Double = 15.7
     UIWheelPickerBodyFatView(value: $bodyFat)
 }
