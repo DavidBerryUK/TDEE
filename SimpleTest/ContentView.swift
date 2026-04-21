@@ -10,11 +10,18 @@ struct ContentView: View {
             MainView()
                 .navigationTitle("Main")
                 .toolbar {
-                    ToolbarItem(placement: .topBarTrailing) {
+                    ToolbarItem(placement: .topBarLeading) {
                         Button {
                             path.append(.system)
                         } label: {
                             Image(systemName: "line.3.horizontal")
+                        }
+                    }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            
+                        } label: {
+                            Image(systemName: "square.and.arrow.up")
                         }
                     }
                 }

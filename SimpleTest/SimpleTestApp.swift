@@ -9,9 +9,13 @@ import SwiftUI
 
 @main
 struct SimpleTestApp: App {
+    
+    var macroSplitCollection = MacroSplitViewModelCollection(items: FactoryMacroSplits.get())
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(macroSplitCollection)
         }
     }
 }

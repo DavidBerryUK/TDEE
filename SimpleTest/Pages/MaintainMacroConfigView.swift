@@ -8,7 +8,9 @@ import SwiftUI
 
 struct MaintainMacroConfigView: View {
     var body: some View {
-        Text("Maintain Macro Config View")
+        HStack{
+            MacroOptionsListView()
+        }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color(.systemGroupedBackground))
             .navigationTitle("Maintain Macros")

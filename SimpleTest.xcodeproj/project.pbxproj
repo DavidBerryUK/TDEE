@@ -101,7 +101,7 @@
 				ViewsValueEditors/UISegmentUomLengthView.swift,
 				ViewsValueEditors/UISegmentUomWeightView.swift,
 				ViewsValueEditors/UISliderCalorieAdjustmentValue.swift,
-				ViewsValueEditors/UISliderMacroMixView.swift,
+				ViewsValueEditors/UISliderMacroMixViewOLD.swift,
 				ViewsValueEditors/UIWheelPickerActivityLevelView.swift,
 				ViewsValueEditors/UIWheelPickerAgeView.swift,
 				ViewsValueEditors/UIWheelPickerBodyFatView.swift,
