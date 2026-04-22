@@ -1,6 +1,5 @@
 import SwiftUI
 
-// MARK: - Route Enum
 
 struct ContentView: View {
     @State private var path: [EnumAppRoute] = []
@@ -29,18 +28,25 @@ struct ContentView: View {
                     switch route {
                     case .system:
                         SystemPage(path: $path)
+                        
                     case .maintainMacroConfig:
-                        MaintainMacroConfigView()
+                        MacroOptionsListViewPage(path: $path)
+                        
                     case .theme:
                         ThemeView()
+                        
                     case .about:
                         AboutPage()
+                        
+                    case .macroEditorCreate:
+                        MacroEditViewPage(item: nil)
+                    case .macroEditorEdit(let item):
+                        MacroEditViewPage(item: item)
                     }
                 }
         }
     }
 }
-
 
 #Preview {
     ContentView()

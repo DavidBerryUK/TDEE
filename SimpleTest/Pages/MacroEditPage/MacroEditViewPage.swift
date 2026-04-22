@@ -1,35 +1,45 @@
 import SwiftUI
 
-struct MacroEditView: View {
+struct MacroEditViewPage: View {
     @Environment(\.dismiss) private var dismiss
     
+    @Environment(MacroSplitViewModelCollection.self)
+    var collection
+    
+    @Binding var path: [EnumAppRoute]
     @State private var editMacro: MacroSplitViewModel
     @State private var showDeleteSheet = false
     
     var isNew: Bool
-    var onSave: (MacroSplitViewModel) -> Void
-    var onDelete: (() -> Void)? = nil
+    
+    
+//    var onSave: (MacroSplitViewModel) -> Void
+//    var onDelete: (() -> Void)? = nil
+    
+//    func handleOnDelete(item: MacroSplitViewModel) {
+//        collection.remove(item)
+//    }
+//    
+//    func handleOnSave(item: MacroSplitViewModel) {
+//        collection.update(item)
+//    }
     
     init(
-        item: MacroSplitViewModel? = nil,
-        onSave: @escaping (MacroSplitViewModel) -> Void,
-        onDelete: (() -> Void)? = nil
+        path: Binding<[EnumAppRoute]> = .constant([]),
+        item: MacroSplitViewModel? = nil
     ) {
+        self._path = path
         self.isNew = (item == nil)
-        self._editMacro = State(initialValue:
-                                    (item == nil) ? MacroSplitViewModel() : item!.clone()
-        )
-        self.onSave = onSave
-        self.onDelete = onDelete
+        self._editMacro = State(initialValue: (item == nil) ? MacroSplitViewModel() : item!.clone())
     }
     
     // MARK: - Actions
     
     private func handleOnDelete() {
-        if !isNew, let onDelete {
-            onDelete()
+        
+            collection.remove(editMacro)
             dismiss()
-        }
+        
     }
     
     // MARK: - View
@@ -64,7 +74,7 @@ struct MacroEditView: View {
                     )
                 }
             } else {
-                if onDelete != nil {
+                
                     Section {
                         Button(role: .destructive) {
                             showDeleteSheet = true
@@ -82,14 +92,14 @@ struct MacroEditView: View {
                                 .fill(Color.red.opacity(0.1))
                         )
                     }
-                }
+                
             }
         }
         .navigationTitle("Edit Macro")
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button("Save") {
-                    onSave(editMacro)
+                    collection.update(editMacro)
                     dismiss()
                 }
                 .disabled(
@@ -102,7 +112,7 @@ struct MacroEditView: View {
             DeleteConfirmationSheet(
                 onConfirm: {
                     showDeleteSheet = false
-                    handleOnDelete()
+                    collection.remove(editMacro)
                 },
                 onCancel: {
                     showDeleteSheet = false
@@ -185,6 +195,6 @@ struct DeleteConfirmationSheet: View {
 
 #Preview {
     NavigationStack {
-        MacroEditView { _ in }
+        MacroEditViewPage(path: .constant([]))
     }
 }

@@ -2,23 +2,23 @@ import Foundation
 import Observation
 
 @Observable
-final class MacroSplitViewModel : Identifiable, Hashable {
+public final class MacroSplitViewModel : Identifiable, Hashable {
     
-    static func == (lhs: MacroSplitViewModel, rhs: MacroSplitViewModel) -> Bool {
+    public static func == (lhs: MacroSplitViewModel, rhs: MacroSplitViewModel) -> Bool {
         return lhs.id == rhs.id
     }
     
     
-    var id: UUID
-    var name :String
+    public var id: UUID
+    public var name :String
     
-    var protein: Int
-    var carbs: Int
-    var fats: Int
+    public var protein: Int
+    public var carbs: Int
+    public var fats: Int
     
-    var ordinal: Int
+    public var ordinal: Int
     
-    init() {
+    public init() {
         self.id = UUID()
         self.name = ""
         self.protein = 40
@@ -28,7 +28,7 @@ final class MacroSplitViewModel : Identifiable, Hashable {
         normalizeAll()
     }
     
-    init(id: UUID = UUID(), name: String = "", protein: Int = 40, carbs: Int = 30, fats: Int = 30,  ordinal: Int = 0) {
+    public init(id: UUID = UUID(), name: String = "", protein: Int = 40, carbs: Int = 30, fats: Int = 30,  ordinal: Int = 0) {
         self.id = id
         self.name = name
         self.protein = protein
@@ -40,11 +40,11 @@ final class MacroSplitViewModel : Identifiable, Hashable {
     
     
     
-    func hash(into hasher: inout Hasher) {
+    public func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
     
-    func clone() -> MacroSplitViewModel {
+    public func clone() -> MacroSplitViewModel {
         return MacroSplitViewModel(id : self.id, name: self.name, protein: self.protein, carbs: self.carbs, fats: self.fats, ordinal: self.ordinal)
     }
 }

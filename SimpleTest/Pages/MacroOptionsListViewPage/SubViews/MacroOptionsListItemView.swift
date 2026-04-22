@@ -2,9 +2,19 @@ import SwiftUI
 
 struct MacroOptionsListItemView: View {
     
+    @Environment(MacroSplitViewModelCollection.self)
+    var collection
+    
     @Bindable var item: MacroSplitViewModel
-    var onEdit: (MacroSplitViewModel) -> Void
-    var onDelete: (MacroSplitViewModel) -> Void
+    @Binding var path: [EnumAppRoute]
+    
+    func handleOnDelete (item: MacroSplitViewModel) {
+        collection.remove(item)
+    }
+    
+    func handleOnEdit (item: MacroSplitViewModel) {
+        path.append(.macroEditorEdit(item))
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -28,12 +38,12 @@ struct MacroOptionsListItemView: View {
         
         // detect the user tapping on the row
         .onTapGesture {
-            onEdit(item)
+            handleOnEdit(item: item)
         }
         // Swipe right = edit
         .swipeActions(edge: .leading, allowsFullSwipe: true) {
             Button {
-                onEdit(item)
+                handleOnEdit(item: item)
             } label: {
                 Label("Edit", systemImage: "pencil")
             }
@@ -43,7 +53,7 @@ struct MacroOptionsListItemView: View {
         // Swipe left = delete
         .swipeActions(edge: .trailing) {
             Button(role: .destructive) {
-                onDelete(item)
+                handleOnDelete(item: item)
             } label: {
                 Label("Delete", systemImage: "trash")
             }
