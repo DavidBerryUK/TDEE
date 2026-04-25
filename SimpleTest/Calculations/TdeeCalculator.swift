@@ -9,19 +9,13 @@ import Foundation
 
 // MARK: - Result Models
 
-struct TdeeResult {
-    let bmr: Double
-    let tdee: Double
-    let adjustedCalories: Double
-    let message: String?
-    let audit: [AuditItem]
-}
+
 
 // MARK: - Calculator
 
 struct TdeeCalculator {
     
-    static func calculate(person: ProfileViewModel, createAudit: Bool = false) -> TdeeResult {
+    static func calculate(person: ProfileViewModel, createAudit: Bool = false) -> TdeeResultViewModel {
         
         var logger = AuditLogger(enabled: createAudit)
         
@@ -34,7 +28,7 @@ struct TdeeCalculator {
             let message = "Enter \(missingFields.joined(separator: ", ")) to view results"
             logger.log(AuditItem(message: "\(missingFields.joined(separator: ", ")) not entered"))
             
-            return TdeeResult(
+            return TdeeResultViewModel(
                 bmr: 0,
                 tdee: 0,
                 adjustedCalories: 0,
@@ -61,7 +55,7 @@ struct TdeeCalculator {
         // Macros
         logMacros(calories: adjustedCalories, person: person, logger: logger)
         
-        return TdeeResult(
+        return TdeeResultViewModel(
             bmr: bmr,
             tdee: tdee,
             adjustedCalories: adjustedCalories,

@@ -15,7 +15,7 @@ struct MacroCalculatorResult {
 struct MacroCalculator {
     
     
-    static func calculate(person: ProfileViewModel, tdee: TdeeResult ) -> MacroCalculatorResult {
+    static func calculate(person: ProfileViewModel, tdee: TdeeResultViewModel ) -> MacroCalculatorResult {
         
         let calories = tdee.bmr
         

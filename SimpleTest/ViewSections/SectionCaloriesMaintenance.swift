@@ -9,28 +9,25 @@ import SwiftUI
 
 struct SectionCaloriesMaintenance: View {
     
-    @Bindable var model: ProfileViewModel
+    
+    @Bindable var tdeeResult: TdeeResultViewModel
     
     var body: some View {
-        
-        let tdee = model.tdeeResult
         
         VStack{
             HStack{
                 Text("Maintenance Calories")
             }
             HStack{
-                UICardNumericResult(title: "calories per day", value: tdee.tdee)
-                UICardNumericResult(title: "calories per week", value: tdee.tdee * 7)
+                UICardNumericResult(title: "calories per day", value: tdeeResult.tdee)
+                UICardNumericResult(title: "calories per week", value: tdeeResult.tdee * 7)
             }
         }.padding(16) // padding around the row
     }
 }
 
 #Preview {
-    let model = ProfileViewModel()
-    model.age = 21
-    model.height = 80
-    model.weight = 56
-    return SectionCaloriesMaintenance(model: model)
+    let tdeeResult = TdeeResultViewModel()
+    tdeeResult.tdee = 1200
+    return SectionCaloriesMaintenance(tdeeResult: tdeeResult)
 }

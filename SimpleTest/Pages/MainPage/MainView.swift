@@ -6,12 +6,24 @@
 //
 
 import SwiftUI
+import Combine
 
 struct MainView: View {
-    private var profile = ProfileViewModel()
+    @StateObject private var profile = ProfileViewModel()
+    @State private var tdeeResult = TdeeResultViewModel()
+    
+    // everytime the following properties on profile are updated
+    //  * gender, age, weight,height,  bodyFatPercentageMethod, bodyFatPercentage
+    //
+    // I want to recalculate the tdeeResult to = TdeeCalculator.calculate(person: profile)
+    //
     
     var body: some View {
         VStack {
+            // Initial calculation
+            Color.clear.frame(height: 0).task {
+                tdeeResult = TdeeCalculator.calculate(person: profile)
+            }
             ZStack {
                 // Grey background (full screen)
                 Color(.systemGroupedBackground)
@@ -43,11 +55,11 @@ struct MainView: View {
                         // Results Section
                         //
                         VStack(spacing: 0) {
-                            SectionCaloriesMaintenance(model: profile)
+                            SectionCaloriesMaintenance(tdeeResult: tdeeResult)
                             Divider()
                             SectionCalorieAdjustment(model: profile)
                             Divider()
-                            SectionCaloriesAdjusted(model: profile)
+                            SectionCaloriesAdjusted(profile: profile, tdeeResult: tdeeResult)
                         }
                         .background(Color.white)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -70,6 +82,25 @@ struct MainView: View {
                     profile.collapseAll()
                 }
             }
+            .onChange(of: profile.gender) { _, _ in
+                tdeeResult = TdeeCalculator.calculate(person: profile)
+            }
+            .onChange(of: profile.age) { _, _ in
+                tdeeResult = TdeeCalculator.calculate(person: profile)
+            }
+            .onChange(of: profile.weight) { _, _ in
+                tdeeResult = TdeeCalculator.calculate(person: profile)
+            }
+            .onChange(of: profile.height) { _, _ in
+                tdeeResult = TdeeCalculator.calculate(person: profile)
+            }
+            .onChange(of: profile.bodyFatPercentageMethod) { _, _ in
+                tdeeResult = TdeeCalculator.calculate(person: profile)
+            }
+            .onChange(of: profile.bodyFatPercentage) { _, _ in
+                tdeeResult = TdeeCalculator.calculate(person: profile)
+            }
         }
     }
 }
+

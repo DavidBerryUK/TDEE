@@ -64,7 +64,6 @@
 				ViewCards/UICardValidation.swift,
 				ViewModels/Icon/IconModel.swift,
 				ViewModels/ProfileViewModel/ProfileViewModel.swift,
-				ViewModels/ProfileViewModel/ProfileViewModelCalculations.swift,
 				ViewModels/ProfileViewModel/ProfileViewModelExpanded.swift,
 				ViewModels/ProfileViewModel/ProfileViewModelMacro.swift,
 				ViewModels/ProfileViewModel/ProfileViewModelValidation.swift,

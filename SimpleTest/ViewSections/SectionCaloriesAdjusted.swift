@@ -9,14 +9,14 @@ import SwiftUI
 
 struct SectionCaloriesAdjusted: View {
     
-    @Bindable var model: ProfileViewModel
+    @Bindable var profile : ProfileViewModel
+    @Bindable var tdeeResult: TdeeResultViewModel
+    
     
     var body: some View {
-        
-        let tdee = model.tdeeResult
-                
+                                
         UILayoutExpandingPanel(
-            isOpen: $model.calorieAdjustmentShowSliders,
+            isOpen: $profile.calorieAdjustmentShowSliders,
             header: { EmptyView() }
         ) {
             VStack{
@@ -24,8 +24,8 @@ struct SectionCaloriesAdjusted: View {
                     Text("Adjusted Calories")
                 }
                 HStack{
-                    UICardNumericResult(title: "calories per day", value: tdee.tdee * 2)
-                    UICardNumericResult(title: "calories per week", value: tdee.tdee * 7 * 2)
+                    UICardNumericResult(title: "calories per day", value: tdeeResult.tdee * 2)
+                    UICardNumericResult(title: "calories per week", value: tdeeResult.tdee * 7 * 2)
                 }
             }.padding(16) // padding around the row
         }
@@ -34,9 +34,8 @@ struct SectionCaloriesAdjusted: View {
 
 
 #Preview {
-    let model = ProfileViewModel()
-    model.age = 21
-    model.height = 80
-    model.weight = 56
-    return SectionCaloriesAdjusted(model: model)
+    let tdeeResult = TdeeResultViewModel()
+    tdeeResult.tdee = 21
+    let profile = ProfileViewModel()
+    return SectionCaloriesAdjusted(profile: profile, tdeeResult: tdeeResult)
 }
