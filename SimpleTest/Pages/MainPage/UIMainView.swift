@@ -13,6 +13,7 @@ struct UIMainView: View {
     @State private var tdeeResult = TdeeResultViewModel()
     @StateObject var macroMix = MacroSplitViewModel()
     @StateObject var sectionManager = SectionManagerViewModel()
+    @StateObject var macroMixResults =  MacroSplitResultViewModel()
 
     var body: some View {
         VStack {
@@ -56,6 +57,8 @@ struct UIMainView: View {
                             SectionCalorieAdjustment(model: profile, sectionManager: sectionManager)
                             Divider()
                             SectionCaloriesAdjusted(profile: profile, tdeeResult: tdeeResult)
+                            Divider()
+                            SectionMacroMixResults(macroMixResults: macroMixResults)
                         }
                         .background(Color.white)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -94,21 +97,27 @@ struct UIMainView: View {
             }
             .onChange(of: profile.gender) { _, _ in
                 tdeeResult = TdeeCalculator.calculate(person: profile)
+                macroMixResults = MacroCalculator.calculate(person: profile, tdee: tdeeResult)
             }
             .onChange(of: profile.age) { _, _ in
                 tdeeResult = TdeeCalculator.calculate(person: profile)
+                macroMixResults = MacroCalculator.calculate(person: profile, tdee: tdeeResult)
             }
             .onChange(of: profile.weight) { _, _ in
                 tdeeResult = TdeeCalculator.calculate(person: profile)
+                macroMixResults = MacroCalculator.calculate(person: profile, tdee: tdeeResult)
             }
             .onChange(of: profile.height) { _, _ in
                 tdeeResult = TdeeCalculator.calculate(person: profile)
+                macroMixResults = MacroCalculator.calculate(person: profile, tdee: tdeeResult)
             }
             .onChange(of: profile.bodyFatPercentageMethod) { _, _ in
                 tdeeResult = TdeeCalculator.calculate(person: profile)
+                macroMixResults = MacroCalculator.calculate(person: profile, tdee: tdeeResult)
             }
             .onChange(of: profile.bodyFatPercentage) { _, _ in
                 tdeeResult = TdeeCalculator.calculate(person: profile)
+                macroMixResults = MacroCalculator.calculate(person: profile, tdee: tdeeResult)
             }
         }
     }
