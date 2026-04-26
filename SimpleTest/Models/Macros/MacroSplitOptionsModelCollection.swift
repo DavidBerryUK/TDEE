@@ -2,13 +2,15 @@ import Observation
 import Foundation
 import SwiftUI
 
+
+/// Collection of all the Macro Split Options
 @Observable
-final class MacroSplitViewModelCollection {
+final class MacroSplitOptionsModelCollection {
     
     // Source of truth
-    private var items: [MacroSplitViewModel] = []
+    public var items: [MacroSplitOptionModel] = []
     
-    var sortedItems: [MacroSplitViewModel] {
+    var sortedItems: [MacroSplitOptionModel] {
         items.sorted { $0.ordinal < $1.ordinal }
     }
     
@@ -18,13 +20,13 @@ final class MacroSplitViewModelCollection {
     }
     
     // Initialise with existing items
-    init(items: [MacroSplitViewModel]) {
+    init(items: [MacroSplitOptionModel]) {
         self.items = items
     }
     
     // MARK: - CRUD
     
-    func add(_ item: MacroSplitViewModel) {        
+    func add(_ item: MacroSplitOptionModel) {        
         item.ordinal = -1
         items.append(item)
         reindex()
@@ -38,7 +40,7 @@ final class MacroSplitViewModelCollection {
         }
     }
     
-    func update(_ item: MacroSplitViewModel) {
+    func update(_ item: MacroSplitOptionModel) {
         if let existing = items.first(where: { $0.id == item.id }) {
             existing.name = item.name
             existing.protein = item.protein
@@ -48,7 +50,7 @@ final class MacroSplitViewModelCollection {
         }
     }
     
-    func remove(_ item: MacroSplitViewModel) {
+    func remove(_ item: MacroSplitOptionModel) {
         if let index = items.firstIndex(where: { $0.id == item.id }) {
             items.remove(at: index)
         }

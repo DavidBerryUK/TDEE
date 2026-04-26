@@ -2,7 +2,7 @@ import SwiftUI
 
 struct MacroInformationBarView: View {
     
-    @Bindable var item: MacroSplitViewModel
+    @Bindable var item: MacroSplitOptionModel
     
     private let minLabelWidth: CGFloat = 45
     

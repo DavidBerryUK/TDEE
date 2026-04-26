@@ -1,10 +1,11 @@
 import Foundation
 import Observation
 
+/// Single Macro Psplit Option
 @Observable
-public final class MacroSplitViewModel : Identifiable, Hashable {
+public final class MacroSplitOptionModel : Identifiable, Hashable {
     
-    public static func == (lhs: MacroSplitViewModel, rhs: MacroSplitViewModel) -> Bool {
+    public static func == (lhs: MacroSplitOptionModel, rhs: MacroSplitOptionModel) -> Bool {
         return lhs.id == rhs.id
     }
     
@@ -44,13 +45,13 @@ public final class MacroSplitViewModel : Identifiable, Hashable {
         hasher.combine(id)
     }
     
-    public func clone() -> MacroSplitViewModel {
-        return MacroSplitViewModel(id : self.id, name: self.name, protein: self.protein, carbs: self.carbs, fats: self.fats, ordinal: self.ordinal)
+    public func clone() -> MacroSplitOptionModel {
+        return MacroSplitOptionModel(id : self.id, name: self.name, protein: self.protein, carbs: self.carbs, fats: self.fats, ordinal: self.ordinal)
     }
 }
 
 
-extension MacroSplitViewModel {
+extension MacroSplitOptionModel {
 
     // MARK: - Public API for sliders
     func updateProtein(to newValue: Double) {

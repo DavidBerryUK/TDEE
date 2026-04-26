@@ -4,7 +4,7 @@ import SwiftUI
 
 struct MacroOptionsListViewPage: View {
     
-    @Environment(MacroSplitViewModelCollection.self)
+    @Environment(MacroSplitOptionsModelCollection.self)
     var collection
     
     @Binding var path: [EnumAppRoute]
@@ -12,15 +12,15 @@ struct MacroOptionsListViewPage: View {
     //
     // move these into a collection handler
     //
-    func handleOnEdit (item: MacroSplitViewModel)  {
+    func handleOnEdit (item: MacroSplitOptionModel)  {
         path.append(.macroEditorEdit(item))
     }
     
-    func handleOnDelete (item: MacroSplitViewModel) {
+    func handleOnDelete (item: MacroSplitOptionModel) {
         collection.remove(item)
     }
     
-    func handleOnSave(item: MacroSplitViewModel) {
+    func handleOnSave(item: MacroSplitOptionModel) {
         collection.update(item)
     }
     

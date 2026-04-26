@@ -6,7 +6,7 @@
 //
 import SwiftUI
 
-struct SystemPage: View {
+struct UISystemPageView: View {
     @Binding var path: [EnumAppRoute]
     
     var body: some View {

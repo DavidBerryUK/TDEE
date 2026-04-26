@@ -7,7 +7,7 @@
 import SwiftUI
 
 struct IconModel {
-    let id : enumIcon
+    let id : EnumIcon
     let label: String
     let symbolSolid: String
     let symbolOutlined: String

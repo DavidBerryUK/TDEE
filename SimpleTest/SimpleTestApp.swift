@@ -10,7 +10,7 @@ import SwiftUI
 @main
 struct SimpleTestApp: App {
     
-    var macroSplitCollection = MacroSplitViewModelCollection(items: FactoryMacroSplits.get())
+    var macroSplitCollection = MacroSplitOptionsModelCollection(items: FactoryMacroSplits.get())
     
     var body: some Scene {
         WindowGroup {

@@ -6,7 +6,7 @@ struct ContentView: View {
     
     var body: some View {
         NavigationStack(path: $path) {
-            MainView()
+            UIMainView()
                 .navigationTitle("Main")
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {
@@ -27,7 +27,7 @@ struct ContentView: View {
                 .navigationDestination(for: EnumAppRoute.self) { route in
                     switch route {
                     case .system:
-                        SystemPage(path: $path)
+                        UISystemPageView(path: $path)
                         
                     case .maintainMacroConfig:
                         MacroOptionsListViewPage(path: $path)

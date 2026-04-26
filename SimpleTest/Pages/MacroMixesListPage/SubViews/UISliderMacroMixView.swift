@@ -9,7 +9,7 @@ import SwiftUI
 
 struct UISliderMacroMixView: View {
     
-    @Bindable var model: MacroSplitViewModel
+    @Bindable var model: MacroSplitOptionModel
     
     var body: some View {
     VStack{
@@ -65,5 +65,5 @@ struct UISliderMacroMixView: View {
 }
 }
 #Preview {
-    UISliderMacroMixView(model: MacroSplitViewModel())
+    UISliderMacroMixView(model: MacroSplitOptionModel())
 }

@@ -12,6 +12,6 @@ public enum EnumAppRoute: Hashable {
     case theme
     case about
     case macroEditorCreate
-    case macroEditorEdit(MacroSplitViewModel)
+    case macroEditorEdit(MacroSplitOptionModel)
 }
 

@@ -24,7 +24,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		FAE95A292F7FD05400391EF3 /* UITestHost.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UITestHost.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FAFE3E3C2F7C6CC200F46D16 /* SimpleTest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SimpleTest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FAFE3E492F7C6CC500F46D16 /* SimpleTestTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SimpleTestTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FAFE3E532F7C6CC500F46D16 /* SimpleTestUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SimpleTestUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -38,90 +37,13 @@
 			);
 			target = FAFE3E3B2F7C6CC200F46D16 /* SimpleTest */;
 		};
-		FAE95A532F7FD0BD00391EF3 /* Exceptions for "SimpleTest" folder in "UITestHost" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Calculations/AuditItem.swift,
-				Calculations/AuditLogger.swift,
-				Calculations/MacroCalculator.swift,
-				Calculations/TdeeCalculator.swift,
-				Constants/UIStyle.swift,
-				Enums/enumActivityLevel.swift,
-				Enums/enumBodyFatOption.swift,
-				Enums/enumCalorieAdjustmentMethod.swift,
-				Enums/enumGender.swift,
-				Enums/enumIcon.swift,
-				Enums/enumIconStyle.swift,
-				Enums/enumMacroSplitMethod.swift,
-				Enums/enumOptionLength.swift,
-				Enums/enumOptionWeight.swift,
-				Enums/enumSection.swift,
-				Utilities/displayLength.swift,
-				Utilities/displayWeight.swift,
-				Utilities/LengthConverter.swift,
-				Utilities/WeightConvertor.swift,
-				ViewCards/UICardNumericResult.swift,
-				ViewCards/UICardValidation.swift,
-				ViewModels/Icon/IconModel.swift,
-				ViewModels/ProfileViewModel/ProfileViewModel.swift,
-				ViewModels/ProfileViewModel/ProfileViewModelExpanded.swift,
-				ViewModels/ProfileViewModel/ProfileViewModelMacro.swift,
-				ViewModels/ProfileViewModel/ProfileViewModelValidation.swift,
-				ViewsComponents/UIIcon.swift,
-				ViewSectionEditors/SectionEditorActivityLevel.swift,
-				ViewSectionEditors/SectionEditorAge.swift,
-				ViewSectionEditors/SectionEditorBodyFatPercentage.swift,
-				ViewSectionEditors/SectionEditorCalorieAdjustment.swift,
-				ViewSectionEditors/SectionEditorHeight.swift,
-				ViewSectionEditors/SectionEditorWeight.swift,
-				ViewSections/SectionActivityLevel.swift,
-				ViewSections/SectionAge.swift,
-				ViewSections/SectionBodyFatPercentage.swift,
-				ViewSections/SectionCalorieAdjustment.swift,
-				ViewSections/SectionCaloriesAdjusted.swift,
-				ViewSections/SectionCaloriesMaintenance.swift,
-				ViewSections/SectionGender.swift,
-				ViewSections/SectionHeight.swift,
-				ViewSections/SectionWeight.swift,
-				ViewsLabels/UITextPickerLabel.swift,
-				ViewsLayouts/UILayoutExpandingPanel.swift,
-				ViewsLayouts/UILayoutSectionView.swift,
-				ViewsSectionSummaryValues/UISectionSummaryValueActivityLevel.swift,
-				ViewsSectionSummaryValues/UISectionSummaryValueAge.swift,
-				ViewsSectionSummaryValues/UISectionSummaryValueBodyFat.swift,
-				ViewsSectionSummaryValues/UISectionSummaryValueCalorieAdjustment.swift,
-				ViewsSectionSummaryValues/UISectionSummaryValueGender.swift,
-				ViewsSectionSummaryValues/UISectionSummaryValueHeight.swift,
-				ViewsSectionSummaryValues/UISectionSummaryValueWeight.swift,
-				ViewsValueEditors/UISegmentBodyFatCalcMethodView.swift,
-				ViewsValueEditors/UISegmentCalorieAdjustmentMethodView.swift,
-				ViewsValueEditors/UISegmentGenderView.swift,
-				ViewsValueEditors/UISegmentMacroSplitMethodView.swift,
-				ViewsValueEditors/UISegmentUomLengthView.swift,
-				ViewsValueEditors/UISegmentUomWeightView.swift,
-				ViewsValueEditors/UISliderCalorieAdjustmentValue.swift,
-				ViewsValueEditors/UISliderMacroMixViewOLD.swift,
-				ViewsValueEditors/UIWheelPickerActivityLevelView.swift,
-				ViewsValueEditors/UIWheelPickerAgeView.swift,
-				ViewsValueEditors/UIWheelPickerBodyFatView.swift,
-				ViewsValueEditors/UIWheelPickerHeightView.swift,
-				ViewsValueEditors/UIWheelPickerWeightView.swift,
-			);
-			target = FAE95A282F7FD05400391EF3 /* UITestHost */;
-		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		FAE95A2A2F7FD05400391EF3 /* UITestHost */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = UITestHost;
-			sourceTree = "<group>";
-		};
 		FAFE3E3E2F7C6CC200F46D16 /* SimpleTest */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				FA0B83782F899A07006D80FB /* Exceptions for "SimpleTest" folder in "SimpleTest" target */,
-				FAE95A532F7FD0BD00391EF3 /* Exceptions for "SimpleTest" folder in "UITestHost" target */,
 			);
 			path = SimpleTest;
 			sourceTree = "<group>";
@@ -139,13 +61,6 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		FAE95A262F7FD05400391EF3 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		FAFE3E392F7C6CC200F46D16 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -176,7 +91,6 @@
 				FAFE3E3E2F7C6CC200F46D16 /* SimpleTest */,
 				FAFE3E4C2F7C6CC500F46D16 /* SimpleTestTests */,
 				FAFE3E562F7C6CC500F46D16 /* SimpleTestUITests */,
-				FAE95A2A2F7FD05400391EF3 /* UITestHost */,
 				FAFE3E3D2F7C6CC200F46D16 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -187,7 +101,6 @@
 				FAFE3E3C2F7C6CC200F46D16 /* SimpleTest.app */,
 				FAFE3E492F7C6CC500F46D16 /* SimpleTestTests.xctest */,
 				FAFE3E532F7C6CC500F46D16 /* SimpleTestUITests.xctest */,
-				FAE95A292F7FD05400391EF3 /* UITestHost.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -195,28 +108,6 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		FAE95A282F7FD05400391EF3 /* UITestHost */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = FAE95A4D2F7FD05800391EF3 /* Build configuration list for PBXNativeTarget "UITestHost" */;
-			buildPhases = (
-				FAE95A252F7FD05400391EF3 /* Sources */,
-				FAE95A262F7FD05400391EF3 /* Frameworks */,
-				FAE95A272F7FD05400391EF3 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			fileSystemSynchronizedGroups = (
-				FAE95A2A2F7FD05400391EF3 /* UITestHost */,
-			);
-			name = UITestHost;
-			packageProductDependencies = (
-			);
-			productName = UITestHost;
-			productReference = FAE95A292F7FD05400391EF3 /* UITestHost.app */;
-			productType = "com.apple.product-type.application";
-		};
 		FAFE3E3B2F7C6CC200F46D16 /* SimpleTest */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = FAFE3E5D2F7C6CC500F46D16 /* Build configuration list for PBXNativeTarget "SimpleTest" */;
@@ -295,9 +186,6 @@
 				LastSwiftUpdateCheck = 2640;
 				LastUpgradeCheck = 2640;
 				TargetAttributes = {
-					FAE95A282F7FD05400391EF3 = {
-						CreatedOnToolsVersion = 26.4;
-					};
 					FAFE3E3B2F7C6CC200F46D16 = {
 						CreatedOnToolsVersion = 26.4;
 					};
@@ -328,19 +216,11 @@
 				FAFE3E3B2F7C6CC200F46D16 /* SimpleTest */,
 				FAFE3E482F7C6CC500F46D16 /* SimpleTestTests */,
 				FAFE3E522F7C6CC500F46D16 /* SimpleTestUITests */,
-				FAE95A282F7FD05400391EF3 /* UITestHost */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		FAE95A272F7FD05400391EF3 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		FAFE3E3A2F7C6CC200F46D16 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -365,13 +245,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		FAE95A252F7FD05400391EF3 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		FAFE3E382F7C6CC200F46D16 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -409,70 +282,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		FAE95A472F7FD05800391EF3 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 7M7NZ5EC8J;
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = DaveBerryUk.UITestHost;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		FAE95A482F7FD05800391EF3 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 7M7NZ5EC8J;
-				ENABLE_PREVIEWS = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = DaveBerryUk.UITestHost;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
 		FAFE3E5B2F7C6CC500F46D16 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -745,15 +554,6 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		FAE95A4D2F7FD05800391EF3 /* Build configuration list for PBXNativeTarget "UITestHost" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				FAE95A472F7FD05800391EF3 /* Debug */,
-				FAE95A482F7FD05800391EF3 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		FAFE3E372F7C6CC200F46D16 /* Build configuration list for PBXProject "SimpleTest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

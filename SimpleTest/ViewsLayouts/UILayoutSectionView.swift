@@ -10,7 +10,7 @@ import SwiftUI
 struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: View {
     
     let title: String
-    let icon : enumIcon
+    let icon : EnumIcon
     @Binding var isExpanded: Bool
     
     let sectionSummaryValueView: () -> SectionSummaryValueView

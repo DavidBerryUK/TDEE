@@ -2,17 +2,17 @@ import SwiftUI
 
 struct MacroOptionsListItemView: View {
     
-    @Environment(MacroSplitViewModelCollection.self)
+    @Environment(MacroSplitOptionsModelCollection.self)
     var collection
     
-    @Bindable var item: MacroSplitViewModel
+    @Bindable var item: MacroSplitOptionModel
     @Binding var path: [EnumAppRoute]
     
-    func handleOnDelete (item: MacroSplitViewModel) {
+    func handleOnDelete (item: MacroSplitOptionModel) {
         collection.remove(item)
     }
     
-    func handleOnEdit (item: MacroSplitViewModel) {
+    func handleOnEdit (item: MacroSplitOptionModel) {
         path.append(.macroEditorEdit(item))
     }
     

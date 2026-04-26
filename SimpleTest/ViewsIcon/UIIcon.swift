@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-private let iconCatalog: [enumIcon: IconModel] = [
+private let iconCatalog: [EnumIcon: IconModel] = [
     .gender: IconModel(id: .gender, label: "Gender", symbolSolid: "person.fill", symbolOutlined: "person", color: .blue),
     .age: IconModel(id: .age, label: "Age", symbolSolid: "calendar", symbolOutlined: "calendar", color: .red),
     .weight: IconModel(id: .weight, label: "Weight", symbolSolid: "scalemass.fill", symbolOutlined: "scalemass", color: .green),
@@ -18,10 +18,11 @@ private let iconCatalog: [enumIcon: IconModel] = [
     .protein: IconModel(id: .protein, label: "Protein", symbolSolid: "dumbbell.fill", symbolOutlined: "dumbbell", color: .red),
     .carbs: IconModel(id: .carbs, label: "Carbs", symbolSolid: "leaf.fill", symbolOutlined: "leaf", color: .green),
     .fats: IconModel(id: .fats, label: "Fats", symbolSolid: "drop.fill", symbolOutlined: "drop", color: .yellow),
+    .macroMix: IconModel(id: .macroMix, label: "Macro Mix", symbolSolid: "fork.knife.circle.fill", symbolOutlined: "fork.knife", color: .yellow),
 ]
 
 struct UIIcon: View {
-    let icon: enumIcon
+    let icon: EnumIcon
     let style: enumIconStyle
     
     var body: some View {
@@ -66,7 +67,7 @@ struct UIIcon: View {
     ScrollView{
         Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 12) {
             // Loop over the enum cases
-            ForEach(enumIcon.allCases, id: \.self) { metric in
+            ForEach(EnumIcon.allCases, id: \.self) { metric in
                 if let iconInfo = iconCatalog[metric] {
                     // Label row spans all columns
                     GridRow {

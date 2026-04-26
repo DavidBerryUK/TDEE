@@ -21,16 +21,16 @@ final class FactoryMacroSplits {
     }
     
     // MARK: - Factory
-    static func get() -> [MacroSplitViewModel] {
+    static func get() -> [MacroSplitOptionModel] {
         
         return [
-            MacroSplitViewModel(id: Id.balanced,    name: "Balanced",     protein: 34, carbs: 33, fats: 33, ordinal: 1),
-            MacroSplitViewModel(id: Id.diet,        name: "Diet",         protein: 40, carbs: 40, fats: 20, ordinal: 2),
-            MacroSplitViewModel(id: Id.bodyBuilder, name: "Body Builder", protein: 40, carbs: 25, fats: 35, ordinal: 3),
-            MacroSplitViewModel(id: Id.ketogenic,   name: "Ketogenic",    protein: 25, carbs: 5,  fats: 70, ordinal: 4),
-            MacroSplitViewModel(id: Id.rest,        name: "Rest",         protein: 40, carbs: 35, fats: 25, ordinal: 5),
-            MacroSplitViewModel(id: Id.training,    name: "Training",     protein: 30, carbs: 50, fats: 20, ordinal: 6),
-            MacroSplitViewModel(id: Id.zone,        name: "Zone",         protein: 30, carbs: 30, fats: 40, ordinal: 7)
+            MacroSplitOptionModel(id: Id.balanced,    name: "Balanced",     protein: 34, carbs: 33, fats: 33, ordinal: 1),
+            MacroSplitOptionModel(id: Id.diet,        name: "Diet",         protein: 40, carbs: 40, fats: 20, ordinal: 2),
+            MacroSplitOptionModel(id: Id.bodyBuilder, name: "Body Builder", protein: 40, carbs: 25, fats: 35, ordinal: 3),
+            MacroSplitOptionModel(id: Id.ketogenic,   name: "Ketogenic",    protein: 25, carbs: 5,  fats: 70, ordinal: 4),
+            MacroSplitOptionModel(id: Id.rest,        name: "Rest",         protein: 40, carbs: 35, fats: 25, ordinal: 5),
+            MacroSplitOptionModel(id: Id.training,    name: "Training",     protein: 30, carbs: 50, fats: 20, ordinal: 6),
+            MacroSplitOptionModel(id: Id.zone,        name: "Zone",         protein: 30, carbs: 30, fats: 40, ordinal: 7)
         ]
     }
 }

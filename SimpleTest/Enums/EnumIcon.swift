@@ -6,7 +6,7 @@
 //
 
 
-enum enumIcon : Int, CaseIterable {
+enum EnumIcon : Int, CaseIterable {
     case gender,
          age,
          weight,
@@ -16,5 +16,6 @@ enum enumIcon : Int, CaseIterable {
          calorie,
          protein,
          carbs,
-         fats
+         fats,
+         macroMix
 }

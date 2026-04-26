@@ -3,11 +3,11 @@ import SwiftUI
 struct MacroEditViewPage: View {
     @Environment(\.dismiss) private var dismiss
     
-    @Environment(MacroSplitViewModelCollection.self)
+    @Environment(MacroSplitOptionsModelCollection.self)
     var collection
     
     @Binding var path: [EnumAppRoute]
-    @State private var editMacro: MacroSplitViewModel
+    @State private var editMacro: MacroSplitOptionModel
     @State private var showDeleteSheet = false
     
     var isNew: Bool
@@ -26,11 +26,11 @@ struct MacroEditViewPage: View {
     
     init(
         path: Binding<[EnumAppRoute]> = .constant([]),
-        item: MacroSplitViewModel? = nil
+        item: MacroSplitOptionModel? = nil
     ) {
         self._path = path
         self.isNew = (item == nil)
-        self._editMacro = State(initialValue: (item == nil) ? MacroSplitViewModel() : item!.clone())
+        self._editMacro = State(initialValue: (item == nil) ? MacroSplitOptionModel() : item!.clone())
     }
     
     // MARK: - Actions

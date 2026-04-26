@@ -9,7 +9,7 @@ import SwiftUI
 
 struct MacroInformationTextView: View {
     
-    @Bindable var item: MacroSplitViewModel
+    @Bindable var item: MacroSplitOptionModel
     
     var body: some View {
         HStack(spacing: 12) {
@@ -40,5 +40,5 @@ struct MacroInformationTextView: View {
 }
 
 #Preview {
-    MacroInformationTextView(item: MacroSplitViewModel())
+    MacroInformationTextView(item: MacroSplitOptionModel())
 }

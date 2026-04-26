@@ -8,16 +8,11 @@
 import SwiftUI
 import Combine
 
-struct MainView: View {
+struct UIMainView: View {
     @StateObject private var profile = ProfileViewModel()
     @State private var tdeeResult = TdeeResultViewModel()
-    
-    // everytime the following properties on profile are updated
-    //  * gender, age, weight,height,  bodyFatPercentageMethod, bodyFatPercentage
-    //
-    // I want to recalculate the tdeeResult to = TdeeCalculator.calculate(person: profile)
-    //
-    
+    @StateObject var macroMix = MacroSplitViewModel()
+
     var body: some View {
         VStack {
             // Initial calculation
@@ -32,7 +27,7 @@ struct MainView: View {
                 ScrollView {
                     VStack(spacing: 8) {
                         //
-                        // Input Section
+                        // Section - Person Profile Input
                         //
                         VStack(spacing: 0) {
                             SectionGender(model: profile)
@@ -52,7 +47,7 @@ struct MainView: View {
                         .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
                         
                         //
-                        // Results Section
+                        // Section - Calories and Adjustments
                         //
                         VStack(spacing: 0) {
                             SectionCaloriesMaintenance(tdeeResult: tdeeResult)
@@ -71,6 +66,20 @@ struct MainView: View {
                         .clipped()
                         .opacity(profile.isValid ? 1 : 0)
                         .animation(.easeInOut(duration: 0.25), value: profile.isValid)
+                        
+                        //
+                        // Section - Macro Mix
+                        //
+                        VStack(spacing: 0) {
+                            Divider()
+                            SectionMacroMix(macroMix: macroMix)
+                        }
+                        .background(Color.white)
+                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+                        .clipped()
+                        
+                        
                     }
                     .padding(16)
                     UICardValidation(model: profile)
