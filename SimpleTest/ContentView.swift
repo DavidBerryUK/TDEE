@@ -7,7 +7,8 @@ struct ContentView: View {
     var body: some View {
         NavigationStack(path: $path) {
             UIMainView()
-                .navigationTitle("Main")
+                .safeAreaPadding(.top, 100) // push view down so it is visible below the navigation bar
+                .navigationTitle("TDEE")
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {
                         Button {
@@ -24,6 +25,11 @@ struct ContentView: View {
                         }
                     }
                 }
+                .toolbarBackground(.hidden, for: .navigationBar)
+                .toolbar(.visible, for: .navigationBar)
+                .toolbarTitleDisplayMode(.inline)
+                .navigationBarTitleDisplayMode(.inline)
+                .ignoresSafeArea(edges: .top)
                 .navigationDestination(for: EnumAppRoute.self) { route in
                     switch route {
                     case .system:
