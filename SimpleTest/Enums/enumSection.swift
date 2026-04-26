@@ -13,5 +13,6 @@ enum enumSection {
          height,
          activityLevel,
          bodyFatPercentage,
-         calorieAdjustmentMethod
+         calorieAdjustmentMethod,
+         macroMix
 }

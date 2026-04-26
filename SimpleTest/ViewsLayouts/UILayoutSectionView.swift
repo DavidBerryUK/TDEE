@@ -52,11 +52,12 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
 
 #Preview {
     @Previewable @State var model = ProfileViewModel()
+    @Previewable @StateObject var sectionManager = SectionManagerViewModel()
     
     UILayoutSectionView(
         title: "Weight",
         icon: .weight,
-        isExpanded: $model.weightIsExpanded,
+        isExpanded: $sectionManager.weightIsExpanded,
         sectionSummaryValueView: {
             Text("75 kg")
         },

@@ -10,14 +10,15 @@ import SwiftUI
 struct SectionHeight: View {
     
     @Bindable var model: ProfileViewModel
+    @Bindable var sectionManager: SectionManagerViewModel
     
     var body: some View {
         UILayoutSectionView(
             title: "Height",
             icon: .height,
-            isExpanded: $model.heightIsExpanded,
+            isExpanded: $sectionManager.heightIsExpanded,
             sectionSummaryValueView: {
-                UISectionSummaryValueHeight(model: model)
+                UISectionSummaryValueHeight(model: model, sectionManager: sectionManager)
             },
             editorView: {
                 SectionEditorHeight(model: model)
@@ -27,5 +28,6 @@ struct SectionHeight: View {
 }
 
 #Preview {
-    SectionHeight(model: ProfileViewModel())
+    @Previewable @State var sectionManager = SectionManagerViewModel()
+    SectionHeight(model: ProfileViewModel(), sectionManager: sectionManager)
 }

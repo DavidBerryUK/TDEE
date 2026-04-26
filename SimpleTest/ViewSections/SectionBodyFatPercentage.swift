@@ -10,14 +10,15 @@ import SwiftUI
 struct SectionBodyFatPercentage: View {
     
     @Bindable var model: ProfileViewModel
+    @Bindable var sectionManager : SectionManagerViewModel
     
     var body: some View {
         UILayoutSectionView(
             title: "Body Fat Percentage",
             icon: .bodyFat,
-            isExpanded: $model.bodyFatPercentageIsExpanded,
+            isExpanded: $sectionManager.bodyFatPercentageIsExpanded,
             sectionSummaryValueView: {
-                UISectionSummaryValueBodyFat(model: model)
+                UISectionSummaryValueBodyFat(model: model, sectionManager: sectionManager)
             },
             editorView: {
                 SectionEditorBodyFatPercentage(model: model)
@@ -27,5 +28,5 @@ struct SectionBodyFatPercentage: View {
 }
 
 #Preview {
-    SectionBodyFatPercentage(model: ProfileViewModel())
+    SectionBodyFatPercentage(model: ProfileViewModel(), sectionManager: SectionManagerViewModel())
 }

@@ -8,7 +8,9 @@
 import SwiftUI
 
 struct UISectionSummaryValueCalorieAdjustment: View {
+    
     @Bindable var model: ProfileViewModel
+    @Bindable var sectionManager: SectionManagerViewModel
     
     var body: some View {
         
@@ -17,7 +19,7 @@ struct UISectionSummaryValueCalorieAdjustment: View {
         }
         
         else {
-            let isExpanded = model.calorieAdjustmentExpanded
+            let isExpanded = sectionManager.calorieAdjustmentExpanded
             HStack {
                 // Nested stack to kill the gap between prefix and number
                 HStack(spacing: 0) {
@@ -43,51 +45,56 @@ struct UISectionSummaryValueCalorieAdjustment: View {
 }
 
 #Preview("Cut - Closed") {
+    @Previewable @State var sectionManager = SectionManagerViewModel()
     let model = ProfileViewModel()
     model.calorieAdjustmentMethod = .cut
     model.calorieAdjustment = 250
-    model.calorieAdjustmentExpanded = false
-    return UISectionSummaryValueCalorieAdjustment(model: model)
+    sectionManager.calorieAdjustmentExpanded = false
+    return UISectionSummaryValueCalorieAdjustment(model: model, sectionManager: sectionManager)
 }
 
 #Preview("Cut - Open") {
+    @Previewable @State var sectionManager = SectionManagerViewModel()
     let model = ProfileViewModel()
     model.calorieAdjustmentMethod = .cut
     model.calorieAdjustment = 250
-    model.calorieAdjustmentExpanded = true
-    return UISectionSummaryValueCalorieAdjustment(model: model)
+    sectionManager.calorieAdjustmentExpanded = true
+    return UISectionSummaryValueCalorieAdjustment(model: model, sectionManager: sectionManager)
 }
 
 #Preview("Maintain - Closed") {
+    @Previewable @State var sectionManager = SectionManagerViewModel()
     let model = ProfileViewModel()
     model.calorieAdjustmentMethod = .maintain
     model.calorieAdjustment = 250
-    model.calorieAdjustmentExpanded = false
-    model.calorieAdjustmentExpanded = true
-    return UISectionSummaryValueCalorieAdjustment(model: model)
+    sectionManager.calorieAdjustmentExpanded = false
+    return UISectionSummaryValueCalorieAdjustment(model: model, sectionManager: sectionManager)
 }
 
 #Preview("Maintain - Open") {
+    @Previewable @State var sectionManager = SectionManagerViewModel()
     let model = ProfileViewModel()
     model.calorieAdjustmentMethod = .maintain
     model.calorieAdjustment = 250
-    model.calorieAdjustmentExpanded = true
-    return UISectionSummaryValueCalorieAdjustment(model: model)
+    sectionManager.calorieAdjustmentExpanded = true
+    return UISectionSummaryValueCalorieAdjustment(model: model, sectionManager: sectionManager)
 }
 
 
 #Preview("Bulk - Closed") {
+    @Previewable @State var sectionManager = SectionManagerViewModel()
     let model = ProfileViewModel()
     model.calorieAdjustmentMethod = .bulk
     model.calorieAdjustment = 500
-    model.calorieAdjustmentExpanded = false
-    return UISectionSummaryValueCalorieAdjustment(model: model)
+    sectionManager.calorieAdjustmentExpanded = false
+    return UISectionSummaryValueCalorieAdjustment(model: model, sectionManager: sectionManager)
 }
 
 #Preview("Bulk - Open") {
+    @Previewable @State var sectionManager = SectionManagerViewModel()
     let model = ProfileViewModel()
     model.calorieAdjustmentMethod = .bulk
     model.calorieAdjustment = 500
-    model.calorieAdjustmentExpanded = true
-    return UISectionSummaryValueCalorieAdjustment(model: model)
+    sectionManager.calorieAdjustmentExpanded = true
+    return UISectionSummaryValueCalorieAdjustment(model: model, sectionManager: sectionManager)
 }

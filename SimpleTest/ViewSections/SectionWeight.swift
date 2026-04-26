@@ -10,14 +10,15 @@ import SwiftUI
 struct SectionWeight: View {
     
     @Bindable var model: ProfileViewModel
+    @Bindable var sectionManager: SectionManagerViewModel
     
     var body: some View {
         UILayoutSectionView(
             title: "Weight",
             icon: .weight,
-            isExpanded: $model.weightIsExpanded,
+            isExpanded: $sectionManager.weightIsExpanded,
             sectionSummaryValueView: {
-                UISectionSummaryValueWeight(model: model)
+                UISectionSummaryValueWeight(model: model, sectionManager: sectionManager)
             },
             editorView: {
                 SectionEditorWeight(model: model)
@@ -27,5 +28,6 @@ struct SectionWeight: View {
 }
 
 #Preview {
-    SectionWeight(model: ProfileViewModel())
+    @Previewable @State var sectionManager = SectionManagerViewModel()
+    SectionWeight(model: ProfileViewModel(), sectionManager: sectionManager)
 }

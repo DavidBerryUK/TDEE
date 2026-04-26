@@ -10,15 +10,16 @@ import SwiftUI
 struct SectionMacroMix: View {
         
     @Bindable var macroMix: MacroSplitViewModel
+    @Bindable var sectionManager : SectionManagerViewModel
     
     var body: some View {
         
         UILayoutSectionView(
             title: "Macro Mix",
             icon: .macroMix,
-            isExpanded: $macroMix.isExpanded,
+            isExpanded: $sectionManager.macroMixExpanded,
             sectionSummaryValueView: {
-                UISectionSummaryValueMacroMix(macroMix: macroMix, isExpanded: macroMix.isExpanded)
+                UISectionSummaryValueMacroMix(macroMix: macroMix, sectionManager: sectionManager)
             },
             editorView: {
                 SectionEditorMacroMix(macroMix: macroMix)
@@ -30,12 +31,14 @@ struct SectionMacroMix: View {
 
 #Preview("collapsed") {
     @Previewable @State var macroMix = MacroSplitViewModel()
-    macroMix.isExpanded = false
-    return SectionMacroMix(macroMix: macroMix)
+    @Previewable @State var sectionManager = SectionManagerViewModel()
+    sectionManager.macroMixExpanded = false
+    return SectionMacroMix(macroMix: macroMix, sectionManager: sectionManager)
 }
 
 #Preview("expanded") {
     @Previewable @State var macroMix = MacroSplitViewModel()
-    macroMix.isExpanded = true
-    return SectionMacroMix(macroMix: macroMix)
+    @Previewable @State var sectionManager = SectionManagerViewModel()
+    sectionManager.macroMixExpanded = true
+    return SectionMacroMix(macroMix: macroMix, sectionManager: sectionManager)
 }

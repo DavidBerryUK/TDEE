@@ -10,15 +10,16 @@ import SwiftUI
 struct UISectionSummaryValueMacroMix: View {
     
     @Bindable var macroMix: MacroSplitViewModel
-    var isExpanded : Bool
+    @Bindable var sectionManager : SectionManagerViewModel
+    
     
     var body: some View {                        
         HStack {
-            Text("\(macroMix.isExpanded)")
+            Text("\(sectionManager.macroMixExpanded)")
                     .contentTransition(.interpolate)
-                    .animation(.easeInOut, value: macroMix.isExpanded)
-                    .foregroundColor(UITextStyleResolver.color(isExpanded: isExpanded))
-                    .fontWeight(UITextStyleResolver.weight(isExpanded: isExpanded))
+                    .animation(.easeInOut, value: sectionManager.macroMixExpanded)
+                    .foregroundColor(UITextStyleResolver.color(isExpanded: sectionManager.macroMixExpanded))
+                    .fontWeight(UITextStyleResolver.weight(isExpanded: sectionManager.macroMixExpanded))
             
         }
     }

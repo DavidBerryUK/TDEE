@@ -12,6 +12,7 @@ struct UIMainView: View {
     @StateObject private var profile = ProfileViewModel()
     @State private var tdeeResult = TdeeResultViewModel()
     @StateObject var macroMix = MacroSplitViewModel()
+    @StateObject var sectionManager = SectionManagerViewModel()
 
     var body: some View {
         VStack {
@@ -30,17 +31,17 @@ struct UIMainView: View {
                         // Section - Person Profile Input
                         //
                         VStack(spacing: 0) {
-                            SectionGender(model: profile)
+                            SectionGender(model: profile, sectionManager: sectionManager)
                             Divider()
-                            SectionAge(model: profile)
+                            SectionAge(model: profile, sectionManager: sectionManager)
                             Divider()
-                            SectionHeight(model: profile)
+                            SectionHeight(model: profile, sectionManager: sectionManager)
                             Divider()
-                            SectionWeight(model: profile)
+                            SectionWeight(model: profile, sectionManager: sectionManager)
                             Divider()
-                            SectionActivityLevel(model: profile)
+                            SectionActivityLevel(model: profile, sectionManager: sectionManager)
                             Divider()
-                            SectionBodyFatPercentage(model: profile)
+                            SectionBodyFatPercentage(model: profile, sectionManager: sectionManager)
                         }
                         .background(Color.white)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -52,7 +53,7 @@ struct UIMainView: View {
                         VStack(spacing: 0) {
                             SectionCaloriesMaintenance(tdeeResult: tdeeResult)
                             Divider()
-                            SectionCalorieAdjustment(model: profile)
+                            SectionCalorieAdjustment(model: profile, sectionManager: sectionManager)
                             Divider()
                             SectionCaloriesAdjusted(profile: profile, tdeeResult: tdeeResult)
                         }
@@ -72,7 +73,7 @@ struct UIMainView: View {
                         //
                         VStack(spacing: 0) {
                             Divider()
-                            SectionMacroMix(macroMix: macroMix)
+                            SectionMacroMix(macroMix: macroMix, sectionManager: sectionManager)
                         }
                         .background(Color.white)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -88,7 +89,7 @@ struct UIMainView: View {
             }
             .onTapGesture {
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                    profile.collapseAll()
+                    sectionManager.collapseAll()
                 }
             }
             .onChange(of: profile.gender) { _, _ in

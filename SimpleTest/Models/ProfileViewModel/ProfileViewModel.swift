@@ -4,62 +4,34 @@ import Observation
 
 @Observable
 final class ProfileViewModel: ObservableObject {
-    // custom properties
-    internal var isUpdatingExpansion = false
-    
+
     /****************************************************/
     /*  Gender                                          */
     /****************************************************/
     var gender: enumGender
-    var genderIsExpanded: Bool
-    {
-        didSet {
-            enforceExclusiveExpansion(changed: .gender, newValue: genderIsExpanded)
-        }
-    }
     
     /****************************************************/
     /*  Age                                             */
     /****************************************************/
     var age: Int
-    var ageIsExpanded: Bool {
-        didSet {
-            enforceExclusiveExpansion(changed: .age, newValue: ageIsExpanded)
-        }
-    }
     
     /****************************************************/
     /*  Weight                                          */
     /****************************************************/
     var weightUom: enumOptionWeight = enumOptionWeight.kilograms
     var weight: Double
-    var weightIsExpanded: Bool {
-        didSet {
-            enforceExclusiveExpansion(changed: .weight, newValue: weightIsExpanded)
-        }
-    }
     
     /****************************************************/
     /*  Weight                                          */
     /****************************************************/
     var heightUom: enumOptionLength = enumOptionLength.centimeters
     var height: Double
-    var heightIsExpanded: Bool {
-        didSet {
-            enforceExclusiveExpansion(changed: .height, newValue: heightIsExpanded)
-        }
-    }
     
     /****************************************************/
     /*  Activity Level                                  */
     /****************************************************/
     var activityLevel: enumActivityLevel
-    var activityLevelIsExpanded: Bool {
-        didSet {
-            enforceExclusiveExpansion(changed: .activityLevel, newValue: activityLevelIsExpanded)
-        }
-    }
-    
+
     /****************************************************/
     /*  Body Fat Percentage                             */
     /****************************************************/
@@ -69,11 +41,6 @@ final class ProfileViewModel: ObservableObject {
         }
     }
     var bodyFatPercentage: Double
-    var bodyFatPercentageIsExpanded: Bool {
-        didSet {
-            enforceExclusiveExpansion(changed: .bodyFatPercentage, newValue: bodyFatPercentageIsExpanded)
-        }
-    }
     var bodyFatPercentageShowManualEntry: Bool
     
     /****************************************************/
@@ -85,11 +52,6 @@ final class ProfileViewModel: ObservableObject {
         }
     }
     var calorieAdjustment : Double
-    var calorieAdjustmentExpanded: Bool {
-        didSet {
-            enforceExclusiveExpansion(changed: .calorieAdjustmentMethod, newValue: calorieAdjustmentExpanded)
-        }
-    }
     var calorieAdjustmentShowSliders : Bool
     
     /****************************************************/
@@ -110,17 +72,6 @@ final class ProfileViewModel: ObservableObject {
         self.bodyFatPercentage = 0
         self.activityLevel = .sedentary
         self.calorieAdjustment = 0;
-        
-        // Initialize expansion flags without triggering observers
-        self.isUpdatingExpansion = true
-        self.ageIsExpanded = false
-        self.genderIsExpanded = false
-        self.weightIsExpanded = false
-        self.heightIsExpanded = false
-        self.activityLevelIsExpanded = false
-        self.bodyFatPercentageIsExpanded = false
-        self.calorieAdjustmentExpanded = false
-        self.isUpdatingExpansion = false
         self.calorieAdjustmentShowSliders = false
         self.bodyFatPercentageShowManualEntry = false
         self.bodyFatPercentageMethod = .omit

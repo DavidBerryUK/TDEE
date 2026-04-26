@@ -10,10 +10,11 @@ import SwiftUI
 struct UISectionSummaryValueAge: View {
     
     @Bindable var model: ProfileViewModel
+    @Bindable var sectionManager: SectionManagerViewModel
         
     var body: some View {
         
-        let isExpanded = model.ageIsExpanded
+        let isExpanded = sectionManager.ageIsExpanded
         
         HStack{
             Text("\(model.age)")
@@ -27,15 +28,17 @@ struct UISectionSummaryValueAge: View {
 }
 
 #Preview("Read Only") {
+    @Previewable @State var sectionManager = SectionManagerViewModel()
     let model = ProfileViewModel()
     model.age = 34
-    model.ageIsExpanded = false
-    return UISectionSummaryValueAge(model: model)
+    sectionManager.ageIsExpanded = false
+    return UISectionSummaryValueAge(model: model, sectionManager: sectionManager)
 }
 
 #Preview("Being Edited") {
+    @Previewable @State var sectionManager = SectionManagerViewModel()
     let model = ProfileViewModel()
     model.age = 34
-    model.ageIsExpanded = true
-    return UISectionSummaryValueAge(model: model)
+    sectionManager.ageIsExpanded = true
+    return UISectionSummaryValueAge(model: model, sectionManager: sectionManager)
 }

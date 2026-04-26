@@ -10,10 +10,11 @@ import SwiftUI
 struct UISectionSummaryValueGender: View {
     
     @Bindable var model: ProfileViewModel
+    @Bindable var sectionManager : SectionManagerViewModel
     
     var body: some View {
         
-        let isExpanded = model.genderIsExpanded
+        let isExpanded = sectionManager.genderIsExpanded
         
         HStack{
             Text(model.gender.displayName)
@@ -26,15 +27,17 @@ struct UISectionSummaryValueGender: View {
 }
 
 #Preview("Read Mode") {
+    @Previewable @State var sectionManager = SectionManagerViewModel()
     let model = ProfileViewModel()
     model.gender = .male
-    model.genderIsExpanded = false
-    return UISectionSummaryValueGender(model: model)
+    sectionManager.genderIsExpanded = false
+    return UISectionSummaryValueGender(model: model, sectionManager: sectionManager)
 }
 
 #Preview("Edit Mode") {
+    @Previewable @State var sectionManager = SectionManagerViewModel()
     let model = ProfileViewModel()
     model.gender = .female
-    model.genderIsExpanded = true
-    return UISectionSummaryValueGender(model: model)
+    sectionManager.genderIsExpanded = true
+    return UISectionSummaryValueGender(model: model, sectionManager: sectionManager)
 }

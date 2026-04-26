@@ -11,14 +11,15 @@ import Observation
 struct SectionAge: View {
     
     @Bindable var model: ProfileViewModel
+    @Bindable var sectionManager : SectionManagerViewModel
     
     var body: some View {
         UILayoutSectionView(
             title: "Age",
             icon: .age,
-            isExpanded: $model.ageIsExpanded,
+            isExpanded: $sectionManager.ageIsExpanded,
             sectionSummaryValueView: {
-                UISectionSummaryValueAge(model: model)
+                UISectionSummaryValueAge(model: model, sectionManager: sectionManager)
             },
             editorView: {
                 SectionEditorAge(model: model)
@@ -28,5 +29,6 @@ struct SectionAge: View {
 }
 
 #Preview {
-    SectionAge(model: ProfileViewModel())
+    @Previewable @State var sectionManager = SectionManagerViewModel()
+    SectionAge(model: ProfileViewModel(), sectionManager: sectionManager)
 }

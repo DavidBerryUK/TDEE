@@ -10,10 +10,11 @@ import SwiftUI
 struct UISectionSummaryValueActivityLevel: View {
     
     @Bindable var model: ProfileViewModel
+    @Bindable var sectionManager: SectionManagerViewModel
     
     var body: some View {
 
-        let isExpanded = model.activityLevelIsExpanded
+        let isExpanded = sectionManager.activityLevelIsExpanded
         
         HStack{
             Text( model.activityLevel.displayShortName)
@@ -26,15 +27,17 @@ struct UISectionSummaryValueActivityLevel: View {
 }
 
 #Preview("Read Athlete") {
+    @Previewable @State var sectionManager = SectionManagerViewModel()
     let model = ProfileViewModel()
     model.activityLevel = .athlete
-    model.activityLevelIsExpanded = false
-    return UISectionSummaryValueActivityLevel(model: model)
+    sectionManager.activityLevelIsExpanded = false
+    return UISectionSummaryValueActivityLevel(model: model, sectionManager: sectionManager)
 }
 
 #Preview("Edit Light") {
+    @Previewable @State var sectionManager = SectionManagerViewModel()
     let model = ProfileViewModel()
     model.activityLevel = .lightExercise
-    model.activityLevelIsExpanded = true
-    return UISectionSummaryValueActivityLevel(model: model)
+    sectionManager.activityLevelIsExpanded = true
+    return UISectionSummaryValueActivityLevel(model: model, sectionManager: sectionManager)
 }

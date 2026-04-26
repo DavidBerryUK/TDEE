@@ -10,6 +10,7 @@ import SwiftUI
 struct UISectionSummaryValueBodyFat: View {
     
     @Bindable var model: ProfileViewModel
+    @Bindable var sectionManager: SectionManagerViewModel
         
     private var labelValue: String {
         switch model.bodyFatPercentageMethod {
@@ -43,7 +44,7 @@ struct UISectionSummaryValueBodyFat: View {
     
     var body: some View {
         
-        let isExpanded = model.bodyFatPercentageIsExpanded
+        let isExpanded = sectionManager.bodyFatPercentageIsExpanded
         
         HStack{
             Text(labelValue)
@@ -62,25 +63,28 @@ struct UISectionSummaryValueBodyFat: View {
 }
 
 #Preview("Read Omit") {
+    @Previewable @State var sectionManager = SectionManagerViewModel()
     let model = ProfileViewModel()
     model.bodyFatPercentageMethod = .omit
     model.bodyFatPercentage = 15.75
-    model.bodyFatPercentageIsExpanded = false
-    return UISectionSummaryValueBodyFat(model: model)
+    sectionManager.bodyFatPercentageIsExpanded = false
+    return UISectionSummaryValueBodyFat(model: model,sectionManager: sectionManager)
 }
 
 #Preview("Read Only Estimated") {
+    @Previewable @State var sectionManager = SectionManagerViewModel()
     let model = ProfileViewModel()
     model.bodyFatPercentageMethod = .estimate
     model.bodyFatPercentage = 15.75
-    model.bodyFatPercentageIsExpanded = false
-    return UISectionSummaryValueBodyFat(model: model)
+    sectionManager.bodyFatPercentageIsExpanded = false
+    return UISectionSummaryValueBodyFat(model: model,sectionManager: sectionManager)
 }
 
 #Preview("Read Only Manual Entry") {
+    @Previewable @State var sectionManager = SectionManagerViewModel()
     let model = ProfileViewModel()
     model.bodyFatPercentageMethod = .manualEntry
     model.bodyFatPercentage = 15.75
-    model.bodyFatPercentageIsExpanded = false
-    return UISectionSummaryValueBodyFat(model: model)
+    sectionManager.bodyFatPercentageIsExpanded = false
+    return UISectionSummaryValueBodyFat(model: model,sectionManager: sectionManager)
 }

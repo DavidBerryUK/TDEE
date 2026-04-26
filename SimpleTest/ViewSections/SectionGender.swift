@@ -10,14 +10,15 @@ import SwiftUI
 struct SectionGender: View {
     
     @Bindable var model: ProfileViewModel
+    @Bindable var sectionManager: SectionManagerViewModel
     
     var body: some View {
         UILayoutSectionView(
             title: "Gender",
             icon: .gender,
-            isExpanded: $model.genderIsExpanded,
+            isExpanded: $sectionManager.genderIsExpanded,
             sectionSummaryValueView: {
-                UISectionSummaryValueGender(model: model)
+                UISectionSummaryValueGender(model: model, sectionManager: sectionManager)
             },
             editorView: {
                 UISegmentGenderView(option: $model.gender)
@@ -27,5 +28,6 @@ struct SectionGender: View {
 }
 
 #Preview {
-    SectionGender(model: ProfileViewModel())
+    @Previewable @State var sectionManager = SectionManagerViewModel()
+    SectionGender(model: ProfileViewModel(), sectionManager: sectionManager)
 }

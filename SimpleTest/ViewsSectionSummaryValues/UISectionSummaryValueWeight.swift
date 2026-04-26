@@ -10,6 +10,7 @@ import SwiftUI
 struct UISectionSummaryValueWeight: View {
     
     @Bindable var model: ProfileViewModel
+    @Bindable var sectionManager: SectionManagerViewModel
     
     private var labelMajorUnit: String {
         switch model.weightUom {
@@ -33,7 +34,7 @@ struct UISectionSummaryValueWeight: View {
     
     var body: some View {
 
-        let isExpanded = model.weightIsExpanded
+        let isExpanded = sectionManager.weightIsExpanded
         
         HStack{
             Text(displayWeight.asMajorValue(weight: model.weight, unit: model.weightUom))
@@ -58,49 +59,55 @@ struct UISectionSummaryValueWeight: View {
 }
 
 #Preview("Read kg") {
+    @Previewable @State var sectionManager = SectionManagerViewModel()
     let model = ProfileViewModel()
     model.weightUom = .kilograms
     model.weight = 95
-    model.weightIsExpanded = false
-    return UISectionSummaryValueWeight(model: model)
+    sectionManager.weightIsExpanded = false
+    return UISectionSummaryValueWeight(model: model, sectionManager: sectionManager)
 }
 
 #Preview("Edit kg") {
+    @Previewable @State var sectionManager = SectionManagerViewModel()
     let model = ProfileViewModel()
     model.weightUom = .kilograms
     model.weight = 95
-    model.weightIsExpanded = true
-    return UISectionSummaryValueWeight(model: model)
+    sectionManager.weightIsExpanded = true
+    return UISectionSummaryValueWeight(model: model, sectionManager: sectionManager)
 }
 
 #Preview("Read pounds") {
+    @Previewable @State var sectionManager = SectionManagerViewModel()
     let model = ProfileViewModel()
     model.weightUom = .pounds
     model.weight = WeightConvertor.toKilograms(pounds: 175)
-    model.weightIsExpanded = false
-    return UISectionSummaryValueWeight(model: model)
+    sectionManager.weightIsExpanded = false
+    return UISectionSummaryValueWeight(model: model, sectionManager: sectionManager)
 }
 
 #Preview("Edit pounds") {
+    @Previewable @State var sectionManager = SectionManagerViewModel()
     let model = ProfileViewModel()
     model.weightUom = .pounds
     model.weight = WeightConvertor.toKilograms(pounds: 175)
-    model.weightIsExpanded = true
-    return UISectionSummaryValueWeight(model: model)
+    sectionManager.weightIsExpanded = true
+    return UISectionSummaryValueWeight(model: model, sectionManager: sectionManager)
 }
 
 #Preview("Read stones & pounds") {
+    @Previewable @State var sectionManager = SectionManagerViewModel()
     let model = ProfileViewModel()
     model.weightUom = .stonesAndPounds
-    model.weightIsExpanded = false
+    sectionManager.weightIsExpanded = false
     model.weight = WeightConvertor.toKilograms(stones: 18, pounds: 7)
-    return UISectionSummaryValueWeight(model: model)
+    return UISectionSummaryValueWeight(model: model, sectionManager: sectionManager)
 }
 
 #Preview("Edit stones & pounds") {
+    @Previewable @State var sectionManager = SectionManagerViewModel()
     let model = ProfileViewModel()
     model.weightUom = .stonesAndPounds
-    model.weightIsExpanded = true
+    sectionManager.weightIsExpanded = true
     model.weight = WeightConvertor.toKilograms(stones: 18, pounds: 7)
-    return UISectionSummaryValueWeight(model: model)
+    return UISectionSummaryValueWeight(model: model, sectionManager: sectionManager)
 }

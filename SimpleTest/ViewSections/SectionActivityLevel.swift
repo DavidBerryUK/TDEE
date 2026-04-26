@@ -10,14 +10,15 @@ import SwiftUI
 struct SectionActivityLevel: View {
     
     @Bindable var model: ProfileViewModel
+    @Bindable var sectionManager : SectionManagerViewModel
     
     var body: some View {
         UILayoutSectionView(
             title: "Activity Level",
             icon: .activityLevel,
-            isExpanded: $model.activityLevelIsExpanded,
+            isExpanded: $sectionManager.activityLevelIsExpanded,
             sectionSummaryValueView: {
-                UISectionSummaryValueActivityLevel(model: model)
+                UISectionSummaryValueActivityLevel(model: model, sectionManager: sectionManager)
             },
             editorView: {
                 SectionEditorActivityLevel(model: model)
@@ -27,5 +28,6 @@ struct SectionActivityLevel: View {
 }
 
 #Preview {
-    SectionActivityLevel(model: ProfileViewModel())
+    @Previewable @State var sectionManager = SectionManagerViewModel()
+    SectionActivityLevel(model: ProfileViewModel(), sectionManager: sectionManager)
 }
