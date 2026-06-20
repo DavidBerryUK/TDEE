@@ -5,17 +5,12 @@
 //  Created by David Berry on 19/04/2026.
 //
 
-struct MacroCalculatorResult {
-    let proteinGrams : Int
-    let carbsGrams : Int
-    let fatsGrams : Int
-}
 
 
 struct MacroCalculator {
     
     
-    static func calculate(person: ProfileViewModel, tdee: TdeeResultViewModel ) -> MacroCalculatorResult {
+    static func calculate(person: ProfileViewModel, tdee: TdeeResultViewModel ) -> MacroSplitResultViewModel {
         
         let calories = tdee.bmr
         
@@ -27,7 +22,10 @@ struct MacroCalculator {
         let carbsGrams = Int( Double(carbsPercent) * calories / 100 / 4 )
         let fatsGrams = Int( Double(fatsPercent) * calories / 100 / 9 )
         
-        return MacroCalculatorResult (
+        return MacroSplitResultViewModel (
+            proteinPercent: proteinPercent,
+            carbsPercent: carbsPercent,
+            fatsPercent: fatsPercent,
             proteinGrams: proteinGrams,
             carbsGrams: carbsGrams,
             fatsGrams: fatsGrams

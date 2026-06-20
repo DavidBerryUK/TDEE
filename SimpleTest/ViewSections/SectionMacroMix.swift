@@ -18,6 +18,7 @@ struct SectionMacroMix: View {
             title: "Macro Mix",
             icon: .macroMix,
             isExpanded: $sectionManager.macroMixExpanded,
+            validationText: "",
             sectionSummaryValueView: {
                 UISectionSummaryValueMacroMix(macroMix: macroMix, sectionManager: sectionManager)
             },

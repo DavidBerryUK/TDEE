@@ -18,6 +18,7 @@ struct SectionCalorieAdjustment: View {
             title: "\(model.calorieAdjustmentMethod.sectionTitle)",
             icon: .calorie,
             isExpanded: $sectionManager.calorieAdjustmentExpanded,
+            validationText: "",
             sectionSummaryValueView: {
                 UISectionSummaryValueCalorieAdjustment(model: model, sectionManager: sectionManager)
             },

@@ -29,10 +29,10 @@ struct UICardNumericResult: View {
         }
         .padding(14)
         .frame(maxWidth: .infinity)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color(red: 0.96, green: 1.0, blue: 1.0))
-        )
+//        .background(
+//            RoundedRectangle(cornerRadius: 12)
+//                .fill(Color(red: 0.96, green: 1.0, blue: 1.0))
+//        )
         .overlay(
             RoundedRectangle(cornerRadius: 12)
                 .stroke(Color(red: 0.25, green: 0.75, blue: 0.75), lineWidth: 1)
@@ -40,18 +40,18 @@ struct UICardNumericResult: View {
     }
 }
 
-//#Preview {
-//    VStack{
-//        HStack{
-//            UICardNumericResult(title: "Calories per day", value: 2500)
-//            UICardNumericResult(title: "Calories per week", value: 2500 * 7)
-//        }
-//        HStack{
-//            UICardNumericResult(title: "Carbs", value: 230, suffix:"g")
-//            UICardNumericResult(title: "Fats", value: 142, suffix:"g")
-//            UICardNumericResult(title: "Protien", value: 222, suffix:"g")
-//        }
-//    }.padding(8)
-//    
-//    
-//}
+#Preview {
+    VStack{
+        HStack{
+            UICardNumericResult(title: "Calories per day", value: 2500)
+            UICardNumericResult(title: "Calories per week", value: 2500 * 7)
+        }
+        HStack{
+            UICardNumericResult(title: "Carbs", value: 230, suffix:"g")
+            UICardNumericResult(title: "Fats", value: 142, suffix:"g")
+            UICardNumericResult(title: "Protien", value: 222, suffix:"g")
+        }
+    }.padding(8)
+    
+    
+}

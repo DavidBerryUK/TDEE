@@ -18,6 +18,7 @@ struct SectionAge: View {
             title: "Age",
             icon: .age,
             isExpanded: $sectionManager.ageIsExpanded,
+            validationText: "",
             sectionSummaryValueView: {
                 UISectionSummaryValueAge(model: model, sectionManager: sectionManager)
             },

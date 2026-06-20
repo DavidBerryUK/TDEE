@@ -17,6 +17,7 @@ struct SectionBodyFatPercentage: View {
             title: "Body Fat Percentage",
             icon: .bodyFat,
             isExpanded: $sectionManager.bodyFatPercentageIsExpanded,
+            validationText: "",
             sectionSummaryValueView: {
                 UISectionSummaryValueBodyFat(model: model, sectionManager: sectionManager)
             },

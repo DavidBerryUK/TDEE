@@ -13,10 +13,14 @@ struct SectionHeight: View {
     @Bindable var sectionManager: SectionManagerViewModel
     
     var body: some View {
+        
+        let validationText = model.height.isNaN ||  model.height == 0 ? "Please enter a valid Height" : ""
+        
         UILayoutSectionView(
             title: "Height",
             icon: .height,
             isExpanded: $sectionManager.heightIsExpanded,
+            validationText: validationText,
             sectionSummaryValueView: {
                 UISectionSummaryValueHeight(model: model, sectionManager: sectionManager)
             },

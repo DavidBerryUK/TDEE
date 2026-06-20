@@ -12,13 +12,17 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
     let title: String
     let icon : EnumIcon
     @Binding var isExpanded: Bool
+    let validationText : String
     
     let sectionSummaryValueView: () -> SectionSummaryValueView
     let editorView: () -> EditorView
     
     var body: some View {
-        VStack(spacing: 4) {
+        let hasError = !validationText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        
+        VStack(alignment: .leading, spacing: 0) {
             
+            // First row: header only (icon, title, summary, chevron) with internal 16pt padding and error highlight
             HStack {
                 UIIcon(icon: icon, style: .coloredBackgroundSolid)
                 Text(title)
@@ -33,31 +37,34 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
-            .contentShape(Rectangle())
+            .padding(16)
             .onTapGesture {
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                     isExpanded.toggle()
                 }
             }
-            
+            UILabelValidationMessage(validationText)
+        
+            // Expanded content: outside of the error background
             if isExpanded {
-                
                 editorView()
                     .padding(.top, 12)
                     .padding(.bottom, 8)
             }
-        }.padding(16) // padding around the row
+        }
     }
 }
 
-#Preview {
+#Preview("Normal") {
     @Previewable @State var model = ProfileViewModel()
     @Previewable @StateObject var sectionManager = SectionManagerViewModel()
+    var validationText = "Age is required"
     
     UILayoutSectionView(
         title: "Weight",
         icon: .weight,
         isExpanded: $sectionManager.weightIsExpanded,
+        validationText: "",
         sectionSummaryValueView: {
             Text("75 kg")
         },
@@ -69,3 +76,53 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
         }
     )
 }
+
+#Preview("With Error") {
+    @Previewable @State var model = ProfileViewModel()
+    @Previewable @StateObject var sectionManager = SectionManagerViewModel()
+    var validationText = "Weight is required"
+    
+    UILayoutSectionView(
+        title: "Weight",
+        icon: .weight,
+        isExpanded: $sectionManager.weightIsExpanded,
+        validationText: validationText,
+        sectionSummaryValueView: {
+            Text("75 kg")
+        },
+        editorView: {
+            HStack {
+                Text("Content goes here")
+                Spacer()
+            }
+        }
+    )
+}
+#Preview("Interactive Error Toggle") {
+    @Previewable @StateObject var sectionManager = SectionManagerViewModel()
+    @Previewable @State var showError: Bool = false
+    @Previewable @State var expanded: Bool = false
+
+    VStack(alignment: .leading, spacing: 16) {
+        Toggle("Show Error", isOn: $showError)
+        Toggle("Expanded", isOn: $expanded)
+
+        UILayoutSectionView(
+            title: "Weight",
+            icon: .weight,
+            isExpanded: $expanded,
+            validationText: showError ? "Weight is required" : "",
+            sectionSummaryValueView: {
+                Text("75 kg")
+            },
+            editorView: {
+                HStack {
+                    Text("Content goes here")
+                    Spacer()
+                }
+            }
+        )
+    }
+    .padding()
+}
+

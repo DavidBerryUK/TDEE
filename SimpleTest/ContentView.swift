@@ -8,7 +8,11 @@ struct ContentView: View {
         NavigationStack(path: $path) {
             UIMainView()
                 .safeAreaPadding(.top, 100) // push view down so it is visible below the navigation bar
-                .navigationTitle("TDEE")
+                .navigationTitle(
+                    EnumDevice.isSmallScreen
+                                   ? "TDEE"
+                                   : "Total Daily Energy Expenditure"
+                )
                 .toolbar {
                     ToolbarItem(placement: .topBarLeading) {
                         Button {
@@ -46,6 +50,7 @@ struct ContentView: View {
                         
                     case .macroEditorCreate:
                         MacroEditViewPage(item: nil)
+                        
                     case .macroEditorEdit(let item):
                         MacroEditViewPage(item: item)
                     }

@@ -17,6 +17,7 @@ struct SectionGender: View {
             title: "Gender",
             icon: .gender,
             isExpanded: $sectionManager.genderIsExpanded,
+            validationText: "",
             sectionSummaryValueView: {
                 UISectionSummaryValueGender(model: model, sectionManager: sectionManager)
             },
