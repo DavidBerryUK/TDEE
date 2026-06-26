@@ -17,26 +17,22 @@ struct UILabelValidationMessage: View {
     var body: some View {
         // Calculate visibility internally based on whether text is provided
         let isVisible = !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        
-        // Visibility is controlled by the calculated `isVisible`
-       
-        UIAccordion(isExpanded: .constant(isVisible)) { // Passing the calculated value directly to `isExpanded`
-            VStack(alignment: .leading, spacing: 0) {
-                HStack(alignment: .center, spacing: 12) {
-                    Image(systemName: "exclamationmark.circle.fill")
-                        .font(.body)
-                        .foregroundStyle(.red.opacity(0.9))
-                    
-                    Text(text)
-                        .font(.body)
-                        .foregroundStyle(.red.opacity(0.9))
-                        .fontWeight(.regular)
-                }
-                .padding(.leading, 16).padding(.bottom, 8)
-                .opacity(isVisible ? 1 : 0)
-                .frame(height: isVisible ? nil : 0, alignment: .top)
-                .clipped()
+                        
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(alignment: .center, spacing: 12) {
+                Image(systemName: "exclamationmark.circle.fill")
+                    .font(.body)
+                    .foregroundStyle(.red.opacity(0.9))
+                
+                Text(text)
+                    .font(.body)
+                    .foregroundStyle(.red.opacity(0.9))
+                    .fontWeight(.regular)
             }
+            .padding(.leading, 16).padding(.bottom, 8)
+            .opacity(isVisible ? 1 : 0)
+            .frame(height: isVisible ? nil : 0, alignment: .top)
+            .clipped()
         }
     }
 }

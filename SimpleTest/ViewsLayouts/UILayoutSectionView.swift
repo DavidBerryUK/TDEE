@@ -16,8 +16,6 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
     
     let sectionSummaryValueView: () -> SectionSummaryValueView
     let editorView: () -> EditorView
-    
-    
 
     // Update hasError to control the isVisible binding
     var body: some View {
@@ -40,6 +38,7 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
                     .foregroundStyle(.secondary)
             }
             .padding(16)
+            .contentShape(Rectangle()) // Make the entire HStack area tappable
             .onTapGesture {
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                     isExpanded.toggle()
