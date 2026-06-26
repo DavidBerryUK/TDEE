@@ -17,9 +17,11 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
     let sectionSummaryValueView: () -> SectionSummaryValueView
     let editorView: () -> EditorView
     
+    
+
+    // Update hasError to control the isVisible binding
     var body: some View {
-        let hasError = !validationText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        
+
         VStack(alignment: .leading, spacing: 0) {
             
             // First row: header only (icon, title, summary, chevron) with internal 16pt padding and error highlight
@@ -43,8 +45,14 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
                     isExpanded.toggle()
                 }
             }
-            UILabelValidationMessage(validationText)
-        
+
+            // Add the UILabelValidationMessage with animation - only shown when there's validation text
+            if !validationText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                UILabelValidationMessage(validationText)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .animation(.easeInOut(duration: 0.3), value: validationText)
+            }
+
             // Expanded content: outside of the error background
             if isExpanded {
                 editorView()
@@ -52,6 +60,8 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
                     .padding(.bottom, 8)
             }
         }
+        // animation to assist in the Validation message appearing / disappearing smoothly
+        .animation(.easeInOut(duration: 0.3), value: validationText)
     }
 }
 
@@ -98,6 +108,7 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
         }
     )
 }
+
 #Preview("Interactive Error Toggle") {
     @Previewable @StateObject var sectionManager = SectionManagerViewModel()
     @Previewable @State var showError: Bool = false
@@ -125,4 +136,3 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
     }
     .padding()
 }
-

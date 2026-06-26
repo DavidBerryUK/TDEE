@@ -1,16 +1,10 @@
 //
-//  UIValidationCard.swift
+//  UILabelValidationMessage.swift
 //  SimpleTest
 //
 //  Created by David Berry on 06/06/2026.
 //
 
-//
-//  UITextPickerLabel.swift
-//  SimpleTest
-//
-//  Created by David Berry on 03/04/2026.
-//
 import SwiftUI
 
 struct UILabelValidationMessage: View {
@@ -21,26 +15,29 @@ struct UILabelValidationMessage: View {
     }
 
     var body: some View {
-        // Keep the view in layout and animate visibility to avoid jerky insert/removal
+        // Calculate visibility internally based on whether text is provided
         let isVisible = !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-
-        VStack(alignment: .leading, spacing: 0) {
-            HStack(alignment: .center, spacing: 12) {
-                Image(systemName: "exclamationmark.circle.fill")
-                    .font(.body)
-                    .foregroundStyle(.red.opacity(0.9))
-
-                Text(text)
-                    .font(.body)
-                    .foregroundStyle(.red.opacity(0.9))
-                    .fontWeight(.regular)
+        
+        // Visibility is controlled by the calculated `isVisible`
+       
+        UIAccordion(isExpanded: .constant(isVisible)) { // Passing the calculated value directly to `isExpanded`
+            VStack(alignment: .leading, spacing: 0) {
+                HStack(alignment: .center, spacing: 12) {
+                    Image(systemName: "exclamationmark.circle.fill")
+                        .font(.body)
+                        .foregroundStyle(.red.opacity(0.9))
+                    
+                    Text(text)
+                        .font(.body)
+                        .foregroundStyle(.red.opacity(0.9))
+                        .fontWeight(.regular)
+                }
+                .padding(.leading, 16).padding(.bottom, 8)
+                .opacity(isVisible ? 1 : 0)
+                .frame(height: isVisible ? nil : 0, alignment: .top)
+                .clipped()
             }
-            .padding(.leading, 16).padding(.bottom, 8)
-            .opacity(isVisible ? 1 : 0)
-            .frame(height: isVisible ? nil : 0, alignment: .top)
-            .clipped()
         }
-        .animation(.easeInOut(duration: 0.25), value: isVisible)
     }
 }
 
@@ -59,7 +56,7 @@ struct UILabelValidationMessage: View {
 #Preview("Interactive") {
     struct InteractivePreview: View {
         @State private var message: String = "Weight is required"
-
+        
         var body: some View {
             VStack(alignment: .leading, spacing: 16) {
                 TextField("Enter validation message", text: $message)
