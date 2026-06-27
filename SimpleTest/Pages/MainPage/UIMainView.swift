@@ -33,15 +33,17 @@ struct UIMainView: View {
                             profile: profile,
                             sectionManager: sectionManager)
                         
-                        MainSectionCaloriesAndAdjustments(
-                            profile: profile,
-                            tdeeResult: tdeeResult,
-                            sectionManager: sectionManager)
-                        
-                        MainSectionMacroMix(
-                            macroMix: macroMix,
-                            sectionManager: sectionManager,
-                            macroMixResults: macroMixResults)
+                        if ( profile.isValid) {
+                            MainSectionCaloriesAndAdjustments(
+                                profile: profile,
+                                tdeeResult: tdeeResult,
+                                sectionManager: sectionManager)
+                            
+                            MainSectionMacroMix(
+                                macroMix: macroMix,
+                                sectionManager: sectionManager,
+                                macroMixResults: macroMixResults)
+                        }
                     }
                     .padding(EnumDevice.isSmallScreen ? 0 : 16)
                 }

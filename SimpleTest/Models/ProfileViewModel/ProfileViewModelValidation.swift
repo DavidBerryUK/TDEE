@@ -16,4 +16,12 @@ extension ProfileViewModel {
     var isValid: Bool {
         weight != 0 && height != 0
     }
+    
+    var isWeightValid: Bool {
+        weight != 0
+    }
+    
+    var isHeightValid: Bool {
+        height != 0
+    }
 }

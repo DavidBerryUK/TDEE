@@ -1,8 +1,8 @@
 import SwiftUI
 
 struct MainSectionProfileInput: View {
-    let profile: ProfileViewModel
-    let sectionManager: SectionManagerViewModel
+    @Bindable var profile: ProfileViewModel
+    @Bindable var sectionManager: SectionManagerViewModel
 
     var body: some View {
         VStack(spacing: 0) {
@@ -21,6 +21,8 @@ struct MainSectionProfileInput: View {
         .background(Color.white)
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+        .animation(.easeInOut(duration: 0.3), value: profile.isWeightValid)
+        .animation(.easeInOut(duration: 0.3), value: profile.isHeightValid)
     }
 }
 
