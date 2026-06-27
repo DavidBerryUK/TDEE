@@ -34,17 +34,21 @@ struct UIMainView: View {
                             sectionManager: sectionManager)
                         
                         if ( profile.isValid) {
-                            MainSectionCaloriesAndAdjustments(
-                                profile: profile,
-                                tdeeResult: tdeeResult,
-                                sectionManager: sectionManager)
-                            
-                            MainSectionMacroMix(
-                                macroMix: macroMix,
-                                sectionManager: sectionManager,
-                                macroMixResults: macroMixResults)
+                            VStack( spacing: 8) {
+                                MainSectionCaloriesAndAdjustments(
+                                    profile: profile,
+                                    tdeeResult: tdeeResult,
+                                    sectionManager: sectionManager)
+                                
+                                MainSectionMacroMix(
+                                    macroMix: macroMix,
+                                    sectionManager: sectionManager,
+                                    macroMixResults: macroMixResults)
+                            } .transition(.opacity)
+                                
                         }
                     }
+                    .animation(.easeInOut(duration: 0.25), value: profile.isValid)
                     .padding(EnumDevice.isSmallScreen ? 0 : 16)
                 }
             }
