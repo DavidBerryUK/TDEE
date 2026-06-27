@@ -38,12 +38,13 @@ struct UIMainView: View {
                                 MainSectionCaloriesAndAdjustments(
                                     profile: profile,
                                     tdeeResult: tdeeResult,
+                                    macroResult: macroMixResults,
                                     sectionManager: sectionManager)
                                 
-                                MainSectionMacroMix(
-                                    macroMix: macroMix,
-                                    sectionManager: sectionManager,
-                                    macroMixResults: macroMixResults)
+//                                MainSectionMacroMix(
+//                                    macroMix: macroMix,
+//                                    sectionManager: sectionManager,
+//                                    macroMixResults: macroMixResults)
                             } .transition(.opacity)
                                 
                         }
@@ -76,6 +77,12 @@ struct UIMainView: View {
                 recalculate()
             }
             .onChange(of: profile.bodyFatPercentage) { _, _ in
+                recalculate()
+            }
+            .onChange(of: profile.calorieAdjustmentMethod) { _, _ in
+                recalculate()
+            }
+            .onChange(of: profile.calorieAdjustment) { _, _ in
                 recalculate()
             }
         }

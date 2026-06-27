@@ -20,18 +20,18 @@ struct SectionMacroMixResults: View {
             HStack{
                 UICardNumericResult(
                     title: "protein \(macroMixResults.proteinPercent)%",
-                    value: Double( macroMixResults.proteinGrams),
+                    value:  macroMixResults.proteinGrams,
                     suffix:"g"
                 )
                 
                 UICardNumericResult(
                     title: "carbs \(macroMixResults.carbsPercent)%",
-                    value: Double(  macroMixResults.carbsGrams),
+                    value: macroMixResults.carbsGrams,
                     suffix:"g"
                 )
                 UICardNumericResult(
                     title: "fats \(macroMixResults.fatsPercent)%",
-                    value: Double(macroMixResults.fatsGrams),
+                    value: macroMixResults.fatsGrams,
                     suffix:"g"
                 )
             }
@@ -46,7 +46,10 @@ struct SectionMacroMixResults: View {
         fatsPercent: 20,
         proteinGrams: 450,
         carbsGrams: 210,
-        fatsGrams: 80)
+        fatsGrams: 80,
+        calories: 100,
+        caloriesAdjustedPerDay: 100,
+        caloriesAdjustedPerWeek: 700)
     
     return SectionMacroMixResults(macroMixResults: macroMixResults)
 }

@@ -3,6 +3,7 @@ import SwiftUI
 struct MainSectionCaloriesAndAdjustments: View {
     let profile: ProfileViewModel
     let tdeeResult: TdeeResultViewModel
+    let macroResult: MacroSplitResultViewModel
     let sectionManager: SectionManagerViewModel
     
 
@@ -12,7 +13,7 @@ struct MainSectionCaloriesAndAdjustments: View {
             Divider()
             SectionCalorieAdjustment(model: profile, sectionManager: sectionManager)
             Divider()
-            SectionCaloriesAdjusted(profile: profile, tdeeResult: tdeeResult)            
+            SectionCaloriesAdjusted(profile: profile, macroResult:  macroResult)
         }
         .background(Color.white)
         .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -28,6 +29,7 @@ struct MainSectionCaloriesAndAdjustments: View {
     MainSectionCaloriesAndAdjustments(
         profile: ProfileViewModel(),
         tdeeResult: TdeeResultViewModel(),
+        macroResult: MacroSplitResultViewModel(),
         sectionManager: SectionManagerViewModel()
     )
 }

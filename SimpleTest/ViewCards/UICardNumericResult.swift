@@ -10,7 +10,7 @@ import SwiftUI
 struct UICardNumericResult: View {
     
     var title : String
-    var value : Double
+    var value : Int
     var suffix : String = ""
     
     var body: some View {

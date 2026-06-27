@@ -8,8 +8,7 @@
 import SwiftUI
 
 struct SectionCaloriesMaintenance: View {
-    
-    
+        
     @Bindable var tdeeResult: TdeeResultViewModel
     
     var body: some View {
@@ -19,8 +18,8 @@ struct SectionCaloriesMaintenance: View {
                 Text("Maintenance Calories")
             }
             HStack{
-                UICardNumericResult(title: "calories per day", value: tdeeResult.tdee)
-                UICardNumericResult(title: "calories per week", value: tdeeResult.tdee * 7)
+                UICardNumericResult(title: "calories per day",  value: Int( tdeeResult.tdee))
+                UICardNumericResult(title: "calories per week", value: Int(tdeeResult.tdee * 7))
             }
         }.padding(16) // padding around the row
     }
