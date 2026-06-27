@@ -16,10 +16,13 @@ struct SectionEditorCalorieAdjustment: View {
             isOpen: $model.calorieAdjustmentShowSliders,
             header: {
                 UISegmentCalorieAdjustmentMethodView(option: $model.calorieAdjustmentMethod)
+                    .padding(.leading, 16)
+                    .padding(.trailing, 16)
+                    .padding(.bottom, 8)
             }
         ) {
             UISliderCalorieAdjustmentValue(model: model)
-                .padding(.top, 16)                
+                .padding(16)
         }
     }
 }
