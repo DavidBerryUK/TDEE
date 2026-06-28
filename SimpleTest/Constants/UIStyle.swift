@@ -30,8 +30,8 @@ struct UITextStyleResolver {
     
     static func fontColor(isExpanded: Bool, isError: Bool? = nil) -> Color {
         if let isError = isError {
-            // If isError is not nil, return the appropriate error color
-            return isExpanded ? UIStyle.Text.fontColorEditError : UIStyle.Text.fontColorReadOnlyError
+            // If isError is provided (either true or false), return the appropriate color
+            return isError ? UIStyle.Text.fontColorEditError : UIStyle.Text.fontColorReadOnly
         } else {
             // If isError is nil, return the default color based on isExpanded
             return isExpanded ? UIStyle.Text.fontColorEdit : UIStyle.Text.fontColorReadOnly
@@ -40,5 +40,13 @@ struct UITextStyleResolver {
     
     static func fontWeight(isExpanded: Bool) -> Font.Weight {
         isExpanded ? UIStyle.Text.fontWeightEdit : UIStyle.Text.fontWeightReadOnly
+    }
+    
+    static func unitOfMeasureColor(isError: Bool? = nil) -> Color {
+        if let isError = isError, isError {
+            return .red
+        } else {
+            return .primary // Default color for units of measure when not in error
+        }
     }
 }

@@ -46,15 +46,16 @@ struct UISectionSummaryValueHeight: View {
             //
             Text(displayLength.asMajorValue(length: model.height, unit: model.heightUom))
                 .contentTransition(.numericText())
-                .animation(.easeInOut, value: model.height)
                 .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded, isError: isError))
                 .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
+                .animation(.easeInOut, value: model.height)
             
             //
             // Major unit, e.g. Stones
             //
             Text(labelMajorUnit)
                 .contentTransition(.interpolate)
+                .foregroundColor(UITextStyleResolver.unitOfMeasureColor(isError: isError))
                 .animation(.easeInOut, value: model.height)
             
             //
@@ -62,15 +63,16 @@ struct UISectionSummaryValueHeight: View {
             //
             Text(displayLength.asMinorValue(length: model.height, unit: model.heightUom))
                 .contentTransition(.numericText())
-                .animation(.easeInOut, value: model.height)
                 .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded, isError: isError))
                 .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
+                .animation(.easeInOut, value: model.height)
             
             //
             // Minor Unit, e.g. Kg, pounds
             //
             Text(labelMinorUnit)
                 .contentTransition(.interpolate)
+                .foregroundColor(UITextStyleResolver.unitOfMeasureColor(isError: isError))
                 .animation(.easeInOut, value: model.height)
             
         }
@@ -117,8 +119,8 @@ struct UISectionSummaryValueHeight: View {
     @Previewable @State var sectionManager = SectionManagerViewModel()
     let model = ProfileViewModel()
     model.heightUom = .feetAndInches
-    sectionManager.heightIsExpanded = false
     model.height = LengthConverter.toCentimeters(feet: 5, inches: 7)
+    sectionManager.heightIsExpanded = false
     return UISectionSummaryValueHeight(model: model, sectionManager: sectionManager)
 }
 
@@ -126,7 +128,7 @@ struct UISectionSummaryValueHeight: View {
     @Previewable @State var sectionManager = SectionManagerViewModel()
     let model = ProfileViewModel()
     model.heightUom = .feetAndInches
-    sectionManager.heightIsExpanded = true
     model.height = LengthConverter.toCentimeters(feet: 5, inches: 10)
+    sectionManager.heightIsExpanded = true
     return UISectionSummaryValueHeight(model: model, sectionManager: sectionManager)
 }

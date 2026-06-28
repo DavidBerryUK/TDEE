@@ -46,16 +46,21 @@ struct UISectionSummaryValueWeight: View {
                 .animation(.easeInOut, value: model.weight)
                 .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded, isError: isError))
                 .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
+            
             Text(labelMajorUnit)
                 .contentTransition(.interpolate)
+                .foregroundColor(UITextStyleResolver.unitOfMeasureColor(isError: isError))
                 .animation(.easeInOut, value: model.weight)
+            
             Text(displayWeight.asMinorValue(weight: model.weight, unit: model.weightUom))
                 .contentTransition(.numericText())
                 .animation(.easeInOut, value: model.weight)
                 .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded, isError: isError))
                 .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
+            
             Text(labelMinorUnit)
                 .contentTransition(.interpolate)
+                .foregroundColor(UITextStyleResolver.unitOfMeasureColor(isError: isError))
                 .animation(.easeInOut, value: model.weight)
             
         }
