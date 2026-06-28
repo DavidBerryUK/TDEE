@@ -84,7 +84,7 @@ struct UIWheelPickerWeightView: View {
 private extension UIWheelPickerWeightView {
     
     func initialiseValues() {
-        //valueKg = Int(round( value))
+        valueKg = Int(round( value))
         let totalPounds = WeightConvertor.toPounds(value)
         valuePounds = totalPounds
         valueStones = totalPounds / 14
@@ -172,7 +172,6 @@ private extension UIWheelPickerWeightView {
                     }
                 }
                 .pickerStyle(.wheel)
-                
                 UITextPickerLabel("stones")
                     .offset(x: 36)
             }
