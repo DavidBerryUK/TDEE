@@ -18,8 +18,8 @@ struct UISectionSummaryValueMacroMix: View {
             Text("\(sectionManager.macroMixExpanded)")
                     .contentTransition(.interpolate)
                     .animation(.easeInOut, value: sectionManager.macroMixExpanded)
-                    .foregroundColor(UITextStyleResolver.color(isExpanded: sectionManager.macroMixExpanded))
-                    .fontWeight(UITextStyleResolver.weight(isExpanded: sectionManager.macroMixExpanded))
+                    .foregroundColor(UITextStyleResolver.fontColor(isExpanded: sectionManager.macroMixExpanded))
+                    .fontWeight(UITextStyleResolver.fontWeight(isExpanded: sectionManager.macroMixExpanded))
             
         }
     }

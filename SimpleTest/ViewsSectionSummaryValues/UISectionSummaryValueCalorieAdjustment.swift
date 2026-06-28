@@ -26,14 +26,14 @@ struct UISectionSummaryValueCalorieAdjustment: View {
                     Text("\(model.calorieAdjustmentMethod.adjustmentPrefix)")
                         .contentTransition(.interpolate)
                         .animation(.easeInOut, value: model.age)
-                        .foregroundColor(UITextStyleResolver.color(isExpanded: isExpanded))
-                        .fontWeight(UITextStyleResolver.weight(isExpanded: isExpanded))
+                        .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded))
+                        .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
                     
                     Text("\(Int(model.calorieAdjustment))")
                         .contentTransition(.numericText())
                         .animation(.easeInOut, value: model.age)
-                        .foregroundColor(UITextStyleResolver.color(isExpanded: isExpanded))
-                        .fontWeight(UITextStyleResolver.weight(isExpanded: isExpanded))
+                        .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded))
+                        .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
                 }
                 
                 Text("kCals")

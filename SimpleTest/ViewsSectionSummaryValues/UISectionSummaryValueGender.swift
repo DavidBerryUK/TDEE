@@ -20,8 +20,8 @@ struct UISectionSummaryValueGender: View {
             Text(model.gender.displayName)
                 .contentTransition(.interpolate)
                 .animation(.easeInOut, value: model.gender)
-                .foregroundColor(UITextStyleResolver.color(isExpanded: isExpanded))
-                .fontWeight(UITextStyleResolver.weight(isExpanded: isExpanded))
+                .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded))
+                .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
         }
     }
 }

@@ -25,21 +25,21 @@ struct MacroInformationBarView: View {
                     HStack(spacing: 0) {
                         segment(
                             label: "P",
-                            color: .macroProtein,
+                            color: UIStyle.Text.macroProtein,
                             width: pWidth,
                             value: item.protein
                         )
                         
                         segment(
                             label: "C",
-                            color: .macroCarbs,
+                            color: UIStyle.Text.macroCarbs,
                             width: cWidth,
                             value: item.carbs
                         )
                         
                         segment(
                             label: "F",
-                            color: .macroFats,
+                            color: UIStyle.Text.macroFats,
                             width: fWidth,
                             value: item.fats
                         )

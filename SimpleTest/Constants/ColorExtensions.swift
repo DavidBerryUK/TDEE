@@ -4,17 +4,10 @@
 //
 //  Created by David Berry on 18/04/2026.
 //
+
 import SwiftUI
 
-
 extension Color {
-//    static let macroProtein = Color.red.opacity(0.85)
-//    static let macroCarbs   = Color.blue.opacity(0.85)
-//    static let macroFats    = Color.orange.opacity(0.85)
-    
-    static let macroProtein = Color.red.opacity(0.85)
-    static let macroCarbs   = Color.blue
-    static let macroFats    = Color.mint
     
     func readableTextColor() -> Color {
         let uiColor = UIColor(self)
@@ -31,5 +24,6 @@ extension Color {
         
         return luminance > 0.6 ? .black : .white
     }
+    
+    
 }
-

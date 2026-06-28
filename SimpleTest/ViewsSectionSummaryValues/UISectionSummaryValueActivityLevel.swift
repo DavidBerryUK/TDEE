@@ -20,8 +20,8 @@ struct UISectionSummaryValueActivityLevel: View {
             Text( model.activityLevel.displayShortName)
                 .contentTransition(.interpolate)
                 .animation(.easeInOut, value: model.activityLevel)
-                .foregroundColor(UITextStyleResolver.color(isExpanded: isExpanded))
-                .fontWeight(UITextStyleResolver.weight(isExpanded: isExpanded))
+                .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded))
+                .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
         }
     }
 }

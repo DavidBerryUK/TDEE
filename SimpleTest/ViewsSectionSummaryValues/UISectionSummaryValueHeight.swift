@@ -36,20 +36,39 @@ struct UISectionSummaryValueHeight: View {
 
         let isExpanded = sectionManager.heightIsExpanded
         
+        // when height is 0 then there is an error
+        let isError = model.height == 0
+        
         HStack{
+            
+            //
+            // Major Value e.g. 18
+            //
             Text(displayLength.asMajorValue(length: model.height, unit: model.heightUom))
                 .contentTransition(.numericText())
                 .animation(.easeInOut, value: model.height)
-                .foregroundColor(UITextStyleResolver.color(isExpanded: isExpanded))
-                .fontWeight(UITextStyleResolver.weight(isExpanded: isExpanded))
+                .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded, isError: isError))
+                .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
+            
+            //
+            // Major unit, e.g. Stones
+            //
             Text(labelMajorUnit)
                 .contentTransition(.interpolate)
                 .animation(.easeInOut, value: model.height)
+            
+            //
+            // Minor Value
+            //
             Text(displayLength.asMinorValue(length: model.height, unit: model.heightUom))
                 .contentTransition(.numericText())
                 .animation(.easeInOut, value: model.height)
-                .foregroundColor(UITextStyleResolver.color(isExpanded: isExpanded))
-                .fontWeight(UITextStyleResolver.weight(isExpanded: isExpanded))
+                .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded, isError: isError))
+                .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
+            
+            //
+            // Minor Unit, e.g. Kg, pounds
+            //
             Text(labelMinorUnit)
                 .contentTransition(.interpolate)
                 .animation(.easeInOut, value: model.height)

@@ -16,19 +16,19 @@ struct MacroInformationTextView: View {
             
             HStack(spacing: 4) {
                 Image(systemName: "bolt.fill")
-                    .foregroundStyle(Color.macroProtein)
+                    .foregroundStyle(UIStyle.Text.macroProtein)
                 Text("protein \(item.protein)%")
             }
             
             HStack(spacing: 4) {
                 Image(systemName: "leaf.fill")
-                    .foregroundStyle(Color.macroCarbs)
+                    .foregroundStyle(UIStyle.Text.macroCarbs)
                 Text("carbs \(item.carbs)%")
             }
             
             HStack(spacing: 4) {
                 Image(systemName: "drop.fill")
-                    .foregroundStyle(Color.macroFats)
+                    .foregroundStyle(UIStyle.Text.macroFats)
                 Text("fats \(item.fats)%")
             }
             
