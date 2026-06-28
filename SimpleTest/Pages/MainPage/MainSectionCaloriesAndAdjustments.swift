@@ -33,18 +33,28 @@ struct MainSectionCaloriesAndAdjustments: View {
                     sectionManager.calorieAdjustmentExpanded = true;
                 }
             }
-            .onChange(of: sectionManager.calorieAdjustmentExpanded) { _, value in
-                if value {
-                    Task {
-                        try? await Task.sleep(nanoseconds: 200_000_000) // Delay of 0.2 seconds (200 ms)
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            proxy.scrollTo("CalorieAdjusted", anchor: .bottom) // Scroll to the anchor
-                        }
-                    }
-                }
+            .onChange(of: profile.calorieAdjustmentMethod) { _, newValue in
+                handleCalorieAdjustmentChange(newValue: newValue, proxy: proxy)
+            }
+            .onChange(of: sectionManager.calorieAdjustmentExpanded) { _, _ in
+                scrollIfNecessary(proxy: proxy)
             }
         }
-       
+    }
+
+    private func handleCalorieAdjustmentChange(newValue: enumCalorieAdjustmentMethod, proxy: ScrollViewProxy) {
+        if newValue == .cut || newValue == .bulk {
+            scrollIfNecessary(proxy: proxy)
+        }
+    }
+
+    private func scrollIfNecessary(proxy: ScrollViewProxy) {
+        Task {
+            try? await Task.sleep(nanoseconds: 200_000_000) // Delay of 0.2 seconds (200 ms)
+            withAnimation(.easeInOut(duration: 0.3)) {
+                proxy.scrollTo("CalorieAdjusted", anchor: .bottom) // Scroll to the anchor
+            }
+        }
     }
 }
 
