@@ -67,7 +67,7 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
 #Preview("Normal") {
     @Previewable @State var model = ProfileViewModel()
     @Previewable @StateObject var sectionManager = SectionManagerViewModel()
-    var validationText = "Age is required"
+    let validationText = "Age is required"
     
     UILayoutSectionView(
         title: "Weight",
@@ -89,7 +89,7 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
 #Preview("With Error") {
     @Previewable @State var model = ProfileViewModel()
     @Previewable @StateObject var sectionManager = SectionManagerViewModel()
-    var validationText = "Weight is required"
+    let validationText = "Weight is required"
     
     UILayoutSectionView(
         title: "Weight",

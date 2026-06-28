@@ -9,21 +9,21 @@ import SwiftUI
 
 struct SectionCalorieAdjustment: View {
     
-    @Bindable var model: ProfileViewModel
+    @Bindable var profile: ProfileViewModel
     @Bindable var sectionManager: SectionManagerViewModel
     
     var body: some View {
         
         UILayoutSectionView(
-            title: "\(model.calorieAdjustmentMethod.sectionTitle)",
+            title: "\(profile.calorieAdjustmentMethod.sectionTitle)",
             icon: .calorie,
             isExpanded: $sectionManager.calorieAdjustmentExpanded,
             validationText: "",
             sectionSummaryValueView: {
-                UISectionSummaryValueCalorieAdjustment(model: model, sectionManager: sectionManager)
+                UISectionSummaryValueCalorieAdjustment(model: profile, sectionManager: sectionManager)
             },
             editorView: {
-                SectionEditorCalorieAdjustment(model: model)
+                SectionEditorCalorieAdjustment(model: profile)
             }
         )
     }
@@ -34,14 +34,14 @@ struct SectionCalorieAdjustment: View {
     let model = ProfileViewModel()
     model.calorieAdjustmentMethod = .cut
     model.calorieAdjustment = 250
-    return SectionCalorieAdjustment(model: model, sectionManager: sectionManager)
+    return SectionCalorieAdjustment(profile: model, sectionManager: sectionManager)
 }
 
 #Preview("Maintain") {
     @Previewable @State var sectionManager = SectionManagerViewModel()
     let model = ProfileViewModel()
     model.calorieAdjustmentMethod = .maintain
-    return SectionCalorieAdjustment(model: model, sectionManager: sectionManager)
+    return SectionCalorieAdjustment(profile: model, sectionManager: sectionManager)
 }
 
 #Preview("Bulk") {
@@ -49,6 +49,6 @@ struct SectionCalorieAdjustment: View {
     let model = ProfileViewModel()
     model.calorieAdjustmentMethod = .bulk
     model.calorieAdjustment = 500
-    return SectionCalorieAdjustment(model: model, sectionManager: sectionManager)
+    return SectionCalorieAdjustment(profile: model, sectionManager: sectionManager)
 }
 
