@@ -153,11 +153,11 @@ struct TdeeCalculator {
     static func adjustCalories(base: Double, person: ProfileViewModel, logger: AuditLogger) -> Double {
         switch person.calorieAdjustmentMethod {
         case .maintain:
-            return base
+            return max( 0, base)
         case .bulk:
-            return base + Double(person.calorieAdjustment)
+            return max( 0, base + Double(person.calorieAdjustment))
         case .cut:
-            return base - Double(person.calorieAdjustment)
+            return max( 0, base - Double(person.calorieAdjustment))
         }
     }
     

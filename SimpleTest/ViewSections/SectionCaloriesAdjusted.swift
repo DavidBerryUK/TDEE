@@ -13,21 +13,17 @@ struct SectionCaloriesAdjusted: View {
     @Bindable var macroResult: MacroSplitResultViewModel
     
     var body: some View {
-                                
-        UILayoutExpandingPanel(
-            isOpen: $profile.calorieAdjustmentShowSliders,
-            header: { EmptyView() }
-        ) {
-            VStack{
-                HStack{
-                    Text("Adjusted Calories")
-                }
-                HStack{
-                    UICardNumericResult(title: "calories per day", value: macroResult.caloriesAdjustedPerDay)
-                    UICardNumericResult(title: "calories per week", value: macroResult.caloriesAdjustedPerWeek)
-                }
-            }.padding(16) // padding around the row
-        }
+                     
+        VStack{
+            HStack{
+                Text("Calories (\(profile.calorieAdjustmentMethod.displayName))")
+            }
+            HStack{
+                UICardNumericResult(title: "calories per day", value: macroResult.caloriesAdjustedPerDay)
+                UICardNumericResult(title: "calories per week", value: macroResult.caloriesAdjustedPerWeek)
+            }
+        }.padding(16) // padding around the row
+        
     }
 }
 
