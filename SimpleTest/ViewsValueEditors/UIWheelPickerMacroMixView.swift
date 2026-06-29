@@ -13,7 +13,7 @@ struct UIWheelPickerMacroMixView: View {
     @Environment(MacroSplitOptionsModelCollection.self) private var collection
     
     var body: some View {
-        Picker("Macro Mix", selection: $macroSplit.selectedMacroId) {
+        Picker("Macro Split", selection: $macroSplit.selectedMacroId) {
             ForEach(collection.items) { item in
                 Text(item.name)
                     .tag(item.id)

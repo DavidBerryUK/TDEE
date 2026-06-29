@@ -55,7 +55,7 @@ final class ProfileViewModel: ObservableObject {
     var calorieAdjustmentShowSliders : Bool
     
     /****************************************************/
-    /*  Macro Mix                                       */
+    /*  Macro Split                                     */
     /****************************************************/
     var protein: Int
     var carbs: Int
@@ -76,7 +76,7 @@ final class ProfileViewModel: ObservableObject {
         self.bodyFatPercentageShowManualEntry = false
         self.bodyFatPercentageMethod = .omit
         
-        // Macro Mix
+        // Macro Split
         self.protein = 40
         self.carbs = 30
         self.fats = 30

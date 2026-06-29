@@ -9,24 +9,7 @@ struct MacroCalculator {
     
     static func calculate(person: ProfileViewModel, tdee: TdeeResultViewModel) -> MacroSplitResultViewModel {
         
-        let calories : Int = Int(tdee.bmr)
-        
-        var adjustment : Int = 0;
-        switch person.calorieAdjustmentMethod {
-            
-        case .cut:
-            adjustment = Int(-person.calorieAdjustment)
-            break
-            
-        case .bulk:
-            adjustment = Int(person.calorieAdjustment)
-            break
-            
-            default :
-            break
-        }
-        
-        let caloriesAdjustedPerDay : Int =  calories + adjustment
+        let caloriesAdjustedPerDay : Int =  Int(tdee.adjustedCalories)
         let caloriesAdjustedPerWeek : Int = caloriesAdjustedPerDay * 7
         
         let proteinPercent: Int = 40
@@ -44,7 +27,7 @@ struct MacroCalculator {
             proteinGrams: proteinGrams,
             carbsGrams: carbsGrams,
             fatsGrams: fatsGrams,
-            calories: calories,
+        
             caloriesAdjustedPerDay: caloriesAdjustedPerDay,
             caloriesAdjustedPerWeek: caloriesAdjustedPerWeek
         )

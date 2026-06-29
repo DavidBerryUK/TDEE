@@ -9,7 +9,7 @@ struct MainSectionMacroMix: View {
     var body: some View {
         VStack(spacing: 0) {
             Divider()
-            SectionMacroMix(macroMix: macroMix, sectionManager: sectionManager)
+            SectionMacroSplit(macroMix: macroMix, sectionManager: sectionManager)
             Divider()
             SectionMacroMixResults(macroMixResults: macroMixResults)
         }

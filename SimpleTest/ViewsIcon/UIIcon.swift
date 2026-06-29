@@ -18,7 +18,7 @@ private let iconCatalog: [EnumIcon: IconModel] = [
     .protein: IconModel(id: .protein, label: "Protein", symbolSolid: "dumbbell.fill", symbolOutlined: "dumbbell", color: .red),
     .carbs: IconModel(id: .carbs, label: "Carbs", symbolSolid: "leaf.fill", symbolOutlined: "leaf", color: .green),
     .fats: IconModel(id: .fats, label: "Fats", symbolSolid: "drop.fill", symbolOutlined: "drop", color: .yellow),
-    .macroMix: IconModel(id: .macroMix, label: "Macro Mix", symbolSolid: "fork.knife.circle.fill", symbolOutlined: "fork.knife", color: .yellow),
+    .macroSplit: IconModel(id: .macroSplit, label: "Macro Split", symbolSolid: "fork.knife.circle.fill", symbolOutlined: "fork.knife", color: .yellow),
 ]
 
 struct UIIcon: View {

@@ -41,10 +41,10 @@ struct UIMainView: View {
                                     macroResult: macroMixResults,
                                     sectionManager: sectionManager)
                                 
-//                                MainSectionMacroMix(
-//                                    macroMix: macroMix,
-//                                    sectionManager: sectionManager,
-//                                    macroMixResults: macroMixResults)
+                                MainSectionMacroMix(
+                                    macroMix: macroMix,
+                                    sectionManager: sectionManager,
+                                    macroMixResults: macroMixResults)
                             } .transition(.opacity)
                                 
                         }

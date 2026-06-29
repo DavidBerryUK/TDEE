@@ -9,7 +9,7 @@ import Combine
 import Observation
 
 /// Used in the main application to keep track of the users currently selected
-///  macro mix options, and if the macro mix section is in expanded mode
+///  macro split  options, and if the macro split section is in expanded mode
 ///
 @Observable
 final class MacroSplitViewModel : ObservableObject  {

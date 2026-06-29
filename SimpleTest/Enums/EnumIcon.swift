@@ -17,5 +17,5 @@ enum EnumIcon : Int, CaseIterable {
          protein,
          carbs,
          fats,
-         macroMix
+         macroSplit
 }

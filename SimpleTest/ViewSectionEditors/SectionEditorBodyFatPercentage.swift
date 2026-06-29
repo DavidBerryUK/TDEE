@@ -16,6 +16,7 @@ struct SectionEditorBodyFatPercentage: View {
             isOpen: $model.bodyFatPercentageShowManualEntry,
             header: {
                 UISegmentBodyFatCalcMethodView(option: $model.bodyFatPercentageMethod)
+                    .padding(.horizontal, 8)
             }
         ) {
             UIWheelPickerBodyFatView(value: $model.bodyFatPercentage)

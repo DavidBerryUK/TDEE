@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct SectionMacroMix: View {
+struct SectionMacroSplit: View {
         
     @Bindable var macroMix: MacroSplitViewModel
     @Bindable var sectionManager : SectionManagerViewModel
@@ -15,8 +15,8 @@ struct SectionMacroMix: View {
     var body: some View {
         
         UILayoutSectionView(
-            title: "Macro Mix",
-            icon: .macroMix,
+            title: "Macro Split",
+            icon: .macroSplit,
             isExpanded: $sectionManager.macroMixExpanded,
             validationText: "",
             sectionSummaryValueView: {
@@ -34,12 +34,12 @@ struct SectionMacroMix: View {
     @Previewable @State var macroMix = MacroSplitViewModel()
     @Previewable @State var sectionManager = SectionManagerViewModel()
     sectionManager.macroMixExpanded = false
-    return SectionMacroMix(macroMix: macroMix, sectionManager: sectionManager)
+    return SectionMacroSplit(macroMix: macroMix, sectionManager: sectionManager)
 }
 
 #Preview("expanded") {
     @Previewable @State var macroMix = MacroSplitViewModel()
     @Previewable @State var sectionManager = SectionManagerViewModel()
     sectionManager.macroMixExpanded = true
-    return SectionMacroMix(macroMix: macroMix, sectionManager: sectionManager)
+    return SectionMacroSplit(macroMix: macroMix, sectionManager: sectionManager)
 }

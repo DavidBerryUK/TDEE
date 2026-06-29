@@ -15,7 +15,6 @@ final class MacroSplitResultViewModel {
     var proteinGrams: Int = 0
     var carbsGrams: Int = 0
     var fatsGrams: Int = 0
-    var calories: Int = 0
     var caloriesAdjustedPerDay: Int = 0
     var caloriesAdjustedPerWeek: Int = 0
     
@@ -26,7 +25,6 @@ final class MacroSplitResultViewModel {
         self.proteinGrams = 0
         self.carbsGrams = 0
         self.fatsGrams = 0
-        self.calories = 0
         self.caloriesAdjustedPerDay = 0
         self.caloriesAdjustedPerWeek = 0
     }
@@ -38,7 +36,6 @@ final class MacroSplitResultViewModel {
         proteinGrams: Int,
         carbsGrams: Int,
         fatsGrams: Int,
-        calories: Int,
         caloriesAdjustedPerDay: Int,
         caloriesAdjustedPerWeek: Int
     ) {
@@ -48,7 +45,6 @@ final class MacroSplitResultViewModel {
         self.proteinGrams = proteinGrams
         self.carbsGrams = carbsGrams
         self.fatsGrams = fatsGrams
-        self.calories = calories
         self.caloriesAdjustedPerDay = caloriesAdjustedPerDay
         self.caloriesAdjustedPerWeek = caloriesAdjustedPerWeek
     }

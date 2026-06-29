@@ -15,9 +15,6 @@ struct SectionMacroMixResults: View {
         
         VStack{
             HStack{
-                Text("Macro Split")
-            }
-            HStack{
                 UICardNumericResult(
                     title: "protein \(macroMixResults.proteinPercent)%",
                     value:  macroMixResults.proteinGrams,
@@ -47,7 +44,6 @@ struct SectionMacroMixResults: View {
         proteinGrams: 450,
         carbsGrams: 210,
         fatsGrams: 80,
-        calories: 100,
         caloriesAdjustedPerDay: 100,
         caloriesAdjustedPerWeek: 700)
     
