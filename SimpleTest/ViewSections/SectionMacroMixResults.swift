@@ -9,26 +9,26 @@ import SwiftUI
 
 struct SectionMacroMixResults: View {
         
-    @Bindable var macroMixResults: MacroSplitResultViewModel
+    @Bindable var calculationResults: CalculatorResultViewModel
     
     var body: some View {
         
         VStack{
             HStack{
                 UICardNumericResult(
-                    title: "protein \(macroMixResults.proteinPercent)%",
-                    value:  macroMixResults.proteinGrams,
+                    title: "protein \(calculationResults.proteinPercent)%",
+                    value:  calculationResults.proteinGrams,
                     suffix:"g"
                 )
                 
                 UICardNumericResult(
-                    title: "carbs \(macroMixResults.carbsPercent)%",
-                    value: macroMixResults.carbsGrams,
+                    title: "carbs \(calculationResults.carbsPercent)%",
+                    value: calculationResults.carbsGrams,
                     suffix:"g"
                 )
                 UICardNumericResult(
-                    title: "fats \(macroMixResults.fatsPercent)%",
-                    value: macroMixResults.fatsGrams,
+                    title: "fats \(calculationResults.fatsPercent)%",
+                    value: calculationResults.fatsGrams,
                     suffix:"g"
                 )
             }
@@ -37,15 +37,16 @@ struct SectionMacroMixResults: View {
 }
 
 #Preview {
-    let macroMixResults = MacroSplitResultViewModel(
-        proteinPercent: 40,
-        carbsPercent: 20,
-        fatsPercent: 20,
-        proteinGrams: 450,
-        carbsGrams: 210,
-        fatsGrams: 80,
-        caloriesAdjustedPerDay: 100,
-        caloriesAdjustedPerWeek: 700)
+    var results = CalculatorResultViewModel();
+//    results.updateMacros(
+//        proteinPercent: 40,
+//        carbsPercent: 20,
+//        fatsPercent: 20,
+//        proteinGrams: 450,
+//        carbsGrams: 210,
+//        fatsGrams: 80,
+//        caloriesAdjustedPerDay: 100,
+//        caloriesAdjustedPerWeek: 700)
     
-    return SectionMacroMixResults(macroMixResults: macroMixResults)
+    SectionMacroMixResults(calculationResults: results)
 }

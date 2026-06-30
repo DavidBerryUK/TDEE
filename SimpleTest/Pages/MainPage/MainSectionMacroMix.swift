@@ -4,14 +4,14 @@ struct MainSectionMacroMix: View {
     
     let macroMix: MacroSplitViewModel
     let sectionManager: SectionManagerViewModel
-    let macroMixResults: MacroSplitResultViewModel
+    let calculationResult: CalculatorResultViewModel
 
     var body: some View {
         VStack(spacing: 0) {
             Divider()
             SectionMacroSplit(macroMix: macroMix, sectionManager: sectionManager)
             Divider()
-            SectionMacroMixResults(macroMixResults: macroMixResults)
+            SectionMacroMixResults(calculationResults: calculationResult)
         }
         .background(Color.white)
         .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -24,6 +24,6 @@ struct MainSectionMacroMix: View {
     MainSectionMacroMix(
         macroMix: MacroSplitViewModel(),
         sectionManager: SectionManagerViewModel(),
-        macroMixResults: MacroSplitResultViewModel()
+        calculationResult: CalculatorResultViewModel() // Ensure this is correct
     )
 }

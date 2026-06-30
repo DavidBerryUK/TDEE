@@ -2,15 +2,14 @@ import SwiftUI
 
 struct MainSectionCaloriesAndAdjustments: View {
     let profile: ProfileViewModel
-    let tdeeResult: TdeeResultViewModel
-    let macroResult: MacroSplitResultViewModel
+    let calculationResult: CalculatorResultViewModel
     let sectionManager: SectionManagerViewModel
     
 
     var body: some View {
         ScrollViewReader { proxy in
             VStack(spacing: 0) {
-                SectionCaloriesAdjusted(profile: profile, macroResult: macroResult)
+                SectionCaloriesAdjusted(profile: profile, calculationResult: calculationResult)
                 Divider()
                 SectionCalorieAdjustment(profile: profile, sectionManager: sectionManager)
                     .id("CalorieAdjustment")
@@ -55,8 +54,7 @@ struct MainSectionCaloriesAndAdjustments: View {
 #Preview {
     MainSectionCaloriesAndAdjustments(
         profile: ProfileViewModel(),
-        tdeeResult: TdeeResultViewModel(),
-        macroResult: MacroSplitResultViewModel(),
+        calculationResult: CalculatorResultViewModel(),
         sectionManager: SectionManagerViewModel()
     )
 }

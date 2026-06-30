@@ -10,7 +10,7 @@ import SwiftUI
 struct SectionCaloriesAdjusted: View {
     
     @Bindable var profile : ProfileViewModel
-    @Bindable var macroResult: MacroSplitResultViewModel
+    @Bindable var calculationResult: CalculatorResultViewModel
     
     var body: some View {
                      
@@ -19,8 +19,8 @@ struct SectionCaloriesAdjusted: View {
                 Text("Calories (\(profile.calorieAdjustmentMethod.displayName))")
             }
             HStack{
-                UICardNumericResult(title: "calories per day", value: macroResult.caloriesAdjustedPerDay)
-                UICardNumericResult(title: "calories per week", value: macroResult.caloriesAdjustedPerWeek)
+                UICardNumericResult(title: "calories per day", value: calculationResult.caloriesAdjustedPerDay)
+                UICardNumericResult(title: "calories per week", value: calculationResult.caloriesAdjustedPerWeek)
             }
         }.padding(16) // padding around the row
         
@@ -29,9 +29,9 @@ struct SectionCaloriesAdjusted: View {
 
 
 #Preview {
-    let macroResult = MacroSplitResultViewModel()
-    macroResult.caloriesAdjustedPerDay = 2000
-    macroResult.caloriesAdjustedPerWeek = 14000
+    let calculationResult = CalculatorResultViewModel()
+    calculationResult.caloriesAdjustedPerDay = 2000
+    calculationResult.caloriesAdjustedPerWeek = 14000
     let profile = ProfileViewModel()
-    return SectionCaloriesAdjusted(profile: profile, macroResult: macroResult)
+    return SectionCaloriesAdjusted(profile: profile, calculationResult: calculationResult)
 }

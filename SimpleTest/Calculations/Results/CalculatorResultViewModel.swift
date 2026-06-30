@@ -1,14 +1,28 @@
 //
-//  MacroSplitResultViewModel.swift
+//  TdeeResult.swift
 //  SimpleTest
 //
-//  Created by David Berry on 19/04/2026.
+//  Created by David Berry on 25/04/2026.
 //
 
 import Foundation
+import Combine
+import Observation
 
 @Observable
-final class MacroSplitResultViewModel {
+final class CalculatorResultViewModel : ObservableObject {
+    
+    
+    //
+    // Basic Calculations Results
+    //
+    var bmr: Double = 0
+    var tdee: Double = 0
+    var adjustedCalories: Double = 0
+            
+    //
+    // Macro Calculation Results
+    //
     var proteinPercent: Int = 0
     var carbsPercent: Int = 0
     var fatsPercent: Int = 0
@@ -18,18 +32,37 @@ final class MacroSplitResultViewModel {
     var caloriesAdjustedPerDay: Int = 0
     var caloriesAdjustedPerWeek: Int = 0
     
+    //
+    // Auditing
+    //
+    var audit: [AuditItem]
+    
+    //
+    // Error Message
+    //
+    var message: String?
+
     init() {
-        self.proteinPercent = 0
-        self.carbsPercent = 0
-        self.fatsPercent = 0
-        self.proteinGrams = 0
-        self.carbsGrams = 0
-        self.fatsGrams = 0
-        self.caloriesAdjustedPerDay = 0
-        self.caloriesAdjustedPerWeek = 0
+        self.message = nil
+        self.audit = []
     }
     
-    init(
+    func updateErrorMessage(message: String) {
+        self.message = message
+    }
+    
+    func updateTdee(
+        bmr: Double = 0,
+         tdee: Double = 0,
+         adjustedCalories: Double = 0,
+        ) {
+        self.bmr = bmr
+        self.tdee = tdee
+        self.adjustedCalories = adjustedCalories
+        
+    }
+    
+    func updateMacros(
         proteinPercent: Int,
         carbsPercent: Int,
         fatsPercent: Int,

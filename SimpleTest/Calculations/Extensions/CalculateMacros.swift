@@ -1,15 +1,15 @@
 //
-//  MacroCalculator.swift
+//  CalculateMacros.swift
 //  SimpleTest
 //
-//  Created by David Berry on 19/04/2026.
+//  Created by David Berry on 30/06/2026.
 //
 
-struct MacroCalculator {
+extension ProfileViewModel {
     
-    static func calculate(person: ProfileViewModel, tdee: TdeeResultViewModel) -> MacroSplitResultViewModel {
+    func calculateMacros(result: CalculatorResultViewModel) {
         
-        let caloriesAdjustedPerDay : Int =  Int(tdee.adjustedCalories)
+        let caloriesAdjustedPerDay : Int =  Int(result.adjustedCalories)
         let caloriesAdjustedPerWeek : Int = caloriesAdjustedPerDay * 7
         
         let proteinPercent: Int = 40
@@ -20,17 +20,16 @@ struct MacroCalculator {
         let carbsGrams = Int(Double(carbsPercent) * Double(caloriesAdjustedPerDay) / 100 / 4)
         let fatsGrams = Int(Double(fatsPercent) * Double(caloriesAdjustedPerDay) / 100 / 9)
         
-        return MacroSplitResultViewModel(
+        result.updateMacros(
             proteinPercent: proteinPercent,
             carbsPercent: carbsPercent,
             fatsPercent: fatsPercent,
             proteinGrams: proteinGrams,
             carbsGrams: carbsGrams,
             fatsGrams: fatsGrams,
-        
+            
             caloriesAdjustedPerDay: caloriesAdjustedPerDay,
             caloriesAdjustedPerWeek: caloriesAdjustedPerWeek
         )
     }
-    
 }

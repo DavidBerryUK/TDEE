@@ -10,14 +10,12 @@ import Combine
 
 struct UIMainView: View {
     @StateObject private var profile = ProfileViewModel()
-    @State private var tdeeResult = TdeeResultViewModel()
+    @State private var calculationResult = CalculatorResultViewModel()
     @StateObject var macroMix = MacroSplitViewModel()
     @StateObject var sectionManager = SectionManagerViewModel()
-    @State private var macroMixResults = MacroSplitResultViewModel()
-    
+        
     private func recalculate() {
-        tdeeResult = TdeeCalculator.calculate(person: profile)
-        macroMixResults = MacroCalculator.calculate(person: profile, tdee: tdeeResult)
+        calculationResult = Calculator.calculate(person: profile)
     }
 
     var body: some View {
@@ -37,14 +35,13 @@ struct UIMainView: View {
                             VStack( spacing: 8) {
                                 MainSectionCaloriesAndAdjustments(
                                     profile: profile,
-                                    tdeeResult: tdeeResult,
-                                    macroResult: macroMixResults,
+                                    calculationResult: calculationResult,
                                     sectionManager: sectionManager)
                                 
                                 MainSectionMacroMix(
                                     macroMix: macroMix,
                                     sectionManager: sectionManager,
-                                    macroMixResults: macroMixResults)
+                                    calculationResult: calculationResult)
                             } .transition(.opacity)
                                 
                         }
