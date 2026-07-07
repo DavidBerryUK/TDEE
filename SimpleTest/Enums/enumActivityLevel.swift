@@ -5,7 +5,7 @@
 //  Created by David Berry on 03/04/2026.
 //
 
-enum enumActivityLevel : Int, CaseIterable {
+public enum enumActivityLevel : Int, CaseIterable {
     case sedentary = 0,
          lightExercise = 1,
          moderateExercise = 2,
@@ -13,7 +13,7 @@ enum enumActivityLevel : Int, CaseIterable {
          athlete = 4
 }
 
-extension enumActivityLevel {
+public extension enumActivityLevel {
     var displayName: String {
         switch self {
         case .sedentary: return "Sedentary (office job)"
@@ -25,7 +25,7 @@ extension enumActivityLevel {
     }
 }
 
-extension enumActivityLevel {
+public extension enumActivityLevel {
     var displayShortName: String {
         switch self {
         case .sedentary: return "Sedentary"
@@ -37,7 +37,7 @@ extension enumActivityLevel {
     }
 }
 
-extension enumActivityLevel {
+public extension enumActivityLevel {
     var KatchMcArdleMultipliers: Double {
         switch self {
         case .sedentary:

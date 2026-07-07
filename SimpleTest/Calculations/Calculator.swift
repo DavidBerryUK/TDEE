@@ -24,4 +24,15 @@ struct Calculator {
         
     }
 
+    // Removed private modifier to make it accessible from tests
+    static func adjustForActivityLevel(
+       bmr: Double,
+       activityLevel: enumActivityLevel,
+       logger: AuditLogger
+   ) -> Double {
+       
+       let result = bmr * activityLevel.KatchMcArdleMultipliers
+       return result
+   }
+    
 }
