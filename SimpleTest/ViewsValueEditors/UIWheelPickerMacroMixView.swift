@@ -20,6 +20,7 @@ struct UIWheelPickerMacroMixView: View {
             }
         }
         .pickerStyle(.wheel)
+        .accessibilityLabel("Macro split selection")
     }
 }
 

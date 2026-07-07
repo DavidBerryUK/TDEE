@@ -154,13 +154,13 @@ model.weight.isNaN || model.weight.isNaN  // should be different validators
 | 1        | #1      | Fix `CalculateMacros.swift` to use user's actual macro split selection   | ~30 min | ✅ FIXED     |
 | 2        | #2      | Fix macro normalization overflow using pre-change snapshot               | ~30 min | ✅ FIXED     |
 | 3        | #5      | Remove `ObservableObject` conformance from all ViewModels                | ~15 min | ⏸ HOLD       |
-| 4        | #4      | Add `abs()` around calorie adjustment + validate bodyFatPercentage range | ~30 min | ⬜ OPEN       |
+| 4        | #4      | Add `abs()` around calorie adjustment + validate bodyFatPercentage range | ~30 min | ✅ FIXED     |
 | 5        | #6      | Consolidate the 8 `.onChange` calls into one computed property/publisher | ~30 min | ⬜ OPEN       |
-| 6        | #14     | Add `accessibilityLabel` to sliders and segment pickers                  | ~1 hr   | ⬜ OPEN       |
+| 6        | #14     | Add `accessibilityLabel` to sliders and segment pickers                  | ~1 hr   | ✅ FIXED     |
 | 7        | #7      | Delete dead code (commented-out file, duplicate V2 view)                 | ~5 min  | ✅ FIXED     |
 | 8        | #8      | Remove dead duplicate method from CalculatorTdee.swift                   | ~5 min  | ✅ FIXED     |
 | 9        | #9      | Fix repeated `.isnan` typo in SectionWeight validator                    | ~5 min  | ✅ FIXED     |
 | 10       | #11     | Rename enums to idiomatic Swift style                                    | ~1 hr   | ⬜ OPEN       |
 | 11       | #12     | Fix stale file header comments                                           | ~15 min | ⬜ OPEN       |
 | 12       | #13     | Fix picker label typo in `UISegmentCalorieAdjustmentMethodView`          | ~5 min  | ✅ FIXED     |
-| 13       | #15     | Centralize magic numbers into named constants                            | ~45 min | ⬜ OPEN       |
+| 13       | #15     | Centralize magic numbers into named constants                            | ~45 min | ✅ FIXED     |

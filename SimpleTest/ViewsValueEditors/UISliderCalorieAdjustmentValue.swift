@@ -72,6 +72,8 @@ struct UISliderCalorieAdjustmentValue: View {
                     step: 25
                 )
                 .gridCellColumns(2)
+                .accessibilityLabel("Calorie adjustment slider")
+                .accessibilityValue("\(Int(model.calorieAdjustment)) calories")
             }
         }
     }
