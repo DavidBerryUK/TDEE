@@ -40,7 +40,7 @@ Validation checks age/height/weight for zero but allows any body fat value. A va
 
 Every model class (`ProfileViewModel`, `SectionManagerViewModel`, `MacroSplitOptionsViewModel`) has both the `@Observable` macro _and_ inherits from `ObservableObject`. These are incompatible observation patterns — if some views use `@State` (Observation framework) and others use `@StateObject` (Combine), they won't stay in sync.
 
-**Fix:** Remove `ObservableObject` inheritance; keep only `@Observable`.
+**Status update:** All three ViewModels are owned via `@StateObject` in `UIMainView:12-15`, which **requires** `ObservableObject` conformance at runtime. Removing it without a coordinated migration to `@State` will break compilation. Recommend migrating UIMainView's three declarations from `@StateObject` to `@State` (Observation) as a batch, or strip `@Observable` and keep just `ObservableObject`. Not safe as an isolated change.
 
 ---
 
@@ -100,7 +100,7 @@ Hard-coded values like `100` for safe-area padding, inconsistent spring animatio
 |----------|--------------------------------------------------------------------------|---------|--------------|
 | 1        | Fix `CalculateMacros.swift` to use user's actual macro split selection   | ~30 min | **FIXED** ✅  |
 | 2        | Fix macro normalization overflow using pre-change snapshot               | ~30 min | **FIXED** ✅  |
-| 3        | Remove `ObservableObject` conformance from all ViewModels                | ~15 min | Open ⬜       |
+| 3        | Remove `ObservableObject` conformance from all ViewModels                | ~15 min | Hold ⏸ (requires batch migration of UIMainView @StateObject → @State) |
 | 4        | Add `abs()` around calorie adjustment + validate bodyFatPercentage range | ~30 min | Open ⬜       |
 | 5        | Consolidate the 8 `.onChange` calls into one computed property/publisher | ~30 min | Open ⬜       |
 | 6        | Add `accessibilityLabel` to sliders and segment pickers                  | ~1 hr   | Open ⬜       |
