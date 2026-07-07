@@ -2,10 +2,9 @@ import SwiftUI
 
 struct MainSectionMacroMix: View {
 
-    let macroMix: MacroSplitOptionsViewModel
+    let macroMix: MacroSplitViewModel
     let sectionManager: SectionManagerViewModel
     let calculationResult: CalculatorResultViewModel
-    let selectedMacro: MacroSplitOptionsModel?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -23,10 +22,9 @@ struct MainSectionMacroMix: View {
 
 #Preview {
     MainSectionMacroMix(
-        macroMix: MacroSplitOptionsViewModel(),
+        macroMix: MacroSplitViewModel(),
         sectionManager: SectionManagerViewModel(),
-        calculationResult: CalculatorResultViewModel(), // Ensure this is correct
-        selectedMacro: nil
+        calculationResult: CalculatorResultViewModel() // Ensure this is correct
     )
 }
 

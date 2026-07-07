@@ -9,7 +9,7 @@ extension ProfileViewModel {
 
     /// Copy protein/carbs/fats from a macro preset option into this profile.
     /// Call before calculating so the computation uses the user's actual selection.
-    func syncMacros(from macroOption: MacroSplitOptionsModel) {
+    func syncMacros(from macroOption: MacroSplitOptionModel) {
         protein = macroOption.protein
         carbs   = macroOption.carbs
         fats    = macroOption.fats

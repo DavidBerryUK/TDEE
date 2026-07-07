@@ -9,10 +9,10 @@ import SwiftUI
 import Combine
 
 struct UIMainView: View {
-    @StateObject private var profile = ProfileViewModel()
+    @State private var profile = ProfileViewModel()
     @State private var calculationResult = CalculatorResultViewModel()
-    @StateObject var macroMix = MacroSplitOptionsViewModel()
-    @StateObject var sectionManager = SectionManagerViewModel()
+    @State var macroMix = MacroSplitViewModel()
+    @State var sectionManager = SectionManagerViewModel()
 
     @Environment(MacroSplitOptionsModelCollection.self) private var globalMacroCollection
 
@@ -48,12 +48,10 @@ struct UIMainView: View {
                                     calculationResult: calculationResult,
                                     sectionManager: sectionManager)
 
-                                let selectedMacro = globalMacroCollection.items.first(where: { $0.id == macroMix.selectedMacroId })
                                 MainSectionMacroMix(
                                     macroMix: macroMix,
                                     sectionManager: sectionManager,
-                                    calculationResult: calculationResult,
-                                    selectedMacro: selectedMacro)
+                                    calculationResult: calculationResult)
                             } .transition(.opacity)
 
                         }
