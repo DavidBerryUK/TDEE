@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct UISegmentCalorieAdjustmentMethodView: View {
-    
+
     @Binding var option: enumCalorieAdjustmentMethod
-    
+
     var body: some View {
-        Picker("Gender", selection: $option) {
+        Picker("Calories", selection: $option) {
             ForEach(enumCalorieAdjustmentMethod.allCases, id: \.self) { level in
                 Text(level.displayName)
                     .tag(level)
