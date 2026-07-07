@@ -5,8 +5,15 @@
 //  Created by David Berry on 15/04/2026.
 //
 
-
 extension ProfileViewModel {
+
+    /// Copy protein/carbs/fats from a macro preset option into this profile.
+    /// Call before calculating so the computation uses the user's actual selection.
+    func syncMacros(from macroOption: MacroSplitOptionsModel) {
+        protein = macroOption.protein
+        carbs   = macroOption.carbs
+        fats    = macroOption.fats
+    }
     
     func updateProtein(to newValue: Double) {
         normalizeAfterProteinChange(newValue: newValue)

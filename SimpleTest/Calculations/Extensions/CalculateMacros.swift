@@ -12,10 +12,11 @@ extension ProfileViewModel {
         let caloriesAdjustedPerDay : Int =  Int(result.adjustedCalories)
         let caloriesAdjustedPerWeek : Int = caloriesAdjustedPerDay * 7
         
-        let proteinPercent: Int = 40
-        let carbsPercent: Int = 40
-        let fatsPercent: Int = 20 // Adjusted to ensure total is 100%
-        
+        // Use the profile's stored macro split (synced from user selection or sliders)
+        let proteinPercent: Int = protein
+        let carbsPercent: Int = carbs
+        let fatsPercent: Int = fats
+
         let proteinGrams = Int(Double(proteinPercent) * Double(caloriesAdjustedPerDay) / 100 / 4)
         let carbsGrams = Int(Double(carbsPercent) * Double(caloriesAdjustedPerDay) / 100 / 4)
         let fatsGrams = Int(Double(fatsPercent) * Double(caloriesAdjustedPerDay) / 100 / 9)

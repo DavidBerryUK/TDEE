@@ -11,10 +11,20 @@ import Combine
 struct UIMainView: View {
     @StateObject private var profile = ProfileViewModel()
     @State private var calculationResult = CalculatorResultViewModel()
-    @StateObject var macroMix = MacroSplitViewModel()
+    @StateObject var macroMix = MacroSplitOptionsViewModel()
     @StateObject var sectionManager = SectionManagerViewModel()
-        
+
+    @Environment(MacroSplitOptionsModelCollection.self) private var globalMacroCollection
+
+    /// Sync the user's selected macro preset into profile so calculations use their choice.
+    private func syncSelectedMacro() {
+        if let selected = globalMacroCollection.items.first(where: { $0.id == macroMix.selectedMacroId }) {
+            profile.syncMacros(from: selected)
+        }
+    }
+
     private func recalculate() {
+        syncSelectedMacro()
         calculationResult = Calculator.calculate(person: profile)
     }
 
@@ -24,26 +34,28 @@ struct UIMainView: View {
                 // Grey background (full screen)
                 Color(.systemGroupedBackground)
                     .ignoresSafeArea()
-                
+
                 ScrollView {
                     VStack(spacing: 8) {
                         MainSectionProfileInput(
                             profile: profile,
                             sectionManager: sectionManager)
-                        
+
                         if ( profile.isValid) {
                             VStack( spacing: 8) {
                                 MainSectionCaloriesAndAdjustments(
                                     profile: profile,
                                     calculationResult: calculationResult,
                                     sectionManager: sectionManager)
-                                
+
+                                let selectedMacro = globalMacroCollection.items.first(where: { $0.id == macroMix.selectedMacroId })
                                 MainSectionMacroMix(
                                     macroMix: macroMix,
                                     sectionManager: sectionManager,
-                                    calculationResult: calculationResult)
+                                    calculationResult: calculationResult,
+                                    selectedMacro: selectedMacro)
                             } .transition(.opacity)
-                                
+
                         }
                     }
                     .animation(.easeInOut(duration: 0.25), value: profile.isValid)
