@@ -14,7 +14,7 @@ struct SectionWeight: View {
     
     var body: some View {
         
-        let validationText = model.weight.isNaN ||  model.weight.isNaN || model.weight == 0 ? "Please enter a valid Weight" : ""
+        let validationText = model.weight.isNaN || model.weight == 0 ? "Please enter a valid Weight" : ""
         
         UILayoutSectionView(
             title: "Weight",
