@@ -39,7 +39,7 @@ extension Calculator {
     
    
     
-    static private func adjustForActivityLevel(
+    public static func adjustForActivityLevel(
        bmr: Double,
        activityLevel: enumActivityLevel,
        logger: AuditLogger
