@@ -8,15 +8,16 @@
 import SwiftUI
 
 struct SectionEditorBodyFatPercentage: View {
-    
+
     @Bindable var model: ProfileViewModel
-        
+
     var body: some View {
         UILayoutExpandingPanel(
             isOpen: $model.bodyFatPercentageShowManualEntry,
             header: {
                 UISegmentBodyFatCalcMethodView(option: $model.bodyFatPercentageMethod)
                     .padding(.horizontal, 8)
+                    .accessibilityLabel("Body fat percentage calculation method selector")
             }
         ) {
             UIWheelPickerBodyFatView(value: $model.bodyFatPercentage)

@@ -74,6 +74,7 @@ struct UISliderCalorieAdjustmentValue: View {
                 .gridCellColumns(2)
                 .accessibilityLabel("Calorie adjustment slider")
                 .accessibilityValue("\(Int(model.calorieAdjustment)) calories")
+                .accessibilityHint("Adjust calorie intake by sliding left or right")
             }
         }
     }

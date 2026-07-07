@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct UISegmentUomWeightView: View {
-    
+
     @Binding var option: enumOptionWeight
-    
+
     var body: some View {
         Picker("Weight", selection: $option) {
             ForEach(enumOptionWeight.allCases, id: \.self) { level in
@@ -19,6 +19,8 @@ struct UISegmentUomWeightView: View {
             }
         }
         .pickerStyle(.segmented)
+        .accessibilityLabel("Weight unit selector")
+        .accessibilityValue("Current: \(option.displayName)")
     }
 }
 

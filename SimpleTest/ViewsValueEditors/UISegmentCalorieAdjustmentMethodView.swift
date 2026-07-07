@@ -12,13 +12,15 @@ struct UISegmentCalorieAdjustmentMethodView: View {
     @Binding var option: enumCalorieAdjustmentMethod
 
     var body: some View {
-        Picker("Calories", selection: $option) {
+        Picker("Calorie adjustment method", selection: $option) {
             ForEach(enumCalorieAdjustmentMethod.allCases, id: \.self) { level in
                 Text(level.displayName)
                     .tag(level)
             }
         }
         .pickerStyle(.segmented)
+        .accessibilityLabel("Calorie adjustment method selector")
+        .accessibilityValue("Current: \(option.displayName)")
     }
 }
 

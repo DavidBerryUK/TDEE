@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct UISegmentUomLengthView: View {
-    
+
     @Binding var option: enumOptionLength
-    
+
     var body: some View {
         Picker("Length", selection: $option) {
             ForEach(enumOptionLength.allCases, id: \.self) { level in
@@ -19,6 +19,8 @@ struct UISegmentUomLengthView: View {
             }
         }
         .pickerStyle(.segmented)
+        .accessibilityLabel("Length unit selector")
+        .accessibilityValue("Current: \(option.displayName)")
     }
 }
 

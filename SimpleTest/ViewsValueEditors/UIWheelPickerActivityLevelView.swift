@@ -1,13 +1,14 @@
 import SwiftUI
 
 struct UIWheelPickerActivityLevelView: View {
-    
+
     @Binding var value: enumActivityLevel
-    
+
     var body: some View {
         VStack {
             Text("Activity Level")
-            
+                .accessibilityLabel("Activity level selector")
+
             Picker("Activity Level", selection: $value) {
                 ForEach(enumActivityLevel.allCases, id: \.self) { level in
                     Text(level.displayName)
@@ -15,6 +16,8 @@ struct UIWheelPickerActivityLevelView: View {
                 }
             }
             .pickerStyle(.wheel)
+            .accessibilityLabel("Activity level picker")
+            .accessibilityValue("Current: \(value.displayName)")
         }
     }
 }

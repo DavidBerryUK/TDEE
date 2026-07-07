@@ -1,19 +1,19 @@
 import SwiftUI
 
 struct UIWheelPickerWeightView: View {
-    
+
     //
     // Source of truth: always kilograms
     //
     @Binding var value: Double
     @Binding var unitOfMeasure: enumOptionWeight
-    
+
     // Picker state
     @State private var valueKg: Int = 0
     @State private var valuePounds: Int = 0
     @State private var valueStones: Int = 0
     @State private var valueStonePounds: Int = 0
-    
+
     // Animation Constants
     let animOffsetOffset : CGFloat = 24
     let animOffsetNone : CGFloat = 0
@@ -22,35 +22,35 @@ struct UIWheelPickerWeightView: View {
     let animOpacityClear : CGFloat = 0
     let animOpacitySolid : CGFloat = 1
     let animDuration : CGFloat = 0.30
-    
+
     // Options
     var optionsKg: [Int] = Array(0...250)
     var optionsPounds: [Int] = Array(0...550)
     var optionsStones: [Int] = Array(0...40)
     var optionsStonePounds: [Int] = Array(0...13)
-    
+
     var body: some View {
-        
+
         let showIsKg = unitOfMeasure == .kilograms
         let showIsPounds = unitOfMeasure == .pounds
         let showIsStonesAndPounds = unitOfMeasure == .stonesAndPounds
 
         return ZStack {
-            
+
             // KG
             UIPickerKgView
                 .opacity(showIsKg ? animOpacitySolid : animOpacityClear)
                 .offset(y: showIsKg ? animOffsetNone : animOffsetOffset)
                 .scaleEffect(showIsKg ? animZoomFull : animZoomOut)
                 .allowsHitTesting(showIsKg)
-            
+
             // Pounds
             UIPickerPoundsView
                 .opacity(showIsPounds ? animOpacitySolid : animOpacityClear)
                 .offset(y: showIsPounds ? animOffsetNone : animOffsetOffset)
                 .scaleEffect(showIsPounds ? animZoomFull : animZoomOut)
                 .allowsHitTesting(showIsPounds)
-            
+
             // Stones + Pounds
             UIPickerStonesAndPoundsView
                 .opacity(showIsStonesAndPounds ? animOpacitySolid : animOpacityClear)
@@ -78,6 +78,8 @@ struct UIWheelPickerWeightView: View {
         .onChange(of: valueStonePounds) { _, newValue in
             convertFromStonesAndPoundsToValue(stones: valueStones, pounds: newValue)
         }
+        .accessibilityLabel("Weight picker")
+        .accessibilityValue("Current weight: \(Int(value)) kg")
     }
 }
 

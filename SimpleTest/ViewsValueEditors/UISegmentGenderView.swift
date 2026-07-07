@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct UISegmentGenderView: View {
-    
+
     @Binding var option: enumGender
-    
+
     var body: some View {
         Picker("Gender", selection: $option) {
             ForEach(enumGender.allCases, id: \.self) { level in
@@ -19,6 +19,8 @@ struct UISegmentGenderView: View {
             }
         }
         .pickerStyle(.segmented)
+        .accessibilityLabel("Gender selector")
+        .accessibilityValue("Current: \(option.displayName)")
     }
 }
 

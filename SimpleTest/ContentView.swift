@@ -20,13 +20,15 @@ struct ContentView: View {
                         } label: {
                             Image(systemName: "line.3.horizontal")
                         }
+                        .accessibilityLabel("Open navigation menu")
                     }
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
-                            
+
                         } label: {
                             Image(systemName: "square.and.arrow.up")
                         }
+                        .accessibilityLabel("Share current settings")
                     }
                 }
                 .toolbarBackground(.hidden, for: .navigationBar)

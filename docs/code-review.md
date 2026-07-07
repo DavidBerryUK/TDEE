@@ -156,7 +156,7 @@ model.weight.isNaN || model.weight.isNaN  // should be different validators
 | 3        | #5      | Remove `ObservableObject` conformance from all ViewModels                | ~15 min | ⏸ HOLD       |
 | 4        | #4      | Add `abs()` around calorie adjustment + validate bodyFatPercentage range | ~30 min | ✅ FIXED     |
 | 5        | #6      | Consolidate the 8 `.onChange` calls into one computed property/publisher | ~30 min | ⬜ OPEN       |
-| 6        | #14     | Add `accessibilityLabel` to sliders and segment pickers                  | ~1 hr   | ✅ FIXED     |
+| 6        | #14     | Add `accessibilityLabel` to sliders and segment pickers                  | ~1 hr   | ⏸ IN-PROGRESS |
 | 7        | #7      | Delete dead code (commented-out file, duplicate V2 view)                 | ~5 min  | ✅ FIXED     |
 | 8        | #8      | Remove dead duplicate method from CalculatorTdee.swift                   | ~5 min  | ✅ FIXED     |
 | 9        | #9      | Fix repeated `.isnan` typo in SectionWeight validator                    | ~5 min  | ✅ FIXED     |

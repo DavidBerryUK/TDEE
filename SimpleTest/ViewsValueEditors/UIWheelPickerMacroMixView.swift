@@ -8,10 +8,10 @@
 import SwiftUI
 
 struct UIWheelPickerMacroMixView: View {
-    
+
     @Bindable var macroSplit: MacroSplitViewModel
     @Environment(MacroSplitOptionsModelCollection.self) private var collection
-    
+
     var body: some View {
         Picker("Macro Split", selection: $macroSplit.selectedMacroId) {
             ForEach(collection.items) { item in
@@ -21,6 +21,7 @@ struct UIWheelPickerMacroMixView: View {
         }
         .pickerStyle(.wheel)
         .accessibilityLabel("Macro split selection")
+        .accessibilityValue("Selected: \(collection.getItem(id: macroSplit.selectedMacroId)?.name ?? "None")")
     }
 }
 

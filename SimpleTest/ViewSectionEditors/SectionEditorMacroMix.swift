@@ -20,6 +20,7 @@ struct SectionEditorMacroMix: View {
         
         VStack {
             Text("selected macro: \(selectedOption?.name ?? "")")
+                .accessibilityLabel("Current macro mix selection: \(selectedOption?.name ?? "None")")
             UIWheelPickerMacroMixView(macroSplit: macroMix)
         }
     }

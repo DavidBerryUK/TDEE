@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct UISegmentMacroSplitMethodView: View {
-    
+
     @Binding var option: enumMacroSplitMethod
-    
+
     var body: some View {
         Picker("Macro Split", selection: $option) {
             ForEach(enumMacroSplitMethod.allCases, id: \.self) { level in
@@ -19,6 +19,8 @@ struct UISegmentMacroSplitMethodView: View {
             }
         }
         .pickerStyle(.segmented)
+        .accessibilityLabel("Macro split calculation method selector")
+        .accessibilityValue("Current: \(option.displayName)")
     }
 }
 
