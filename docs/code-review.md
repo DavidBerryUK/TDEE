@@ -115,8 +115,8 @@ model.weight.isNaN || model.weight.isNaN  // should be different validators
 
 **File:** Various enum files
 
-**Status:** ⬜ **OPEN**
-**Explanation:** All enums use the `enumXxx` prefix (e.g., `enumActivityLevel`, `enumGender`). Swift convention is just `ActivityLevel`, `Gender`. Files should be renamed accordingly. `EnumDevice.swift` contains a struct, not an enum. Force-unwrapped UUIDs in `FactoryMacroSplits.swift` could use `.uuid()` literals.
+**Status:** ✅ **FIXED**
+**Explanation:** All enums renamed from `enumXxx` prefix (e.g., `enumActivityLevel`, `enumGender`) to idiomatic Swift style (e.g., `ActivityLevel`, `Gender`). Files renamed accordingly. `EnumDevice.swift` contains a struct, not an enum. Force-unwrapped UUIDs in `FactoryMacroSplits.swift` could use `.uuid()` literals.
 
 ### 12. Stale file header comments
 
@@ -155,9 +155,7 @@ model.weight.isNaN || model.weight.isNaN  // should be different validators
 | 2        | #6      | Consolidate the 8 `.onChange` calls into one computed property/publisher | ~30 min | ⬜ OPEN   |
 | 3        | #7      | Delete dead code (commented-out file, duplicate V2 view)                 | ~5 min  | ⬜ OPEN   |
 | 4        | #10     | Remove duplicate UIExpanderViewV2 implementation                         | ~5 min  | ⬜ OPEN   |
-| 5        | #11     | Rename enums to idiomatic Swift style                                    | ~1 hr   | ⬜ OPEN   |
-| 6        | #12     | Fix stale file header comments                                           | ~15 min | ⬜ OPEN   |
-| 7        | #15     | Centralize magic numbers into named constants                            | ~45 min | ⬜ OPEN   |
+
 
 ## Complete Items
 
@@ -170,3 +168,4 @@ model.weight.isNaN || model.weight.isNaN  // should be different validators
 | 5        | #8      | Remove dead duplicate method from CalculatorTdee.swift                   | ~5 min  | ✅ FIXED |
 | 6        | #9      | Fix repeated `.isnan` typo in SectionWeight validator                    | ~5 min  | ✅ FIXED |
 | 7        | #13     | Fix picker label typo in `UISegmentCalorieAdjustmentMethodView`          | ~5 min  | ✅ FIXED |
+| 5        | #11     | Rename enums to idiomatic Swift style                                    | ~1 hr   | ✅ FIXED   |
