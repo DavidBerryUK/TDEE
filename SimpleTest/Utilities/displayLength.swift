@@ -24,7 +24,7 @@ struct displayLength {
         return LengthConverter.toRemainingInches(cm)
     }
     
-    static func asMajorValue(length : Double, unit: enumOptionLength) -> String {
+    static func asMajorValue(length : Double, unit: OptionLength) -> String {
         switch unit {
         case .centimeters:
             return "\(asCentimeters( cm: length))"
@@ -35,7 +35,7 @@ struct displayLength {
         }
     }
     
-    static func asMinorValue(length : Double, unit: enumOptionLength) -> String {
+    static func asMinorValue(length : Double, unit: OptionLength) -> String {
         switch unit {
         case .centimeters:
             return ""

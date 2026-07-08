@@ -9,11 +9,11 @@ import SwiftUI
 
 struct UISegmentUomWeightView: View {
 
-    @Binding var option: enumOptionWeight
+    @Binding var option: OptionWeight
 
     var body: some View {
         Picker("Weight", selection: $option) {
-            ForEach(enumOptionWeight.allCases, id: \.self) { level in
+            ForEach(OptionWeight.allCases, id: \.self) { level in
                 Text(level.displayName)
                     .tag(level)
             }
@@ -25,6 +25,6 @@ struct UISegmentUomWeightView: View {
 }
 
 #Preview {
-    @Previewable @State var option: enumOptionWeight = enumOptionWeight.kilograms
+    @Previewable @State var option: OptionWeight = OptionWeight.kilograms
     UISegmentUomWeightView(option: $option)
 }

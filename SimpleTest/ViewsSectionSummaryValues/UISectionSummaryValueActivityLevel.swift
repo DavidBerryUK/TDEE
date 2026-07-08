@@ -8,20 +8,21 @@
 import SwiftUI
 
 struct UISectionSummaryValueActivityLevel: View {
-    
+
     @Bindable var model: ProfileViewModel
     @Bindable var sectionManager: SectionManagerViewModel
-    
+
     var body: some View {
 
         let isExpanded = sectionManager.activityLevelIsExpanded
-        
+
         HStack{
             Text( model.activityLevel.displayShortName)
                 .contentTransition(.interpolate)
                 .animation(.easeInOut, value: model.activityLevel)
                 .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded))
                 .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
+                .accessibilityLabel("Activity level value")
         }
     }
 }

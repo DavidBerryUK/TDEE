@@ -8,19 +8,27 @@
 import SwiftUI
 
 struct UISectionSummaryValueMacroMix: View {
-    
+
     @Bindable var macroMix: MacroSplitViewModel
     @Bindable var sectionManager : SectionManagerViewModel
-    
-    
-    var body: some View {                        
+
+    private var displayText: String {
+        if let selectedOption = macroMix.selectedOption {
+            return selectedOption.name
+        } else {
+            return "No selection"
+        }
+    }
+
+    var body: some View {
         HStack {
-            Text("\(sectionManager.macroMixExpanded)")
-                    .contentTransition(.interpolate)
-                    .animation(.easeInOut, value: sectionManager.macroMixExpanded)
-                    .foregroundColor(UITextStyleResolver.fontColor(isExpanded: sectionManager.macroMixExpanded))
-                    .fontWeight(UITextStyleResolver.fontWeight(isExpanded: sectionManager.macroMixExpanded))
-            
+            Text(displayText)
+                .contentTransition(.interpolate)
+                .animation(.easeInOut, value: sectionManager.macroMixExpanded)
+                .foregroundColor(UITextStyleResolver.fontColor(isExpanded: sectionManager.macroMixExpanded))
+                .fontWeight(UITextStyleResolver.fontWeight(isExpanded: sectionManager.macroMixExpanded))
+                .accessibilityLabel("Selected macro mix")
+                .accessibilityValue(displayText)
         }
     }
 }

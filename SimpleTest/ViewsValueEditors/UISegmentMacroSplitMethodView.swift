@@ -9,11 +9,11 @@ import SwiftUI
 
 struct UISegmentMacroSplitMethodView: View {
 
-    @Binding var option: enumMacroSplitMethod
+    @Binding var option: MacroSplitMethod
 
     var body: some View {
         Picker("Macro Split", selection: $option) {
-            ForEach(enumMacroSplitMethod.allCases, id: \.self) { level in
+            ForEach(MacroSplitMethod.allCases, id: \.self) { level in
                 Text(level.displayName)
                     .tag(level)
             }
@@ -25,6 +25,6 @@ struct UISegmentMacroSplitMethodView: View {
 }
 
 #Preview {
-    @Previewable @State var option: enumMacroSplitMethod = enumMacroSplitMethod.custom
+    @Previewable @State var option: MacroSplitMethod = MacroSplitMethod.custom
     UISegmentMacroSplitMethodView(option: $option)
 }

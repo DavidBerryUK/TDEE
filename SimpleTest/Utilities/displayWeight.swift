@@ -24,7 +24,7 @@ struct displayWeight {
         return WeightConvertor.toRemainingPounds(kilograms)
     }
     
-    static func asMajorValue(weight : Double, unit: enumOptionWeight) -> String {
+    static func asMajorValue(weight : Double, unit: OptionWeight) -> String {
         switch unit {
         case .kilograms:
             return "\(displayWeight.asKg(kilograms: weight))"
@@ -35,7 +35,7 @@ struct displayWeight {
         }
     }
     
-    static func asMinorValue(weight : Double, unit: enumOptionWeight) -> String {
+    static func asMinorValue(weight : Double, unit: OptionWeight) -> String {
         switch unit {
         case .kilograms:
             return ""

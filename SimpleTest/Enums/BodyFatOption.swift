@@ -1,17 +1,17 @@
 //
-//  enumBodyFatOption.swift
+//  BodyFatOption.swift
 //  SimpleTest
 //
 //  Created by David Berry on 03/04/2026.
 //
 
-enum enumBodyFatOption : Int ,CaseIterable {
+public enum BodyFatOption : Int ,CaseIterable {
     case omit = 0,
          estimate = 1,
          manualEntry = 2
 }
 
-extension enumBodyFatOption {
+extension BodyFatOption {
     var displayName: String {
         switch self {
         case .omit: return "Omit"

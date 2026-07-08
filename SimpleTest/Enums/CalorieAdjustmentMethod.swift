@@ -1,17 +1,17 @@
 //
-//  enumCalorieAdjustmentMethod.swift
+//  CalorieAdjustmentMethod.swift
 //  SimpleTest
 //
 //  Created by David Berry on 03/04/2026.
 //
 
-enum enumCalorieAdjustmentMethod : Int, CaseIterable {
+public enum CalorieAdjustmentMethod : Int, CaseIterable {
     case cut = 0,
          maintain = 1,
          bulk = 2
 }
 
-extension enumCalorieAdjustmentMethod {
+extension CalorieAdjustmentMethod {
     var displayName: String {
         switch self {
         case .cut: return "Cut"
@@ -19,7 +19,7 @@ extension enumCalorieAdjustmentMethod {
         case .bulk: return "Bulk"
         }
     }
-    
+
     var sectionTitle: String {
         switch self {
         case .cut: return "Daily Deficit"
@@ -27,7 +27,7 @@ extension enumCalorieAdjustmentMethod {
         case .bulk: return "Daily Surplus"
         }
     }
-    
+
     var adjustmentPrefix: String {
         switch self {
         case .cut: return "-"

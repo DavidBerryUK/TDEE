@@ -8,21 +8,23 @@
 import SwiftUI
 
 struct UISectionSummaryValueAge: View {
-    
+
     @Bindable var model: ProfileViewModel
     @Bindable var sectionManager: SectionManagerViewModel
-        
+
     var body: some View {
-        
+
         let isExpanded = sectionManager.ageIsExpanded
-        
+
         HStack{
             Text("\(model.age)")
                 .contentTransition(.numericText())
                 .animation(.easeInOut, value: model.age)
                 .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded))
                 .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
+                .accessibilityLabel("Age value")
             Text("years")
+                .accessibilityLabel("Age units")
         }
     }
 }

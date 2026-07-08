@@ -3,7 +3,7 @@ import SwiftUI
 struct UIWheelPickerHeightView: View {
     
     @Binding var value: Double
-    @Binding var unitOfMeasure : enumOptionLength
+    @Binding var unitOfMeasure : OptionLength
     
     @State private  var valueCm: Int = 0
     @State private  var valueInches: Int = 0
@@ -27,9 +27,9 @@ struct UIWheelPickerHeightView: View {
     
     var body: some View {
         
-        let showCm : Bool = (unitOfMeasure == enumOptionLength.centimeters)
-        let showInches : Bool = (unitOfMeasure == enumOptionLength.inches)
-        let showFeetAndInches : Bool = (unitOfMeasure == enumOptionLength.feetAndInches)
+        let showCm : Bool = (unitOfMeasure == OptionLength.centimeters)
+        let showInches : Bool = (unitOfMeasure == OptionLength.inches)
+        let showFeetAndInches : Bool = (unitOfMeasure == OptionLength.feetAndInches)
         
         ZStack{
 
@@ -87,7 +87,7 @@ private extension UIWheelPickerHeightView {
         valueFeetInches = totalInches % 12
     }
     
-    func syncStateFromPreviousUnit(oldMeasure: enumOptionLength) {
+    func syncStateFromPreviousUnit(oldMeasure: OptionLength) {
         
         switch oldMeasure
         {
@@ -188,18 +188,18 @@ private extension UIWheelPickerHeightView {
 
 #Preview("Centimeters") {
     @Previewable @State var selectedHeight: Double = 200
-    @Previewable @State var unitOfMeasure : enumOptionLength = enumOptionLength.centimeters
+    @Previewable @State var unitOfMeasure : OptionLength = OptionLength.centimeters
     UIWheelPickerHeightView(value: $selectedHeight, unitOfMeasure: $unitOfMeasure)
 }
 
 #Preview("Inches") {
     @Previewable @State var selectedHeight: Double = 200
-    @Previewable @State var unitOfMeasure : enumOptionLength = enumOptionLength.inches
+    @Previewable @State var unitOfMeasure : OptionLength = OptionLength.inches
     UIWheelPickerHeightView(value: $selectedHeight, unitOfMeasure: $unitOfMeasure)
 }
 
 #Preview("Feet and Inches") {
     @Previewable @State var selectedHeight: Double = 200
-    @Previewable @State var unitOfMeasure : enumOptionLength = enumOptionLength.feetAndInches
+    @Previewable @State var unitOfMeasure : OptionLength = OptionLength.feetAndInches
     UIWheelPickerHeightView(value: $selectedHeight, unitOfMeasure: $unitOfMeasure)
 }

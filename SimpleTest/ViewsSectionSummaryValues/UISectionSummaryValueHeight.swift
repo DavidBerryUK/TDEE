@@ -8,10 +8,10 @@
 import SwiftUI
 
 struct UISectionSummaryValueHeight: View {
-    
+
     @Bindable var model: ProfileViewModel
     @Bindable var sectionManager: SectionManagerViewModel
-    
+
     private var labelMajorUnit: String {
         switch model.heightUom {
         case .centimeters:
@@ -22,7 +22,7 @@ struct UISectionSummaryValueHeight: View {
             return "feet"
         }
     }
-    
+
     private var labelMinorUnit: String {
         switch model.heightUom {
         case .feetAndInches:
@@ -31,16 +31,16 @@ struct UISectionSummaryValueHeight: View {
             return ""
         }
     }
-    
+
     var body: some View {
 
         let isExpanded = sectionManager.heightIsExpanded
-        
+
         // when height is 0 then there is an error
         let isError = model.height == 0
-        
+
         HStack{
-            
+
             //
             // Major Value e.g. 18
             //
@@ -49,7 +49,8 @@ struct UISectionSummaryValueHeight: View {
                 .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded, isError: isError))
                 .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
                 .animation(.easeInOut, value: model.height)
-            
+                .accessibilityLabel("Height major value")
+
             //
             // Major unit, e.g. Stones
             //
@@ -57,7 +58,8 @@ struct UISectionSummaryValueHeight: View {
                 .contentTransition(.interpolate)
                 .foregroundColor(UITextStyleResolver.unitOfMeasureColor(isError: isError))
                 .animation(.easeInOut, value: model.height)
-            
+                .accessibilityLabel("Height major units")
+
             //
             // Minor Value
             //
@@ -66,7 +68,8 @@ struct UISectionSummaryValueHeight: View {
                 .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded, isError: isError))
                 .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
                 .animation(.easeInOut, value: model.height)
-            
+                .accessibilityLabel("Height minor value")
+
             //
             // Minor Unit, e.g. Kg, pounds
             //
@@ -74,7 +77,8 @@ struct UISectionSummaryValueHeight: View {
                 .contentTransition(.interpolate)
                 .foregroundColor(UITextStyleResolver.unitOfMeasureColor(isError: isError))
                 .animation(.easeInOut, value: model.height)
-            
+                .accessibilityLabel("Height minor units")
+
         }
     }
 }

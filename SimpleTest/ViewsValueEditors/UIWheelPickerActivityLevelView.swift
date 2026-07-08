@@ -2,7 +2,7 @@ import SwiftUI
 
 struct UIWheelPickerActivityLevelView: View {
 
-    @Binding var value: enumActivityLevel
+    @Binding var value: ActivityLevel
 
     var body: some View {
         VStack {
@@ -10,7 +10,7 @@ struct UIWheelPickerActivityLevelView: View {
                 .accessibilityLabel("Activity level selector")
 
             Picker("Activity Level", selection: $value) {
-                ForEach(enumActivityLevel.allCases, id: \.self) { level in
+                ForEach(ActivityLevel.allCases, id: \.self) { level in
                     Text(level.displayName)
                         .tag(level) // ✅ enum, not Int
                 }
@@ -23,8 +23,8 @@ struct UIWheelPickerActivityLevelView: View {
 }
 
 struct PickerActivityLevel_Previews: PreviewProvider {
-    @State static var option : enumActivityLevel = enumActivityLevel.sedentary
-    
+    @State static var option : ActivityLevel = ActivityLevel.sedentary
+
     static var previews: some View {
         // Make sure the binding value exists in pickerData
         UIWheelPickerActivityLevelView(value: $option)

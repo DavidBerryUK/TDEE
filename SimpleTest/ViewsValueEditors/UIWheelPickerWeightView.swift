@@ -6,7 +6,7 @@ struct UIWheelPickerWeightView: View {
     // Source of truth: always kilograms
     //
     @Binding var value: Double
-    @Binding var unitOfMeasure: enumOptionWeight
+    @Binding var unitOfMeasure: OptionWeight
 
     // Picker state
     @State private var valueKg: Int = 0
@@ -93,7 +93,7 @@ private extension UIWheelPickerWeightView {
         valueStonePounds = totalPounds % 14
     }
     
-    func syncStateFromPreviousUnit(oldMeasure: enumOptionWeight) {
+    func syncStateFromPreviousUnit(oldMeasure: OptionWeight) {
         
         switch oldMeasure
         {
@@ -196,18 +196,18 @@ private extension UIWheelPickerWeightView {
 
 #Preview("kg") {
     @Previewable @State var value: Double = 21
-    @Previewable @State var unitOfMeasure : enumOptionWeight = enumOptionWeight.kilograms
+    @Previewable @State var unitOfMeasure : OptionWeight = OptionWeight.kilograms
     UIWheelPickerWeightView(value: $value, unitOfMeasure: $unitOfMeasure)
 }
 
 #Preview("Pounds") {
     @Previewable @State var value: Double = 21
-    @Previewable @State var unitOfMeasure : enumOptionWeight = enumOptionWeight.pounds
+    @Previewable @State var unitOfMeasure : OptionWeight = OptionWeight.pounds
     UIWheelPickerWeightView(value: $value, unitOfMeasure: $unitOfMeasure)
 }
 
 #Preview("Stones and Pounds") {
     @Previewable @State var weightInKg: Double = 21
-    @Previewable @State var unitOfMeasure : enumOptionWeight = enumOptionWeight.stonesAndPounds
+    @Previewable @State var unitOfMeasure : OptionWeight = OptionWeight.stonesAndPounds
     UIWheelPickerWeightView(value: $weightInKg, unitOfMeasure: $unitOfMeasure)
 }

@@ -1,11 +1,11 @@
 //
-//  enumMacroSplitMethod.swift
+//  MacroSplitMethod.swift
 //  SimpleTest
 //
 //  Created by David Berry on 03/04/2026.
 //
 
-enum enumMacroSplitMethod : Int, CaseIterable {
+public enum MacroSplitMethod : Int, CaseIterable {
     case ketogenic = 0,
          lowCarb = 1,
          paleo = 2,
@@ -13,7 +13,7 @@ enum enumMacroSplitMethod : Int, CaseIterable {
          custom = 4
 }
 
-extension enumMacroSplitMethod {
+extension MacroSplitMethod {
     var displayName: String {
         switch self {
         case .ketogenic: return "Ketogenic"

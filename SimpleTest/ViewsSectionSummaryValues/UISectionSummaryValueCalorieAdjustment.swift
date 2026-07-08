@@ -8,16 +8,16 @@
 import SwiftUI
 
 struct UISectionSummaryValueCalorieAdjustment: View {
-    
+
     @Bindable var model: ProfileViewModel
     @Bindable var sectionManager: SectionManagerViewModel
-    
+
     var body: some View {
-        
+
         if ( model.calorieAdjustmentMethod == .maintain) {
             EmptyView()
         }
-        
+
         else {
             let isExpanded = sectionManager.calorieAdjustmentExpanded
             HStack {
@@ -28,17 +28,20 @@ struct UISectionSummaryValueCalorieAdjustment: View {
                         .animation(.easeInOut, value: model.age)
                         .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded))
                         .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
-                    
+                        .accessibilityLabel("Calorie adjustment method")
+
                     Text("\(Int(model.calorieAdjustment))")
                         .contentTransition(.numericText())
                         .animation(.easeInOut, value: model.age)
                         .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded))
                         .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
+                        .accessibilityLabel("Calorie adjustment value")
                 }
-                
+
                 Text("kCals")
                     .contentTransition(.interpolate)
                     .animation(.easeInOut, value: model.height)
+                    .accessibilityLabel("Calorie units")
             }
         }
     }

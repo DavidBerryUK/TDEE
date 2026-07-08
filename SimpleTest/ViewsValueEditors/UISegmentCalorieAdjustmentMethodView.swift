@@ -9,11 +9,11 @@ import SwiftUI
 
 struct UISegmentCalorieAdjustmentMethodView: View {
 
-    @Binding var option: enumCalorieAdjustmentMethod
+    @Binding var option: CalorieAdjustmentMethod
 
     var body: some View {
         Picker("Calorie adjustment method", selection: $option) {
-            ForEach(enumCalorieAdjustmentMethod.allCases, id: \.self) { level in
+            ForEach(CalorieAdjustmentMethod.allCases, id: \.self) { level in
                 Text(level.displayName)
                     .tag(level)
             }
@@ -25,6 +25,6 @@ struct UISegmentCalorieAdjustmentMethodView: View {
 }
 
 #Preview {
-    @Previewable @State var option: enumCalorieAdjustmentMethod = enumCalorieAdjustmentMethod.maintain
+    @Previewable @State var option: CalorieAdjustmentMethod = CalorieAdjustmentMethod.maintain
     UISegmentCalorieAdjustmentMethodView(option: $option)
 }

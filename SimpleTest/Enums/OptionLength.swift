@@ -1,17 +1,17 @@
 //
-//  enumOptionLength.swift
+//  OptionLength.swift
 //  SimpleTest
 //
 //  Created by David Berry on 03/04/2026.
 //
 
-enum enumOptionLength : Int, CaseIterable {
+public enum OptionLength : Int, CaseIterable {
     case centimeters = 0,
          inches = 1,
          feetAndInches = 2
 }
 
-extension enumOptionLength {
+extension OptionLength {
     var displayName: String {
         switch self {
         case .centimeters: return "Cm"

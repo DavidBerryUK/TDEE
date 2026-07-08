@@ -8,14 +8,14 @@
 import SwiftUI
 
 struct UISegmentBodyFatCalcMethodView: View {
-    
-    @Binding var option: enumBodyFatOption
-    
+
+    @Binding var option: BodyFatOption
+
     var body: some View {
         Picker("BodyFatOption", selection: $option) {
-            ForEach(enumBodyFatOption.allCases, id: \.self) { level in
+            ForEach(BodyFatOption.allCases, id: \.self) { level in
                 Text(level.displayName)
-                    .tag(level) 
+                    .tag(level)
             }
         }
         .pickerStyle(.segmented)
@@ -23,6 +23,6 @@ struct UISegmentBodyFatCalcMethodView: View {
 }
 
 #Preview {
-    @Previewable @State var option: enumBodyFatOption = enumBodyFatOption.omit
+    @Previewable @State var option: BodyFatOption = BodyFatOption.omit
     UISegmentBodyFatCalcMethodView(option: $option)
 }

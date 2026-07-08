@@ -8,10 +8,10 @@
 import SwiftUI
 
 struct UISectionSummaryValueBodyFat: View {
-    
+
     @Bindable var model: ProfileViewModel
     @Bindable var sectionManager: SectionManagerViewModel
-        
+
     private var labelValue: String {
         switch model.bodyFatPercentageMethod {
         case .omit:
@@ -22,7 +22,7 @@ struct UISectionSummaryValueBodyFat: View {
             return ""
         }
     }
-    
+
     private var dataValue: String {
         switch model.bodyFatPercentageMethod {
         case .manualEntry:
@@ -31,7 +31,7 @@ struct UISectionSummaryValueBodyFat: View {
             return ""
         }
     }
-    
+
     private var labelSuffix: String {
         switch model.bodyFatPercentageMethod {
         case .manualEntry:
@@ -40,24 +40,27 @@ struct UISectionSummaryValueBodyFat: View {
             return ""
         }
     }
-    
-    
+
+
     var body: some View {
-        
+
         let isExpanded = sectionManager.bodyFatPercentageIsExpanded
-        
+
         HStack{
             Text(labelValue)
                 .contentTransition(.interpolate)
                 .animation(.easeInOut, value: model.bodyFatPercentageMethod)
+                .accessibilityLabel("Body fat percentage method")
             Text(dataValue)
                 .contentTransition(.numericText())
                 .animation(.easeInOut, value: model.bodyFatPercentage)
                 .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded))
                 .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
+                .accessibilityLabel("Body fat percentage value")
             Text(labelSuffix)
                 .contentTransition(.interpolate)
                 .animation(.easeInOut, value: model.bodyFatPercentageMethod)
+                .accessibilityLabel("Body fat percentage units")
         }
     }
 }

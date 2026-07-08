@@ -9,11 +9,11 @@ import SwiftUI
 
 struct UISegmentUomLengthView: View {
 
-    @Binding var option: enumOptionLength
+    @Binding var option: OptionLength
 
     var body: some View {
         Picker("Length", selection: $option) {
-            ForEach(enumOptionLength.allCases, id: \.self) { level in
+            ForEach(OptionLength.allCases, id: \.self) { level in
                 Text(level.displayName)
                     .tag(level)
             }
@@ -25,6 +25,6 @@ struct UISegmentUomLengthView: View {
 }
 
 #Preview {
-    @Previewable @State var option: enumOptionLength = enumOptionLength.centimeters
+    @Previewable @State var option: OptionLength = OptionLength.centimeters
     UISegmentUomLengthView(option: $option)
 }

@@ -8,7 +8,7 @@ final class ProfileViewModel: ObservableObject {
     /****************************************************/
     /*  Gender                                          */
     /****************************************************/
-    var gender: enumGender
+    var gender: Gender
     
     /****************************************************/
     /*  Age                                             */
@@ -18,24 +18,24 @@ final class ProfileViewModel: ObservableObject {
     /****************************************************/
     /*  Weight                                          */
     /****************************************************/
-    var weightUom: enumOptionWeight = enumOptionWeight.kilograms
+    var weightUom: OptionWeight = OptionWeight.kilograms
     var weight: Double
     
     /****************************************************/
     /*  Weight                                          */
     /****************************************************/
-    var heightUom: enumOptionLength = enumOptionLength.centimeters
+    var heightUom: OptionLength = OptionLength.centimeters
     var height: Double
     
     /****************************************************/
     /*  Activity Level                                  */
     /****************************************************/
-    var activityLevel: enumActivityLevel
+    var activityLevel: ActivityLevel
 
     /****************************************************/
     /*  Body Fat Percentage                             */
     /****************************************************/
-    var bodyFatPercentageMethod: enumBodyFatOption{
+    var bodyFatPercentageMethod: BodyFatOption{
         didSet {
             bodyFatPercentageShowManualEntry = bodyFatPercentageMethod == .manualEntry
         }
@@ -46,7 +46,7 @@ final class ProfileViewModel: ObservableObject {
     /****************************************************/
     /*  Calorie Adjustment                              */
     /****************************************************/
-    var calorieAdjustmentMethod: enumCalorieAdjustmentMethod = .maintain {
+    var calorieAdjustmentMethod: CalorieAdjustmentMethod = .maintain {
         didSet {
             calorieAdjustmentShowSliders = calorieAdjustmentMethod != .maintain
         }

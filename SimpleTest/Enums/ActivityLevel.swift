@@ -1,11 +1,11 @@
 //
-//  enumActivityLevel.swift
+//  ActivityLevel.swift
 //  SimpleTest
 //
 //  Created by David Berry on 03/04/2026.
 //
 
-public enum enumActivityLevel : Int, CaseIterable {
+public enum ActivityLevel : Int, CaseIterable {
     case sedentary = 0,
          lightExercise = 1,
          moderateExercise = 2,
@@ -13,7 +13,7 @@ public enum enumActivityLevel : Int, CaseIterable {
          athlete = 4
 }
 
-public extension enumActivityLevel {
+public extension ActivityLevel {
     var displayName: String {
         switch self {
         case .sedentary: return "Sedentary (office job)"
@@ -25,7 +25,7 @@ public extension enumActivityLevel {
     }
 }
 
-public extension enumActivityLevel {
+public extension ActivityLevel {
     var displayShortName: String {
         switch self {
         case .sedentary: return "Sedentary"
@@ -37,7 +37,7 @@ public extension enumActivityLevel {
     }
 }
 
-public extension enumActivityLevel {
+public extension ActivityLevel {
     var KatchMcArdleMultipliers: Double {
         switch self {
         case .sedentary:

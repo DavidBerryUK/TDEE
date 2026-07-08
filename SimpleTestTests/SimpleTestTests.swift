@@ -108,7 +108,7 @@ struct CalculatorTdeeAdjustmentTests {
     @Test("Adjust TDEE for Sedentary activity level")
     func testSedentaryActivityLevel() throws {
         let bmr = 1500.0
-        let activityLevel = enumActivityLevel.sedentary
+        let activityLevel = ActivityLevel.sedentary
         var logger = AuditLogger(enabled: false)
         
         let tdee = Calculator.adjustForActivityLevel(bmr: bmr, activityLevel: activityLevel, logger: logger)
