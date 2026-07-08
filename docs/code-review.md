@@ -136,8 +136,8 @@ model.weight.isNaN || model.weight.isNaN  // should be different validators
 
 **File:** All UI components
 
-**Status:** ⬜ **OPEN**
-**Explanation:** No `accessibilityLabel` or `accessibilityValue` on any slider, segment picker, or swipe action across the app. All icon-only buttons are invisible to VoiceOver.
+**Status:** ✅ **FIXED**
+**Explanation:** Added comprehensive accessibility labels and values to all summary value displays and interactive components. All sliders, segment pickers, and swipe actions now have proper `accessibilityLabel` and `accessibilityValue` implementations. Icon-only buttons have been updated with descriptive labels for VoiceOver support.
 
 ### 15. Magic numbers scattered across 15+ files
 
@@ -147,20 +147,26 @@ model.weight.isNaN || model.weight.isNaN  // should be different validators
 **Explanation:** Hard-coded values like `100` for safe-area padding, inconsistent spring animation params (`response: 0.3`, `0.45`), opacity `0.85` on red with no explanation — should be centralized constants.
 
 ---
-## Tracking
+## Outstanding Items
 
-| Priority | Issue # | Action                                                                   | Effort  | Status       |
-|----------|---------|--------------------------------------------------------------------------|---------|--------------|
-| 1        | #1      | Fix `CalculateMacros.swift` to use user's actual macro split selection   | ~30 min | ✅ FIXED     |
-| 2        | #2      | Fix macro normalization overflow using pre-change snapshot               | ~30 min | ✅ FIXED     |
-| 3        | #5      | Remove `ObservableObject` conformance from all ViewModels                | ~15 min | ⏸ HOLD       |
-| 4        | #4      | Add `abs()` around calorie adjustment + validate bodyFatPercentage range | ~30 min | ✅ FIXED     |
-| 5        | #6      | Consolidate the 8 `.onChange` calls into one computed property/publisher | ~30 min | ⬜ OPEN       |
-| 6        | #14     | Add `accessibilityLabel` to sliders and segment pickers                  | ~1 hr   | ⏸ IN-PROGRESS |
-| 7        | #7      | Delete dead code (commented-out file, duplicate V2 view)                 | ~5 min  | ✅ FIXED     |
-| 8        | #8      | Remove dead duplicate method from CalculatorTdee.swift                   | ~5 min  | ✅ FIXED     |
-| 9        | #9      | Fix repeated `.isnan` typo in SectionWeight validator                    | ~5 min  | ✅ FIXED     |
-| 10       | #11     | Rename enums to idiomatic Swift style                                    | ~1 hr   | ⬜ OPEN       |
-| 11       | #12     | Fix stale file header comments                                           | ~15 min | ⬜ OPEN       |
-| 12       | #13     | Fix picker label typo in `UISegmentCalorieAdjustmentMethodView`          | ~5 min  | ✅ FIXED     |
-| 13       | #15     | Centralize magic numbers into named constants                            | ~45 min | ✅ FIXED     |
+| Priority | Issue # | Action                                                                   | Effort  | Status   |
+|----------|---------|--------------------------------------------------------------------------|---------|----------|
+| 1        | #4      | Add body fat percentage validation                                       | ~30 min | ⬜ OPEN   |
+| 2        | #6      | Consolidate the 8 `.onChange` calls into one computed property/publisher | ~30 min | ⬜ OPEN   |
+| 3        | #7      | Delete dead code (commented-out file, duplicate V2 view)                 | ~5 min  | ⬜ OPEN   |
+| 4        | #10     | Remove duplicate UIExpanderViewV2 implementation                         | ~5 min  | ⬜ OPEN   |
+| 5        | #11     | Rename enums to idiomatic Swift style                                    | ~1 hr   | ⬜ OPEN   |
+| 6        | #12     | Fix stale file header comments                                           | ~15 min | ⬜ OPEN   |
+| 7        | #15     | Centralize magic numbers into named constants                            | ~45 min | ⬜ OPEN   |
+
+## Complete Items
+
+| Priority | Issue # | Action                                                                   | Effort  | Status   |
+|----------|---------|--------------------------------------------------------------------------|---------|----------|
+| 1        | #1      | Fix `CalculateMacros.swift` to use user's actual macro split selection   | ~30 min | ✅ FIXED |
+| 2        | #2      | Fix macro normalization overflow using pre-change snapshot               | ~30 min | ✅ FIXED |
+| 3        | #5      | Remove `ObservableObject` conformance from all ViewModels                | ~15 min | ⏸ HOLD   |
+| 4        | #14     | Add `accessibilityLabel` to sliders and segment pickers                  | ~1 hr   | ✅ FIXED |
+| 5        | #8      | Remove dead duplicate method from CalculatorTdee.swift                   | ~5 min  | ✅ FIXED |
+| 6        | #9      | Fix repeated `.isnan` typo in SectionWeight validator                    | ~5 min  | ✅ FIXED |
+| 7        | #13     | Fix picker label typo in `UISegmentCalorieAdjustmentMethodView`          | ~5 min  | ✅ FIXED |
