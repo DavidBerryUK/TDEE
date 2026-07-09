@@ -59,26 +59,25 @@ struct CalculationService {
     /// ## Important Notes
     /// - Body fat percentage is only included in the calculation when `bodyFatPercentageMethod` is `.manualEntry`
     /// - The function returns a default fallback of 1200.0 for females or invalid ages (≤ 0)
+    /// - This implementation uses a simplified conditional approach for better readability
     static func calculateBMR(profile: ProfileViewModel) -> Double {
-        // Implementation will read from different sources (Harris-Benedict, Mifflin-St Jeor)
-        // Logic here needs to be determined based on the profile's selected BMR method.
-        if profile.gender == .male && profile.age > 0 {
-             // Placeholder for a formula using weight, height, and age
-            let weightComponent = maleWeightConstant * profile.weight
-            let heightComponent = maleHeightConstant * profile.height
-            let ageComponent = maleAgeConstant * Double(profile.age)
-
-            // Only include body fat component if manual entry is selected
-            let bodyFatComponent: Double
-            if profile.bodyFatPercentageMethod == .manualEntry {
-                bodyFatComponent = maleBodyFatConstant * (profile.bodyFatPercentage / 100)
-            } else {
-                bodyFatComponent = 0
-            }
-
-            return weightComponent + heightComponent - ageComponent + bodyFatComponent
+        // Return default value for females or invalid age
+        guard profile.gender == .male && profile.age > 0 else {
+            return 1200.0
         }
-        return 1200.0 // Default safe fallback value
+
+        // Calculate core components of the BMR formula
+        let weightComponent = maleWeightConstant * profile.weight
+        let heightComponent = maleHeightConstant * profile.height
+        let ageComponent = maleAgeConstant * Double(profile.age)
+
+        // Calculate body fat component (only included for manual entry)
+        let bodyFatComponent = profile.bodyFatPercentageMethod == .manualEntry
+            ? maleBodyFatConstant * (profile.bodyFatPercentage / 100)
+            : 0
+
+        // Return final BMR calculation - simplified and more readable
+        return weightComponent + heightComponent - ageComponent + bodyFatComponent
     }
 
     /// Calculates Total Daily Energy Expenditure (TDEE) by applying activity level multipliers to BMR.
