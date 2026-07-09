@@ -21,7 +21,7 @@ struct UIWheelPickerMacroMixView: View {
         }
         .pickerStyle(.wheel)
         .accessibilityLabel("Macro split selection")
-        .accessibilityValue("Selected: \(collection.getItem(id: macroSplit.selectedMacroId)?.name ?? "None")")
+        .accessibilityValue("Selected: \(collection.items.first { $0.id == macroSplit.selectedMacroId }?.name ?? "None")")
     }
 }
 

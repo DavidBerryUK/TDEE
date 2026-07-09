@@ -12,3 +12,8 @@ enum Spacing {
     static let medium: CGFloat = 12
     static let large: CGFloat = 16
 }
+
+struct AnimationParams {
+    static let springDefault = Animation.spring(response: 0.3, dampingFraction: 0.8)
+    static let fastDuration = Animation.easeInOut(duration: 0.3)
+}

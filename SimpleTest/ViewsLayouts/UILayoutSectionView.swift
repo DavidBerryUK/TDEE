@@ -5,9 +5,6 @@
 //  Created by David Berry on 05/04/2026.
 //
 import SwiftUI
-// Assuming the build system will correctly link these constants upon module setup.
-import SimpleTest.Constants.Spacing
-import SimpleTest.Constants.AnimationParams
 
 struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: View {
 

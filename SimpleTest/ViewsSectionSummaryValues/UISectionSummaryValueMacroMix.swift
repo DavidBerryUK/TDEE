@@ -11,9 +11,11 @@ struct UISectionSummaryValueMacroMix: View {
 
     @Bindable var macroMix: MacroSplitViewModel
     @Bindable var sectionManager : SectionManagerViewModel
+    @Environment(MacroSplitOptionsModelCollection.self) private var collection
 
     private var displayText: String {
-        if let selectedOption = macroMix.selectedOption {
+        let selectedOption = collection.items.first { $0.id == macroMix.selectedMacroId }
+        if let selectedOption = selectedOption {
             return selectedOption.name
         } else {
             return "No selection"

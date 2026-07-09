@@ -1,5 +1,5 @@
 import SwiftUI
-import SimpleTest.Constants.Spacing // Using centralized spacing constants
+import SimpleTest
 
 struct UISliderCalorieAdjustmentValue: View {
 

@@ -35,7 +35,7 @@ struct MainSectionCaloriesAndAdjustments: View {
         }
     }
 
-    private func handleCalorieAdjustmentChange(newValue: enumCalorieAdjustmentMethod, proxy: ScrollViewProxy) {
+    private func handleCalorieAdjustmentChange(newValue: CalorieAdjustmentMethod, proxy: ScrollViewProxy) {
         if newValue == .cut || newValue == .bulk {
             scrollIfNecessary(proxy: proxy)
         }

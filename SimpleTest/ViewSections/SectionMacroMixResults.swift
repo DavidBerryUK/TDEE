@@ -4,18 +4,18 @@
 //
 //  Created by David Berry on 08/04/2026.
 //
+
 import SwiftUI
-import SimpleTest.Constants.Spacing // Correctly imported spacing constants
+import SimpleTest
 
 struct SectionMacroMixResults: View {
 
     @Bindable var calculationResults: CalculatorResultViewModel // Assuming this type exists
 
     var body: some View {
-
         VStack{
             HStack{
-                UICardNumericResult( // Assuming this view/type exists
+                UICardNumericResult(
                     title: "protein \(calculationResults.proteinPercent)%",
                     value:  calculationResults.proteinGrams,
                     suffix:"g"
@@ -32,7 +32,7 @@ struct SectionMacroMixResults: View {
                     suffix:"g"
                 )
             }
-        }.padding(Spacing.large) // <-- REFACTORED: Using central constant
+        }.padding(Spacing.large) // <-- Using central constant
     }
 }
 
