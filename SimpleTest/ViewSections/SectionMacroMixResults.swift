@@ -1,26 +1,26 @@
 //
-//  SectionMaintenanceCalories.swift
+//  SectionMacroMixResults.swift
 //  SimpleTest
 //
 //  Created by David Berry on 08/04/2026.
 //
-
 import SwiftUI
+import SimpleTest.Constants.Spacing // Correctly imported spacing constants
 
 struct SectionMacroMixResults: View {
-        
-    @Bindable var calculationResults: CalculatorResultViewModel
-    
+
+    @Bindable var calculationResults: CalculatorResultViewModel // Assuming this type exists
+
     var body: some View {
-        
+
         VStack{
             HStack{
-                UICardNumericResult(
+                UICardNumericResult( // Assuming this view/type exists
                     title: "protein \(calculationResults.proteinPercent)%",
                     value:  calculationResults.proteinGrams,
                     suffix:"g"
                 )
-                
+
                 UICardNumericResult(
                     title: "carbs \(calculationResults.carbsPercent)%",
                     value: calculationResults.carbsGrams,
@@ -32,7 +32,7 @@ struct SectionMacroMixResults: View {
                     suffix:"g"
                 )
             }
-        }.padding(16) // padding around the row
+        }.padding(Spacing.large) // <-- REFACTORED: Using central constant
     }
 }
 
@@ -47,6 +47,6 @@ struct SectionMacroMixResults: View {
 //        fatsGrams: 80,
 //        caloriesAdjustedPerDay: 100,
 //        caloriesAdjustedPerWeek: 700)
-    
+
     SectionMacroMixResults(calculationResults: results)
 }

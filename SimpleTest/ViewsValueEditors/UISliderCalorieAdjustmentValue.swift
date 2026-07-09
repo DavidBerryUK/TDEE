@@ -1,23 +1,17 @@
-//
-//  UISliderCalorieAdjustmentValue.swift
-//  SimpleTest
-//
-//  Created by David Berry on 11/04/2026.
-//
-
 import SwiftUI
+import SimpleTest.Constants.Spacing // Using centralized spacing constants
 
 struct UISliderCalorieAdjustmentValue: View {
-    
+
     @Bindable var model: ProfileViewModel
-    
+
     var body: some View {
-        
+
         var perDay = Int(model.calorieAdjustment)
         var perWeek = Int(model.calorieAdjustment * 7)
         var adjustmentTextPerDay = ""
         var adjustmentTextPerWeek = ""
-        
+
         switch(model.calorieAdjustmentMethod ) {
         case .cut:
             adjustmentTextPerDay = "Reduce Calories per day by"
@@ -31,8 +25,8 @@ struct UISliderCalorieAdjustmentValue: View {
             adjustmentTextPerDay = "Increase Calories per day by"
             adjustmentTextPerWeek = "Increase Calories per week by"
         }
-        
-        return Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 12) {
+
+        return Grid(alignment: .leading, horizontalSpacing: Spacing.large, verticalSpacing: Spacing.medium) { // <-- FIX 1 & 2: Using constants for spacing
             GridRow {
                 Text(adjustmentTextPerDay)
                     .contentTransition(.interpolate)
@@ -42,13 +36,14 @@ struct UISliderCalorieAdjustmentValue: View {
                     .minimumScaleFactor(0.5)
                     .allowsTightening(true)
                     .gridColumnAlignment(.leading)
-                
+
+                // Keeping the size hardcoded for now; ideal next step is to standardize this font size if used elsewhere.
                 Text("\(perDay)")
                     .font(.system(size: 28, weight: .regular, design: .default))
                     .monospacedDigit()
                     .gridColumnAlignment(.trailing)
             }
-            
+
             GridRow {
                 Text(adjustmentTextPerWeek)
                     .contentTransition(.interpolate)
@@ -58,13 +53,13 @@ struct UISliderCalorieAdjustmentValue: View {
                     .minimumScaleFactor(0.5)
                     .allowsTightening(true)
                     .gridColumnAlignment(.leading)
-                
+
                 Text("\(perWeek)")
                     .font(.system(size: 28, weight: .regular, design: .default))
                     .monospacedDigit()
                     .gridColumnAlignment(.trailing)
             }
-            
+
             GridRow {
                 Slider(
                     value: $model.calorieAdjustment,

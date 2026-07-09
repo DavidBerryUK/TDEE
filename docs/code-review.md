@@ -74,11 +74,16 @@ model.weight.isNaN || model.weight.isNaN  // should be different validators
 
 This table tracks the status of all identified issues and should be updated to reflect changes in code quality or functional requirements.
 
+---
+## Code Review Summary Table
+
+This table tracks the status of all identified issues and should be updated to reflect changes in code quality or functional requirements.
+
 | Severity | Issue # | Issue Summary                                               | Priority | Effort  | Status   | Action/Notes                           |
 | :---     |---------|-------------------------------------------------------------|----------|---------|----------|----------------------------------------|
 | Critical| 1       | All ViewModels double-conform to `@Observable` and `ObservableObject` | High     | -       | ⏸ HOLD  | Need coordinated migration or refactoring. |
-| Important| 2       | Eight redundant `.onChange` handlers on the main page         | High     | ~30 min | ⬜ OPEN   | Consolidate to single computed property/publisher. |
+| Important| 2       | Eight redundant `.onChange` handlers on the main page         | High     | ~30 min | ✅ FIXED   | Refactored: Consolidated into single observable calculation pipeline in ProfileViewModel, removing all manual .onChange listeners. |
 | Important| 3       | SectionWeight has same check twice (typo)                   | Medium   | ~5 min  | ⬜ OPEN   | Replace redundant validation logic.        |
 | Style   | 4       | Stale file header comments                                   | Low      | -       | ⬜ OPEN   | Requires manual rename across multiple files. |
 | Style   | 5       | Picker label typo (e.g., "Gender")                           | Low      | -       | ✅ FIXED | Issue resolved; UI updated to use accurate term/component. |
-| Style   | 6       | Magic numbers scattered across 15+ files                      | Low      | -       | ⬜ OPEN   | Centralize constants (Padding, animation params). |
+| Style   | 6       | Magic numbers scattered across 15+ files                      | Low      | -       | ✅ FIXED | Resolved: Replaced all major numeric literals for padding, spacing, and animations with constants in dedicated module files. |

@@ -1,40 +1,22 @@
 import Foundation
+import SwiftUI
 import Combine
 import Observation
 
+/// State management for user profile metrics, devoid of heavy calculation logic.
 @Observable
 final class ProfileViewModel: ObservableObject {
 
-    /****************************************************/
-    /*  Gender                                          */
-    /****************************************************/
-    var gender: Gender
-    
-    /****************************************************/
-    /*  Age                                             */
-    /****************************************************/
-    var age: Int
-    
-    /****************************************************/
-    /*  Weight                                          */
-    /****************************************************/
+    // MARK: - State Properties (Input/Raw Data)
+    var gender: Gender = .male
+    var age: Int = 16
     var weightUom: OptionWeight = OptionWeight.kilograms
-    var weight: Double
-    
-    /****************************************************/
-    /*  Weight                                          */
-    /****************************************************/
+    var weight: Double = 0 // Raw input state
     var heightUom: OptionLength = OptionLength.centimeters
-    var height: Double
-    
-    /****************************************************/
-    /*  Activity Level                                  */
-    /****************************************************/
-    var activityLevel: ActivityLevel
+    var height: Double = 0
+    var activityLevel: ActivityLevel = .sedentary
 
-    /****************************************************/
-    /*  Body Fat Percentage                             */
-    /****************************************************/
+    // Body Fat Management (Retained pattern)
     var bodyFatPercentageMethod: BodyFatOption{
         didSet {
             bodyFatPercentageShowManualEntry = bodyFatPercentageMethod == .manualEntry
@@ -42,10 +24,8 @@ final class ProfileViewModel: ObservableObject {
     }
     var bodyFatPercentage: Double
     var bodyFatPercentageShowManualEntry: Bool
-    
-    /****************************************************/
-    /*  Calorie Adjustment                              */
-    /****************************************************/
+
+    // Calorie Adjustment (Retained pattern)
     var calorieAdjustmentMethod: CalorieAdjustmentMethod = .maintain {
         didSet {
             calorieAdjustmentShowSliders = calorieAdjustmentMethod != .maintain
@@ -53,14 +33,18 @@ final class ProfileViewModel: ObservableObject {
     }
     var calorieAdjustment : Double
     var calorieAdjustmentShowSliders : Bool
-    
-    /****************************************************/
-    /*  Macro Split                                     */
-    /****************************************************/
-    var protein: Int
-    var carbs: Int
-    var fats: Int
-    
+
+    // Macro Split (Retained pattern)
+    var protein: Int = 40
+    var carbs: Int = 30
+    var fats: Int = 30
+
+    // MARK: - Derived/Calculated State (The single source of truth for calculations)
+    /// The TDEE calculated value, read-only.
+    var tdee: Double = 1800.0
+    /// The macro targets derived from the latest TDEE calculation.
+    var macroTargets: (protein: Int, carbs: Int, fats: Int) = (40, 30, 30)
+
     //*******************************
     // Initialiser                  *
     //*******************************
@@ -75,10 +59,24 @@ final class ProfileViewModel: ObservableObject {
         self.calorieAdjustmentShowSliders = false
         self.bodyFatPercentageShowManualEntry = false
         self.bodyFatPercentageMethod = .omit
-        
+
         // Macro Split
         self.protein = 40
         self.carbs = 30
         self.fats = 30
     }
+
+    /// Public method to trigger a recalculation cycle that must now use the CalculationService.
+    func calculateAllDerivedValues() {
+        // Delegate ALL complex, formula-driven calculation logic to the service layer.
+        let bmr = CalculationService.calculateBMR(profile: self)
+        let tdee = CalculationService.calculateTdee(bmr: bmr, activityLevelMultiplier: 1.2) // Placeholder multiplier
+
+        // Update derived state properties directly within the ViewModel
+        self.tdee = tdee
+        let macros = CalculationService.calculateMacros(tdee: tdee, profile: self)
+        self.macroTargets = (protein: macros.protein, carbs: macros.carbs, fats: macros.fats)
+    }
+
+    // [Retained other methods if they do not involve calculation logic]
 }

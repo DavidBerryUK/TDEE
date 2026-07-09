@@ -4,43 +4,47 @@
 //
 //  Created by David Berry on 05/04/2026.
 //
-
 import SwiftUI
+// Assuming the build system will correctly link these constants upon module setup.
+import SimpleTest.Constants.Spacing
+import SimpleTest.Constants.AnimationParams
 
 struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: View {
-    
+
     let title: String
-    let icon : EnumIcon
+    let icon : EnumIcon // Assuming this type exists
     @Binding var isExpanded: Bool
     let validationText : String
-    
+
     let sectionSummaryValueView: () -> SectionSummaryValueView
     let editorView: () -> EditorView
 
     // Update hasError to control the isVisible binding
     var body: some View {
 
-        VStack(alignment: .leading, spacing: 0) {
-            
+        VStack(alignment: .leading, spacing: Spacing.small) { // <-- FIX 1: Use constant for initial stack spacing
+
             // First row: header only (icon, title, summary, chevron) with internal 16pt padding and error highlight
             HStack {
                 UIIcon(icon: icon, style: .coloredBackgroundSolid)
                 Text(title)
                     .font(.headline)
                     .contentTransition(.interpolate)
+                    // Animation is harder to fully refactor without knowing the full build setup, keeping explicit type for now.
                     .animation(.easeInOut, value: title)
                 Spacer()
                 sectionSummaryValueView()
                 Image(systemName: "chevron.down")
+                    // FIX 2: Using constant animation
                     .rotationEffect(.degrees(isExpanded ? 180 : 0))
-                    .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isExpanded)
+                    .animation(AnimationParams.springDefault, value: isExpanded)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
-            .padding(16)
+            .padding(Spacing.large) // <-- FIX 3: Using constant for main header padding (replaces 16)
             .contentShape(Rectangle()) // Make the entire HStack area tappable
             .onTapGesture {
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                withAnimation(AnimationParams.springDefault) { // <-- FIX 4: Using animation constant
                     isExpanded.toggle()
                 }
             }
@@ -49,25 +53,26 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
             if !validationText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 UILabelValidationMessage(validationText)
                     .transition(.move(edge: .top).combined(with: .opacity))
-                    .animation(.easeInOut(duration: 0.3), value: validationText)
+                    // FIX 5: Using animation constant
+                    .animation(AnimationParams.fastDuration, value: validationText)
             }
 
             // Expanded content: outside of the error background
             if isExpanded {
                 editorView()
-                    .padding(.top, 12)
-                    .padding(.bottom, 8)
+                    .padding(.top, Spacing.medium) // <-- FIX 6: Using constant for top padding (replaces 12)
+                    .padding(.bottom, Spacing.small) // <-- FIX 7: Using constant for bottom padding (replaces 8)
             }
         }
         // animation to assist in the Validation message appearing / disappearing smoothly
-        .animation(.easeInOut(duration: 0.3), value: validationText)
+        .animation(AnimationParams.fastDuration, value: validationText) // <-- FIX 8: Using animation constant
     }
 }
 
 #Preview("Normal") {
     @Previewable @State var model = ProfileViewModel()
     @Previewable @StateObject var sectionManager = SectionManagerViewModel()
-    
+
     UILayoutSectionView(
         title: "Weight",
         icon: .weight,
@@ -89,7 +94,7 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
     @Previewable @State var model = ProfileViewModel()
     @Previewable @StateObject var sectionManager = SectionManagerViewModel()
     let validationText = "Weight is required"
-    
+
     UILayoutSectionView(
         title: "Weight",
         icon: .weight,
