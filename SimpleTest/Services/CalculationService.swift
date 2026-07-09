@@ -37,11 +37,11 @@ struct CalculationService {
      Calculates Total Daily Energy Expenditure (TDEE).
      - Parameters:
         - bmr: The calculated Basal Metabolic Rate.
-        - activityLevelMultiplier: A factor based on the user's activity level.
+        - activityLevel: The user's activity level.
      */
-    static func calculateTdee(bmr: Double, activityLevelMultiplier: Double) -> Double {
+    static func calculateTdee(bmr: Double, activityLevel: ActivityLevel) -> Double {
         // This formula is generally straightforward multiplication.
-        return bmr * activityLevelMultiplier
+        return bmr * activityLevel.KatchMcArdleMultipliers
     }
 
     /**

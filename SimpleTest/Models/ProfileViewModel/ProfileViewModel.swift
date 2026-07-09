@@ -8,36 +8,78 @@ import Observation
 final class ProfileViewModel: ObservableObject {
 
     // MARK: - State Properties (Input/Raw Data)
-    var gender: Gender = .male
-    var age: Int = 16
+    var gender: Gender = .male {
+        didSet {
+            calculateAllDerivedValues()
+        }
+    }
+    var age: Int = 16 {
+        didSet {
+            calculateAllDerivedValues()
+        }
+    }
     var weightUom: OptionWeight = OptionWeight.kilograms
-    var weight: Double = 0 // Raw input state
+    var weight: Double = 0 { // Raw input state
+        didSet {
+            calculateAllDerivedValues()
+        }
+    }
     var heightUom: OptionLength = OptionLength.centimeters
-    var height: Double = 0
-    var activityLevel: ActivityLevel = .sedentary
+    var height: Double = 0 {
+        didSet {
+            calculateAllDerivedValues()
+        }
+    }
+    var activityLevel: ActivityLevel = .sedentary {
+        didSet {
+            calculateAllDerivedValues()
+        }
+    }
 
     // Body Fat Management (Retained pattern)
     var bodyFatPercentageMethod: BodyFatOption{
         didSet {
             bodyFatPercentageShowManualEntry = bodyFatPercentageMethod == .manualEntry
+            calculateAllDerivedValues()
         }
     }
-    var bodyFatPercentage: Double
+    var bodyFatPercentage: Double {
+        didSet {
+            calculateAllDerivedValues()
+        }
+    }
     var bodyFatPercentageShowManualEntry: Bool
 
     // Calorie Adjustment (Retained pattern)
     var calorieAdjustmentMethod: CalorieAdjustmentMethod = .maintain {
         didSet {
             calorieAdjustmentShowSliders = calorieAdjustmentMethod != .maintain
+            calculateAllDerivedValues()
         }
     }
-    var calorieAdjustment : Double
+    var calorieAdjustment : Double {
+        didSet {
+            calculateAllDerivedValues()
+        }
+    }
     var calorieAdjustmentShowSliders : Bool
 
     // Macro Split (Retained pattern)
-    var protein: Int = 40
-    var carbs: Int = 30
-    var fats: Int = 30
+    var protein: Int = 40 {
+        didSet {
+            calculateAllDerivedValues()
+        }
+    }
+    var carbs: Int = 30 {
+        didSet {
+            calculateAllDerivedValues()
+        }
+    }
+    var fats: Int = 30 {
+        didSet {
+            calculateAllDerivedValues()
+        }
+    }
 
     // MARK: - Derived/Calculated State (The single source of truth for calculations)
     /// The TDEE calculated value, read-only.
@@ -70,7 +112,7 @@ final class ProfileViewModel: ObservableObject {
     func calculateAllDerivedValues() {
         // Delegate ALL complex, formula-driven calculation logic to the service layer.
         let bmr = CalculationService.calculateBMR(profile: self)
-        let tdee = CalculationService.calculateTdee(bmr: bmr, activityLevelMultiplier: 1.2) // Placeholder multiplier
+        let tdee = CalculationService.calculateTdee(bmr: bmr, activityLevel: self.activityLevel)
 
         // Update derived state properties directly within the ViewModel
         self.tdee = tdee
