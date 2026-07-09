@@ -19,7 +19,15 @@ struct CalculationService {
             let weightComponent = 76.2 * profile.weight
             let heightComponent = 5 * profile.height
             let ageComponent = 18.5 * Double(profile.age)
-            let bodyFatComponent = 5 * (profile.bodyFatPercentage / 100)
+
+            // Only include body fat component if manual entry is selected
+            let bodyFatComponent: Double
+            if profile.bodyFatPercentageMethod == .manualEntry {
+                bodyFatComponent = 5 * (profile.bodyFatPercentage / 100)
+            } else {
+                bodyFatComponent = 0
+            }
+
             return weightComponent + heightComponent - ageComponent + bodyFatComponent
         }
         return 1200.0 // Default safe fallback value
