@@ -16,7 +16,11 @@ struct CalculationService {
         // Logic here needs to be determined based on the profile's selected BMR method.
         if profile.gender == .male && profile.age > 0 {
              // Placeholder for a formula using weight, height, and age
-            return 76.2 * profile.weight + 5 * profile.height - 18.5 * profile.age + 5 * (profile.bodyFatPercentage / 100)
+            let weightComponent = 76.2 * profile.weight
+            let heightComponent = 5 * profile.height
+            let ageComponent = 18.5 * Double(profile.age)
+            let bodyFatComponent = 5 * (profile.bodyFatPercentage / 100)
+            return weightComponent + heightComponent - ageComponent + bodyFatComponent
         }
         return 1200.0 // Default safe fallback value
     }
