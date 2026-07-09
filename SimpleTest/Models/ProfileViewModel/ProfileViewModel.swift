@@ -4,10 +4,22 @@ import Combine
 import Observation
 
 /// State management for user profile metrics, devoid of heavy calculation logic.
+///
+/// This ViewModel serves as the single source of truth for all user profile data and derived calculations.
+/// It manages both raw input values and calculated results (TDEE, macro targets) while ensuring
+/// automatic recalculation when any input changes.
+///
+/// ## Key Features
+/// - Automatic calculation updates via property observers
+/// - Clean separation between input data and derived calculations
+/// - Comprehensive validation and error handling
+/// - Integration with CalculationService for all mathematical operations
 @Observable
 final class ProfileViewModel: ObservableObject {
 
     // MARK: - State Properties (Input/Raw Data)
+
+    /// User's gender, used in BMR calculation formulas
     var gender: Gender = .male {
         didSet {
             calculateAllDerivedValues()
