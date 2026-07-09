@@ -9,8 +9,11 @@
 import Foundation
 
 struct WeightConvertor {
-    
+
+    /// Conversion factor from kilograms to pounds (2.20462262185)
     private static let poundsPerKg = 2.20462262185
+
+    /// Conversion factor from pounds to kilograms (0.45359237)
     private static let kgPerPound = 0.45359237
     
     // MARK: - Weight

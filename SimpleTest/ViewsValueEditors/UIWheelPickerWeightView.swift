@@ -15,12 +15,25 @@ struct UIWheelPickerWeightView: View {
     @State private var valueStonePounds: Int = 0
 
     // Animation Constants
+    /// Offset animation value (24 points)
     let animOffsetOffset : CGFloat = 24
+
+    /// No offset animation value (0 points)
     let animOffsetNone : CGFloat = 0
+
+    /// Zoom out animation scale (0.98)
     let animZoomOut : CGFloat = 0.98
+
+    /// Full zoom animation scale (1.00)
     let animZoomFull : CGFloat = 1.00
+
+    /// Clear opacity value (0.0)
     let animOpacityClear : CGFloat = 0
+
+    /// Solid opacity value (1.0)
     let animOpacitySolid : CGFloat = 1
+
+    /// Animation duration for weight picker (0.30 seconds)
     let animDuration : CGFloat = 0.30
 
     // Options

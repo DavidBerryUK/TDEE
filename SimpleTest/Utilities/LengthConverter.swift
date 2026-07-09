@@ -8,29 +8,35 @@
 import Foundation
 
 struct LengthConverter {
-    
+
+    /// Conversion factor from inches to centimeters (2.54)
+    private static let inchesToCentimetersFactor = 2.54
+
+    /// Conversion factor from centimeters to inches (0.3937007874)
+    private static let centimetersToInchesFactor = 0.3937007874
+
     static func toCentimeters(inches: Double) -> Double {
-        inches * 2.54
+        inches * inchesToCentimetersFactor
     }
-    
+
     static func toCentimeters(feet: Int, inches: Int) -> Double {
-        Double(12 * feet + inches) * 2.54
+        Double(12 * feet + inches) * inchesToCentimetersFactor
     }
-    
+
     static func toCentimeters(_ inches: Int) -> Double {
-        Double(inches) * 2.54
+        Double(inches) * inchesToCentimetersFactor
     }
-    
+
     static func toCentimetersInt(_ inches: Int) -> Int {
-        Int(floor(Double(inches) * 2.54))
+        Int(floor(Double(inches) * inchesToCentimetersFactor))
     }
-    
+
     static func toInches(_ centimeters: Double) -> Int {
-        Int(round(centimeters * 0.3937007874))
+        Int(round(centimeters * centimetersToInchesFactor))
     }
-    
+
     static func toInches(_ centimeters: Int) -> Int {
-        Int(round(Double(centimeters) * 0.3937007874))
+        Int(round(Double(centimeters) * centimetersToInchesFactor))
     }
   
     static func toFeet(_ centimeters: Double) -> Int {
