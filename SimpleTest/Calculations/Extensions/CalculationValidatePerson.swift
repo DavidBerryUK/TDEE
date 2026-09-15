@@ -11,7 +11,10 @@ extension ProfileViewModel {
         if self.age == 0 { fields.append("Age") }
         if self.height == 0 { fields.append("Height") }
         if self.weight == 0 { fields.append("Weight") }
-        if self.bodyFatPercentage < 2 || self.bodyFatPercentage > 60 { fields.append("Body Fat Percentage") }
+        // Only validate body fat percentage when manual entry method is selected
+        if self.bodyFatPercentageMethod == .manualEntry, self.bodyFatPercentage < 2 || self.bodyFatPercentage > 60 {
+            fields.append("Body Fat Percentage")
+        }
 
         if ( fields.isEmpty) {
             return nil
