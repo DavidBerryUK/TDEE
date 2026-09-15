@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import SimpleTest
 
 struct SectionMacroMixResults: View {
 
@@ -37,7 +36,7 @@ struct SectionMacroMixResults: View {
 }
 
 #Preview {
-    var results = CalculatorResultViewModel();
+    let results = CalculatorResultViewModel();
 //    results.updateMacros(
 //        proteinPercent: 40,
 //        carbsPercent: 20,

@@ -34,30 +34,31 @@ struct UIMainView: View {
                 // Grey background (full screen)
                 Color(.systemGroupedBackground)
                     .ignoresSafeArea()
-
-                ScrollView {
-                    VStack(spacing: 8) {
-                        MainSectionProfileInput(
-                            profile: profile,
-                            sectionManager: sectionManager)
-
-                        if ( profile.isValid) {
-                            VStack( spacing: 8) {
-                                MainSectionCaloriesAndAdjustments(
-                                    profile: profile,
-                                    calculationResult: calculationResult,
-                                    sectionManager: sectionManager)
-
-                                MainSectionMacroMix(
-                                    macroMix: macroMix,
-                                    sectionManager: sectionManager,
-                                    calculationResult: calculationResult)
-                            } .transition(.opacity)
-
+                GeometryReader { geometry in
+                    ScrollView {
+                        VStack(spacing: 8) {
+                            MainSectionProfileInput(
+                                profile: profile,
+                                sectionManager: sectionManager)
+                            
+                            if ( profile.isValid) {
+                                VStack( spacing: 8) {
+                                    MainSectionCaloriesAndAdjustments(
+                                        profile: profile,
+                                        calculationResult: calculationResult,
+                                        sectionManager: sectionManager)
+                                    
+                                    MainSectionMacroMix(
+                                        macroMix: macroMix,
+                                        sectionManager: sectionManager,
+                                        calculationResult: calculationResult)
+                                } .transition(.opacity)
+                                
+                            }
                         }
+                        .animation(.easeInOut(duration: 0.25), value: profile.isValid)
+                        .padding(.horizontal, geometry.size.width <= 375 ? 0 : 16)
                     }
-                    .animation(.easeInOut(duration: 0.25), value: profile.isValid)
-                    .padding(EnumDevice.isSmallScreen ? 0 : 16)
                 }
             }
             .task {

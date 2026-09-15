@@ -16,69 +16,24 @@ extension ProfileViewModel {
     }
 
     func updateProtein(to newValue: Double) {
-        normalizeAfterProteinChange(newValue: newValue)
+        let result = MacroSplitOptionModel.normalizeAfterProteinChange(newValue: newValue, originalCarbs: self.carbs, originalFats: self.fats)
+        self.protein = result.protein
+        self.carbs   = result.carbs
+        self.fats    = result.fats
     }
 
     func updateCarbs(to newValue: Double) {
-        normalizeAfterCarbsChange(newValue: newValue)
+        let result = MacroSplitOptionModel.normalizeAfterCarbsChange(newValue: newValue, originalProtein: self.protein, originalFats: self.fats)
+        self.protein = result.protein
+        self.carbs   = result.carbs
+        self.fats    = result.fats
     }
 
     func updateFats(to newValue: Double) {
-        normalizeAfterFatsChange(newValue: newValue)
-    }
-
-    private func snapToStep(_ value: Double, step: Int = 5, min: Int = 0, max: Int = 100) -> Int {
-        let snapped = Int(value / Double(step)) * step
-        return Swift.max(min, Swift.min(max, snapped))
-    }
-
-    private func clampValueTo100(_ value: Int) -> Int {
-        min(max(value, 0), 100)
-    }
-
-    internal func normalizeAll() {
-        // Snapshot before any mutation so overflow is computed from the original total.
-        let snapshotProtein = protein
-        let snapshotCarbs   = carbs
-        let snapshotFats    = fats
-        let overflow        = 100 - (snapshotProtein + snapshotCarbs + snapshotFats)
-
-        protein = clampValueTo100(snapshotProtein + overflow)
-        carbs   = clampValueTo100(snapshotCarbs   + overflow)
-        fats    = clampValueTo100(snapshotFats    + overflow)
-    }
-
-    private func normalizeAfterProteinChange(newValue: Double) {
-        // Snapshot so overflow reflects the change from old protein to new, not a fresh read.
-        let snapshotCarbs  = carbs
-        let snapshotFats   = fats
-        let overflow       = 100 - (Int(newValue) + snapshotCarbs + snapshotFats)
-
-        protein = snapToStep(newValue)
-        carbs   = clampValueTo100(snapshotCarbs + overflow)
-        fats    = clampValueTo100(snapshotFats  + overflow)
-    }
-
-    private func normalizeAfterCarbsChange(newValue: Double) {
-        // Snapshot so overflow reflects the change from old carbs to new, not a fresh read.
-        let snapshotProtein = protein
-        let snapshotFats    = fats
-        let overflow        = 100 - (snapshotProtein + Int(newValue) + snapshotFats)
-
-        carbs   = snapToStep(newValue)
-        fats    = clampValueTo100(snapshotFats  + overflow)
-        protein = clampValueTo100(snapshotProtein + overflow)
-    }
-
-    private func normalizeAfterFatsChange(newValue: Double) {
-        // Snapshot so overflow reflects the change from old fats to new, not a fresh read.
-        let snapshotProtein = protein
-        let snapshotCarbs   = carbs
-        let overflow        = 100 - (snapshotProtein + snapshotCarbs + Int(newValue))
-
-        fats    = snapToStep(newValue)
-        carbs   = clampValueTo100(snapshotCarbs + overflow)
-        protein = clampValueTo100(snapshotProtein + overflow)
+        let result = MacroSplitOptionModel.normalizeAfterFatsChange(newValue: newValue, originalProtein: self.protein, originalCarbs: self.carbs)
+        self.protein = result.protein
+        self.carbs   = result.carbs
+        self.fats    = result.fats
     }
 
 }

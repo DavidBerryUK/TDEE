@@ -1,5 +1,4 @@
 import SwiftUI
-import SimpleTest
 
 struct UISliderCalorieAdjustmentValue: View {
 

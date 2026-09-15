@@ -26,81 +26,51 @@ public final class MacroSplitOptionModel : Identifiable, Hashable {
         self.carbs = 30
         self.fats = 30
         self.ordinal = -1
-        normalizeAll()
+        let normalized = MacroSplitOptionModel.normalizeAll(protein: 40, carbs: 30, fats: 30)
+        self.protein   = normalized.protein
+        self.carbs     = normalized.carbs
+        self.fats      = normalized.fats
     }
-    
-    public init(id: UUID = UUID(), name: String = "", protein: Int = 40, carbs: Int = 30, fats: Int = 30,  ordinal: Int = 0) {
+
+    public init(id: UUID = UUID(), name: String = "", protein: Int = 40, carbs: Int = 30, fats: Int = 30, ordinal: Int = 0) {
         self.id = id
         self.name = name
-        self.protein = protein
-        self.carbs = carbs
-        self.fats = fats
-        self.ordinal = ordinal
-        normalizeAll()
+        let normalized = MacroSplitOptionModel.normalizeAll(protein: protein, carbs: carbs, fats: fats)
+        self.protein   = normalized.protein
+        self.carbs     = normalized.carbs
+        self.fats      = normalized.fats
+        self.ordinal   = ordinal
     }
     
-    
-    
+
     public func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
-    
+
     public func clone() -> MacroSplitOptionModel {
         return MacroSplitOptionModel(id : self.id, name: self.name, protein: self.protein, carbs: self.carbs, fats: self.fats, ordinal: self.ordinal)
     }
-}
-
-
-extension MacroSplitOptionModel {
 
     // MARK: - Public API for sliders
+
     func updateProtein(to newValue: Double) {
-        normalizeAfterProteinChange(newValue: newValue)
+        let result = MacroSplitOptionModel.normalizeAfterProteinChange(newValue: newValue, originalCarbs: self.carbs, originalFats: self.fats)
+        self.protein = result.protein
+        self.carbs   = result.carbs
+        self.fats    = result.fats
     }
-    
+
     func updateCarbs(to newValue: Double) {
-        normalizeAfterCarbsChange(newValue: newValue)
+        let result = MacroSplitOptionModel.normalizeAfterCarbsChange(newValue: newValue, originalProtein: self.protein, originalFats: self.fats)
+        self.protein = result.protein
+        self.carbs   = result.carbs
+        self.fats    = result.fats
     }
-    
+
     func updateFats(to newValue: Double) {
-        normalizeAfterFatsChange(newValue: newValue)
-    }
-    
-    // MARK: - Helpers
-    private func snapToStep(_ value: Double, step: Int = 5, min: Int = 0, max: Int = 100) -> Int {
-        let snapped = Int(value / Double(step)) * step
-        return Swift.max(min, Swift.min(max, snapped))
-    }
-    
-    private func clampValueTo100(_ value: Int) -> Int {
-        min(max(value, 0), 100)
-    }
-    
-    private var overflow: Int {
-        100 - (protein + carbs + fats)
-    }
-    
-    private func normalizeAll() {
-        protein = clampValueTo100(protein)
-        carbs = clampValueTo100( carbs + overflow )
-        fats = clampValueTo100( fats + overflow )
-    }
-    
-    private func normalizeAfterProteinChange(newValue: Double) {
-        protein = snapToStep(newValue)
-        carbs = clampValueTo100( carbs + overflow )
-        fats = clampValueTo100( fats + overflow )
-    }
-    
-    private func normalizeAfterCarbsChange(newValue: Double) {
-        carbs = snapToStep(newValue)
-        fats = clampValueTo100( fats + overflow )
-        protein = clampValueTo100( protein + overflow )
-    }
-    
-    private func normalizeAfterFatsChange(newValue: Double) {
-        fats = snapToStep(newValue)
-        carbs = clampValueTo100( carbs + overflow )
-        protein = clampValueTo100( protein + overflow )
+        let result = MacroSplitOptionModel.normalizeAfterFatsChange(newValue: newValue, originalProtein: self.protein, originalCarbs: self.carbs)
+        self.protein = result.protein
+        self.carbs   = result.carbs
+        self.fats    = result.fats
     }
 }
