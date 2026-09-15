@@ -68,7 +68,7 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
 
 #Preview("Normal") {
     @Previewable @State var model = ProfileViewModel()
-    @Previewable @StateObject var sectionManager = SectionManagerViewModel()
+    @Previewable @State var sectionManager = SectionManagerViewModel()
 
     UILayoutSectionView(
         title: "Weight",
@@ -89,7 +89,7 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
 
 #Preview("With Error") {
     @Previewable @State var model = ProfileViewModel()
-    @Previewable @StateObject var sectionManager = SectionManagerViewModel()
+    @Previewable @State var sectionManager = SectionManagerViewModel()
     let validationText = "Weight is required"
 
     UILayoutSectionView(
@@ -110,7 +110,7 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
 }
 
 #Preview("Interactive Error Toggle") {
-    @Previewable @StateObject var sectionManager = SectionManagerViewModel()
+    @Previewable @State var sectionManager = SectionManagerViewModel()
     @Previewable @State var showError: Bool = false
     @Previewable @State var expanded: Bool = false
 
