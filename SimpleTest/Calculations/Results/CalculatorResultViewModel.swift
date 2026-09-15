@@ -6,20 +6,19 @@
 //
 
 import Foundation
-import Combine
 import Observation
 
+/// Model holding the results of a TDEE and macro calculation.
 @Observable
-final class CalculatorResultViewModel : ObservableObject {
-    
-    
+final class CalculatorResultViewModel {
+
     //
     // Basic Calculations Results
     //
     var bmr: Double = 0
     var tdee: Double = 0
     var adjustedCalories: Double = 0
-            
+
     //
     // Macro Calculation Results
     //
@@ -31,12 +30,12 @@ final class CalculatorResultViewModel : ObservableObject {
     var fatsGrams: Int = 0
     var caloriesAdjustedPerDay: Int = 0
     var caloriesAdjustedPerWeek: Int = 0
-    
+
     //
     // Auditing
     //
     var audit: [AuditItem]
-    
+
     //
     // Error Message
     //
@@ -46,22 +45,22 @@ final class CalculatorResultViewModel : ObservableObject {
         self.message = nil
         self.audit = []
     }
-    
+
     func updateErrorMessage(message: String) {
         self.message = message
     }
-    
+
     func updateTdee(
         bmr: Double = 0,
-         tdee: Double = 0,
-         adjustedCalories: Double = 0,
+        tdee: Double = 0,
+        adjustedCalories: Double = 0,
         ) {
         self.bmr = bmr
         self.tdee = tdee
         self.adjustedCalories = adjustedCalories
-        
+
     }
-    
+
     func updateMacros(
         proteinPercent: Int,
         carbsPercent: Int,

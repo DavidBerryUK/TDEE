@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import Combine
 
 struct UIMainView: View {
     @State private var profile = ProfileViewModel()

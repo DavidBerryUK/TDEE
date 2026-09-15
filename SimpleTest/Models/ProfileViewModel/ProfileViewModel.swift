@@ -1,6 +1,5 @@
 import Foundation
 import SwiftUI
-import Combine
 import Observation
 
 /// State management for user profile metrics, devoid of heavy calculation logic.
@@ -15,7 +14,7 @@ import Observation
 /// - Comprehensive validation and error handling
 /// - Integration with CalculationService for all mathematical operations
 @Observable
-final class ProfileViewModel: ObservableObject {
+final class ProfileViewModel {
 
     // MARK: - State Properties (Input/Raw Data)
 
