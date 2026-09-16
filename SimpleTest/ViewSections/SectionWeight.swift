@@ -8,19 +8,20 @@
 import SwiftUI
 
 struct SectionWeight: View {
-    
+
     @Bindable var model: ProfileViewModel
     @Bindable var sectionManager: SectionManagerViewModel
-    
+
     var body: some View {
-        
+
         let validationText = model.weight.isNaN || model.weight == 0 ? "Please enter a valid Weight" : ""
-        
+
         UILayoutSectionView(
             title: "Weight",
             icon: .weight,
             isExpanded: $sectionManager.weightIsExpanded,
             validationText: validationText,
+            accessibilityId: "sectionWeight",
             sectionSummaryValueView: {
                 UISectionSummaryValueWeight(model: model, sectionManager: sectionManager)
             },

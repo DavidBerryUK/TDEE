@@ -18,6 +18,7 @@ struct SectionActivityLevel: View {
             icon: .activityLevel,
             isExpanded: $sectionManager.activityLevelIsExpanded,
             validationText: "",
+            accessibilityId: "sectionActivityLevel",
             sectionSummaryValueView: {
                 UISectionSummaryValueActivityLevel(model: model, sectionManager: sectionManager)
             },

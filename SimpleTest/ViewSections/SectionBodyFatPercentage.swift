@@ -8,16 +8,17 @@
 import SwiftUI
 
 struct SectionBodyFatPercentage: View {
-    
+
     @Bindable var model: ProfileViewModel
     @Bindable var sectionManager : SectionManagerViewModel
-    
+
     var body: some View {
         UILayoutSectionView(
             title: "Body Fat Percentage",
             icon: .bodyFat,
             isExpanded: $sectionManager.bodyFatPercentageIsExpanded,
             validationText: "",
+            accessibilityId: "sectionBodyFatPercentage",
             sectionSummaryValueView: {
                 UISectionSummaryValueBodyFat(model: model, sectionManager: sectionManager)
             },

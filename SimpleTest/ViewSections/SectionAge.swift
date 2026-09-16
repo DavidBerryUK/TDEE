@@ -9,16 +9,17 @@ import Observation
 //
 
 struct SectionAge: View {
-    
+
     @Bindable var model: ProfileViewModel
     @Bindable var sectionManager : SectionManagerViewModel
-    
+
     var body: some View {
         UILayoutSectionView(
             title: "Age",
             icon: .age,
             isExpanded: $sectionManager.ageIsExpanded,
             validationText: "",
+            accessibilityId: "sectionAge",
             sectionSummaryValueView: {
                 UISectionSummaryValueAge(model: model, sectionManager: sectionManager)
             },

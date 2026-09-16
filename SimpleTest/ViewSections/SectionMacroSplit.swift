@@ -13,12 +13,13 @@ struct SectionMacroSplit: View {
     @Bindable var sectionManager : SectionManagerViewModel
     
     var body: some View {
-        
+
         UILayoutSectionView(
             title: "Macro Split",
             icon: .macroSplit,
             isExpanded: $sectionManager.macroMixExpanded,
             validationText: "",
+            accessibilityId: "sectionMacroSplit",
             sectionSummaryValueView: {
                 UISectionSummaryValueMacroMix(macroMix: macroMix, sectionManager: sectionManager)
             },

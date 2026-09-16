@@ -20,6 +20,7 @@ struct UISegmentGenderView: View {
         }
         .pickerStyle(.segmented)
         .accessibilityLabel("Gender selector")
+        .accessibilityIdentifier("Gender")
         .accessibilityValue("Current: \(option.displayName)")
     }
 }

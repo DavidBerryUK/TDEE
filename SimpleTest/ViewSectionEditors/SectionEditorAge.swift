@@ -15,6 +15,7 @@ struct SectionEditorAge: View {
         VStack {
             UIWheelPickerAgeView(value: $model.age)
         }
+        .accessibilityIdentifier("editorAge")
     }
 }
 

@@ -15,6 +15,7 @@ struct SectionEditorActivityLevel: View {
         VStack {
             UIWheelPickerActivityLevelView(value: $model.activityLevel)
         }
+        .accessibilityIdentifier("editorActivityLevel")
     }
 }
 

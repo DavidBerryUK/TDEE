@@ -12,14 +12,15 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
     let icon : EnumIcon // Assuming this type exists
     @Binding var isExpanded: Bool
     let validationText : String
+    let accessibilityId: String?
 
     let sectionSummaryValueView: () -> SectionSummaryValueView
     let editorView: () -> EditorView
 
     // Update hasError to control the isVisible binding
     var body: some View {
-
-        VStack(alignment: .leading, spacing: Spacing.small) { // <-- FIX 1: Use constant for initial stack spacing
+        VStack(alignment: .leading, spacing: Spacing.small) // <-- FIX 1: Use constant for initial stack spacing
+        {
 
             // First row: header only (icon, title, summary, chevron) with internal 16pt padding and error highlight
             HStack {
@@ -61,8 +62,13 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
                     .padding(.bottom, Spacing.small) // <-- FIX 7: Using constant for bottom padding (replaces 8)
             }
         }
+        // Make the entire VStack area tappable
+        .contentShape(Rectangle())
+        // Make the VStack an accessibility element
+        .accessibilityElement()
         // animation to assist in the Validation message appearing / disappearing smoothly
         .animation(AnimationParams.fastDuration, value: validationText) // <-- FIX 8: Using animation constant
+        .accessibilityIdentifier(accessibilityId ?? "")
     }
 }
 
@@ -75,6 +81,7 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
         icon: .weight,
         isExpanded: $sectionManager.weightIsExpanded,
         validationText: "",
+        accessibilityId: nil,
         sectionSummaryValueView: {
             Text("75 kg")
         },
@@ -97,6 +104,7 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
         icon: .weight,
         isExpanded: $sectionManager.weightIsExpanded,
         validationText: validationText,
+        accessibilityId: nil,
         sectionSummaryValueView: {
             Text("75 kg")
         },
@@ -123,6 +131,7 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
             icon: .weight,
             isExpanded: $expanded,
             validationText: showError ? "Weight is required" : "",
+            accessibilityId: nil,
             sectionSummaryValueView: {
                 Text("75 kg")
             },

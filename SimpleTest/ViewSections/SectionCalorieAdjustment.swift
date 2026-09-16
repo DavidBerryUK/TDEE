@@ -13,12 +13,13 @@ struct SectionCalorieAdjustment: View {
     @Bindable var sectionManager: SectionManagerViewModel
     
     var body: some View {
-        
+
         UILayoutSectionView(
             title: "\(profile.calorieAdjustmentMethod.sectionTitle)",
             icon: .calorie,
             isExpanded: $sectionManager.calorieAdjustmentExpanded,
             validationText: "",
+            accessibilityId: "sectionCalorieAdjustment",
             sectionSummaryValueView: {
                 UISectionSummaryValueCalorieAdjustment(model: profile, sectionManager: sectionManager)
             },

@@ -13,9 +13,12 @@ struct SectionEditorHeight: View {
     
     var body: some View {
         VStack {
-            UISegmentUomLengthView(option: $model.heightUom).padding(.leading, 8).padding(.trailing, 8)
+            UISegmentUomLengthView(option: $model.heightUom)
+                .padding(.leading, 8)
+                .padding(.trailing, 8)
             UIWheelPickerHeightView(value: $model.height, unitOfMeasure: $model.heightUom)
         }
+        .accessibilityIdentifier("editorHeight")
     }
 }
 
