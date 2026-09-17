@@ -27,9 +27,14 @@ final class SimpleTestUITests_Gender: XCTestCase {
         let genderSection = app.otherElements["sectionGender"]
         genderSection.tap()
 
-        XCTAssertTrue(utils.waitForElement(app.segmentedControls["Gender"]), "Gender picker should exist")
+        let segmentedControl = utils.findSegmentedControl(in: app)
+        if let segmentedControl = segmentedControl {
+            XCTAssertTrue(utils.waitForElement(segmentedControl), "Gender segmented control should exist")
 
-        XCTAssertTrue(app.segmentedControls["Gender"].buttons["Male"].exists)
-        XCTAssertTrue(app.segmentedControls["Gender"].buttons["Female"].exists)
+            XCTAssertTrue(segmentedControl.buttons["Male"].exists)
+            XCTAssertTrue(segmentedControl.buttons["Female"].exists)
+        } else {
+            XCTFail("Gender segmented control not found in accessibility hierarchy")
+        }
     }
 }

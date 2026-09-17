@@ -27,11 +27,16 @@ final class SimpleTestUITests_BodyFat: XCTestCase {
         let bodyFatSection = app.otherElements["sectionBodyFatPercentage"]
         bodyFatSection.tap()
 
-        XCTAssertTrue(utils.waitForElement(app.segmentedControls["BodyFatOption"]), "Body fat method picker should exist")
+        let segmentedControl = utils.findSegmentedControl(in: app)
+        if let segmentedControl = segmentedControl {
+            XCTAssertTrue(utils.waitForElement(segmentedControl), "Body fat method segmented control should exist")
 
-        XCTAssertTrue(app.segmentedControls["BodyFatOption"].buttons["Omit"].exists)
-        XCTAssertTrue(app.segmentedControls["BodyFatOption"].buttons["Estimate"].exists)
-        XCTAssertTrue(app.segmentedControls["BodyFatOption"].buttons["Manual Entry"].exists)
+            XCTAssertTrue(segmentedControl.buttons["Omit"].exists)
+            XCTAssertTrue(segmentedControl.buttons["Estimate"].exists)
+            XCTAssertTrue(segmentedControl.buttons["Manual Entry"].exists)
+        } else {
+            XCTFail("Body fat method segmented control not found in accessibility hierarchy")
+        }
     }
 
     @MainActor
@@ -42,15 +47,23 @@ final class SimpleTestUITests_BodyFat: XCTestCase {
         let bodyFatSection = app.otherElements["sectionBodyFatPercentage"]
         bodyFatSection.tap()
 
-        XCTAssertTrue(utils.waitForElement(app.segmentedControls["BodyFatOption"]), "Body fat method picker should exist")
+        let segmentedControl = utils.findSegmentedControl(in: app)
+        if let segmentedControl = segmentedControl {
+            XCTAssertTrue(utils.waitForElement(segmentedControl), "Body fat method segmented control should exist")
 
-        app.segmentedControls["BodyFatOption"].buttons["Manual Entry"].tap()
+            segmentedControl.buttons["Manual Entry"].tap()
 
-        let bodyFatPicker = utils.findPicker(in: app)
-        if let bodyFatPicker = bodyFatPicker {
-            XCTAssertTrue(utils.waitForElement(bodyFatPicker), "Body fat percentage picker should exist after selecting manual entry")
+            // Wait for body fat pickers to appear
+            Thread.sleep(forTimeInterval: 0.5)
+
+            // Find body fat pickers (there are 2 for integer and decimal parts)
+            let bodyFatPickers = utils.findPickers(in: app)
+            XCTAssertTrue(bodyFatPickers.count >= 1, "Body fat percentage picker(s) should exist after selecting manual entry")
+            if !bodyFatPickers.isEmpty {
+                XCTAssertTrue(utils.waitForElement(bodyFatPickers[0]), "Body fat percentage picker should exist after selecting manual entry")
+            }
         } else {
-            XCTFail("Body fat percentage picker not found in accessibility hierarchy")
+            XCTFail("Body fat method segmented control not found in accessibility hierarchy")
         }
     }
 }

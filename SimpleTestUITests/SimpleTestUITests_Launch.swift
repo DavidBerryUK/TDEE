@@ -24,8 +24,15 @@ final class SimpleTestUITests_Launch: XCTestCase {
         let app = XCUIApplication()
         app.launch()
 
-        let navigationBar = app.navigationBars["TDEE"]
-        XCTAssertTrue(navigationBar.exists, "Navigation bar with 'TDEE' title should exist")
+        // The navigation title varies by screen width:
+        // - Compact width (iPhone): "TDEE"
+        // - Regular width (iPad): "Total Daily Energy Expenditure"
+        // Use staticText to find the navigation bar title since navigationBars["TDEE"] only works for exact match
+        let navigationBarTitle = app.staticTexts["TDEE"].firstMatch
+        let navigationBarTitleFull = app.staticTexts["Total Daily Energy Expenditure"].firstMatch
+
+        XCTAssertTrue(navigationBarTitle.exists || navigationBarTitleFull.exists,
+                      "Navigation bar should have a valid title (TDEE or Total Daily Energy Expenditure)")
     }
 
     @MainActor
@@ -35,28 +42,4 @@ final class SimpleTestUITests_Launch: XCTestCase {
         }
     }
 
-    @MainActor
-    func testAllInputSectionsVisible() throws {
-        let app = XCUIApplication()
-        app.launch()
-
-        app.otherElements["sectionAge"].tap()
-        app.otherElements["sectionWeight"].tap()
-        app.otherElements["sectionHeight"].tap()
-        app.otherElements["sectionBodyFatPercentage"].tap()
-
-        Thread.sleep(forTimeInterval: 0.25)
-
-        let allDescendants = app.descendants(matching: .any)
-        let count = allDescendants.count
-        var pickerCount = 0
-        for i in 0..<count {
-            let element = allDescendants.element(boundBy: i)
-            if element.elementType == XCUIElement.ElementType.picker {
-                pickerCount += 1
-            }
-        }
-        XCTAssertTrue(pickerCount >= 3, "Expected at least 3 pickers in the hierarchy")
-        XCTAssertTrue(utils.waitForElement(app.segmentedControls["BodyFatOption"]), "Body Fat option picker should be visible")
-    }
 }

@@ -19,7 +19,7 @@ struct UISegmentBodyFatCalcMethodView: View {
             }
         }
         .pickerStyle(.segmented)
-        .accessibilityIdentifier("BodyFatOption")
+        .accessibilityIdentifier("bodyFatMethodSegmentedControl")
     }
 }
 
