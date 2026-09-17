@@ -16,21 +16,20 @@ class SimpleTestUITestUtils {
         return element.waitForExistence(timeout: timeout)
     }
 
-    /// Finds a picker by scanning all elements
+    /// Finds a picker by querying picker elements directly
+    /// This is faster than scanning all descendants because it only iterates picker elements
     /// Returns the first picker found in the accessibility hierarchy
     static func findPicker(in app: XCUIApplication) -> XCUIElement? {
         // Wait for the section to fully expand and picker to render
         Thread.sleep(forTimeInterval: 1.0)
 
-        let allDescendants = app.descendants(matching: .any)
-        let count = allDescendants.count
+        let allPickers = app.descendants(matching: .picker)
+        let count = allPickers.count
 
-        // Iterate through all elements looking for pickers
+        // Iterate through picker elements only
         for i in 0..<count {
-            let element = allDescendants.element(boundBy: i)
-            if element.elementType == XCUIElement.ElementType.picker {
-                return element
-            }
+            let element = allPickers.element(boundBy: i)
+            return element
         }
         return nil
     }
@@ -41,59 +40,55 @@ class SimpleTestUITestUtils {
         // Wait for the section to expand
         Thread.sleep(forTimeInterval: afterDelay)
 
-        let allDescendants = app.descendants(matching: .any)
-        let sectionIndex = allDescendants.index(ofAccessibilityElement: sectionElement)
+        let allPickers = app.descendants(matching: .picker)
+        let sectionIndex = allPickers.index(ofAccessibilityElement: sectionElement)
 
         if sectionIndex == NSNotFound {
             return nil
         }
 
         // Look for picker elements after the section header
-        for i in (sectionIndex + 1)..<allDescendants.count {
-            let element = allDescendants.element(boundBy: i)
-            if element.elementType == XCUIElement.ElementType.picker {
-                return element
-            }
+        for i in (sectionIndex + 1)..<allPickers.count {
+            let element = allPickers.element(boundBy: i)
+            return element
         }
 
         return nil
     }
 
-    /// Finds a segmented control by scanning all elements
+    /// Finds a segmented control by querying segmented control elements directly
+    /// This is faster than scanning all descendants because it only iterates segmented control elements
     /// Returns the first segmented control found in the accessibility hierarchy
     static func findSegmentedControl(in app: XCUIApplication) -> XCUIElement? {
         // Wait for the section to fully expand
         Thread.sleep(forTimeInterval: 1.0)
 
-        let allDescendants = app.descendants(matching: .any)
-        let count = allDescendants.count
+        let allSegmentedControls = app.descendants(matching: .segmentedControl)
+        let count = allSegmentedControls.count
 
-        // Iterate through all elements looking for segmented controls
+        // Iterate through segmented control elements only
         for i in 0..<count {
-            let element = allDescendants.element(boundBy: i)
-            if element.elementType == XCUIElement.ElementType.segmentedControl {
-                return element
-            }
+            let element = allSegmentedControls.element(boundBy: i)
+            return element
         }
         return nil
     }
 
-    /// Finds all pickers by scanning all elements
+    /// Finds all pickers by querying picker elements directly
+    /// This is faster than scanning all descendants because it only iterates picker elements
     /// Returns all pickers found in the accessibility hierarchy
     static func findPickers(in app: XCUIApplication) -> [XCUIElement] {
         // Wait for the section to fully expand and pickers to render
         Thread.sleep(forTimeInterval: 1.0)
 
-        let allDescendants = app.descendants(matching: .any)
-        let count = allDescendants.count
+        let allPickers = app.descendants(matching: .picker)
+        let count = allPickers.count
 
         var pickers: [XCUIElement] = []
-        // Iterate through all elements looking for pickers
+        // Iterate through picker elements only
         for i in 0..<count {
-            let element = allDescendants.element(boundBy: i)
-            if element.elementType == XCUIElement.ElementType.picker {
-                pickers.append(element)
-            }
+            let element = allPickers.element(boundBy: i)
+            pickers.append(element)
         }
         return pickers
     }
