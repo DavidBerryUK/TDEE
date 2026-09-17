@@ -66,6 +66,8 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
         .contentShape(Rectangle())
         // Make the VStack an accessibility element
         .accessibilityElement()
+        // Make children accessible for UI tests
+        .accessibilityElement(children: .contain)
         // animation to assist in the Validation message appearing / disappearing smoothly
         .animation(AnimationParams.fastDuration, value: validationText) // <-- FIX 8: Using animation constant
         .accessibilityIdentifier(accessibilityId ?? "")

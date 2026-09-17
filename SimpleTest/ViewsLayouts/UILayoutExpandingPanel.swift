@@ -34,9 +34,9 @@ struct UILayoutExpandingPanel<HeaderView: View, ContentView: View>: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            
+
             headerView()
-            
+
             if isOpen || isVisible {
                 contentView()
                     .opacity(isVisible ? 1 : 0)
@@ -44,18 +44,20 @@ struct UILayoutExpandingPanel<HeaderView: View, ContentView: View>: View {
                     .clipped()
             }
         }
+        .accessibilityElement()
+        .accessibilityIdentifier("")
         .onChange(of: isOpen) { _, newValue in
-            
+
             if newValue {
-                // EXPAND: insert collapsed → animate open
+                // EXPAND: insert collapsed animate open
                 isVisible = false
-                
+
                 withAnimation(expandAnimation) {
                     isVisible = true
                 }
-                
+
             } else {
-                // COLLAPSE: fade out → then height collapses
+                // COLLAPSE: fade out then height collapses
                 withAnimation(collapseAnimation) {
                     isVisible = false
                 }

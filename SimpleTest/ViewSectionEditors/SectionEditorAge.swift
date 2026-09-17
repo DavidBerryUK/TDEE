@@ -8,14 +8,15 @@
 import SwiftUI
 
 struct SectionEditorAge: View {
-    
+
     @Bindable var model: ProfileViewModel
-    
+
     var body: some View {
         VStack {
             UIWheelPickerAgeView(value: $model.age)
         }
         .accessibilityIdentifier("editorAge")
+        .accessibilityElement(children: .contain)
     }
 }
 

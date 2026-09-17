@@ -87,6 +87,7 @@ struct UIWheelPickerHeightView: View {
         }
         .accessibilityLabel("Height picker")
         .accessibilityValue("Current height: \(Int(value)) cm")
+        .accessibilityIdentifier("heightCmPicker")
     }
 }
 

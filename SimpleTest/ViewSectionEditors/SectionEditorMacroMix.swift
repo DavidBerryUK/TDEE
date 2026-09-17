@@ -13,11 +13,11 @@ struct SectionEditorMacroMix: View {
     @Bindable var macroMix: MacroSplitViewModel
     
     var body: some View {
-        
+
         var selectedOption: MacroSplitOptionModel? {
             collection.items.first { $0.id == macroMix.selectedMacroId }
         }
-        
+
         VStack {
             Text("selected macro: \(selectedOption?.name ?? "")")
                 .accessibilityLabel("Current macro mix selection: \(selectedOption?.name ?? "None")")

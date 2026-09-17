@@ -21,7 +21,7 @@ struct UIWheelPickerBodyFatView: View {
             .pickerStyle(.wheel)
             .frame(width: 110)   // key change
             .accessibilityLabel("Body fat percentage picker")
-            .accessibilityIdentifier("bodyFatIntegerPicker")
+            .accessibilityIdentifier("Body fat percentage picker")
             .accessibilityValue("Current: \(valueInteger).\(valueDecimal)%")
 
             Text(".")
@@ -36,12 +36,12 @@ struct UIWheelPickerBodyFatView: View {
             .pickerStyle(.wheel)
             .frame(width: 110)   // key change
             .accessibilityLabel("Body fat percentage decimal picker")
-            .accessibilityIdentifier("bodyFatDecimalPicker")
+            .accessibilityIdentifier("Body fat percentage decimal picker")
             .accessibilityValue("Current: \(valueDecimal)%")
 
             Text("%")
                 .foregroundStyle(.secondary)
-                .padding(.leading, 2) // keeps it tight to picker
+                .padding(.leading, 2) // keeps it tight to it
         }
         .padding(.horizontal, 16) // page padding
         .onChange(of: valueInteger) {

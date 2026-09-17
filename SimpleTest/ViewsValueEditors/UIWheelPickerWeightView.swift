@@ -93,6 +93,7 @@ struct UIWheelPickerWeightView: View {
         }
         .accessibilityLabel("Weight picker")
         .accessibilityValue("Current weight: \(Int(value)) kg")
+        .accessibilityIdentifier("weightKgPicker")
     }
 }
 
