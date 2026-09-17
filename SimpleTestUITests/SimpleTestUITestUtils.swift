@@ -13,8 +13,6 @@ class SimpleTestUITestUtils {
 
     /// Helper method to wait for element with a short delay to allow animations to complete
     static func waitForElement(_ element: XCUIElement, timeout: TimeInterval = 1.0) -> Bool {
-        // Brief pause to allow animations to complete
-        Thread.sleep(forTimeInterval: 0.25) // 250ms
         return element.waitForExistence(timeout: timeout)
     }
 
