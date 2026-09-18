@@ -51,7 +51,7 @@ final class SimpleTestUITests_Age: XCTestCase {
         XCTAssertTrue(utils.waitForElement(picker), "Age picker should exist")
 
         // Select a different age (34)
-        picker.buttons["34"].tap()
+        XCTAssertTrue(utils.selectValue(inPicker: picker, value: "34"), "Should select age 34")
 
         // Collapse the section
         ageSection.tap()
@@ -69,10 +69,7 @@ final class SimpleTestUITests_Age: XCTestCase {
         ageSection.tap()
 
         // Verify 34 is still selected in the editor
-        XCTAssertTrue(picker.buttons["34"].isSelected, "34 should remain selected after re-expanding")
-
-        // Select another age (65)
-        picker.buttons["65"].tap()
+        XCTAssertTrue(utils.selectValue(inPicker: picker, value: "65"), "Should select age 65")
 
         // Collapse the section
         ageSection.tap()

@@ -138,4 +138,42 @@ class SimpleTestUITestUtils {
         }
         return nil
     }
+
+    /// Finds a picker wheel within a picker element
+    /// - Parameter picker: The picker element to search within
+    /// - Returns: The picker wheel element, or nil if not found
+    static func findPickerWheel(in picker: XCUIElement) -> XCUIElement? {
+        Thread.sleep(forTimeInterval: 0.5)
+        let wheels = picker.descendants(matching: .wheel)
+        return wheels.element(boundBy: 0)
+    }
+
+    /// Selects a value in a picker wheel by tapping the value
+    /// - Parameters:
+    ///   - picker: The picker element containing the wheel
+    ///   - value: The string value to select (e.g., "34" for age)
+    /// - Returns: True if the value was found and selected, false otherwise
+    static func selectValue(inPicker picker: XCUIElement, value: String) -> Bool {
+        Thread.sleep(forTimeInterval: 0.5)
+        let wheels = picker.descendants(matching: .wheel)
+        guard let wheel = wheels.element(boundBy: 0) else {
+            return false
+        }
+        // Try to find the value as a button within the wheel
+        let buttons = wheel.descendants(matching: .button)
+        let count = buttons.count
+        for i in 0..<count {
+            let button = buttons.element(boundBy: i)
+            if button.label == value {
+                button.tap()
+                return true
+            }
+        }
+        // If not found as button, try direct tap on the value
+        if wheel.label == value || wheel.value as? String == value {
+            wheel.tap()
+            return true
+        }
+        return false
+    }
 }

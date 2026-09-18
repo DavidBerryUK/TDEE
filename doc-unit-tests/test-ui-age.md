@@ -122,11 +122,16 @@ The Age section is part of the profile input form and appears as follows:
 
 A UI test exists at: `SimpleTestUITests/SimpleTestUITests_Age.swift`
 
-**Test name**: `testAgePickerExists()`
+**Test names**: 
+- `testAgePickerExists()` - verifies age picker exists
+- `testAgeSummaryUpdatesAfterSelectionChange()` - verifies summary updates when age changes
+- `testAgeRangeOptions()` - verifies age range 16-99
 
 **What it tests**:
 - The Age section can be tapped/expanded
 - The wheel picker exists in the accessibility hierarchy
+- Age summary updates when selection changes
+- Age range validation (16-99)
 
 ---
 
