@@ -92,4 +92,50 @@ class SimpleTestUITestUtils {
         }
         return pickers
     }
+
+    /// Finds the summary value text element for a section by its accessibility label.
+    /// This is useful for verifying the summary displayed in a collapsed section header.
+    /// - Parameters:
+    ///   - sectionElement: The section's container element (e.g., app.otherElements["sectionGender"])
+    ///   - accessibilityLabel: The accessibility label of the summary value text (e.g., "Gender value")
+    /// - Returns: The XCUIElement for the summary value, or nil if not found
+    static func findSummaryValue(in sectionElement: XCUIElement, withAccessibilityLabel label: String) -> XCUIElement? {
+        // Wait for the UI to settle after section collapse
+        Thread.sleep(forTimeInterval: 1.0)
+
+        let summaryValues = sectionElement.descendants(matching: .staticText)
+        let count = summaryValues.count
+
+        for i in 0..<count {
+            let element = summaryValues.element(boundBy: i)
+            if element.label == label {
+                return element
+            }
+        }
+        return nil
+    }
+
+    /// Finds the summary value text element for a section by its accessibility label and returns its value.
+    /// This is a convenience method that combines finding and validating the summary value.
+    /// - Parameters:
+    ///   - sectionElement: The section's container element (e.g., app.otherElements["sectionGender"])
+    ///   - accessibilityLabel: The accessibility label of the summary value text (e.g., "Gender value")
+    ///   - expectedValue: The expected value to assert against
+    ///   - timeout: Time to wait for the element to appear
+    /// - Returns: The string value of the summary if it matches, otherwise nil
+    static func getSummaryValue(for sectionElement: XCUIElement, withAccessibilityLabel label: String, equalTo expectedValue: String, timeout: TimeInterval = 1.0) -> String? {
+        // Wait for the UI to settle
+        Thread.sleep(forTimeInterval: timeout)
+
+        let summaryValues = sectionElement.descendants(matching: .staticText)
+        let count = summaryValues.count
+
+        for i in 0..<count {
+            let element = summaryValues.element(boundBy: i)
+            if element.label == label, let value = element.value as? String, value == expectedValue {
+                return value
+            }
+        }
+        return nil
+    }
 }
