@@ -16,14 +16,13 @@ struct UISectionSummaryValueGender: View {
 
         let isExpanded = sectionManager.genderIsExpanded
 
-        HStack{
-            Text(model.gender.displayName)
-                .contentTransition(.interpolate)
-                .animation(.easeInOut, value: model.gender)
-                .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded))
-                .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
-                .accessibilityLabel("Gender value")
-        }
+        Text(model.gender.displayName)
+            .contentTransition(.interpolate)
+            .animation(.easeInOut, value: model.gender)
+            .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded))
+            .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
+            .accessibilityLabel("Gender value")
+            .accessibilityValue(model.gender == .male ? "Male" : "Female")
     }
 }
 

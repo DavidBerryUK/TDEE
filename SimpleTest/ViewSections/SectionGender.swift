@@ -8,10 +8,10 @@
 import SwiftUI
 
 struct SectionGender: View {
-    
+
     @Bindable var model: ProfileViewModel
     @Bindable var sectionManager: SectionManagerViewModel
-    
+
     var body: some View {
         UILayoutSectionView(
             title: "Gender",
