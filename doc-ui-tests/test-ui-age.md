@@ -65,7 +65,7 @@ The Age section is part of the profile input form and appears as follows:
 
 - **Exclusive expansion**: Only one section can be expanded at a time. Expanding the Age section will collapse any other expanded section (Gender, Height, Weight, etc.)
 - **Immediate update**: The selection updates immediately when the user taps a number - no save button required
-- **Default value**: When the app first launches, "21" is the default age
+- **Default value**: When the app first launches, "16" is the default age
 - **Summary display**: After collapsing, the section header displays the selected age (e.g., "34 years")
 
 ---
@@ -87,7 +87,7 @@ The Age section is part of the profile input form and appears as follows:
 3. Tap on the Age section header to expand it
 4. Verify the wheel picker is visible
 5. Verify the picker shows options from 16 to 99
-6. Verify "21" is the selected age (default)
+6. Verify "16" is the selected age (default)
 7. Scroll and select "34" in the wheel picker
 8. Verify "34" is now the selected age
 9. Scroll and select "65" in the wheel picker
@@ -101,7 +101,7 @@ The Age section is part of the profile input form and appears as follows:
 | 3 | Section expands to show the wheel picker editor |
 | 4 | Wheel picker with age options (16-99) is visible |
 | 5 | Options 16-99 are scrollable in the picker |
-| 6 | "21" is selected by default |
+| 6 | "16" is selected by default |
 | 7 | Selection changes to "34" in the editor |
 | 8 | "34" remains selected after selection |
 | 9 | Selection changes to "65" in the editor |
@@ -135,9 +135,13 @@ A UI test exists at: `SimpleTestUITests/SimpleTestUITests_Age.swift`
 
 ---
 
-## Missing Test Scenarios
+## Test Scenario Details
+
+Both scenarios below are implemented as UI tests (see [Current Implementation Status](#current-implementation-status)).
 
 ### UAT-AGE-002: Age summary updates when selection changes
+
+**Implemented by**: `testAgeSummaryUpdatesAfterSelectionChange()`
 
 **What it tests**: When the user selects a different age in the wheel picker, the summary value displayed in the section header updates correctly after collapsing the section.
 
@@ -145,7 +149,7 @@ A UI test exists at: `SimpleTestUITests/SimpleTestUITests_Age.swift`
 
 1. Launch the app
 2. Tap the Age section header to expand it
-3. Verify "21" is displayed in the summary (default)
+3. Verify "16" is displayed in the summary (default)
 4. Scroll and select "34" in the wheel picker
 5. Tap the Age section header again to collapse it
 6. Verify the summary now displays "34"
@@ -156,7 +160,7 @@ A UI test exists at: `SimpleTestUITests/SimpleTestUITests_Age.swift`
 
 | Step | Expected Outcome |
 |------|------------------|
-| 3 | Summary displays "21 years" |
+| 3 | Summary displays "16 years" |
 | 4 | Selection changes to "34" in the editor |
 | 5 | Section collapses |
 | 6 | Summary now displays "34 years" |
@@ -166,6 +170,8 @@ A UI test exists at: `SimpleTestUITests/SimpleTestUITests_Age.swift`
 **Note**: This scenario verifies that the `@Bindable` properties properly propagate changes from the editor view back to the profile model, and that the summary view correctly reflects those changes.
 
 ### UAT-AGE-003: Age range validation
+
+**Implemented by**: `testAgeRangeOptions()`
 
 **What it tests**: The wheel picker provides the complete range of valid ages (16-99 years).
 

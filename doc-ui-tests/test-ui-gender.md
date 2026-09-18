@@ -118,11 +118,11 @@ A UI test exists at: `SimpleTestUITests/SimpleTestUITests_Gender.swift`
 
 ---
 
-## Missing Test Scenario
-
-The following behavior is **NOT currently tested**:
+## Test Scenario Details
 
 ### UAT-GENDER-002: Gender summary updates when selection changes
+
+**Implemented by**: `testGenderSummaryUpdatesAfterSelectionChange()`
 
 **What it tests**: When the user selects a different gender option, the summary value displayed in the section header updates correctly after collapsing the section.
 

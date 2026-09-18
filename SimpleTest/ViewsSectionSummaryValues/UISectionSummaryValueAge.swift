@@ -23,6 +23,7 @@ struct UISectionSummaryValueAge: View {
                 .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded))
                 .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
                 .accessibilityLabel("Age value")
+                .accessibilityValue("\(model.age)")
             Text("years")
                 .accessibilityLabel("Age units")
         }
