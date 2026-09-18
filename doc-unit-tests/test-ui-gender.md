@@ -109,34 +109,12 @@ The Gender section is part of the profile input form and appears as follows:
 
 A UI test exists at: `SimpleTestUITests/SimpleTestUITests_Gender.swift`
 
-**Test name**: `testGenderSelectorExists()`
+**Test name**: `testGenderSelectorExists()` in `SimpleTestUITests/SimpleTestUITests_Gender.swift`
 
 **What it tests**:
 - The Gender section can be tapped/expanded
 - The segmented control exists in the accessibility hierarchy
 - Both "Male" and "Female" buttons are present
-
-**Test code**:
-```swift
-@MainActor
-func testGenderSelectorExists() throws {
-    let app = XCUIApplication()
-    app.launch()
-
-    let genderSection = app.otherElements["sectionGender"]
-    genderSection.tap()
-
-    let segmentedControl = utils.findSegmentedControl(in: app)
-    if let segmentedControl = segmentedControl {
-        XCTAssertTrue(utils.waitForElement(segmentedControl), "Gender segmented control should exist")
-
-        XCTAssertTrue(segmentedControl.buttons["Male"].exists)
-        XCTAssertTrue(segmentedControl.buttons["Female"].exists)
-    } else {
-        XCTFail("Gender segmented control not found in accessibility hierarchy")
-    }
-}
-```
 
 ---
 
