@@ -53,9 +53,6 @@ final class SimpleTestUITests_BodyFat: XCTestCase {
 
             segmentedControl.buttons["Manual Entry"].tap()
 
-            // Wait for body fat pickers to appear
-            Thread.sleep(forTimeInterval: 0.5)
-
             // Find body fat pickers (there are 2 for integer and decimal parts)
             let bodyFatPickers = utils.findPickers(in: app)
             XCTAssertTrue(bodyFatPickers.count >= 1, "Body fat percentage picker(s) should exist after selecting manual entry")
