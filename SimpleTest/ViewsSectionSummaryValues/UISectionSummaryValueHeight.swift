@@ -50,6 +50,7 @@ struct UISectionSummaryValueHeight: View {
                 .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
                 .animation(.easeInOut, value: model.height)
                 .accessibilityLabel("Height major value")
+                .accessibilityValue(displayLength.asMajorValue(length: model.height, unit: model.heightUom))
 
             //
             // Major unit, e.g. Stones
@@ -59,6 +60,7 @@ struct UISectionSummaryValueHeight: View {
                 .foregroundColor(UITextStyleResolver.unitOfMeasureColor(isError: isError))
                 .animation(.easeInOut, value: model.height)
                 .accessibilityLabel("Height major units")
+                .accessibilityValue(labelMajorUnit)
 
             //
             // Minor Value
@@ -69,6 +71,7 @@ struct UISectionSummaryValueHeight: View {
                 .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
                 .animation(.easeInOut, value: model.height)
                 .accessibilityLabel("Height minor value")
+                .accessibilityValue(displayLength.asMinorValue(length: model.height, unit: model.heightUom))
 
             //
             // Minor Unit, e.g. Kg, pounds
@@ -78,6 +81,7 @@ struct UISectionSummaryValueHeight: View {
                 .foregroundColor(UITextStyleResolver.unitOfMeasureColor(isError: isError))
                 .animation(.easeInOut, value: model.height)
                 .accessibilityLabel("Height minor units")
+                .accessibilityValue(labelMinorUnit)
 
         }
     }

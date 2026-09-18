@@ -64,8 +64,10 @@ final class SimpleTestUITests_Age: XCTestCase {
 
         XCTAssertTrue(utils.selectValueVerified(inSection: ageSection, value: 34, summaryLabel: "Age value", validRange: ageRange), "Age summary should display '34' after selecting again")
 
-        // Collapse the section, leaving the UI in a clean state
-        ageSection.tap()
+        // Collapse the section and confirm the summary still shows the last selection - this is
+        // the actual behavior UAT-AGE-002 describes, distinct from `selectValueVerified`'s own
+        // (always-expanded) verification above.
+        XCTAssertTrue(utils.collapseAndVerify(inSection: ageSection, value: 34, summaryLabel: "Age value", validRange: ageRange), "Age summary should still display '34' after collapsing the section")
     }
 
     /// Checks that the age picker really does cover its full advertised range - the lowest and

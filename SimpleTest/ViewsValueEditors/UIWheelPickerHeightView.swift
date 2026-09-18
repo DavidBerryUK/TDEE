@@ -154,6 +154,7 @@ private extension UIWheelPickerHeightView {
                 }
             }
             .pickerStyle(WheelPickerStyle())
+            .accessibilityIdentifier("heightCmWheel")
             UITextPickerLabel("centimeters")
                 .offset(x: 60)
         }
@@ -168,6 +169,7 @@ private extension UIWheelPickerHeightView {
                 }
             }
             .pickerStyle(WheelPickerStyle())
+            .accessibilityIdentifier("heightInchesWheel")
             UITextPickerLabel("inches")
                 .offset(x: 40)
         }
@@ -182,10 +184,11 @@ private extension UIWheelPickerHeightView {
                     }
                 }
                 .pickerStyle(WheelPickerStyle())
+                .accessibilityIdentifier("heightFeetWheel")
                 UITextPickerLabel("feet")
                     .offset(x: 36)
             }
-            
+
             ZStack{
                 Picker("Inches", selection: $valueFeetInches) {
                     ForEach(optionsFeetInches, id: \.self) { value in
@@ -193,6 +196,7 @@ private extension UIWheelPickerHeightView {
                     }
                 }
                 .pickerStyle(WheelPickerStyle())
+                .accessibilityIdentifier("heightFeetInchesWheel")
                 UITextPickerLabel("inches")
                     .offset(x: 36)
             }
