@@ -128,8 +128,6 @@ A UI test exists at: `SimpleTestUITests/SimpleTestUITests_Age.swift`
 - The Age section can be tapped/expanded
 - The wheel picker exists in the accessibility hierarchy
 
-**Test code reference**: The test uses `utils.findPicker(in: app)` to locate the wheel picker element.
-
 ---
 
 ## Missing Test Scenarios
