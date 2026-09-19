@@ -41,28 +41,48 @@ struct UISectionSummaryValueWeight: View {
         
         
         HStack{
+            //
+            // Major Value e.g. 95
+            //
             Text(displayWeight.asMajorValue(weight: model.weight, unit: model.weightUom))
                 .contentTransition(.numericText())
-                .animation(.easeInOut, value: model.weight)
                 .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded, isError: isError))
                 .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
-            
+                .animation(.easeInOut, value: model.weight)
+                .accessibilityLabel("Weight major value")
+                .accessibilityValue(displayWeight.asMajorValue(weight: model.weight, unit: model.weightUom))
+
+            //
+            // Major unit, e.g. kg, pounds, stones
+            //
             Text(labelMajorUnit)
                 .contentTransition(.interpolate)
                 .foregroundColor(UITextStyleResolver.unitOfMeasureColor(isError: isError))
                 .animation(.easeInOut, value: model.weight)
-            
+                .accessibilityLabel("Weight major units")
+                .accessibilityValue(labelMajorUnit)
+
+            //
+            // Minor Value
+            //
             Text(displayWeight.asMinorValue(weight: model.weight, unit: model.weightUom))
                 .contentTransition(.numericText())
-                .animation(.easeInOut, value: model.weight)
                 .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded, isError: isError))
                 .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
-            
+                .animation(.easeInOut, value: model.weight)
+                .accessibilityLabel("Weight minor value")
+                .accessibilityValue(displayWeight.asMinorValue(weight: model.weight, unit: model.weightUom))
+
+            //
+            // Minor Unit, e.g. pounds (when stones)
+            //
             Text(labelMinorUnit)
                 .contentTransition(.interpolate)
                 .foregroundColor(UITextStyleResolver.unitOfMeasureColor(isError: isError))
                 .animation(.easeInOut, value: model.weight)
-            
+                .accessibilityLabel("Weight minor units")
+                .accessibilityValue(labelMinorUnit)
+
         }
     }
 }
