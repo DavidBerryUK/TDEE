@@ -14,10 +14,21 @@ final class SimpleTestUITests_Age: XCTestCase {
 
     override func setUpWithError() throws {
         continueAfterFailure = false
+        // Reset app state to ensure clean isolation for parallel tests
+        SimpleTestUITestUtils.resetAppState()
     }
 
     override func tearDownWithError() throws {
-        // Put teardown code here.
+        // Clean up any expanded sections to leave the app in a known state
+        let app = XCUIApplication()
+        let section = app.otherElements["sectionAge"]
+        // Only tap if the section is expanded (has a picker wheel visible)
+        if section.pickerWheels.firstMatch.exists {
+            section.tap() // collapse
+            sleep(1) // allow animation to complete
+        }
+        app.terminate()
+        sleep(1)
     }
 
     /// Opens the Age section and checks that a wheel picker for entering age actually shows up.

@@ -1,0 +1,36 @@
+# Xcode
+build/
+DerivedData/
+*.pbxuser
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.xcuserstate
+*.moved-aside
+*.xccheckout
+*.xcscheme
+*.xcresult
+
+# Simulators
+ Simulator/
+*.simdeviceprofile
+
+# Test output
+tmp/
+*.xcresult
+*.log
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Fastlane
+fastlane/report.html
+fastlane/preview.html
+fastlane/screenshots

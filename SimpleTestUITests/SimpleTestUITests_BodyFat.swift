@@ -13,16 +13,30 @@ final class SimpleTestUITests_BodyFat: XCTestCase {
 
     override func setUpWithError() throws {
         continueAfterFailure = false
+        // Terminate and relaunch to ensure clean state for parallel tests
+        let app = XCUIApplication()
+        app.terminate()
+        sleep(1)
+        app.launch()
+        sleep(2)
     }
 
     override func tearDownWithError() throws {
-        // Put teardown code here.
+        // Clean up any expanded sections to leave the app in a known state
+        let app = XCUIApplication()
+        let section = app.otherElements["sectionBodyFatPercentage"]
+        // Only tap if the section is expanded (has a segmented control visible)
+        if section.descendants(matching: .segmentedControl).firstMatch.exists {
+            section.tap() // collapse
+            sleep(1) // allow animation to complete
+        }
+        app.terminate()
+        sleep(1)
     }
 
     @MainActor
     func testBodyFatMethodSelectorExists() throws {
         let app = XCUIApplication()
-        app.launch()
 
         let bodyFatSection = app.otherElements["sectionBodyFatPercentage"]
         bodyFatSection.tap()
@@ -42,7 +56,6 @@ final class SimpleTestUITests_BodyFat: XCTestCase {
     @MainActor
     func testCanSelectManualBodyFatEntry() throws {
         let app = XCUIApplication()
-        app.launch()
 
         let bodyFatSection = app.otherElements["sectionBodyFatPercentage"]
         bodyFatSection.tap()

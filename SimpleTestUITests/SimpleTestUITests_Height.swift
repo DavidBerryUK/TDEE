@@ -14,10 +14,23 @@ final class SimpleTestUITests_Height: XCTestCase {
 
     override func setUpWithError() throws {
         continueAfterFailure = false
+        // Reset app state to ensure clean isolation for parallel tests
+        SimpleTestUITestUtils.resetAppState()
     }
 
     override func tearDownWithError() throws {
-        // Put teardown code here.
+        // Clean up any expanded sections to leave the app in a known state
+        let app = XCUIApplication()
+        let section = app.otherElements["sectionHeight"]
+        // Only tap if the section is expanded (has a picker wheel visible)
+        if section.pickerWheels.firstMatch.exists {
+            section.tap() // collapse
+            sleep(1) // allow animation to complete
+        }
+
+        // Terminate app to ensure clean state for parallel tests
+        app.terminate()
+        sleep(1)
     }
 
     /// Opens the Height section and checks that a wheel picker for entering height actually
@@ -177,10 +190,12 @@ final class SimpleTestUITests_Height: XCTestCase {
         }
         XCTAssertTrue(utils.waitForElement(picker), "Height picker should exist")
 
-        XCTAssertTrue(app.staticTexts["Please enter a valid Height"].exists, "Validation message should be visible while height is 0")
+        let validationMessage = app.staticTexts["Please enter a valid Height"]
+        XCTAssertTrue(validationMessage.exists, "Validation message should be visible while height is 0")
 
         XCTAssertTrue(utils.selectValueVerified(inSection: heightSection, value: 150, summaryLabel: "Height major value", validRange: cmRange), "Height summary should display '150' after selection")
 
-        XCTAssertFalse(app.staticTexts["Please enter a valid Height"].exists, "Validation message should be cleared once a valid height is selected")
+        // Wait for the validation message to disappear - use a short timeout since we expect it gone
+        XCTAssertTrue(utils.waitForElementToDisappear(validationMessage, timeout: 2.0), "Validation message should be cleared once a valid height is selected")
     }
 }

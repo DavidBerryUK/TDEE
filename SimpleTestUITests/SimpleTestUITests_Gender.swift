@@ -13,10 +13,21 @@ final class SimpleTestUITests_Gender: XCTestCase {
 
     override func setUpWithError() throws {
         continueAfterFailure = false
+        // Reset app state to ensure clean isolation for parallel tests
+        SimpleTestUITestUtils.resetAppState()
     }
 
     override func tearDownWithError() throws {
-        // Put teardown code here.
+        // Clean up any expanded sections to leave the app in a known state
+        let app = XCUIApplication()
+        let section = app.otherElements["sectionGender"]
+        // Only tap if the section is expanded (has a segmented control visible)
+        if section.descendants(matching: .segmentedControl).firstMatch.exists {
+            section.tap() // collapse
+            sleep(1) // allow animation to complete
+        }
+        app.terminate()
+        sleep(1)
     }
 
     /// Opens the Gender section and checks that a Male/Female selector actually shows up.

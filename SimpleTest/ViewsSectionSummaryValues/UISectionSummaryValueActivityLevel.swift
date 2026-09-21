@@ -23,6 +23,7 @@ struct UISectionSummaryValueActivityLevel: View {
                 .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded))
                 .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
                 .accessibilityLabel("Activity level value")
+                .accessibilityValue(model.activityLevel.displayShortName)
         }
     }
 }

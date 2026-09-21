@@ -14,10 +14,27 @@ final class SimpleTestUITests_Weight: XCTestCase {
 
     override func setUpWithError() throws {
         continueAfterFailure = false
+        // Terminate and relaunch to ensure clean state for parallel tests
+        let app = XCUIApplication()
+        app.terminate()
+        sleep(1)
+        app.launch()
+        sleep(2)
     }
 
     override func tearDownWithError() throws {
-        // Put teardown code here.
+        // Clean up any expanded sections to leave the app in a known state
+        let app = XCUIApplication()
+        let section = app.otherElements["sectionWeight"]
+        // Only tap if the section is expanded (has a picker wheel visible)
+        if section.pickerWheels.firstMatch.exists {
+            section.tap() // collapse
+            sleep(1) // allow animation to complete
+        }
+
+        // Terminate app to ensure clean state for parallel tests
+        app.terminate()
+        sleep(1)
     }
 
     /// Opens the Weight section and checks that a wheel picker for entering weight actually
@@ -25,7 +42,6 @@ final class SimpleTestUITests_Weight: XCTestCase {
     @MainActor
     func testWeightPickerExists() throws {
         let app = XCUIApplication()
-        app.launch()
 
         let weightSection = app.otherElements["sectionWeight"]
         weightSection.tap()
@@ -83,10 +99,10 @@ final class SimpleTestUITests_Weight: XCTestCase {
         }
         XCTAssertTrue(utils.waitForElement(picker), "Weight picker should exist")
 
-        // 100 kg converts to a clean 15 stones 11 pounds (220 total pounds), so the expected
-        // values below aren't sensitive to floating point rounding under normal circumstances -
-        // though the retries below do nudge away from 100 if collapsing perturbs the committed
-        // value.
+        // 100 kg converts to 220 pounds = 15 stones 10 pounds (220 % 14 = 10).
+        // The expected values below aren't sensitive to floating point rounding under normal
+        // circumstances - though the retries below do nudge away from 100 if collapsing perturbs
+        // the committed value.
         var kgTarget = 100
         XCTAssertTrue(utils.selectValueVerified(inSection: weightSection, value: kgTarget, summaryLabel: "Weight major value", validRange: kgRange), "Weight summary should display '100' after selection")
 
@@ -122,10 +138,10 @@ final class SimpleTestUITests_Weight: XCTestCase {
         XCTAssertEqual(majorUnitPounds?.value as? String, "pounds", "Weight summary should display 'pounds' as the unit")
 
         // Switch to Stones & Pounds and check the header again. kgTarget is whatever value the
-        // Pounds check above converged on, still reliably converting to 15 stones 11 pounds.
+        // Pounds check above converged on, still reliably converting to 15 stones 10 pounds.
         // This needs both the major (stones) and minor (pounds) readings to match - `verifyWithRetry`
         // only compares one label, so this drives the same retry-with-correction manually,
-        // correcting kg by the *total* pounds error (15 stones 9 pounds is off by 2 pounds overall,
+        // correcting kg by the *total* pounds error (15 stones 9 pounds is off by 1 pound overall,
         // even though the stones digit alone already reads correctly as "15").
         var switchedToStones = false
         for attempt in 1...3 {
@@ -138,7 +154,7 @@ final class SimpleTestUITests_Weight: XCTestCase {
             let minorPounds = utils.findSummaryValue(in: weightSection, withAccessibilityLabel: "Weight minor value")
                 .flatMap { utils.waitForStableValue(of: $0) }
 
-            if majorStones == "15" && minorPounds == "11" {
+            if majorStones == "15" && minorPounds == "10" {
                 switchedToStones = true
                 break
             }
@@ -155,7 +171,7 @@ final class SimpleTestUITests_Weight: XCTestCase {
             }
             _ = utils.selectValueVerified(inSection: weightSection, value: kgTarget, summaryLabel: "Weight major value", validRange: kgRange)
         }
-        XCTAssertTrue(switchedToStones, "Weight summary should display '15' stones, '11' pounds after switching to Stones & Pounds")
+        XCTAssertTrue(switchedToStones, "Weight summary should display '15' stones, '10' pounds after switching to Stones & Pounds")
 
         let majorUnitStones = utils.findSummaryValue(in: weightSection, withAccessibilityLabel: "Weight major units")
         let minorUnitPounds = utils.findSummaryValue(in: weightSection, withAccessibilityLabel: "Weight minor units")
@@ -179,10 +195,12 @@ final class SimpleTestUITests_Weight: XCTestCase {
         }
         XCTAssertTrue(utils.waitForElement(picker), "Weight picker should exist")
 
-        XCTAssertTrue(app.staticTexts["Please enter a valid Weight"].exists, "Validation message should be visible while weight is 0")
+        let validationMessage = app.staticTexts["Please enter a valid Weight"]
+        XCTAssertTrue(validationMessage.exists, "Validation message should be visible while weight is 0")
 
         XCTAssertTrue(utils.selectValueVerified(inSection: weightSection, value: 95, summaryLabel: "Weight major value", validRange: kgRange), "Weight summary should display '95' after selection")
 
-        XCTAssertFalse(app.staticTexts["Please enter a valid Weight"].exists, "Validation message should be cleared once a valid weight is selected")
+        // Wait for the validation message to disappear
+        XCTAssertTrue(utils.waitForElementToDisappear(validationMessage, timeout: 2.0), "Validation message should be cleared once a valid weight is selected")
     }
 }

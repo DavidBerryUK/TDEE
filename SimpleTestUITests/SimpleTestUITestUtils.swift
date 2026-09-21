@@ -5,6 +5,7 @@
 //  Created by David Berry on 17/09/2026.
 //
 
+import Foundation
 import XCTest
 
 class SimpleTestUITestUtils {
@@ -14,6 +15,47 @@ class SimpleTestUITestUtils {
     /// Waits for an element to exist, polling rather than sleeping a fixed duration.
     static func waitForElement(_ element: XCUIElement, timeout: TimeInterval = 2.0) -> Bool {
         return element.waitForExistence(timeout: timeout)
+    }
+
+    /// Waits for an element to no longer exist, polling rather than sleeping a fixed duration.
+    /// Returns true if the element no longer exists within the timeout, false if it still exists.
+    static func waitForElementToDisappear(_ element: XCUIElement, timeout: TimeInterval = 2.0) -> Bool {
+        // waitForExistence returns false if the element doesn't exist, so we negate it
+        // to mean "wait for disappearance"
+        let elementStillExists = element.waitForExistence(timeout: timeout)
+        return !elementStillExists
+    }
+
+    /// Terminates the app and launches it fresh. Use this in tests that need a clean app state
+    /// to avoid interference between parallel tests.
+    static func launchFreshApp() -> XCUIApplication {
+        let app = XCUIApplication()
+        app.terminate()
+        sleep(1) // allow termination to complete
+        app.launch()
+        return app
+    }
+
+    /// Resets app state by terminating and relaunching, then ensuring all sections are collapsed.
+    /// This should be called at the end of tests to ensure a clean state for parallel tests.
+    static func resetAppState() {
+        let app = XCUIApplication()
+        app.terminate()
+        sleep(1) // allow termination to complete
+        app.launch()
+
+        // Wait for app to fully launch
+        sleep(2)
+
+        // Collapse any expanded sections to leave app in known state
+        let sectionNames = ["sectionAge", "sectionGender", "sectionHeight", "sectionWeight", "sectionActivityLevel", "sectionBodyFat"]
+        for sectionName in sectionNames {
+            let section = app.otherElements[sectionName]
+            if section.pickerWheels.firstMatch.exists {
+                section.tap() // collapse
+                sleep(1) // allow animation to complete (at least 1 second due to sleep() API constraint)
+            }
+        }
     }
 
     /// Finds the first picker wheel in the accessibility hierarchy, waiting for it to appear.

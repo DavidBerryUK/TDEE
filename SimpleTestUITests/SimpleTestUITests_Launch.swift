@@ -13,16 +13,30 @@ final class SimpleTestUITests_Launch: XCTestCase {
 
     override func setUpWithError() throws {
         continueAfterFailure = false
+        // Terminate and relaunch to ensure clean state for parallel tests
+        let app = XCUIApplication()
+        app.terminate()
+        sleep(1)
+        app.launch()
+        sleep(2)
     }
 
     override func tearDownWithError() throws {
-        // Put teardown code here.
+        // Clean up any expanded sections to leave the app in a known state
+        let app = XCUIApplication()
+        let section = app.otherElements["sectionHeight"]
+        // Only tap if the section is expanded (has a picker wheel visible)
+        if section.pickerWheels.firstMatch.exists {
+            section.tap() // collapse
+            sleep(1) // allow animation to complete
+        }
+        app.terminate()
+        sleep(1)
     }
 
     @MainActor
     func testAppLaunchesWithCorrectTitle() throws {
         let app = XCUIApplication()
-        app.launch()
 
         // The navigation title varies by screen width:
         // - Compact width (iPhone): "TDEE"
