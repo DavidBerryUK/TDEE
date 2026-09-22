@@ -1,10 +1,23 @@
 # Implementation Spec: Section State Metadata & Deterministic Element Lookup
 
-**Status:** Phases 1-5 are **DONE and VERIFIED** (verified 2026-09-22: all five Phase 5 deletion
-gates in §8 print nothing, `build-for-testing` succeeds, and the full suite has been run — see §12
-for the baseline). This document is now a historical record of the change, not a TODO list.
-**Audience:** Anyone investigating why the test utils/tests look the way they do, or debugging one
-of the two undocumented failures logged in §12.
+> ## ⚠️ SUPERSEDED - THE UI TEST SUITE WAS REMOVED ON 2026-09-22
+>
+> Everything this spec implemented has been deleted: `SimpleTestUITests/`, its Xcode target, and
+> the disclosure-state accessibility modifiers on the chevron in `UILayoutSectionView` that §1.1
+> and §3 describe. **None of it is in the project any more.**
+>
+> The suite is recoverable from commit `e6845db` (`git checkout e6845db -- SimpleTestUITests/`);
+> the target must be recreated in Xcode separately.
+>
+> Kept as a record of the measured accessibility findings in §1 and §7 - particularly §7, which
+> documents things that were tried and do *not* work. Those remain true of SwiftUI regardless of
+> whether this project tests them, and are not documented by Apple anywhere.
+>
+> See the banner at the top of `ui-testing-guide.md` for why the suite was removed.
+
+**Status:** Phases 1-5 were completed and verified on 2026-09-22 (all five Phase 5 deletion gates
+in §8 printed nothing, `build-for-testing` succeeded, full suite run recorded in §12) - and the
+whole thing was then deleted the same day. Historical record only.
 
 Every accessibility fact in this document was **measured** on Xcode 27.2 / iOS 27.0 Simulator
 (iPhone 17 Pro Max, UDID `4CF378DE-00AB-4BB9-BF60-A83B83C6574F`) by dumping the live accessibility
@@ -561,7 +574,23 @@ grep -rn "accessibilityElement()" SimpleTest/
 
 ---
 
-## 12. Verified Test Baseline (2026-09-22)
+## 12. Final Test Baseline (2026-09-22, immediately before deletion)
+
+**Final state: 31 passed / 1 failed out of 32.** Three defects were fixed to get there, all of them
+in test code - the app was correct throughout, confirmed by driving it by hand in the Simulator:
+
+1. `SimpleTestUITests_BodyFat` - neither test called `app.launch()`. The second passed only by
+   inheriting the app that the first test's `resetAppState()` teardown had launched.
+2. `SimpleTestUITests_Launch.testAppLaunchesWithCorrectTitle` - same missing `launch()`, passing
+   only because its parallel clone happened to run the Gender class first.
+3. Height and Weight unit-of-measure tests - `verifyWithRetry`'s `steps` closure leaves the section
+   collapsed on the non-recovery path, so the unit selector was looked up while absent from the
+   tree. Previously mis-documented as floating-point convergence.
+
+The one remaining failure, `testHeightValidationClearsAfterSelection`, passes in isolation and
+fails when its sibling tests run first - order dependence whose mechanism was never pinned down.
+
+### Superseded pre-fix baseline
 
 Full suite run via:
 

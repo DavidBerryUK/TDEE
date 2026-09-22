@@ -38,12 +38,6 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
                     .animation(AnimationParams.springDefault, value: isExpanded)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
-                    // Disclosure state. Read by UI tests via `<sectionId>.disclosure`, and
-                    // announced by VoiceOver as "expanded" / "collapsed".
-                    .accessibilityIdentifier(accessibilityId.map { "\($0).disclosure" } ?? "")
-                    .accessibilityLabel("\(title) section")
-                    .accessibilityValue(isExpanded ? "expanded" : "collapsed")
-                    .accessibilityAddTraits(.isButton)
             }
             .padding(Spacing.large) // <-- FIX 3: Using constant for main header padding (replaces 16)
             .contentShape(Rectangle()) // Make the entire HStack area tappable

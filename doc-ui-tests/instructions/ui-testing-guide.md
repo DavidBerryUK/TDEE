@@ -1,5 +1,35 @@
 # UI Testing Guide
 
+> ## ⚠️ HISTORICAL - THE UI TEST SUITE WAS REMOVED ON 2026-09-22
+>
+> `SimpleTestUITests/` and its Xcode target no longer exist. **Nothing in this document describes
+> the current state of the project.** It is kept only as a record of what was learned about
+> XCUITest and SwiftUI accessibility, because most of it is undocumented by Apple and was expensive
+> to discover.
+>
+> **Why it was removed.** The suite cost roughly a week of effort to get to 31/32 passing. The
+> value did not justify that: every defect the suite ever caught was a defect *in the tests
+> themselves*, not in the app. The final session fixed three such bugs - two missing `app.launch()`
+> calls and one section left collapsed before a lookup - and found zero app bugs.
+>
+> **To recover the tests**, they are intact in git:
+> ```bash
+> git show e6845db --stat                       # the commit holding the full 31/32 suite
+> git checkout e6845db -- SimpleTestUITests/    # restore the test sources
+> ```
+> Note the Xcode *target* was removed from `project.pbxproj` separately, so restoring the sources
+> alone will not rebuild the target - recreate it in Xcode, or revert the deletion commit.
+>
+> **What remains:** the `SimpleTestTests/` unit test target (10 tests, all passing, runs in
+> seconds without a simulator). That tier never caused any of the pain described below - it needs
+> no accessibility tree, no `setSection`, no synthetic gestures, and does not flake.
+>
+> **The one piece of app code that existed purely for these tests has also been removed:** the
+> chevron in `UILayoutSectionView` no longer carries `.accessibilityIdentifier("<id>.disclosure")`,
+> `.accessibilityValue("expanded"/"collapsed")` or `.accessibilityAddTraits(.isButton)`. Everything
+> below that refers to reading section state from the disclosure button is therefore obsolete.
+> (Trade-off worth knowing: VoiceOver no longer announces whether a section is open.)
+
 Everything needed to create, run, and debug UI tests for the SimpleTest app: environment setup,
 the create/run/iterate workflow, the utility function reference, and — critically — the checklist
 of environment and code traps that have repeatedly caused hours-long "the simulator is hanging /
