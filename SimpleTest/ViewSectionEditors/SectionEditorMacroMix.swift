@@ -23,7 +23,7 @@ struct SectionEditorMacroMix: View {
                 .accessibilityLabel("Current macro mix selection: \(selectedOption?.name ?? "None")")
             UIWheelPickerMacroMixView(macroSplit: macroMix)
         }
-        .accessibilityIdentifier("editorMacroMix")
+        .accessibilityElement(children: .contain)
     }
 }
 

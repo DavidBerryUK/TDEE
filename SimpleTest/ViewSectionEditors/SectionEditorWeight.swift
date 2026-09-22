@@ -18,7 +18,7 @@ struct SectionEditorWeight: View {
                 .padding(.trailing, 8)
             UIWheelPickerWeightView(value: $model.weight, unitOfMeasure: $model.weightUom)
         }
-        .accessibilityIdentifier("editorWeight")
+        .accessibilityElement(children: .contain)
     }
 }
 

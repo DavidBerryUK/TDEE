@@ -38,6 +38,12 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
                     .animation(AnimationParams.springDefault, value: isExpanded)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
+                    // Disclosure state. Read by UI tests via `<sectionId>.disclosure`, and
+                    // announced by VoiceOver as "expanded" / "collapsed".
+                    .accessibilityIdentifier(accessibilityId.map { "\($0).disclosure" } ?? "")
+                    .accessibilityLabel("\(title) section")
+                    .accessibilityValue(isExpanded ? "expanded" : "collapsed")
+                    .accessibilityAddTraits(.isButton)
             }
             .padding(Spacing.large) // <-- FIX 3: Using constant for main header padding (replaces 16)
             .contentShape(Rectangle()) // Make the entire HStack area tappable
@@ -64,9 +70,10 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
         }
         // Make the entire VStack area tappable
         .contentShape(Rectangle())
-        // Make the VStack an accessibility element
-        .accessibilityElement()
-        // Make children accessible for UI tests
+        // Expose the section as a container whose children remain individually queryable.
+        // NOTE: a bare `.accessibilityElement()` means `children: .ignore`, which hides every
+        // descendant. It used to be applied here immediately before the `.contain` variant; the
+        // two contradict each other. Do not reintroduce it.
         .accessibilityElement(children: .contain)
         // animation to assist in the Validation message appearing / disappearing smoothly
         .animation(AnimationParams.fastDuration, value: validationText) // <-- FIX 8: Using animation constant

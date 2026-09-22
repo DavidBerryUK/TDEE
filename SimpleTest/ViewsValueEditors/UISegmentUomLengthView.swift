@@ -19,8 +19,7 @@ struct UISegmentUomLengthView: View {
             }
         }
         .pickerStyle(.segmented)
-        .accessibilityLabel("Length unit selector")
-        .accessibilityValue("Current: \(option.displayName)")
+        .accessibilityIdentifier("heightUnitSelector")
     }
 }
 

@@ -5,6 +5,7 @@
 //  Created by David Berry on 17/09/2026.
 //
 
+import Foundation
 import XCTest
 
 final class SimpleTestUITests_Age: XCTestCase {
@@ -14,21 +15,10 @@ final class SimpleTestUITests_Age: XCTestCase {
 
     override func setUpWithError() throws {
         continueAfterFailure = false
-        // Reset app state to ensure clean isolation for parallel tests
-        SimpleTestUITestUtils.resetAppState()
     }
 
     override func tearDownWithError() throws {
-        // Clean up any expanded sections to leave the app in a known state
-        let app = XCUIApplication()
-        let section = app.otherElements["sectionAge"]
-        // Only tap if the section is expanded (has a picker wheel visible)
-        if section.pickerWheels.firstMatch.exists {
-            section.tap() // collapse
-            sleep(1) // allow animation to complete
-        }
-        app.terminate()
-        sleep(1)
+        utils.resetAppState()
     }
 
     /// Opens the Age section and checks that a wheel picker for entering age actually shows up.
@@ -38,13 +28,10 @@ final class SimpleTestUITests_Age: XCTestCase {
         app.launch()
 
         let ageSection = app.otherElements["sectionAge"]
-        ageSection.tap()
+        XCTAssertTrue(utils.setSection("sectionAge", open: true, in: app), "Section should expand")
 
-        guard let picker = utils.findPicker(in: app) else {
-            XCTFail("Age picker not found in accessibility hierarchy")
-            return
-        }
-        XCTAssertTrue(utils.waitForElement(picker), "Age picker should exist")
+        let picker = utils.wheel("agePicker", in: app)
+        XCTAssertNotNil(picker, "Age picker should exist")
     }
 
     /// Picks a few different ages in the wheel picker and checks the collapsed section header
@@ -56,29 +43,23 @@ final class SimpleTestUITests_Age: XCTestCase {
 
         // Expand the Age section
         let ageSection = app.otherElements["sectionAge"]
-        ageSection.tap()
-
-        guard let picker = utils.findPicker(in: app) else {
-            XCTFail("Age picker not found in accessibility hierarchy")
-            return
-        }
-        XCTAssertTrue(utils.waitForElement(picker), "Age picker should exist")
+        XCTAssertTrue(utils.setSection("sectionAge", open: true, in: app), "Section should expand")
 
         // Note: verification is done via the collapsed summary, not the wheel's own
         // accessibility value. `adjust(toPickerWheelValue:)` synthetic gestures are not
         // fully reliable for SwiftUI `.wheel` pickers - the wheel can report the requested
         // row even when the underlying model committed a different value. See
         // `selectValueVerified` for details.
-        XCTAssertTrue(utils.selectValueVerified(inSection: ageSection, value: 34, summaryLabel: "Age value", validRange: ageRange), "Age summary should display '34' after selection")
+        XCTAssertTrue(utils.selectValueVerified(inSection: ageSection, value: 34, summaryLabel: "Age value", validRange: ageRange, wheelId: "agePicker"), "Age summary should display '34' after selection")
 
-        XCTAssertTrue(utils.selectValueVerified(inSection: ageSection, value: 65, summaryLabel: "Age value", validRange: ageRange), "Age summary should display '65' after selection")
+        XCTAssertTrue(utils.selectValueVerified(inSection: ageSection, value: 65, summaryLabel: "Age value", validRange: ageRange, wheelId: "agePicker"), "Age summary should display '65' after selection")
 
-        XCTAssertTrue(utils.selectValueVerified(inSection: ageSection, value: 34, summaryLabel: "Age value", validRange: ageRange), "Age summary should display '34' after selecting again")
+        XCTAssertTrue(utils.selectValueVerified(inSection: ageSection, value: 34, summaryLabel: "Age value", validRange: ageRange, wheelId: "agePicker"), "Age summary should display '34' after selecting again")
 
         // Collapse the section and confirm the summary still shows the last selection - this is
         // the actual behavior UAT-AGE-002 describes, distinct from `selectValueVerified`'s own
         // (always-expanded) verification above.
-        XCTAssertTrue(utils.collapseAndVerify(inSection: ageSection, value: 34, summaryLabel: "Age value", validRange: ageRange), "Age summary should still display '34' after collapsing the section")
+        XCTAssertTrue(utils.collapseAndVerify(inSection: ageSection, sectionId: "sectionAge", value: 34, summaryLabel: "Age value", validRange: ageRange, wheelId: "agePicker"), "Age summary should still display '34' after collapsing the section")
     }
 
     /// Checks that the age picker really does cover its full advertised range - the lowest and
@@ -89,24 +70,21 @@ final class SimpleTestUITests_Age: XCTestCase {
         app.launch()
 
         let ageSection = app.otherElements["sectionAge"]
-        ageSection.tap()
+        XCTAssertTrue(utils.setSection("sectionAge", open: true, in: app), "Section should expand")
 
-        guard let picker = utils.findPicker(in: app) else {
-            XCTFail("Age picker not found in accessibility hierarchy")
-            return
-        }
-        XCTAssertTrue(utils.waitForElement(picker), "Age picker should exist")
+        let picker = utils.wheel("agePicker", in: app)
+        XCTAssertNotNil(picker, "Age picker should exist")
 
         // Verified against the summary rather than the wheel's own accessibility value -
         // see `selectValueVerified` for why the wheel alone can't be trusted.
-        XCTAssertTrue(utils.selectValueVerified(inSection: ageSection, value: 16, summaryLabel: "Age value", validRange: ageRange), "Should be able to select age 16")
+        XCTAssertTrue(utils.selectValueVerified(inSection: ageSection, value: 16, summaryLabel: "Age value", validRange: ageRange, wheelId: "agePicker"), "Should be able to select age 16")
 
         // The maximum (99) is the picker's very last row, which `selectValueVerified` can't
         // reliably confirm committed - see its doc comment. `adjust` itself already asserts that
         // "99" is a value the wheel actually offers (it hard-fails for anything outside the
         // picker's real value set), so this checks that instead of a full round-trip commit.
-        app.pickerWheels.firstMatch.adjust(toPickerWheelValue: "99")
+        picker!.adjust(toPickerWheelValue: "99")
 
-        XCTAssertTrue(utils.selectValueVerified(inSection: ageSection, value: 21, summaryLabel: "Age value", validRange: ageRange), "Should be able to select age 21")
+        XCTAssertTrue(utils.selectValueVerified(inSection: ageSection, value: 21, summaryLabel: "Age value", validRange: ageRange, wheelId: "agePicker"), "Should be able to select age 21")
     }
 }

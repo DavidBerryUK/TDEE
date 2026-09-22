@@ -5,6 +5,7 @@
 //  Created by David Berry on 17/09/2026.
 //
 
+import Foundation
 import XCTest
 
 final class SimpleTestUITests_Weight: XCTestCase {
@@ -14,27 +15,10 @@ final class SimpleTestUITests_Weight: XCTestCase {
 
     override func setUpWithError() throws {
         continueAfterFailure = false
-        // Terminate and relaunch to ensure clean state for parallel tests
-        let app = XCUIApplication()
-        app.terminate()
-        sleep(1)
-        app.launch()
-        sleep(2)
     }
 
     override func tearDownWithError() throws {
-        // Clean up any expanded sections to leave the app in a known state
-        let app = XCUIApplication()
-        let section = app.otherElements["sectionWeight"]
-        // Only tap if the section is expanded (has a picker wheel visible)
-        if section.pickerWheels.firstMatch.exists {
-            section.tap() // collapse
-            sleep(1) // allow animation to complete
-        }
-
-        // Terminate app to ensure clean state for parallel tests
-        app.terminate()
-        sleep(1)
+        utils.resetAppState()
     }
 
     /// Opens the Weight section and checks that a wheel picker for entering weight actually
@@ -42,16 +26,13 @@ final class SimpleTestUITests_Weight: XCTestCase {
     @MainActor
     func testWeightPickerExists() throws {
         let app = XCUIApplication()
+        app.launch()
 
         let weightSection = app.otherElements["sectionWeight"]
-        weightSection.tap()
+        XCTAssertTrue(utils.setSection("sectionWeight", open: true, in: app), "Section should expand")
 
-        let picker = utils.findPicker(in: app)
-        if let picker = picker {
-            XCTAssertTrue(utils.waitForElement(picker), "Weight picker should exist")
-        } else {
-            XCTFail("Weight picker not found in accessibility hierarchy")
-        }
+        let picker = utils.wheel("weightKgWheel", in: app)
+        XCTAssertNotNil(picker, "Weight kg picker should exist")
     }
 
     /// Picks a weight in kilograms and checks the collapsed section header shows that value
@@ -62,24 +43,17 @@ final class SimpleTestUITests_Weight: XCTestCase {
         app.launch()
 
         let weightSection = app.otherElements["sectionWeight"]
-        weightSection.tap()
-
-        guard let picker = utils.findPicker(in: app) else {
-            XCTFail("Weight picker not found in accessibility hierarchy")
-            return
-        }
-        XCTAssertTrue(utils.waitForElement(picker), "Weight picker should exist")
+        XCTAssertTrue(utils.setSection("sectionWeight", open: true, in: app), "Section should expand")
 
         // The Weight editor keeps the kg/pounds/stones-and-pounds wheels all mounted at once -
-        // see `selectValueVerified`'s `wheelIndex` doc comment. Kilograms is the default unit
-        // and sits at index 0.
-        XCTAssertTrue(utils.selectValueVerified(inSection: weightSection, value: 95, summaryLabel: "Weight major value", validRange: kgRange), "Weight summary should display '95' after selection")
+        // but now they have unique identifiers so no wheelIndex is needed.
+        XCTAssertTrue(utils.selectValueVerified(inSection: weightSection, value: 95, summaryLabel: "Weight major value", validRange: kgRange, wheelId: "weightKgWheel"), "Weight summary should display '95' after selection")
 
         let majorUnit = utils.findSummaryValue(in: weightSection, withAccessibilityLabel: "Weight major units")
         XCTAssertEqual(majorUnit?.value as? String, "kg", "Weight summary should display 'kg' as the unit")
 
-        // Collapse the section, leaving the UI in a clean state
-        weightSection.tap()
+        // Collapse the section using setSection
+        XCTAssertTrue(utils.setSection("sectionWeight", open: false, in: app), "Section should collapse")
     }
 
     /// Selects a weight once in kilograms, then switches the unit selector through Pounds and
@@ -91,25 +65,17 @@ final class SimpleTestUITests_Weight: XCTestCase {
         app.launch()
 
         let weightSection = app.otherElements["sectionWeight"]
-        weightSection.tap()
-
-        guard let picker = utils.findPicker(in: app) else {
-            XCTFail("Weight picker not found in accessibility hierarchy")
-            return
-        }
-        XCTAssertTrue(utils.waitForElement(picker), "Weight picker should exist")
+        XCTAssertTrue(utils.setSection("sectionWeight", open: true, in: app), "Section should expand")
 
         // 100 kg converts to 220 pounds = 15 stones 10 pounds (220 % 14 = 10).
         // The expected values below aren't sensitive to floating point rounding under normal
         // circumstances - though the retries below do nudge away from 100 if collapsing perturbs
         // the committed value.
         var kgTarget = 100
-        XCTAssertTrue(utils.selectValueVerified(inSection: weightSection, value: kgTarget, summaryLabel: "Weight major value", validRange: kgRange), "Weight summary should display '100' after selection")
+        XCTAssertTrue(utils.selectValueVerified(inSection: weightSection, value: kgTarget, summaryLabel: "Weight major value", validRange: kgRange, wheelId: "weightKgWheel"), "Weight summary should display '100' after selection")
 
-        guard let unitSelector = utils.findSegmentedControl(in: app) else {
-            XCTFail("Weight unit selector not found in accessibility hierarchy")
-            return
-        }
+        let unitSelector = utils.segmentedControl("weightUnitSelector", in: app)
+        XCTAssertNotNil(unitSelector, "Weight unit selector should exist")
 
         // Switch to Pounds and check the header, not just the wheel. Collapsing can itself
         // perturb the committed value (see `verifyWithRetry`'s doc comment) - there's no pounds
@@ -118,19 +84,18 @@ final class SimpleTestUITests_Weight: XCTestCase {
         // (mirroring `WeightConvertor.toPounds`'s own kg-to-pounds ratio) and re-attempts the
         // switch from there.
         let switchedToPounds = utils.verifyWithRetry(inSection: weightSection, expected: "220", summaryLabel: "Weight major value", steps: {
-            let selector = app.descendants(matching: .segmentedControl).firstMatch
-            selector.buttons["Pounds"].tap()
-            weightSection.tap() // collapse to read the real committed summary
+            unitSelector!.buttons["Pounds"].tap()
+            XCTAssertTrue(utils.setSection("sectionWeight", open: false, in: app), "Section should collapse")
         }, recover: { actual in
-            weightSection.tap() // re-expand
-            let selector = app.descendants(matching: .segmentedControl).firstMatch
-            selector.buttons["Kg"].tap()
+            XCTAssertTrue(utils.setSection("sectionWeight", open: true, in: app), "Section should expand")
+            let kgSelector = utils.segmentedControl("weightUnitSelector", in: app)
+            kgSelector!.buttons["Kg"].tap()
             if let actualPounds = actual.flatMap({ Int($0) }) {
                 let poundsError = 220 - actualPounds
                 let kgNudge = Int((Double(poundsError) * 0.45359237).rounded())
                 kgTarget = min(max(kgTarget + kgNudge, kgRange.lowerBound), kgRange.upperBound)
             }
-            _ = utils.selectValueVerified(inSection: weightSection, value: kgTarget, summaryLabel: "Weight major value", validRange: kgRange)
+            _ = utils.selectValueVerified(inSection: weightSection, value: kgTarget, summaryLabel: "Weight major value", validRange: kgRange, wheelId: "weightKgWheel")
         })
         XCTAssertTrue(switchedToPounds, "Weight summary should display '220' after switching to Pounds")
 
@@ -145,9 +110,14 @@ final class SimpleTestUITests_Weight: XCTestCase {
         // even though the stones digit alone already reads correctly as "15").
         var switchedToStones = false
         for attempt in 1...3 {
-            let selector = app.descendants(matching: .segmentedControl).firstMatch
-            selector.buttons["Stones & Pounds"].tap()
-            weightSection.tap() // collapse to read the real committed summary
+            // `verifyWithRetry`'s steps closure leaves the section collapsed when it succeeds
+            // without needing a recovery pass, so the editor - and the unit selector inside it -
+            // is not mounted. Re-assert the state rather than inheriting whichever one the
+            // previous block happened to leave behind.
+            XCTAssertTrue(utils.setSection("sectionWeight", open: true, in: app), "Section should expand")
+            let selector = utils.segmentedControl("weightUnitSelector", in: app)
+            selector!.buttons["Stones & Pounds"].tap()
+            XCTAssertTrue(utils.setSection("sectionWeight", open: false, in: app), "Section should collapse")
 
             let majorStones = utils.findSummaryValue(in: weightSection, withAccessibilityLabel: "Weight major value")
                 .flatMap { utils.waitForStableValue(of: $0) }
@@ -161,15 +131,15 @@ final class SimpleTestUITests_Weight: XCTestCase {
 
             guard attempt < 3 else { break }
 
-            weightSection.tap() // re-expand
-            let kgSelector = app.descendants(matching: .segmentedControl).firstMatch
-            kgSelector.buttons["Kg"].tap()
+            XCTAssertTrue(utils.setSection("sectionWeight", open: true, in: app), "Section should expand")
+            let kgSelector = utils.segmentedControl("weightUnitSelector", in: app)
+            kgSelector!.buttons["Kg"].tap()
             if let stones = majorStones.flatMap({ Int($0) }), let pounds = minorPounds.flatMap({ Int($0) }) {
                 let totalPoundsError = 220 - (stones * 14 + pounds)
                 let kgNudge = Int((Double(totalPoundsError) * 0.45359237).rounded())
                 kgTarget = min(max(kgTarget + kgNudge, kgRange.lowerBound), kgRange.upperBound)
             }
-            _ = utils.selectValueVerified(inSection: weightSection, value: kgTarget, summaryLabel: "Weight major value", validRange: kgRange)
+            _ = utils.selectValueVerified(inSection: weightSection, value: kgTarget, summaryLabel: "Weight major value", validRange: kgRange, wheelId: "weightKgWheel")
         }
         XCTAssertTrue(switchedToStones, "Weight summary should display '15' stones, '10' pounds after switching to Stones & Pounds")
 
@@ -187,18 +157,15 @@ final class SimpleTestUITests_Weight: XCTestCase {
         app.launch()
 
         let weightSection = app.otherElements["sectionWeight"]
-        weightSection.tap()
+        XCTAssertTrue(utils.setSection("sectionWeight", open: true, in: app), "Section should expand")
 
-        guard let picker = utils.findPicker(in: app) else {
-            XCTFail("Weight picker not found in accessibility hierarchy")
-            return
-        }
-        XCTAssertTrue(utils.waitForElement(picker), "Weight picker should exist")
+        let picker = utils.wheel("weightKgWheel", in: app)
+        XCTAssertNotNil(picker, "Weight picker should exist")
 
         let validationMessage = app.staticTexts["Please enter a valid Weight"]
         XCTAssertTrue(validationMessage.exists, "Validation message should be visible while weight is 0")
 
-        XCTAssertTrue(utils.selectValueVerified(inSection: weightSection, value: 95, summaryLabel: "Weight major value", validRange: kgRange), "Weight summary should display '95' after selection")
+        XCTAssertTrue(utils.selectValueVerified(inSection: weightSection, value: 95, summaryLabel: "Weight major value", validRange: kgRange, wheelId: "weightKgWheel"), "Weight summary should display '95' after selection")
 
         // Wait for the validation message to disappear
         XCTAssertTrue(utils.waitForElementToDisappear(validationMessage, timeout: 2.0), "Validation message should be cleared once a valid weight is selected")

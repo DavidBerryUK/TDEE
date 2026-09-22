@@ -44,7 +44,7 @@ struct UILayoutExpandingPanel<HeaderView: View, ContentView: View>: View {
                     .clipped()
             }
         }
-        .accessibilityElement()
+        .accessibilityElement(children: .contain)
         .onChange(of: isOpen) { _, newValue in
 
             if newValue {

@@ -19,8 +19,7 @@ struct UISegmentMacroSplitMethodView: View {
             }
         }
         .pickerStyle(.segmented)
-        .accessibilityLabel("Macro split calculation method selector")
-        .accessibilityValue("Current: \(option.displayName)")
+        .accessibilityIdentifier("macroSplitMethodSelector")
     }
 }
 

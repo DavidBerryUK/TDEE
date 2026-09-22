@@ -23,6 +23,10 @@ never broken.
 xcrun simctl list devices | grep "iPhone 17 Pro Max"
 ```
 
+**On this machine there are currently two devices named `iPhone 17 Pro Max`**, but they are on
+*different* runtimes (iOS 26.5 and iOS 27.0), so `OS=27.0` disambiguates them. Prefer the UDID
+anyway - `id=4CF378DE-00AB-4BB9-BF60-A83B83C6574F` is the iOS 27.0 one.
+
 If more than one device with the **same name and OS version** exists, any
 `-destination "platform=iOS Simulator,name=iPhone 17 Pro Max,OS=27.0"` invocation fails
 immediately with "Unable to find a device matching the provided destination specifier... multiple
@@ -115,6 +119,61 @@ grep -L "let app = XCUIApplication" SimpleTestUITests/SimpleTestUITests_*.swift
 
 ---
 
+## Check These Two Things Before Any Deep Investigation
+
+A 2026-09-22 debugging session lost hours to an elaborate crash theory - crash reports, SIGTERM
+traces, live `log stream` capture - when the real cause was a missing `app.launch()` that the
+grep below would have found in two seconds. **This guide already documented that failure class**
+(see "A missing variable declaration..." below) and the diagnostic still did not start there.
+Start here.
+
+### 1. Does every test method launch the app?
+
+```bash
+cd /Users/davidberry/sources/ios/SimpleTest
+for f in SimpleTestUITests/SimpleTestUITests_*.swift; do
+  echo "$f: $(grep -c 'app.launch()' "$f") launches / $(grep -c 'func test' "$f") tests"
+done
+```
+
+Every test method needs its own `app.launch()`. `let app = XCUIApplication()` alone only creates a
+*proxy* - it does not start anything.
+
+**A test missing `launch()` can still pass**, which is what makes this so hard to spot.
+`tearDownWithError` calls `utils.resetAppState()`, which launches the app, so any test that runs
+*after* another test in the same class - or on the same parallel clone - inherits a running app
+and passes. Only the first test to run on a clone fails. That is why
+`SimpleTestUITests_BodyFat.testBodyFatMethodSelectorExists()` failed while
+`testCanSelectManualBodyFatEntry()` passed, despite both having the same defect.
+
+**The symptom is misleading.** With no app running you get
+`Failed to get matching snapshot: Application DaveBerryUk.SimpleTest is not running`, or a
+`setSection` returning false ("Section should expand") because `waitForExistence` never resolves.
+Neither error mentions launching. There is **no crash report on disk** - confirm with
+`find ~/Library/Logs/DiagnosticReports -iname "*SimpleTest*"` before chasing a crash, and note
+that the SIGTERM visible in `log stream` is just normal teardown, not the cause.
+
+### 2. Is the section actually expanded at the point of the lookup?
+
+A collapsed section does not merely hide its editor - `UILayoutSectionView` is
+`if isExpanded { editorView() }`, so the editor and everything inside it is **absent from the
+tree entirely**. Any lookup of a wheel or segmented control while collapsed fails with
+`No segmented control '<id>'. Is the section expanded?`.
+
+The trap is a *helper that changes state as a side effect*. `verifyWithRetry`'s `steps` closure
+in the Height and Weight unit-of-measure tests ends by collapsing the section. When it succeeds
+without needing a recovery pass, it leaves the section **collapsed** - and the code immediately
+after it looked up the unit selector without re-expanding. When a recovery pass *was* needed, the
+`recover` closure re-expanded the section and the same code worked. Hence the same test failing
+with two different messages on different runs.
+
+**Rule:** never let a block inherit whatever state the previous block happened to leave. State the
+precondition. `setSection` is idempotent, so an unconditional
+`XCTAssertTrue(utils.setSection("sectionX", open: true, in: app))` before a lookup costs nothing
+and removes the whole class of failure.
+
+---
+
 ## App-Code Bugs That Look Like Test Bugs
 
 Not every UI test failure is a test bug. Two classes worth checking in the app code itself before
@@ -135,42 +194,141 @@ on screen. `UISectionSummaryValueActivityLevel` had exactly this bug — found b
 summary read comes back empty despite the element existing, check the view's modifiers for a
 missing `.accessibilityValue` before assuming a test-side timing issue.
 
-### Tapping a section to collapse it can silently hit the picker instead
+### Never toggle a section - set it to the state you want, and check first
 
-`XCUIElement.tap()` taps the **geometric center of the element's frame**. `UILayoutSectionView`'s
-`onTapGesture` that toggles `isExpanded` is only attached to the **header row** (icon + title +
-summary + chevron), not the whole section — but the section's outer accessibility identifier
-(`sectionActivityLevel`, etc.) covers the header *and*, once expanded, the whole editor beneath it.
-For a short editor (a single plain wheel), the frame's center is usually still close enough to the
-header that this goes unnoticed. For a taller editor — `SectionEditorActivityLevel` adds an extra
-label above its wheel, making the whole expanded section ~345pt tall against a ~70pt header — the
-center of that frame lands well inside the picker itself. The result: a `section.tap()` meant to
-collapse the section instead performs an extra, unwanted picker adjustment, and the section never
-collapses. This reads exactly like a flaky "value doesn't persist after collapse" bug and can burn
-a lot of retries before it's traced back to *where the tap physically landed*.
+**This is the single most important rule in this document.** It replaces the old
+"tap the chevron instead of the section" advice, which was necessary but not sufficient.
 
-**Diagnosis:** if a value keeps reverting or a "collapse" doesn't visibly collapse, dump the
-element's frame and full accessibility subtree and compare the tap's implied center point against
-where the header actually is:
+Every section now publishes its own open/closed state, so a test never has to *assume* what state
+the UI is in. Before tapping, decide whether you are trying to **open** or **close**, read the
+section's current state, and tap only if the two differ.
+
 ```swift
-XCTFail("frame=\(section.frame) tree=\(section.debugDescription)")
-```
-**Fix:** tap a small, header-only, state-independent element instead of the whole section — e.g.
-the chevron image (`section.images["chevron.down"]`) — rather than `section.tap()`, whenever the
-section might currently be expanded:
-```swift
-private func toggleSection(_ section: XCUIElement) {
-    let chevron = section.images["chevron.down"]
-    if chevron.waitForExistence(timeout: 2.0) {
-        chevron.tap()
-    } else {
-        section.tap()
+@discardableResult
+private func setSection(open: Bool, maxAttempts: Int = 3) -> Bool {
+    let chevron = XCUIApplication().buttons["sectionActivityLevel.disclosure"]
+    guard chevron.waitForExistence(timeout: 5.0) else {
+        XCTFail("Activity Level disclosure button not found")
+        return false
     }
+    let target = open ? "expanded" : "collapsed"
+
+    for _ in 1...maxAttempts {
+        if chevron.value as? String == target { return true }   // already there - do nothing
+        chevron.tap()
+        var elapsed: TimeInterval = 0
+        while elapsed < 5.0 {                                    // wait for the UI to confirm
+            if chevron.value as? String == target { return true }
+            Thread.sleep(forTimeInterval: 0.05)
+            elapsed += 0.05
+        }
+    }
+    XCTFail("Section did not reach '\(target)'")
+    return false
 }
 ```
-This is a general risk for *any* section whose editor is tall relative to its header, not just
-Activity Level — worth using this pattern (or an equivalent header-scoped tap) for new sections
-rather than relying on `section.tap()` once an editor gets more complex than a single short wheel.
+
+Call sites state their intent instead of flipping a switch:
+
+```swift
+setSection(open: true)    // NOT: toggleSection(section)
+setSection(open: false)
+```
+
+**Why this matters more than it looks.** The old `toggleSection` helper tapped unconditionally.
+Every call site documented its intent in a *comment* - `// collapse`, `// re-expand`,
+`// Tap to expand` - but the intent existed only in the comment, never in the code. So if the
+section was not in the state the test assumed, the tap flipped it the wrong way and the test
+carried on into a failure that surfaced several assertions later, far from the cause.
+
+With an intent-driven setter:
+
+- **A wrong assumption becomes a no-op** instead of an inverted state.
+- **A missed tap is retried** instead of silently corrupting a picker value. This is what kills
+  the old "value reverts to the default after collapse" bug at the root: if a tap lands in the
+  picker rather than the header, the state simply does not change, so the helper taps again
+  rather than letting a stray wheel adjustment through.
+- **No sleeps are needed.** The helper waits for the state to actually change, so
+  `sleep(1) // allow animation to complete` disappears from call sites.
+- **Teardown gets simpler.** `setSection(open: false)` is safe to call unconditionally; there is
+  no need to probe for a visible picker wheel first to guess whether the section is open.
+
+#### The state lives on the disclosure button
+
+`UILayoutSectionView` puts the state on the chevron:
+
+```swift
+Image(systemName: "chevron.down")
+    .accessibilityIdentifier(accessibilityId.map { "\($0).disclosure" } ?? "")
+    .accessibilityLabel("\(title) section")
+    .accessibilityValue(isExpanded ? "expanded" : "collapsed")
+    .accessibilityAddTraits(.isButton)
+```
+
+Two things follow:
+
+1. **It is a `button`, not an `image`.** `.accessibilityAddTraits(.isButton)` determines the
+   XCUIElement type. `section.images["chevron.down"]` finds **nothing**. Use
+   `app.buttons["<sectionId>.disclosure"]`.
+2. **The value is the state.** `chevron.value as? String` is `"expanded"` or `"collapsed"`.
+
+This is also correct accessibility behaviour - a VoiceOver user now hears whether a disclosure is
+open - so it is not test-only scaffolding. Note there is **no native `isExpanded` trait** in
+SwiftUI (checked against the iOS 27 SDK: `AccessibilityTraits` has `isButton`, `isHeader`,
+`isSelected`, `isToggle` and others, but nothing for expansion), which is why the state is carried
+as an `accessibilityValue`.
+
+#### Still never tap the section container
+
+`XCUIElement.tap()` taps the geometric centre of the element's frame. A section's outer identifier
+covers the header *and*, once expanded, the whole editor beneath it. For a tall editor the centre
+lands well inside the picker, so `section.tap()` performs an unwanted wheel adjustment instead of
+collapsing. Tap the disclosure button, always. Do not write a `section.tap()` fallback for when
+the button is not found - that fallback is the bug.
+
+### The control identifier reference
+
+Verified against the live accessibility tree on Xcode 27.2 / iOS 27.0 Simulator. Every wheel
+resolves to **exactly one** `pickerWheel`; every segmented control resolves directly.
+
+| Section | Section id | Wheels (`app.pickers[...]`) | Segmented control (`app.segmentedControls[...]`) |
+|---|---|---|---|
+| Age | `sectionAge` | `agePicker` | — |
+| Gender | `sectionGender` | — | `Gender` |
+| Height | `sectionHeight` | `heightCmWheel`, `heightInchesWheel`, `heightFeetWheel`, `heightFeetInchesWheel` | `heightUnitSelector` |
+| Weight | `sectionWeight` | `weightKgWheel`, `weightPoundsWheel`, `weightStonesWheel`, `weightStonesPoundsWheel` | `weightUnitSelector` |
+| Activity Level | `sectionActivityLevel` | `activityLevelPicker` | — |
+| Body Fat | `sectionBodyFatPercentage` | `bodyFatPicker`, `bodyFatDecimalPicker` | `bodyFatMethodSegmentedControl` |
+
+Three things to know about this table:
+
+- **`sectionMacroSplit` and `sectionCalorieAdjustment` are not on the main screen.** They resolve
+  to nothing - no container, no disclosure button. Do not include them in a "collapse everything"
+  loop.
+- **The Body Fat wheels only exist when Manual Entry is selected.** The method segments are
+  exactly `Omit`, `Estimate`, `Manual Entry`.
+- **Height and Weight keep every unit variant mounted at once**, so `app.pickerWheels.count` is 4
+  when either is expanded. That is why the wheels are named individually - you never index into
+  that list. (`.accessibilityHidden(!show)` on the inactive variants was tried and had **no
+  effect**: all four stayed in the tree and reported `isHittable == true`. This remains a genuine
+  accessibility bug - a VoiceOver user can reach invisible pickers - but it does not affect tests.)
+
+### Reading output from inside a UI test
+
+`print()` from a UI test goes nowhere useful. It is captured **neither** by `xcodebuild`'s console
+output **nor** by `xcrun xcresulttool get test-results activities`. To get diagnostics out of a
+test, put them in an `XCTFail` message (which appears in `failureText`) or attach them:
+
+```swift
+let a = XCTAttachment(string: app.debugDescription)
+a.name = "tree"; a.lifetime = .keepAlways; add(a)
+```
+
+Then read them with:
+
+```bash
+xcrun xcresulttool get test-results summary --path <bundle>.xcresult
+```
 
 ### Picker rows aren't always simple integers
 
@@ -405,9 +563,17 @@ final class SimpleTestUITests_<FeatureName>: XCTestCase {
    local equivalent that adjusts the wheel to the full row string and verifies against the
    summary's shorter string. See `SimpleTestUITests_ActivityLevel.swift` for the pattern.
 
-6. **For collapsing an already-expanded section**, prefer a header-scoped tap (e.g. the chevron)
-   over `section.tap()` if the section's editor is more than a simple short wheel - see "Tapping a
-   section to collapse it can silently hit the picker instead" above.
+6. **Never toggle a section.** State your intent with `setSection(open: true/false)`, which reads
+   the section's published state and taps the disclosure button only if it needs to - see
+   "Never toggle a section" above. Never call `section.tap()`.
+
+7. **Address controls by identifier, never by position or `firstMatch`.** `app.pickers["agePicker"]
+   .pickerWheels` and `app.segmentedControls["heightUnitSelector"]` resolve to exactly one element
+   each. `firstMatch` is an *ambiguity* tool, not a *timing* tool: it silently picks whichever
+   element happens to be first in the tree, which matters because Height and Weight each mount
+   four wheels simultaneously. Use `waitForExistence` for timing; `XCUIElementQuery` is lazy and
+   re-evaluates the whole chain (including the parent) on every poll, so building a query for an
+   element inside a collapsed section is perfectly safe.
 
 ---
 
@@ -633,6 +799,10 @@ static func verifyWithRetry(
 
 | Symptom | Cause | Solution |
 |---------|-------|----------|
+| `Failed to get matching snapshot: Application ... is not running` | The test never called `app.launch()`. `XCUIApplication()` alone only creates a proxy | Add `app.launch()` to the test method. Check the whole target with the grep in "Check These Two Things" above |
+| One test in a class fails but its sibling passes, with the same code | The failing one runs first; the passing one inherits a running app from the previous test's `resetAppState()` teardown | Same fix - every test launches its own app. Do not rely on ordering |
+| `No segmented control '<id>'. Is the section expanded?` | The section is collapsed, so the editor is not in the tree at all (`if isExpanded { editorView() }`) | Assert `setSection(..., open: true, ...)` immediately before the lookup. It is idempotent |
+| The *same* test fails with a different message run to run | A helper's side effect (e.g. `verifyWithRetry`'s `steps` collapsing the section) leaves different state depending on whether a retry path ran | Never inherit state between blocks; state the precondition explicitly |
 | `xcodebuild` fails instantly with "multiple devices matched" | Two simulators share the same name/OS | Delete the duplicate, or target by `-destination id=<UDID>` |
 | Every test in a target fails/hangs identically | The test target doesn't actually compile | Run `build-for-testing` first and read the compiler error |
 | `cannot find 'X' in scope` for a Foundation type | `MemberImportVisibility` upcoming feature; `import XCTest` no longer implies Foundation | Add `import Foundation` explicitly |
@@ -643,7 +813,12 @@ static func verifyWithRetry(
 | Validation message never clears | Timing issue | Use `waitForElementToDisappear` instead of `exists` |
 | Summary value reads back as `''` even though it's visibly correct | Missing `.accessibilityValue` on the summary view in app code | Add `.accessibilityValue(...)` alongside `.accessibilityLabel(...)` |
 | Summary shows wrong value after collapse | Collapse-triggered value corruption | Use `collapseAndVerify` |
-| Summary reverts hard to the section's *default* value after every collapse attempt, deterministically | `section.tap()`'s implied tap point lands inside a tall expanded editor instead of the header | Tap a header-scoped element (e.g. the chevron) instead of the whole section |
+| Summary reverts hard to the section's *default* value after every collapse attempt, deterministically | `section.tap()`'s implied tap point lands inside a tall expanded editor instead of the header | Never tap the section container. Use `setSection(open:)`, which taps the disclosure button and verifies the state actually changed |
+| A section ends up in the opposite state to the one the test wanted | Code blindly toggled instead of setting a state; the section was not in the assumed state | Read `app.buttons["<sectionId>.disclosure"].value` first and tap only if it differs from the target |
+| `section.images["chevron.down"]` finds nothing | The chevron has `.accessibilityAddTraits(.isButton)`, so it is a `button`, not an `image` | `app.buttons["<sectionId>.disclosure"]` |
+| A control's identifier resolves to an unexpected string (e.g. `editorHeight` instead of `heightUnitSelector`) | `.accessibilityIdentifier` on a plain ancestor container propagates down and overwrites descendants' identifiers | Do not put identifiers on wrapper containers. An intervening `.accessibilityElement(children: .contain)` blocks the propagation |
+| An identifier set on a wheel `Picker` cannot be found at all | `.accessibilityElement(children: .contain)` was added to the `Picker` itself, which removes the identifier from the tree entirely | Put the identifier directly on the `Picker`, with no `.contain`, and query `app.pickers[id].pickerWheels` |
+| A test's `print()` output is nowhere to be found | `print()` from a UI test is captured neither by `xcodebuild`'s console nor by `xcresulttool ... activities` | Put diagnostics in an `XCTFail` message or an `XCTAttachment` |
 | Value doesn't update after unit switch | Indirect action, needs recovery | Use `verifyWithRetry` with custom recovery |
 
 ---
@@ -723,8 +898,18 @@ When you install a new Xcode version, update your environment:
 
 ## Performance Notes
 
-The tests use element scanning to find UI elements since `accessibilityIdentifier` doesn't reliably
-propagate from SwiftUI Picker views with `.pickerStyle(.wheel)` to XCUIElements.
+**Historic note, now fixed:** the tests used to scan the element tree because
+`accessibilityIdentifier` "doesn't reliably propagate from SwiftUI Picker views with
+`.pickerStyle(.wheel)`". That was half right - the identifier does not reach the `.pickerWheel`
+element (a wheel's own identifier is always `''`), but it *does* land on the enclosing `.picker`
+element (verified against the live accessibility tree, §1.3 of
+`section-metadata-implementation-spec.md`). Scanning was never necessary. Every wheel in the app is
+now reachable by name via `SimpleTestUITestUtils.wheel(_:in:)` / `.segmentedControl(_:in:)`:
+
+```swift
+app.pickers["agePicker"].pickerWheels        // exactly one wheel, verified for all ten wheels
+app.segmentedControls["heightUnitSelector"]  // segmented controls are addressed directly
+```
 
 **Current timing (approximate):**
 - Test startup: ~5 seconds (after simulator is ready)
@@ -834,25 +1019,62 @@ a "completed" signal, and prefer launching with a single layer of backgrounding
 
 ### Known Issue Tests
 
-For the known failing tests, use these commands (note the `-collect-test-diagnostics never` flag to
-prevent timeout):
+**Current baseline: 31 passed / 1 failed out of 32** (full suite, 2026-09-22). See §12 of
+`section-metadata-implementation-spec.md` for the full run record and the three defects fixed to
+get there.
 
-1. **`testWeightSummaryUpdatesWithUnitOfMeasureChange()`** (Weight unit conversion issue)
+All three defects fixed on 2026-09-22 were in **test code**. The app was correct throughout -
+verified by driving it by hand in the Simulator, where every section expands and behaves properly.
+
+1. **`testBodyFatMethodSelectorExists()` / `testCanSelectManualBodyFatEntry()`** - **FIXED**
+   - **Symptom:** `XCTAssertTrue failed - Section should expand`, and on other runs
+     `Failed to get matching snapshot: Application DaveBerryUk.SimpleTest is not running`.
+   - **Root cause:** neither test ever called `app.launch()`. Every other test file launches the
+     app per test method; this file had 0 launches across 2 tests. `testCanSelectManualBodyFatEntry`
+     passed only because it runs second and inherited the app that the first test's
+     `resetAppState()` teardown had launched.
+   - **Fix:** added `app.launch()` to both methods.
+   - **Time sink warning:** this was misdiagnosed for hours as an app crash. There was never a
+     crash - no crash report was ever written, and the SIGTERM seen in `log stream` was routine
+     teardown. See "Check These Two Things Before Any Deep Investigation" at the top of this guide.
+
+2. **`testHeightSummaryUpdatesWithUnitOfMeasureChange()` /
+   `testWeightSummaryUpdatesWithUnitOfMeasureChange()`** - **FIXED**
+   - **Symptom:** `No segmented control 'heightUnitSelector'. Is the section expanded?` - but on
+     other runs the same test failed earlier, at
+     `Height summary should display '178' after selection`. The varying message was the clue.
+   - **Root cause:** *not* floating-point convergence, which is what this document previously
+     claimed for the Weight case. `verifyWithRetry`'s `steps` closure ends by collapsing the
+     section. When it succeeded without needing a recovery pass it left the section **collapsed**,
+     and the Feet &amp; Inches / Stones &amp; Pounds loop immediately after then looked up the unit
+     selector - which does not exist in the tree while collapsed. When a recovery pass *was* needed,
+     `recover` re-expanded the section and the same code worked, hence the two different messages.
+   - **Fix:** assert `setSection(..., open: true, ...)` at the top of the loop before the lookup.
+     It is idempotent, so it is safe on the recovery path too.
+   - **Note:** the Weight test had been documented as a permanent known failure for some time. It
+     now passes. Do not assume a long-standing "known issue" has the cause its note claims.
+
+3. **`testHeightValidationClearsAfterSelection()`** - **OPEN, order-dependent**
    ```bash
-   xcodebuild -project SimpleTest.xcodeproj -scheme SimpleTest -configuration Debug -destination "platform=iOS Simulator,name=iPhone 17 Pro Max,OS=27.0" -collect-test-diagnostics never -skip-testing:"*" -only-testing:"SimpleTestUITests/SimpleTestUITests_Weight.testWeightSummaryUpdatesWithUnitOfMeasureChange" test
+   xcodebuild -project SimpleTest.xcodeproj -scheme SimpleTest -configuration Debug -destination "platform=iOS Simulator,id=4CF378DE-00AB-4BB9-BF60-A83B83C6574F" -collect-test-diagnostics never -skip-testing:"*" -only-testing:"SimpleTestUITests/SimpleTestUITests_Height/testHeightValidationClearsAfterSelection" test
    ```
-   - **Root cause:** After switching from Kilograms to Stones & Pounds mode, the retry loop's
-     total-pounds-error correction, combined with floating-point rounding across repeated unit
-     conversions, can fail to converge.
+   - **Symptom:** `XCTAssertTrue failed - Height summary should display '150' after selection`.
+   - **Confirmed behaviour:** **passes in isolation, fails when the whole `SimpleTestUITests_Height`
+     class runs.** Verified both ways. So this is *order/state dependence*, not a random flake, and
+     not the `adjust(toPickerWheelValue:)` artifact on its own.
+   - **It only began failing once defect 2 was fixed** - previously
+     `testHeightSummaryUpdatesWithUnitOfMeasureChange` aborted early, and now it runs to completion
+     and leaves the app in a different state for the next test.
+   - **Mechanism not yet pinned.** The app stores no preferences (`grep -rn "AppStorage\|UserDefaults" SimpleTest/`
+     returns nothing), so a relaunch should reset the unit of measure - which makes the leak
+     non-obvious. **Do not guess.** Start by dumping the unit selector's state at the beginning of
+     the failing test.
 
-2. **`testHeightValidationClearsAfterSelection()`** - **FIXED**
-   - **Issue:** Height validation error message may not clear after selection
-   - **Root cause:** Timing issue where the validation state update doesn't propagate before the
-     test checks
-   - **Fix:** Added `waitForElementToDisappear()` utility function that polls for the element to no
-     longer exist, rather than doing a synchronous `exists` check
+4. **Historic - `testHeightValidationClearsAfterSelection()` timing issue** - **FIXED earlier**
+   - **Root cause:** validation state update hadn't propagated before the test checked.
+   - **Fix:** `waitForElementToDisappear()`, polling rather than a synchronous `exists` check.
 
-3. **Activity Level test failures (initial value `''`, selections not persisting)** - **FIXED**
+5. **Activity Level test failures (initial value `''`, selections not persisting)** - **FIXED**
    (this session)
    - **Issue:** All three non-trivial Activity Level tests failed - initial summary value read as
      empty, and selections appeared to revert to "Sedentary" after collapsing.

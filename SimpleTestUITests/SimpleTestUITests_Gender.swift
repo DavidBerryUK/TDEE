@@ -5,6 +5,7 @@
 //  Created by David Berry on 17/09/2026.
 //
 
+import Foundation
 import XCTest
 
 final class SimpleTestUITests_Gender: XCTestCase {
@@ -13,21 +14,10 @@ final class SimpleTestUITests_Gender: XCTestCase {
 
     override func setUpWithError() throws {
         continueAfterFailure = false
-        // Reset app state to ensure clean isolation for parallel tests
-        SimpleTestUITestUtils.resetAppState()
     }
 
     override func tearDownWithError() throws {
-        // Clean up any expanded sections to leave the app in a known state
-        let app = XCUIApplication()
-        let section = app.otherElements["sectionGender"]
-        // Only tap if the section is expanded (has a segmented control visible)
-        if section.descendants(matching: .segmentedControl).firstMatch.exists {
-            section.tap() // collapse
-            sleep(1) // allow animation to complete
-        }
-        app.terminate()
-        sleep(1)
+        utils.resetAppState()
     }
 
     /// Opens the Gender section and checks that a Male/Female selector actually shows up.
@@ -37,17 +27,13 @@ final class SimpleTestUITests_Gender: XCTestCase {
         app.launch()
 
         let genderSection = app.otherElements["sectionGender"]
-        genderSection.tap()
+        XCTAssertTrue(utils.setSection("sectionGender", open: true, in: app), "Section should expand")
 
-        let segmentedControl = utils.findSegmentedControl(in: app)
-        if let segmentedControl = segmentedControl {
-            XCTAssertTrue(utils.waitForElement(segmentedControl), "Gender segmented control should exist")
+        let segmentedControl = utils.segmentedControl("Gender", in: app)
+        XCTAssertNotNil(segmentedControl, "Gender segmented control should exist")
 
-            XCTAssertTrue(segmentedControl.buttons["Male"].exists)
-            XCTAssertTrue(segmentedControl.buttons["Female"].exists)
-        } else {
-            XCTFail("Gender segmented control not found in accessibility hierarchy")
-        }
+        XCTAssertTrue(segmentedControl!.buttons["Male"].exists)
+        XCTAssertTrue(segmentedControl!.buttons["Female"].exists)
     }
 
     /// Switches gender from the default (Male) to Female and back, checking that the collapsed
@@ -60,21 +46,18 @@ final class SimpleTestUITests_Gender: XCTestCase {
 
         // Expand the Gender section
         let genderSection = app.otherElements["sectionGender"]
-        genderSection.tap()
+        XCTAssertTrue(utils.setSection("sectionGender", open: true, in: app), "Section should expand")
 
         // Verify initial selection is Male
-        guard let segmentedControl = utils.findSegmentedControl(in: app) else {
-            XCTFail("Gender segmented control not found in accessibility hierarchy")
-            return
-        }
-        XCTAssertTrue(utils.waitForElement(segmentedControl), "Gender segmented control should exist")
-        XCTAssertTrue(segmentedControl.buttons["Male"].isSelected, "Male should be selected by default")
+        let segmentedControl = utils.segmentedControl("Gender", in: app)
+        XCTAssertNotNil(segmentedControl, "Gender segmented control should exist")
+        XCTAssertTrue(segmentedControl!.buttons["Male"].isSelected, "Male should be selected by default")
 
         // Select Female
-        segmentedControl.buttons["Female"].tap()
+        segmentedControl!.buttons["Female"].tap()
 
         // Collapse the section
-        genderSection.tap()
+        XCTAssertTrue(utils.setSection("sectionGender", open: false, in: app), "Section should collapse")
 
         // Find and verify the summary value shows Female
         let genderValueText = utils.findSummaryValue(in: genderSection, withAccessibilityLabel: "Gender value")
@@ -86,16 +69,16 @@ final class SimpleTestUITests_Gender: XCTestCase {
         }
 
         // Expand the section again
-        genderSection.tap()
+        XCTAssertTrue(utils.setSection("sectionGender", open: true, in: app), "Section should expand")
 
         // Verify Female is still selected in the editor
-        XCTAssertTrue(segmentedControl.buttons["Female"].isSelected, "Female should remain selected after re-expanding")
+        XCTAssertTrue(segmentedControl!.buttons["Female"].isSelected, "Female should remain selected after re-expanding")
 
         // Select Male again
-        segmentedControl.buttons["Male"].tap()
+        segmentedControl!.buttons["Male"].tap()
 
         // Collapse the section
-        genderSection.tap()
+        XCTAssertTrue(utils.setSection("sectionGender", open: false, in: app), "Section should collapse")
 
         // Find and verify the summary value shows Male
         let genderValueTextMale = utils.findSummaryValue(in: genderSection, withAccessibilityLabel: "Gender value")
@@ -107,9 +90,9 @@ final class SimpleTestUITests_Gender: XCTestCase {
         }
 
         // Expand the section again
-        genderSection.tap()
+        XCTAssertTrue(utils.setSection("sectionGender", open: true, in: app), "Section should expand")
 
         // Verify Male is still selected in the editor
-        XCTAssertTrue(segmentedControl.buttons["Male"].isSelected, "Male should remain selected after re-expanding")
+        XCTAssertTrue(segmentedControl!.buttons["Male"].isSelected, "Male should remain selected after re-expanding")
     }
 }

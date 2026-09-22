@@ -13,9 +13,7 @@ struct UIWheelPickerAgeView: View {
                 }
             }
             .pickerStyle(.wheel)
-            .accessibilityLabel("Age picker")
             .accessibilityIdentifier("agePicker")
-            .accessibilityValue("Current age: \(value) years")
 
             Spacer()
 

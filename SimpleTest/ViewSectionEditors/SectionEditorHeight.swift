@@ -18,7 +18,7 @@ struct SectionEditorHeight: View {
                 .padding(.trailing, 8)
             UIWheelPickerHeightView(value: $model.height, unitOfMeasure: $model.heightUom)
         }
-        .accessibilityIdentifier("editorHeight")
+        .accessibilityElement(children: .contain)
     }
 }
 

@@ -19,8 +19,7 @@ struct UISegmentCalorieAdjustmentMethodView: View {
             }
         }
         .pickerStyle(.segmented)
-        .accessibilityLabel("Calorie adjustment method selector")
-        .accessibilityValue("Current: \(option.displayName)")
+        .accessibilityIdentifier("calorieAdjustmentMethodSelector")
     }
 }
 

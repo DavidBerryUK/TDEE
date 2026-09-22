@@ -5,6 +5,7 @@
 //  Created by David Berry on 17/09/2026.
 //
 
+import Foundation
 import XCTest
 
 final class SimpleTestUITests_BodyFat: XCTestCase {
@@ -13,67 +14,47 @@ final class SimpleTestUITests_BodyFat: XCTestCase {
 
     override func setUpWithError() throws {
         continueAfterFailure = false
-        // Terminate and relaunch to ensure clean state for parallel tests
-        let app = XCUIApplication()
-        app.terminate()
-        sleep(1)
-        app.launch()
-        sleep(2)
     }
 
     override func tearDownWithError() throws {
         // Clean up any expanded sections to leave the app in a known state
-        let app = XCUIApplication()
-        let section = app.otherElements["sectionBodyFatPercentage"]
-        // Only tap if the section is expanded (has a segmented control visible)
-        if section.descendants(matching: .segmentedControl).firstMatch.exists {
-            section.tap() // collapse
-            sleep(1) // allow animation to complete
-        }
-        app.terminate()
-        sleep(1)
+        utils.resetAppState()
     }
 
     @MainActor
     func testBodyFatMethodSelectorExists() throws {
         let app = XCUIApplication()
 
+        app.launch()
+
         let bodyFatSection = app.otherElements["sectionBodyFatPercentage"]
-        bodyFatSection.tap()
+        XCTAssertTrue(utils.setSection("sectionBodyFatPercentage", open: true, in: app), "Section should expand")
 
-        let segmentedControl = utils.findSegmentedControl(in: app)
-        if let segmentedControl = segmentedControl {
-            XCTAssertTrue(utils.waitForElement(segmentedControl), "Body fat method segmented control should exist")
+        let segmentedControl = utils.segmentedControl("bodyFatMethodSegmentedControl", in: app)
+        XCTAssertNotNil(segmentedControl, "Body fat method segmented control should exist")
 
-            XCTAssertTrue(segmentedControl.buttons["Omit"].exists)
-            XCTAssertTrue(segmentedControl.buttons["Estimate"].exists)
-            XCTAssertTrue(segmentedControl.buttons["Manual Entry"].exists)
-        } else {
-            XCTFail("Body fat method segmented control not found in accessibility hierarchy")
-        }
+        XCTAssertTrue(segmentedControl!.buttons["Omit"].exists)
+        XCTAssertTrue(segmentedControl!.buttons["Estimate"].exists)
+        XCTAssertTrue(segmentedControl!.buttons["Manual Entry"].exists)
     }
 
     @MainActor
     func testCanSelectManualBodyFatEntry() throws {
         let app = XCUIApplication()
+        app.launch()
 
         let bodyFatSection = app.otherElements["sectionBodyFatPercentage"]
-        bodyFatSection.tap()
+        XCTAssertTrue(utils.setSection("sectionBodyFatPercentage", open: true, in: app), "Section should expand")
 
-        let segmentedControl = utils.findSegmentedControl(in: app)
-        if let segmentedControl = segmentedControl {
-            XCTAssertTrue(utils.waitForElement(segmentedControl), "Body fat method segmented control should exist")
+        let segmentedControl = utils.segmentedControl("bodyFatMethodSegmentedControl", in: app)
+        XCTAssertNotNil(segmentedControl, "Body fat method segmented control should exist")
 
-            segmentedControl.buttons["Manual Entry"].tap()
+        segmentedControl!.buttons["Manual Entry"].tap()
 
-            // Find body fat pickers (there are 2 for integer and decimal parts)
-            let bodyFatPickers = utils.findPickers(in: app)
-            XCTAssertTrue(bodyFatPickers.count >= 1, "Body fat percentage picker(s) should exist after selecting manual entry")
-            if !bodyFatPickers.isEmpty {
-                XCTAssertTrue(utils.waitForElement(bodyFatPickers[0]), "Body fat percentage picker should exist after selecting manual entry")
-            }
-        } else {
-            XCTFail("Body fat method segmented control not found in accessibility hierarchy")
-        }
+        // Find body fat pickers (there are 2 for integer and decimal parts)
+        let bodyFatWheel = utils.wheel("bodyFatPicker", in: app)
+        let bodyFatDecimalWheel = utils.wheel("bodyFatDecimalPicker", in: app)
+        XCTAssertNotNil(bodyFatWheel, "Body fat integer picker should exist after selecting manual entry")
+        XCTAssertNotNil(bodyFatDecimalWheel, "Body fat decimal picker should exist after selecting manual entry")
     }
 }

@@ -10,7 +10,112 @@ import XCTest
 
 class SimpleTestUITestUtils {
 
-    // MARK: - Helper Methods
+    // MARK: - Section State
+
+    static let sectionExpanded = "expanded"
+    static let sectionCollapsed = "collapsed"
+
+    /// Sections present on the main screen. `sectionMacroSplit` and `sectionCalorieAdjustment`
+    /// are deliberately absent - they do not exist in this screen's accessibility tree.
+    static let allSectionIds = [
+        "sectionAge",
+        "sectionGender",
+        "sectionHeight",
+        "sectionWeight",
+        "sectionActivityLevel",
+        "sectionBodyFatPercentage",
+    ]
+
+    /// A section's disclosure control. It is a BUTTON, not an image: the view sets
+    /// `.accessibilityAddTraits(.isButton)`, which determines the XCUIElement type.
+    /// Its accessibility value is the section's open/closed state.
+    static func disclosure(forSection sectionId: String, in app: XCUIApplication) -> XCUIElement {
+        return app.buttons["\(sectionId).disclosure"]
+    }
+
+    /// Whether a section is currently expanded. Nil if the disclosure cannot be found.
+    static func isSectionExpanded(_ sectionId: String, in app: XCUIApplication, timeout: TimeInterval = 5.0) -> Bool? {
+        let d = disclosure(forSection: sectionId, in: app)
+        guard d.waitForExistence(timeout: timeout), let v = d.value as? String else { return nil }
+        return v == sectionExpanded
+    }
+
+    /// Puts a section into the requested state and waits until the UI confirms it.
+    ///
+    /// Idempotent: if the section is already in the requested state this does nothing and
+    /// succeeds. That matters because a tap that misses the header used to silently adjust a
+    /// picker value and let the test continue; now a missed tap leaves the state unchanged and is
+    /// retried, so it can no longer corrupt a value.
+    ///
+    /// Only the disclosure button is ever tapped. Never tap the section container:
+    /// `XCUIElement.tap()` hits the geometric centre of the element's frame, and for a tall
+    /// expanded editor that centre is inside the picker, not the header.
+    @discardableResult
+    static func setSection(_ sectionId: String, open: Bool, in app: XCUIApplication, timeout: TimeInterval = 5.0, maxAttempts: Int = 3) -> Bool {
+        let d = disclosure(forSection: sectionId, in: app)
+        guard d.waitForExistence(timeout: timeout) else { return false }
+        let target = open ? sectionExpanded : sectionCollapsed
+
+        for _ in 1...maxAttempts {
+            if d.value as? String == target { return true }
+            if !d.isHittable { app.swipeUp() }
+            d.tap()
+            if waitForValue(of: d, toEqual: target, timeout: timeout) { return true }
+        }
+        return false
+    }
+
+    /// Polls an element's accessibility value until it equals `expected`. Use this instead of
+    /// sleeping after an action that changes state.
+    static func waitForValue(of element: XCUIElement, toEqual expected: String, timeout: TimeInterval = 5.0, pollInterval: TimeInterval = 0.05) -> Bool {
+        var elapsed: TimeInterval = 0
+        while elapsed < timeout {
+            if element.value as? String == expected { return true }
+            Thread.sleep(forTimeInterval: pollInterval)
+            elapsed += pollInterval
+        }
+        return false
+    }
+
+    // MARK: - Control Lookup
+    //
+    // Both helpers resolve a control by accessibility identifier, never by position and never by
+    // "whichever one is first".
+    //
+    // An identifier set on a `.wheel` Picker does NOT reach the underlying `.pickerWheel` element
+    // (the wheel's own identifier is always ''). It lands on the enclosing `.picker` element, so
+    // the wheel is reached as `app.pickers[id].pickerWheels`. Verified for all ten wheels.
+    //
+    // `element(boundBy: 0)` appears here and nowhere else in the target. It is safe only because
+    // the count is asserted to be exactly 1 first, so there is no ambiguity for it to hide.
+
+    /// The single picker wheel belonging to the Picker with the given identifier.
+    static func wheel(_ pickerId: String, in app: XCUIApplication, timeout: TimeInterval = 5.0,
+                      file: StaticString = #filePath, line: UInt = #line) -> XCUIElement? {
+        let wheels = app.pickers[pickerId].pickerWheels
+        guard wheels.element(boundBy: 0).waitForExistence(timeout: timeout) else {
+            XCTFail("No picker wheel found for '\(pickerId)'. Is the section expanded? For bodyFatPicker, is Manual Entry selected?", file: file, line: line)
+            return nil
+        }
+        guard wheels.count == 1 else {
+            XCTFail("Expected exactly 1 wheel for '\(pickerId)', found \(wheels.count).", file: file, line: line)
+            return nil
+        }
+        return wheels.element(boundBy: 0)
+    }
+
+    /// The segmented control with the given identifier. Addressed directly, not via a container.
+    static func segmentedControl(_ id: String, in app: XCUIApplication, timeout: TimeInterval = 5.0,
+                                 file: StaticString = #filePath, line: UInt = #line) -> XCUIElement? {
+        let control = app.segmentedControls[id]
+        guard control.waitForExistence(timeout: timeout) else {
+            XCTFail("No segmented control '\(id)'. Is the section expanded?", file: file, line: line)
+            return nil
+        }
+        return control
+    }
+
+    // MARK: - Helper Methods (deprecated patterns)
 
     /// Waits for an element to exist, polling rather than sleeping a fixed duration.
     static func waitForElement(_ element: XCUIElement, timeout: TimeInterval = 2.0) -> Bool {
@@ -31,7 +136,6 @@ class SimpleTestUITestUtils {
     static func launchFreshApp() -> XCUIApplication {
         let app = XCUIApplication()
         app.terminate()
-        sleep(1) // allow termination to complete
         app.launch()
         return app
     }
@@ -41,41 +145,10 @@ class SimpleTestUITestUtils {
     static func resetAppState() {
         let app = XCUIApplication()
         app.terminate()
-        sleep(1) // allow termination to complete
         app.launch()
-
-        // Wait for app to fully launch
-        sleep(2)
-
-        // Collapse any expanded sections to leave app in known state
-        let sectionNames = ["sectionAge", "sectionGender", "sectionHeight", "sectionWeight", "sectionActivityLevel", "sectionBodyFat"]
-        for sectionName in sectionNames {
-            let section = app.otherElements[sectionName]
-            if section.pickerWheels.firstMatch.exists {
-                section.tap() // collapse
-                sleep(1) // allow animation to complete (at least 1 second due to sleep() API constraint)
-            }
+        for sectionId in allSectionIds {
+            setSection(sectionId, open: false, in: app)
         }
-    }
-
-    /// Finds the first picker wheel in the accessibility hierarchy, waiting for it to appear.
-    static func findPicker(in app: XCUIApplication, timeout: TimeInterval = 2.0) -> XCUIElement? {
-        let picker = app.pickerWheels.firstMatch
-        return picker.waitForExistence(timeout: timeout) ? picker : nil
-    }
-
-    /// Finds the first segmented control in the accessibility hierarchy, waiting for it to appear.
-    static func findSegmentedControl(in app: XCUIApplication, timeout: TimeInterval = 2.0) -> XCUIElement? {
-        let control = app.descendants(matching: .segmentedControl).firstMatch
-        return control.waitForExistence(timeout: timeout) ? control : nil
-    }
-
-    /// Finds all picker wheels currently in the accessibility hierarchy, waiting for at least one
-    /// to appear.
-    static func findPickers(in app: XCUIApplication, timeout: TimeInterval = 2.0) -> [XCUIElement] {
-        guard app.pickerWheels.firstMatch.waitForExistence(timeout: timeout) else { return [] }
-        let count = app.pickerWheels.count
-        return (0..<count).map { app.pickerWheels.element(boundBy: $0) }
     }
 
     /// Finds the summary value text element for a section by its accessibility label, waiting for
@@ -85,10 +158,10 @@ class SimpleTestUITestUtils {
     ///   - label: The accessibility label of the summary value text (e.g., "Gender value")
     /// - Returns: The XCUIElement for the summary value, or nil if not found
     static func findSummaryValue(in sectionElement: XCUIElement, withAccessibilityLabel label: String, timeout: TimeInterval = 2.0) -> XCUIElement? {
-        let element = sectionElement.descendants(matching: .staticText)
+        let matches = sectionElement.descendants(matching: .staticText)
             .matching(NSPredicate(format: "label == %@", label))
-            .firstMatch
-        return element.waitForExistence(timeout: timeout) ? element : nil
+        guard matches.element(boundBy: 0).waitForExistence(timeout: timeout) else { return nil }
+        return matches.element(boundBy: 0)
     }
 
     /// Minimum settle time before trusting a read of an animated summary value. SwiftUI's default
@@ -183,17 +256,12 @@ class SimpleTestUITestUtils {
     ///     Retry corrections are clamped to this range so a boundary value (e.g. the max) can't
     ///     be nudged past the picker's actual limits, which `adjust(toPickerWheelValue:)`
     ///     treats as a hard failure rather than a normal mismatch.
-    ///   - wheelIndex: Which of `app.pickerWheels` to drive. Height's editor keeps all three
-    ///     unit variants (cm/inches/feet+inches) mounted at once behind a ZStack, so more than
-    ///     one `.pickerWheel` element can exist simultaneously even though only one is visible -
-    ///     index 0 is the centimeters wheel, matching its position in the view's source order
-    ///     (accessibility identifiers set directly on those pickers don't propagate to the
-    ///     underlying `.pickerWheel` element, the same gap documented above, so position is the
-    ///     only thing that reliably distinguishes them). Age and Gender only ever have one
-    ///     picker wheel on screen, so the default of 0 is correct for them unchanged.
+    ///   - wheelId: The accessibility identifier of the Picker element (e.g. "agePicker").
+    ///     The wheel is reached as `app.pickers[wheelId].pickerWheels`. Every wheel in the app
+    ///     has a unique identifier, so this replaces the positional `wheelIndex` approach.
     ///   - maxAttempts: How many times to retry the adjustment before giving up.
     /// - Returns: True once the summary confirms the value actually committed.
-    static func selectValueVerified(inSection section: XCUIElement, value: Int, summaryLabel: String, validRange: ClosedRange<Int>, wheelIndex: Int = 0, maxAttempts: Int = 3) -> Bool {
+    static func selectValueVerified(inSection section: XCUIElement, value: Int, summaryLabel: String, validRange: ClosedRange<Int>, wheelId: String, maxAttempts: Int = 3) -> Bool {
         let app = XCUIApplication()
 
         // Requesting the same target repeatedly does not converge: the commit error observed
@@ -204,9 +272,7 @@ class SimpleTestUITestUtils {
         var requestedValue = value
 
         for attempt in 1...maxAttempts {
-            let wheels = app.pickerWheels
-            guard wheels.element(boundBy: wheelIndex).waitForExistence(timeout: 2.0) else { return false }
-            let wheel = wheels.element(boundBy: wheelIndex)
+            guard let wheel = wheel(wheelId, in: app) else { return false }
             wheel.adjust(toPickerWheelValue: "\(requestedValue)")
 
             let summary = findSummaryValue(in: section, withAccessibilityLabel: summaryLabel)
@@ -240,16 +306,20 @@ class SimpleTestUITestUtils {
     /// - Parameters:
     ///   - section: Must currently be expanded and already showing `value`. Left collapsed on
     ///     success; left expanded if it gives up after `maxAttempts`.
+    ///   - sectionId: The section's accessibility identifier (e.g. "sectionAge"). Used to
+    ///     idempotently set the section state via `setSection(_:open:in:)`.
     ///   - value: The value that should still be selected after collapsing.
     ///   - summaryLabel: The accessibility label of the summary value text (e.g. "Age value").
     ///   - validRange: Forwarded to the retry's `selectValueVerified` call.
-    ///   - wheelIndex: Forwarded to the retry's `selectValueVerified` call.
+    ///   - wheelId: Forwarded to the retry's `selectValueVerified` call.
     ///   - maxAttempts: How many times to retry (collapse, check, and if needed re-select) before
     ///     giving up.
     /// - Returns: True once the collapsed summary confirms `value`.
-    static func collapseAndVerify(inSection section: XCUIElement, value: Int, summaryLabel: String, validRange: ClosedRange<Int>, wheelIndex: Int = 0, maxAttempts: Int = 3) -> Bool {
+    static func collapseAndVerify(inSection section: XCUIElement, sectionId: String, value: Int, summaryLabel: String, validRange: ClosedRange<Int>, wheelId: String, maxAttempts: Int = 3) -> Bool {
+        let app = XCUIApplication()
+
         for attempt in 1...maxAttempts {
-            section.tap() // collapse
+            guard setSection(sectionId, open: false, in: app) else { return false }
 
             let summary = findSummaryValue(in: section, withAccessibilityLabel: summaryLabel)
             let actual = summary.flatMap { waitForStableValue(of: $0) }.flatMap { Int($0) }
@@ -260,12 +330,10 @@ class SimpleTestUITestUtils {
 
             guard attempt < maxAttempts, let actual else { return false }
 
-            section.tap() // re-expand so the retry below can drive the wheel again
+            guard setSection(sectionId, open: true, in: app) else { return false }
             let corrected = value + (value - actual)
             let clamped = min(max(corrected, validRange.lowerBound), validRange.upperBound)
-            guard selectValueVerified(inSection: section, value: clamped, summaryLabel: summaryLabel, validRange: validRange, wheelIndex: wheelIndex) else {
-                return false
-            }
+            guard selectValueVerified(inSection: section, value: clamped, summaryLabel: summaryLabel, validRange: validRange, wheelId: wheelId) else { return false }
         }
         return false
     }

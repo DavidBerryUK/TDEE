@@ -16,8 +16,7 @@ struct UIWheelPickerActivityLevelView: View {
                 }
             }
             .pickerStyle(.wheel)
-            .accessibilityLabel("Activity level picker")
-            .accessibilityValue("Current: \(value.displayName)")
+            .accessibilityIdentifier("activityLevelPicker")
         }
     }
 }

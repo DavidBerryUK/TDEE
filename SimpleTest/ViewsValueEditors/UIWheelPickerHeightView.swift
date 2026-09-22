@@ -85,9 +85,6 @@ struct UIWheelPickerHeightView: View {
         .onChange(of: valueFeetInches) { _, newValue in
             convertFromFeetAndInchesToValue(feet: valueFeet, inches: newValue)
         }
-        .accessibilityLabel("Height picker")
-        .accessibilityValue("Current height: \(Int(value)) cm")
-        .accessibilityIdentifier("heightCmPicker")
     }
 }
 

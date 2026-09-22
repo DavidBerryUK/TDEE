@@ -5,6 +5,7 @@
 //  Created by David Berry on 17/09/2026.
 //
 
+import Foundation
 import XCTest
 
 final class SimpleTestUITests_Height: XCTestCase {
@@ -14,23 +15,10 @@ final class SimpleTestUITests_Height: XCTestCase {
 
     override func setUpWithError() throws {
         continueAfterFailure = false
-        // Reset app state to ensure clean isolation for parallel tests
-        SimpleTestUITestUtils.resetAppState()
     }
 
     override func tearDownWithError() throws {
-        // Clean up any expanded sections to leave the app in a known state
-        let app = XCUIApplication()
-        let section = app.otherElements["sectionHeight"]
-        // Only tap if the section is expanded (has a picker wheel visible)
-        if section.pickerWheels.firstMatch.exists {
-            section.tap() // collapse
-            sleep(1) // allow animation to complete
-        }
-
-        // Terminate app to ensure clean state for parallel tests
-        app.terminate()
-        sleep(1)
+        utils.resetAppState()
     }
 
     /// Opens the Height section and checks that a wheel picker for entering height actually
@@ -41,14 +29,10 @@ final class SimpleTestUITests_Height: XCTestCase {
         app.launch()
 
         let heightSection = app.otherElements["sectionHeight"]
-        heightSection.tap()
+        XCTAssertTrue(utils.setSection("sectionHeight", open: true, in: app), "Section should expand")
 
-        let picker = utils.findPicker(in: app)
-        if let picker = picker {
-            XCTAssertTrue(utils.waitForElement(picker), "Height picker should exist")
-        } else {
-            XCTFail("Height picker not found in accessibility hierarchy")
-        }
+        let picker = utils.wheel("heightCmWheel", in: app)
+        XCTAssertNotNil(picker, "Height cm picker should exist")
     }
 
     /// Picks a height in centimeters and checks the collapsed section header shows that value
@@ -59,24 +43,17 @@ final class SimpleTestUITests_Height: XCTestCase {
         app.launch()
 
         let heightSection = app.otherElements["sectionHeight"]
-        heightSection.tap()
+        XCTAssertTrue(utils.setSection("sectionHeight", open: true, in: app), "Section should expand")
 
-        guard let picker = utils.findPicker(in: app) else {
-            XCTFail("Height picker not found in accessibility hierarchy")
-            return
-        }
-        XCTAssertTrue(utils.waitForElement(picker), "Height picker should exist")
-
-        // The Height editor keeps the cm/inches/feet-and-inches wheels all mounted at once - see
-        // `selectValueVerified`'s `wheelIndex` doc comment. Centimeters is the default unit and
-        // sits at index 0.
-        XCTAssertTrue(utils.selectValueVerified(inSection: heightSection, value: 150, summaryLabel: "Height major value", validRange: cmRange), "Height summary should display '150' after selection")
+        // The Height editor keeps the cm/inches/feet-and-inches wheels all mounted at once -
+        // but now they have unique identifiers so no wheelIndex is needed.
+        XCTAssertTrue(utils.selectValueVerified(inSection: heightSection, value: 150, summaryLabel: "Height major value", validRange: cmRange, wheelId: "heightCmWheel"), "Height summary should display '150' after selection")
 
         let majorUnit = utils.findSummaryValue(in: heightSection, withAccessibilityLabel: "Height major units")
         XCTAssertEqual(majorUnit?.value as? String, "cm", "Height summary should display 'cm' as the unit")
 
-        // Collapse the section, leaving the UI in a clean state
-        heightSection.tap()
+        // Collapse the section using setSection
+        XCTAssertTrue(utils.setSection("sectionHeight", open: false, in: app), "Section should collapse")
     }
 
     /// Selects a height once in centimeters, then switches the unit selector through Inches and
@@ -88,24 +65,16 @@ final class SimpleTestUITests_Height: XCTestCase {
         app.launch()
 
         let heightSection = app.otherElements["sectionHeight"]
-        heightSection.tap()
-
-        guard let picker = utils.findPicker(in: app) else {
-            XCTFail("Height picker not found in accessibility hierarchy")
-            return
-        }
-        XCTAssertTrue(utils.waitForElement(picker), "Height picker should exist")
+        XCTAssertTrue(utils.setSection("sectionHeight", open: true, in: app), "Section should expand")
 
         // 178 cm converts to a clean 5 feet 10 inches (70 total inches), so the expected values
         // below aren't sensitive to floating point rounding under normal circumstances - though
         // the retries below do nudge away from 178 if collapsing perturbs the committed value.
         var cmTarget = 178
-        XCTAssertTrue(utils.selectValueVerified(inSection: heightSection, value: cmTarget, summaryLabel: "Height major value", validRange: cmRange), "Height summary should display '178' after selection")
+        XCTAssertTrue(utils.selectValueVerified(inSection: heightSection, value: cmTarget, summaryLabel: "Height major value", validRange: cmRange, wheelId: "heightCmWheel"), "Height summary should display '178' after selection")
 
-        guard let unitSelector = utils.findSegmentedControl(in: app) else {
-            XCTFail("Length unit selector not found in accessibility hierarchy")
-            return
-        }
+        let unitSelector = utils.segmentedControl("heightUnitSelector", in: app)
+        XCTAssertNotNil(unitSelector, "Length unit selector should exist")
 
         // Switch to Inches and check the header, not just the wheel. Collapsing can itself
         // perturb the committed value (see `verifyWithRetry`'s doc comment) - there's no inches
@@ -113,19 +82,18 @@ final class SimpleTestUITests_Height: XCTestCase {
         // value by the observed inches error (mirroring `LengthConverter.toInches`'s own
         // cm-to-inches ratio) and re-attempts the switch from there.
         let switchedToInches = utils.verifyWithRetry(inSection: heightSection, expected: "70", summaryLabel: "Height major value", steps: {
-            let selector = app.descendants(matching: .segmentedControl).firstMatch
-            selector.buttons["Inches"].tap()
-            heightSection.tap() // collapse to read the real committed summary
+            unitSelector!.buttons["Inches"].tap()
+            XCTAssertTrue(utils.setSection("sectionHeight", open: false, in: app), "Section should collapse")
         }, recover: { actual in
-            heightSection.tap() // re-expand
-            let selector = app.descendants(matching: .segmentedControl).firstMatch
-            selector.buttons["Cm"].tap()
+            XCTAssertTrue(utils.setSection("sectionHeight", open: true, in: app), "Section should expand")
+            let cmSelector = utils.segmentedControl("heightUnitSelector", in: app)
+            cmSelector!.buttons["Cm"].tap()
             if let actualInches = actual.flatMap({ Int($0) }) {
                 let inchesError = 70 - actualInches
                 let cmNudge = Int((Double(inchesError) * 2.54).rounded())
                 cmTarget = min(max(cmTarget + cmNudge, cmRange.lowerBound), cmRange.upperBound)
             }
-            _ = utils.selectValueVerified(inSection: heightSection, value: cmTarget, summaryLabel: "Height major value", validRange: cmRange)
+            _ = utils.selectValueVerified(inSection: heightSection, value: cmTarget, summaryLabel: "Height major value", validRange: cmRange, wheelId: "heightCmWheel")
         })
         XCTAssertTrue(switchedToInches, "Height summary should display '70' after switching to Inches")
 
@@ -140,9 +108,14 @@ final class SimpleTestUITests_Height: XCTestCase {
         // even though the feet digit alone already reads correctly as "5").
         var switchedToFeet = false
         for attempt in 1...3 {
-            let selector = app.descendants(matching: .segmentedControl).firstMatch
-            selector.buttons["Feet & Inches"].tap()
-            heightSection.tap() // collapse to read the real committed summary
+            // `verifyWithRetry`'s steps closure leaves the section collapsed when it succeeds
+            // without needing a recovery pass, so the editor - and the unit selector inside it -
+            // is not mounted. Re-assert the state rather than inheriting whichever one the
+            // previous block happened to leave behind.
+            XCTAssertTrue(utils.setSection("sectionHeight", open: true, in: app), "Section should expand")
+            let selector = utils.segmentedControl("heightUnitSelector", in: app)
+            selector!.buttons["Feet & Inches"].tap()
+            XCTAssertTrue(utils.setSection("sectionHeight", open: false, in: app), "Section should collapse")
 
             let majorFeet = utils.findSummaryValue(in: heightSection, withAccessibilityLabel: "Height major value")
                 .flatMap { utils.waitForStableValue(of: $0) }
@@ -156,15 +129,15 @@ final class SimpleTestUITests_Height: XCTestCase {
 
             guard attempt < 3 else { break }
 
-            heightSection.tap() // re-expand
-            let cmSelector = app.descendants(matching: .segmentedControl).firstMatch
-            cmSelector.buttons["Cm"].tap()
+            XCTAssertTrue(utils.setSection("sectionHeight", open: true, in: app), "Section should expand")
+            let cmSelector = utils.segmentedControl("heightUnitSelector", in: app)
+            cmSelector!.buttons["Cm"].tap()
             if let feet = majorFeet.flatMap({ Int($0) }), let inches = minorInches.flatMap({ Int($0) }) {
                 let totalInchesError = 70 - (feet * 12 + inches)
                 let cmNudge = Int((Double(totalInchesError) * 2.54).rounded())
                 cmTarget = min(max(cmTarget + cmNudge, cmRange.lowerBound), cmRange.upperBound)
             }
-            _ = utils.selectValueVerified(inSection: heightSection, value: cmTarget, summaryLabel: "Height major value", validRange: cmRange)
+            _ = utils.selectValueVerified(inSection: heightSection, value: cmTarget, summaryLabel: "Height major value", validRange: cmRange, wheelId: "heightCmWheel")
         }
         XCTAssertTrue(switchedToFeet, "Height summary should display '5' feet, '10' inches after switching to Feet & Inches")
 
@@ -182,18 +155,15 @@ final class SimpleTestUITests_Height: XCTestCase {
         app.launch()
 
         let heightSection = app.otherElements["sectionHeight"]
-        heightSection.tap()
+        XCTAssertTrue(utils.setSection("sectionHeight", open: true, in: app), "Section should expand")
 
-        guard let picker = utils.findPicker(in: app) else {
-            XCTFail("Height picker not found in accessibility hierarchy")
-            return
-        }
-        XCTAssertTrue(utils.waitForElement(picker), "Height picker should exist")
+        let picker = utils.wheel("heightCmWheel", in: app)
+        XCTAssertNotNil(picker, "Height picker should exist")
 
         let validationMessage = app.staticTexts["Please enter a valid Height"]
         XCTAssertTrue(validationMessage.exists, "Validation message should be visible while height is 0")
 
-        XCTAssertTrue(utils.selectValueVerified(inSection: heightSection, value: 150, summaryLabel: "Height major value", validRange: cmRange), "Height summary should display '150' after selection")
+        XCTAssertTrue(utils.selectValueVerified(inSection: heightSection, value: 150, summaryLabel: "Height major value", validRange: cmRange, wheelId: "heightCmWheel"), "Height summary should display '150' after selection")
 
         // Wait for the validation message to disappear - use a short timeout since we expect it gone
         XCTAssertTrue(utils.waitForElementToDisappear(validationMessage, timeout: 2.0), "Validation message should be cleared once a valid height is selected")

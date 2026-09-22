@@ -19,8 +19,7 @@ struct UISegmentUomWeightView: View {
             }
         }
         .pickerStyle(.segmented)
-        .accessibilityLabel("Weight unit selector")
-        .accessibilityValue("Current: \(option.displayName)")
+        .accessibilityIdentifier("weightUnitSelector")
     }
 }
 

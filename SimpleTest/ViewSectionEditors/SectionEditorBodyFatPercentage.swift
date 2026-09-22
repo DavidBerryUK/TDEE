@@ -22,7 +22,7 @@ struct SectionEditorBodyFatPercentage: View {
         ) {
             UIWheelPickerBodyFatView(value: $model.bodyFatPercentage)
         }
-        .accessibilityIdentifier("editorBodyFatPercentage")
+        .accessibilityElement(children: .contain)
     }
 }
 

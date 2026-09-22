@@ -27,7 +27,7 @@ struct SectionEditorCalorieAdjustment: View {
                     .padding(16)
             }
         }
-        .accessibilityIdentifier("editorCalorieAdjustment")
+        .accessibilityElement(children: .contain)
     }
 }
 

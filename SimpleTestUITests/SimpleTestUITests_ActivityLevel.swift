@@ -5,6 +5,7 @@
 //  Created by David Berry on 20/09/2026.
 //
 
+import Foundation
 import XCTest
 
 final class SimpleTestUITests_ActivityLevel: XCTestCase {
@@ -33,26 +34,53 @@ final class SimpleTestUITests_ActivityLevel: XCTestCase {
     /// `{16, 454, 408, 345}`, center y=626.5, well inside the editor which starts around y=524).
     /// The chevron sits in the header row at a fixed, small frame regardless of expansion state,
     /// so it's a reliable tap target either way.
-    private func toggleSection(_ section: XCUIElement) {
-        let chevron = section.images["chevron.down"]
-        if chevron.waitForExistence(timeout: 2.0) {
-            chevron.tap()
-        } else {
-            section.tap()
+    /// Puts the section into the requested state, rather than blindly toggling whatever state
+    /// it happens to be in.
+    ///
+    /// The caller states its *intent* (`open: true` / `open: false`); this reads the section's
+    /// current state from the disclosure control's accessibility value and taps only if the two
+    /// differ, then waits for the UI to confirm the change. Being idempotent matters: a tap that
+    /// missed, or a state that was not what the test assumed, previously flipped the section the
+    /// wrong way and the test carried on into a confusing failure. Now a wrong assumption is a
+    /// no-op and a missed tap is retried rather than corrupting a picker value.
+    ///
+    /// The chevron carries a stable identifier (`<sectionId>.disclosure`) and the `.isButton`
+    /// trait, which makes it a `button` rather than an `image` in the accessibility tree, so it
+    /// is looked up by identifier rather than by SF Symbol name. There is deliberately no
+    /// `section.tap()` fallback: tapping the section's own frame is the bug this avoids.
+    @discardableResult
+    private func setSection(open: Bool, maxAttempts: Int = 3) -> Bool {
+        let chevron = XCUIApplication().buttons["sectionActivityLevel.disclosure"]
+        guard chevron.waitForExistence(timeout: 5.0) else {
+            XCTFail("Activity Level disclosure button not found")
+            return false
         }
+        let target = open ? "expanded" : "collapsed"
+
+        for _ in 1...maxAttempts {
+            if chevron.value as? String == target { return true }
+            chevron.tap()
+            var elapsed: TimeInterval = 0
+            while elapsed < 5.0 {
+                if chevron.value as? String == target { return true }
+                Thread.sleep(forTimeInterval: 0.05)
+                elapsed += 0.05
+            }
+        }
+        XCTFail("Activity Level section did not reach '\(target)'")
+        return false
     }
 
     /// Selects an activity level by its full picker-wheel row name and verifies the section
     /// summary settles on the corresponding short name, retrying the adjustment if it doesn't
-    /// match yet (mirrors `SimpleTestUITestUtils.selectValueVerified`, but for this picker's
-    /// string-valued rows rather than integer ones).
+    /// match yet.
     @discardableResult
     private func selectActivityLevel(inSection section: XCUIElement, full: String, short: String, maxAttempts: Int = 3) -> Bool {
         let app = XCUIApplication()
         for _ in 1...maxAttempts {
-            let wheel = app.pickerWheels.firstMatch
-            guard wheel.waitForExistence(timeout: 2.0) else { return false }
-            wheel.adjust(toPickerWheelValue: full)
+            let wheel = utils.wheel("activityLevelPicker", in: app)
+            guard wheel != nil else { return false }
+            wheel!.adjust(toPickerWheelValue: full)
 
             let summary = utils.findSummaryValue(in: section, withAccessibilityLabel: "Activity level value")
             let actual = summary.flatMap { utils.waitForStableValue(of: $0) }
@@ -64,12 +92,11 @@ final class SimpleTestUITests_ActivityLevel: XCTestCase {
     }
 
     /// Collapses a section already showing `short` and confirms the summary still shows it once
-    /// collapsed, re-selecting `full` if collapsing changed the value (mirrors
-    /// `SimpleTestUITestUtils.collapseAndVerify`, but for this picker's string-valued rows).
+    /// collapsed, re-selecting `full` if collapsing changed the value.
     @discardableResult
     private func collapseAndVerifyActivityLevel(inSection section: XCUIElement, full: String, short: String, maxAttempts: Int = 3) -> Bool {
         for attempt in 1...maxAttempts {
-            toggleSection(section) // collapse
+            setSection(open: false)
 
             let summary = utils.findSummaryValue(in: section, withAccessibilityLabel: "Activity level value")
             let actual = summary.flatMap { utils.waitForStableValue(of: $0) }
@@ -79,7 +106,7 @@ final class SimpleTestUITests_ActivityLevel: XCTestCase {
 
             guard attempt < maxAttempts else { return false }
 
-            toggleSection(section) // re-expand so the retry can drive the wheel again
+            setSection(open: true) // so the retry can drive the wheel again
             guard selectActivityLevel(inSection: section, full: full, short: short) else { return false }
         }
         return false
@@ -87,21 +114,10 @@ final class SimpleTestUITests_ActivityLevel: XCTestCase {
 
     override func setUpWithError() throws {
         continueAfterFailure = false
-        // Reset app state to ensure clean isolation for parallel tests
-        SimpleTestUITestUtils.resetAppState()
     }
 
     override func tearDownWithError() throws {
-        // Clean up any expanded sections to leave the app in a known state
-        let app = XCUIApplication()
-        let section = app.otherElements["sectionActivityLevel"]
-        // Only tap if the section is expanded (has a picker wheel visible)
-        if section.pickerWheels.firstMatch.exists {
-            toggleSection(section) // collapse
-            sleep(1) // allow animation to complete
-        }
-        app.terminate()
-        sleep(1)
+        utils.resetAppState()
     }
 
     /// Opens the Activity Level section and checks that the wheel picker shows up.
@@ -110,21 +126,11 @@ final class SimpleTestUITests_ActivityLevel: XCTestCase {
         let app = XCUIApplication()
         app.launch()
 
-        // Ensure section is collapsed first, then expand
         let activitySection = app.otherElements["sectionActivityLevel"]
-        if activitySection.exists {
-            // If section header exists but picker doesn't, section is collapsed
-            // Tap to expand
-            toggleSection(activitySection)
-            Thread.sleep(forTimeInterval: 0.3)
-        }
+        XCTAssertTrue(utils.setSection("sectionActivityLevel", open: true, in: app), "Section should expand")
 
-        let picker = utils.findPicker(in: app)
-        if let picker = picker {
-            XCTAssertTrue(utils.waitForElement(picker), "Activity level picker should exist")
-        } else {
-            XCTFail("Activity level picker not found in accessibility hierarchy")
-        }
+        let picker = utils.wheel("activityLevelPicker", in: app)
+        XCTAssertNotNil(picker, "Activity level picker should exist")
     }
 
     /// Selects each activity level and verifies the collapsed section header
@@ -135,15 +141,11 @@ final class SimpleTestUITests_ActivityLevel: XCTestCase {
         app.launch()
 
         let activitySection = app.otherElements["sectionActivityLevel"]
-        toggleSection(activitySection)
+        XCTAssertTrue(utils.setSection("sectionActivityLevel", open: true, in: app), "Section should expand")
 
         // Verify initial selection is Sedentary (default)
-        guard let picker = utils.findPicker(in: app) else {
-            XCTFail("Activity level picker not found")
-            return
-        }
-
-        XCTAssertTrue(utils.waitForElement(picker), "Activity level picker should exist")
+        let picker = utils.wheel("activityLevelPicker", in: app)
+        XCTAssertNotNil(picker, "Activity level picker should exist")
 
         // Check initial value is Sedentary
         let summary = utils.findSummaryValue(in: activitySection, withAccessibilityLabel: "Activity level value")
@@ -160,7 +162,7 @@ final class SimpleTestUITests_ActivityLevel: XCTestCase {
                           "Summary should show '\(level.short)' after collapsing")
 
             // Re-expand for next iteration
-            toggleSection(activitySection)
+            XCTAssertTrue(utils.setSection("sectionActivityLevel", open: true, in: app), "Section should expand")
         }
     }
 
@@ -172,12 +174,10 @@ final class SimpleTestUITests_ActivityLevel: XCTestCase {
         app.launch()
 
         let activitySection = app.otherElements["sectionActivityLevel"]
-        toggleSection(activitySection)
+        XCTAssertTrue(utils.setSection("sectionActivityLevel", open: true, in: app), "Section should expand")
 
-        guard let picker = utils.findPicker(in: app) else {
-            XCTFail("Activity level picker not found")
-            return
-        }
+        let picker = utils.wheel("activityLevelPicker", in: app)
+        XCTAssertNotNil(picker, "Activity level picker should exist")
 
         // Select Athlete
         XCTAssertTrue(selectActivityLevel(inSection: activitySection, full: "Athlete (2x per day)", short: "Athlete"),
@@ -188,7 +188,7 @@ final class SimpleTestUITests_ActivityLevel: XCTestCase {
                       "Value should persist after collapse/expand")
 
         // Re-expand and verify in-editor value
-        toggleSection(activitySection)
+        XCTAssertTrue(utils.setSection("sectionActivityLevel", open: true, in: app), "Section should expand")
         let summary = utils.findSummaryValue(in: activitySection, withAccessibilityLabel: "Activity level value")
         XCTAssertTrue(summary?.exists ?? false, "Activity level summary should exist")
         let value = utils.waitForStableValue(of: summary!)
@@ -203,15 +203,13 @@ final class SimpleTestUITests_ActivityLevel: XCTestCase {
         app.launch()
 
         let activitySection = app.otherElements["sectionActivityLevel"]
-        toggleSection(activitySection)
+        XCTAssertTrue(utils.setSection("sectionActivityLevel", open: true, in: app), "Section should expand")
 
-        guard let picker = utils.findPicker(in: app) else {
-            XCTFail("Activity level picker not found")
-            return
-        }
+        let picker = utils.wheel("activityLevelPicker", in: app)
+        XCTAssertNotNil(picker, "Picker should exist")
 
         // Start with default (Sedentary)
-        XCTAssertTrue(utils.waitForElement(picker), "Picker should exist")
+        XCTAssertTrue(utils.waitForElement(picker!), "Picker should exist")
 
         // Select Light Exercise
         XCTAssertTrue(selectActivityLevel(inSection: activitySection, full: "Light Exercise (1-2 days)", short: "Light Exercise"),
@@ -222,7 +220,7 @@ final class SimpleTestUITests_ActivityLevel: XCTestCase {
                       "Summary should show 'Light Exercise' after collapsing")
 
         // Re-expand, select Heavy Exercise, collapse again
-        toggleSection(activitySection)
+        XCTAssertTrue(utils.setSection("sectionActivityLevel", open: true, in: app), "Section should expand")
         XCTAssertTrue(selectActivityLevel(inSection: activitySection, full: "Heavy Exercise (3-5 days)", short: "Heavy Exercise"),
                       "Should be able to select Heavy Exercise")
 

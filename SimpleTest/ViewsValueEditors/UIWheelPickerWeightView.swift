@@ -91,9 +91,6 @@ struct UIWheelPickerWeightView: View {
         .onChange(of: valueStonePounds) { _, newValue in
             convertFromStonesAndPoundsToValue(stones: valueStones, pounds: newValue)
         }
-        .accessibilityLabel("Weight picker")
-        .accessibilityValue("Current weight: \(Int(value)) kg")
-        .accessibilityIdentifier("weightPicker")
     }
 }
 
@@ -160,6 +157,7 @@ private extension UIWheelPickerWeightView {
                 }
             }
             .pickerStyle(.wheel)
+            .accessibilityIdentifier("weightKgWheel")
             UITextPickerLabel("kg")
                 .offset(x: 36)
         }
@@ -173,6 +171,7 @@ private extension UIWheelPickerWeightView {
                 }
             }
             .pickerStyle(.wheel)
+            .accessibilityIdentifier("weightPoundsWheel")
             UITextPickerLabel("pounds")
                 .offset(x: 50)
         }
@@ -188,6 +187,7 @@ private extension UIWheelPickerWeightView {
                     }
                 }
                 .pickerStyle(.wheel)
+                .accessibilityIdentifier("weightStonesWheel")
                 UITextPickerLabel("stones")
                     .offset(x: 36)
             }
@@ -199,6 +199,7 @@ private extension UIWheelPickerWeightView {
                     }
                 }
                 .pickerStyle(.wheel)
+                .accessibilityIdentifier("weightStonesPoundsWheel")
                 UITextPickerLabel("pounds")
                     .offset(x: 36)
             }
