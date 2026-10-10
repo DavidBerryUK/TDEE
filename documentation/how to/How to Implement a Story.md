@@ -2,12 +2,12 @@
 
 This document describes the process for implementing a story in the SimpleTest iOS project.
 
-## 1. Ensure code is merged into `main` or `feature/fixes`
+## 1. Ensure code is merged into `develop`
 
-Update to the latest branch before doing anything else. This project uses a snagging workflow where finished stories are merged into `features/fixes` rather than directly to `main`.
+Update to the latest `develop` branch before doing anything else.
 
 ```bash
-git checkout features/fixes
+git checkout develop
 git pull
 ```
 
@@ -97,14 +97,14 @@ xcodebuild -project SimpleTest.xcodeproj -scheme SimpleTest -configuration Debug
 - In `documentation/stories/README.md`, reflect that this story is done.
 - If anything about this process turned out to be wrong, update this file too.
 
-## 10. Stage, commit, and merge back into `features/fixes`
+## 10. Stage, commit, and merge back into `develop`
 
 ```bash
 git add .
 git commit -m "Implement story-<NNN>: <description>"
-git checkout features/fixes
+git checkout develop
 git pull
-git merge --no-ff features/story-<NNN>-<short-slug> -m "Merge features/story-<NNN>-<short-slug> into features/fixes"
+git merge --no-ff features/story-<NNN>-<short-slug> -m "Merge features/story-<NNN>-<short-slug> into develop"
 git branch -d features/story-<NNN>-<short-slug>
 ```
 
