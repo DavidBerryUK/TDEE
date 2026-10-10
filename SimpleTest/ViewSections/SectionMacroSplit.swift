@@ -12,6 +12,7 @@ struct SectionMacroSplit: View {
     @Bindable var macroMix: MacroSplitViewModel
     @Bindable var sectionManager : SectionManagerViewModel
     let calculationResult: CalculatorResultViewModel
+    @Binding var path: [EnumAppRoute]
 
     var body: some View {
 
@@ -30,6 +31,16 @@ struct SectionMacroSplit: View {
                     SectionMacroMixResults(calculationResults: calculationResult)
                         .padding(.top, Spacing.medium)
                         .padding(.bottom, Spacing.small)
+
+                    // Navigation button to manage presets
+                    Button("Manage Presets") {
+                        path.append(.maintainMacroConfig)
+                    }
+                    .foregroundColor(.accentColor)
+                    .font(.body.weight(.semibold))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .padding(.horizontal)
                 }
             }
         )

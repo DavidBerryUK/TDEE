@@ -8,6 +8,7 @@ This directory contains user stories for the SimpleTest iOS project.
 |---|-------|--------|
 | 001 | Simulator/Device Configuration | Done |
 | 002 | Macro Split Visibility | In Progress |
+| 003 | Navigate from Macro Split to Macro Options | In Progress |
 
 ---
 
@@ -63,5 +64,38 @@ This directory contains user stories for the SimpleTest iOS project.
 - Review `MacroSplitView` or similar macro-related view
 - Consider using `ScrollView` if content exceeds available space
 - Ensure layout adapts to different screen sizes
+
+**Depends on:** None
+
+---
+
+## Story 003: Navigate from Macro Split to Macro Options
+
+**Objective:** Add a way to navigate from the expanded Macro Split section to the Macro Options list where users can view, add, and edit custom macro presets.
+
+**Motivation:** Users need an easy way to access the macro mixer and manage their custom macro presets without having to use the settings menu. The Macro Split section is where users interact with macros daily, so it makes sense to provide direct access to the full macro configuration from there.
+
+**Current Behavior:**
+- Macro Split section shows current macro selection via a picker wheel
+- Macro Options list (accessible via Settings > Maintain Macros) lists all available presets
+- No direct navigation from Macro Split section to Macro Options
+- Users must go through Settings to manage custom macros
+
+**Expected Behavior:**
+- Tapping the Macro Split section header (or a chevron icon) navigates to the Macro Options list
+- From the Macro Options list, users can:
+  - View all available macro presets
+  - Add new custom macros using the mixer
+  - Edit existing macros
+- Changes to macro presets are immediately available in the Macro Split picker
+
+**Open Questions:**
+- Should the navigation be from the section header or a dedicated button?
+- Should the section expand when tapped, or does navigation take precedence?
+
+**Decisions:**
+- Add a chevron/right arrow icon to the right side of the Macro Split section title
+- Tapping the title area or chevron navigates to the Macro Options list
+- Keep expansion behavior for the section (toggle detail view)
 
 **Depends on:** None

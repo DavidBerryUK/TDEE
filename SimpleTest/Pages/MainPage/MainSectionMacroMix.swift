@@ -5,12 +5,13 @@ struct MainSectionMacroMix: View {
     let macroMix: MacroSplitViewModel
     let sectionManager: SectionManagerViewModel
     let calculationResult: CalculatorResultViewModel
+    @Binding var path: [EnumAppRoute]
 
     var body: some View {
         ScrollViewReader { proxy in
             VStack(spacing: 0) {
                 Divider()
-                SectionMacroSplit(macroMix: macroMix, sectionManager: sectionManager, calculationResult: calculationResult)
+                SectionMacroSplit(macroMix: macroMix, sectionManager: sectionManager, calculationResult: calculationResult, path: $path)
                     .id("MacroSplit")
                 Divider()
             }
