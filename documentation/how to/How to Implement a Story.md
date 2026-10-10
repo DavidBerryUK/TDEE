@@ -2,7 +2,21 @@
 
 This document describes the process for implementing a story in the SimpleTest iOS project.
 
-## 1. Ensure code is merged into `develop`
+## Overview
+
+This workflow uses Git feature branches for isolation and a user-in-the-loop approach to ensure quality. All changes are made on feature branches and merged into `develop` only after user approval at key checkpoints.
+
+---
+
+## Workflow at a Glance
+
+```
+develop --> feature branch --> implement --> user test --> commit & merge
+```
+
+---
+
+## 1. Prepare: Ensure code is merged into `develop`
 
 Update to the latest `develop` branch before doing anything else.
 
@@ -13,7 +27,9 @@ git pull
 
 Check `git status` here too. Uncommitted changes sitting on the branch are either stray work-in-progress or something that needs investigating before proceeding.
 
-## 2. Create an appropriate feature branch
+---
+
+## 2. Create a feature branch
 
 ```bash
 git checkout -b features/story-<NNN>-<short-slug>
@@ -21,9 +37,13 @@ git checkout -b features/story-<NNN>-<short-slug>
 
 E.g. `features/story-003-age-picker-defaults` for a story about age picker defaults.
 
+**Agent note:** Use `features/` prefix, not `feature/`. The plural is intentional.
+
 Mark this story as `In Progress` in `documentation/stories/README.md`'s Status column at this point — before any other code changes — so nobody else starts the same story in parallel.
 
-## 3. Ensure current source tests run
+---
+
+## 3. Establish baseline: Run existing tests
 
 Confirm the baseline is green on this fresh branch before touching anything.
 
@@ -35,7 +55,9 @@ Or run tests via Xcode's test navigator.
 
 If this baseline is already red, stop and fix or flag that first — don't let a pre-existing failure get absorbed into this story's own commit.
 
-## 4. Check dependency order and open questions
+---
+
+## 4. Review story requirements
 
 Stories must be built in dependency order. Check the story's own **Depends on** line against the `Status` column in `documentation/stories/README.md`. If any story it depends on is not `Done`, **stop and raise this clearly** — do not begin planning or implementation until it's resolved.
 
@@ -44,7 +66,9 @@ Then open the story's own file (`documentation/stories/story-<NNN>-<short-slug>/
 - **If it has open questions**: resolve them with the person who owns the story before writing any code.
 - **If it says "None outstanding at the decision level"**: proceed to planning.
 
-## 5. Create a plan for the story
+---
+
+## 5. Create an implementation plan
 
 Write an implementation plan from the story's **Decisions** section. The plan should detail:
 - Which files/components it touches
@@ -55,11 +79,25 @@ Before planning any change that touches calculation logic, review the relevant f
 
 Write the plan to `documentation/stories/story-<NNN>-<short-slug>/plan.md`.
 
-## 6. Ask the user to check the plan
+### Agent-friendly plan checklist
 
-Share the plan before writing code. Get an explicit go-ahead before moving to implementation.
+When writing plans, consider:
+- **File changes**: List exact file paths
+- **New files**: Note if any need to be created
+- **Pattern matching**: Reference similar existing implementations
+- **Test locations**: Specify where tests should go
 
-## 7. Implement the plan, with tests
+---
+
+## 6. User review: Plan approval
+
+**Checkpoint:** Before writing any code, share the plan with the user for approval.
+
+Do not proceed to implementation until the user has signed off on the plan.
+
+---
+
+## 7. Implement the plan
 
 Write the code and its tests together. For UI changes, ensure they work in both simulator and on physical devices.
 
@@ -81,9 +119,29 @@ struct AppConfig {
 }
 ```
 
-See `documentation/how to/How to Implement a Story.md` (this file) for more options.
+### Code quality checklist
 
-## 8. Run all tests in the project
+- [ ] Code follows existing patterns
+- [ ] Tests are written alongside implementation
+- [ ] No TODOs left in code (use `// FIXME:` with explainers instead)
+- [ ] New types follow Swift naming conventions
+- [ ] Public APIs have documentation comments
+
+---
+
+## 8. User review: Test drive
+
+**Checkpoint:** After implementation but before running tests, let the user test the changes manually in Xcode.
+
+- Build and run the app in Xcode
+- Test the new feature in the simulator
+- Verify it works on a physical device if applicable
+
+Do not proceed to automated testing until the user has confirmed the feature works as expected.
+
+---
+
+## 9. Run automated tests
 
 Run the full test suite to confirm nothing regressed:
 
@@ -91,13 +149,22 @@ Run the full test suite to confirm nothing regressed:
 xcodebuild -project SimpleTest.xcodeproj -scheme SimpleTest -configuration Debug test
 ```
 
-## 9. Update the story, its README, and this how-to
+If tests fail:
+- Fix the code or tests as appropriate
+- Re-run until all tests pass
+- Document any test skipped and why
 
-- In the story file itself, note that it's been implemented.
-- In `documentation/stories/README.md`, reflect that this story is done.
-- If anything about this process turned out to be wrong, update this file too.
+---
 
-## 10. Stage, commit, and merge back into `develop`
+## 10. Update documentation
+
+- In the story file itself, note that it's been implemented
+- In `documentation/stories/README.md`, reflect that this story is `Done`
+- If anything about this process turned out to be wrong, update this file too
+
+---
+
+## 11. Commit and merge
 
 ```bash
 git add .
@@ -108,6 +175,52 @@ git merge --no-ff features/story-<NNN>-<short-slug> -m "Merge features/story-<NN
 git branch -d features/story-<NNN>-<short-slug>
 ```
 
-## 11. Self-review this how-to
+### Agent-friendly git commands
+
+- `git add .` stages all changes on the feature branch
+- `--no-ff` ensures a merge commit is created (preserves branch history)
+- Delete the feature branch after merging
+
+---
+
+## 12. Self-review this how-to
 
 Once the story is merged, look back and ask whether this file held up. If anything was worked around, discovered late, or turned out not to matter, edit this file now.
+
+---
+
+## Common Patterns
+
+### Adding a new configuration key
+
+1. Add key to `ConfigKeys.swift`
+2. Update `ProfileDefaults.swift` simulator and device methods
+3. Update `ProfileViewModel.swift` with default value
+4. Test in both simulator and device
+
+### Adding a new UI view
+
+1. Create view file in `ViewSections/`
+2. Follow existing view patterns
+3. Add tests in `SimpleTestTests/`
+4. Test in Xcode preview and simulator
+
+---
+
+## Troubleshooting
+
+### Merge conflicts
+
+If merging back to develop produces conflicts:
+1. Ensure develop is up to date: `git checkout develop && git pull`
+2. Rebase or merge develop into your feature branch
+3. Resolve conflicts, then re-run tests
+4. Merge back to develop
+
+### Test failures
+
+If tests fail after implementation:
+1. Identify whether the test or implementation is wrong
+2. Fix accordingly
+3. Re-run tests until all pass
+4. Do not proceed with merge until tests are green
