@@ -15,12 +15,13 @@
 - User can interact with macro values if needed
 
 **Open Questions:**
-- Should the expansion be animated?
-- Should scrolling be enabled within the expanded view?
+- Should the expansion be animated? - **No** - the panel is already expanded, just not fully visible
+- Should scrolling be enabled within the expanded view? - **No** - the screen itself needs to be scrollable so the expanded panel is visible within the viewport
 
 **Implementation Notes:**
 - Review `MacroSplitView` or similar macro-related view
-- Consider using `ScrollView` if content exceeds available space
+- Ensure the container view is a `ScrollView` (not `List` or non-scrolling stack)
+- Adjust layout so the expanded macro panel appears within the visible viewport
 - Ensure layout adapts to different screen sizes
 
 **Depends on:** None
