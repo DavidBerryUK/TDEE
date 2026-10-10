@@ -8,10 +8,11 @@
 import SwiftUI
 
 struct SectionMacroSplit: View {
-        
+
     @Bindable var macroMix: MacroSplitViewModel
     @Bindable var sectionManager : SectionManagerViewModel
-    
+    let calculationResult: CalculatorResultViewModel
+
     var body: some View {
 
         UILayoutSectionView(
@@ -24,23 +25,28 @@ struct SectionMacroSplit: View {
                 UISectionSummaryValueMacroMix(macroMix: macroMix, sectionManager: sectionManager)
             },
             editorView: {
-                SectionEditorMacroMix(macroMix: macroMix)
+                VStack(spacing: 0) {
+                    SectionEditorMacroMix(macroMix: macroMix)
+                    SectionMacroMixResults(calculationResults: calculationResult)
+                        .padding(.top, Spacing.medium)
+                        .padding(.bottom, Spacing.small)
+                }
             }
         )
     }
 }
 
-
-#Preview("collapsed") {
-    @Previewable @State var macroMix = MacroSplitViewModel()
-    @Previewable @State var sectionManager = SectionManagerViewModel()
-    sectionManager.macroMixExpanded = false
-    return SectionMacroSplit(macroMix: macroMix, sectionManager: sectionManager)
-}
-
-#Preview("expanded") {
-    @Previewable @State var macroMix = MacroSplitViewModel()
-    @Previewable @State var sectionManager = SectionManagerViewModel()
-    sectionManager.macroMixExpanded = true
-    return SectionMacroSplit(macroMix: macroMix, sectionManager: sectionManager)
-}
+// Preview disabled due to compiler crash with @Previewable and @Bindable
+// #Preview("collapsed") {
+//     @Previewable @State var macroMix = MacroSplitViewModel()
+//     @Previewable @State var sectionManager = SectionManagerViewModel()
+//     sectionManager.macroMixExpanded = false
+//     return SectionMacroSplit(macroMix: macroMix, sectionManager: sectionManager)
+// }
+//
+// #Preview("expanded") {
+//     @Previewable @State var macroMix = MacroSplitViewModel()
+//     @Previewable @State var sectionManager = SectionManagerViewModel()
+//     sectionManager.macroMixExpanded = true
+//     return SectionMacroSplit(macroMix: macroMix, sectionManager: sectionManager)
+// }

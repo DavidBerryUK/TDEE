@@ -111,6 +111,8 @@ Do not proceed to implementation until the user has signed off on the plan.
 
 ## 8. Implement the plan
 
+**Think step by step.** Always begin your response with `Thought process:` followed by numbered reasoning, then `Answer:` for the final output. Be concise but thorough.
+
 Write the code and its tests together. For UI changes, ensure they work in both simulator and on physical devices.
 
 ### Simulator vs. Device Configuration
