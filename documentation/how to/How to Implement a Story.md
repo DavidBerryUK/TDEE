@@ -11,7 +11,7 @@ This workflow uses Git feature branches for isolation and a user-in-the-loop app
 ## Workflow at a Glance
 
 ```
-develop --> feature branch --> implement --> user test --> commit & merge
+develop --> feature branch --> docs --> implement --> user test --> commit & merge
 ```
 
 ---
@@ -39,11 +39,23 @@ E.g. `features/story-003-age-picker-defaults` for a story about age picker defau
 
 **Agent note:** Use `features/` prefix, not `feature/`. The plural is intentional.
 
-Mark this story as `In Progress` in `documentation/stories/README.md`'s Status column at this point — before any other code changes — so nobody else starts the same story in parallel.
+All story work (including documentation updates) happens on this branch. Do not work on `develop` directly.
 
 ---
 
-## 3. Establish baseline: Run existing tests
+## 3. Create story documentation
+
+Before implementing any code, create the story documentation:
+
+1. Update `documentation/stories/README.md` to mark this story as `In Progress`
+2. Create `documentation/stories/story-<NNN>-<short-slug>/` directory
+3. Create `story.md` with requirements, open questions, and implementation notes
+
+See existing stories for templates and formatting.
+
+---
+
+## 4. Establish baseline: Run existing tests
 
 Confirm the baseline is green on this fresh branch before touching anything.
 
@@ -57,7 +69,7 @@ If this baseline is already red, stop and fix or flag that first — don't let a
 
 ---
 
-## 4. Review story requirements
+## 5. Review story requirements
 
 Stories must be built in dependency order. Check the story's own **Depends on** line against the `Status` column in `documentation/stories/README.md`. If any story it depends on is not `Done`, **stop and raise this clearly** — do not begin planning or implementation until it's resolved.
 
@@ -68,7 +80,7 @@ Then open the story's own file (`documentation/stories/story-<NNN>-<short-slug>/
 
 ---
 
-## 5. Create an implementation plan
+## 6. Create an implementation plan
 
 Write an implementation plan from the story's **Decisions** section. The plan should detail:
 - Which files/components it touches
@@ -89,7 +101,7 @@ When writing plans, consider:
 
 ---
 
-## 6. User review: Plan approval
+## 7. User review: Plan approval
 
 **Checkpoint:** Before writing any code, share the plan with the user for approval.
 
@@ -97,7 +109,7 @@ Do not proceed to implementation until the user has signed off on the plan.
 
 ---
 
-## 7. Implement the plan
+## 8. Implement the plan
 
 Write the code and its tests together. For UI changes, ensure they work in both simulator and on physical devices.
 
@@ -129,7 +141,7 @@ struct AppConfig {
 
 ---
 
-## 8. User review: Test drive
+## 9. User review: Test drive
 
 **Checkpoint:** After implementation but before running tests, let the user test the changes manually in Xcode.
 
@@ -141,7 +153,7 @@ Do not proceed to automated testing until the user has confirmed the feature wor
 
 ---
 
-## 9. Run automated tests
+## 10. Run automated tests
 
 Run the full test suite to confirm nothing regressed:
 
@@ -156,7 +168,7 @@ If tests fail:
 
 ---
 
-## 10. Update documentation
+## 11. Update documentation
 
 - In the story file itself, note that it's been implemented
 - In `documentation/stories/README.md`, reflect that this story is `Done`
@@ -164,7 +176,7 @@ If tests fail:
 
 ---
 
-## 11. Commit and merge
+## 12. Commit and merge
 
 ```bash
 git add .
@@ -183,7 +195,7 @@ git branch -d features/story-<NNN>-<short-slug>
 
 ---
 
-## 12. Self-review this how-to
+## 13. Self-review this how-to
 
 Once the story is merged, look back and ask whether this file held up. If anything was worked around, discovered late, or turned out not to matter, edit this file now.
 
