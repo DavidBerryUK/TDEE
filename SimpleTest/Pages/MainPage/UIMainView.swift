@@ -92,6 +92,9 @@ struct UIMainView: View {
             .onChange(of: profile.calorieAdjustment) { _, _ in
                 recalculate()
             }
+            .onChange(of: macroMix.selectedMacroId) { _, _ in
+                recalculate()
+            }
         }
     }
 }
