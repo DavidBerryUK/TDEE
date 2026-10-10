@@ -10,7 +10,7 @@ struct ContentView: View {
 
         NavigationStack(path: $path) {
 
-            UIMainView()
+            UIMainView(path: $path)
 
                 .safeAreaPadding(.top, 100)
 

@@ -14,6 +14,7 @@ struct UIMainView: View {
     @State var sectionManager = SectionManagerViewModel()
 
     @Environment(MacroSplitOptionsModelCollection.self) private var globalMacroCollection
+    @Binding var path: [EnumAppRoute]
 
     /// Sync the user's selected macro preset into profile so calculations use their choice.
     private func syncSelectedMacro() {
@@ -39,20 +40,21 @@ struct UIMainView: View {
                             MainSectionProfileInput(
                                 profile: profile,
                                 sectionManager: sectionManager)
-                            
+
                             if ( profile.isValid) {
                                 VStack( spacing: 8) {
                                     MainSectionCaloriesAndAdjustments(
                                         profile: profile,
                                         calculationResult: calculationResult,
                                         sectionManager: sectionManager)
-                                    
+
                                     MainSectionMacroMix(
                                         macroMix: macroMix,
                                         sectionManager: sectionManager,
-                                        calculationResult: calculationResult)
+                                        calculationResult: calculationResult,
+                                        path: $path)
                                 } .transition(.opacity)
-                                
+
                             }
                         }
                         .animation(.easeInOut(duration: 0.25), value: profile.isValid)

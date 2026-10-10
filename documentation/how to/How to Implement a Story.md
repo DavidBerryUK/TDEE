@@ -13,15 +13,33 @@ git pull
 
 Check `git status` here too. Uncommitted changes sitting on the branch are either stray work-in-progress or something that needs investigating before proceeding.
 
+**Why first:** Starting from a clean `develop` ensures you're working with the latest code and avoid merge conflicts later.
+
 ## 2. Create an appropriate feature branch
 
+**This step is mandatory.** Do not make any code changes on `develop` directly.
+
 ```bash
+git checkout develop
+git pull
 git checkout -b features/story-<NNN>-<short-slug>
 ```
 
-E.g. `features/story-003-age-picker-defaults` for a story about age picker defaults.
+E.g. `features/story-003-macro-options-nav` for this story.
 
-Mark this story as `In Progress` in `documentation/stories/README.md`'s Status column at this point — before any other code changes — so nobody else starts the same story in parallel.
+### Branch naming convention
+
+Use the format: `features/story-<NNN>-<short-slug>`
+
+Examples:
+- `features/story-003-macro-options-nav`
+- `features/story-004-age-picker-defaults`
+
+The slug should be kebab-case and describe the story's focus.
+
+Mark this story as `In Progress` in `documentation/stories/README.md`'s Status column at this point — **before any other code changes** — so nobody else starts the same story in parallel.
+
+**Why mandatory:** Feature branches ensure each story's changes are isolated, testable, and can be reviewed properly before merging into `develop`.
 
 ## 3. Ensure current source tests run
 
