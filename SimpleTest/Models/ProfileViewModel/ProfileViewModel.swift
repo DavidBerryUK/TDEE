@@ -13,48 +13,49 @@ import Observation
 /// - Clean separation between input data and derived calculations
 /// - Comprehensive validation and error handling
 /// - Integration with CalculationService for all mathematical operations
+/// - Environment-specific defaults via AppConfig (simulator vs. device)
 @Observable
 final class ProfileViewModel {
 
     // MARK: - State Properties (Input/Raw Data)
 
     /// User's gender, used in BMR calculation formulas
-    var gender: Gender = .male {
+    var gender: Gender = AppConfig.shared.profileDefaults.gender {
         didSet {
             calculateAllDerivedValues()
         }
     }
-    var age: Int = 16 {
+    var age: Int = AppConfig.shared.profileDefaults.age {
         didSet {
             calculateAllDerivedValues()
         }
     }
     var weightUom: OptionWeight = OptionWeight.kilograms
-    var weight: Double = 0 { // Raw input state
+    var weight: Double = AppConfig.shared.profileDefaults.weight { // Raw input state
         didSet {
             calculateAllDerivedValues()
         }
     }
     var heightUom: OptionLength = OptionLength.centimeters
-    var height: Double = 0 {
+    var height: Double = AppConfig.shared.profileDefaults.height {
         didSet {
             calculateAllDerivedValues()
         }
     }
-    var activityLevel: ActivityLevel = .sedentary {
+    var activityLevel: ActivityLevel = AppConfig.shared.profileDefaults.activityLevel {
         didSet {
             calculateAllDerivedValues()
         }
     }
 
     // Body Fat Management (Retained pattern)
-    var bodyFatPercentageMethod: BodyFatOption{
+    var bodyFatPercentageMethod: BodyFatOption = AppConfig.shared.profileDefaults.bodyFatPercentageMethod {
         didSet {
             bodyFatPercentageShowManualEntry = bodyFatPercentageMethod == .manualEntry
             calculateAllDerivedValues()
         }
     }
-    var bodyFatPercentage: Double {
+    var bodyFatPercentage: Double = AppConfig.shared.profileDefaults.bodyFatPercentage {
         didSet {
             calculateAllDerivedValues()
         }
@@ -62,7 +63,7 @@ final class ProfileViewModel {
     var bodyFatPercentageShowManualEntry: Bool
 
     // Calorie Adjustment (Retained pattern)
-    var calorieAdjustmentMethod: CalorieAdjustmentMethod = .maintain {
+    var calorieAdjustmentMethod: CalorieAdjustmentMethod = AppConfig.shared.profileDefaults.calorieAdjustmentMethod {
         didSet {
             calorieAdjustmentShowSliders = calorieAdjustmentMethod != .maintain
             calculateAllDerivedValues()
@@ -102,16 +103,9 @@ final class ProfileViewModel {
     // Initialiser                  *
     //*******************************
     init() {
-        self.gender = .male
-        self.age = 16
-        self.weight = 0
-        self.height = 0
-        self.bodyFatPercentage = 0
-        self.activityLevel = .sedentary
-        self.calorieAdjustment = 0;
-        self.calorieAdjustmentShowSliders = false
         self.bodyFatPercentageShowManualEntry = false
-        self.bodyFatPercentageMethod = .omit
+        self.calorieAdjustment = 0
+        self.calorieAdjustmentShowSliders = false
 
         // Macro Split
         self.protein = 40
