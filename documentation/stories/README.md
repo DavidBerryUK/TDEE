@@ -8,7 +8,7 @@ This directory contains user stories for the SimpleTest iOS project.
 |---|-------|--------|
 | 001 | Simulator/Device Configuration | Done |
 | 002 | Macro Split Visibility | In Progress |
-| 003 | Navigate from Macro Split to Macro Options | In Progress |
+| 003 | Navigate from Macro Split to Macro Options | Done |
 
 ---
 
