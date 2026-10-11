@@ -33,7 +33,7 @@ struct SectionMacroSplit: View {
                         .padding(.bottom, Spacing.small)
 
                     // Navigation button to manage presets
-                    Button("Manage Presets") {
+                    Button("Customise") {
                         path.append(.maintainMacroConfig)
                     }
                     .foregroundColor(.accentColor)

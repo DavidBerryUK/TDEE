@@ -35,30 +35,34 @@ struct UIMainView: View {
                 Color(.systemGroupedBackground)
                     .ignoresSafeArea()
                 GeometryReader { geometry in
-                    ScrollView {
-                        VStack(spacing: 8) {
-                            MainSectionProfileInput(
-                                profile: profile,
-                                sectionManager: sectionManager)
+                    ScrollViewReader { outerProxy in
+                        ScrollView {
+                            VStack(spacing: 8) {
+                                MainSectionProfileInput(
+                                    profile: profile,
+                                    sectionManager: sectionManager)
 
-                            if ( profile.isValid) {
-                                VStack( spacing: 8) {
-                                    MainSectionCaloriesAndAdjustments(
-                                        profile: profile,
-                                        calculationResult: calculationResult,
-                                        sectionManager: sectionManager)
+                                if ( profile.isValid) {
+                                    VStack( spacing: 8) {
+                                        MainSectionCaloriesAndAdjustments(
+                                            profile: profile,
+                                            calculationResult: calculationResult,
+                                            sectionManager: sectionManager,
+                                            outerScrollViewProxy: outerProxy)
 
-                                    MainSectionMacroMix(
-                                        macroMix: macroMix,
-                                        sectionManager: sectionManager,
-                                        calculationResult: calculationResult,
-                                        path: $path)
-                                } .transition(.opacity)
+                                        MainSectionMacroMix(
+                                            macroMix: macroMix,
+                                            sectionManager: sectionManager,
+                                            calculationResult: calculationResult,
+                                            path: $path,
+                                            outerScrollViewProxy: outerProxy)
+                                    } .transition(.opacity)
 
+                                }
                             }
+                            .animation(.easeInOut(duration: 0.25), value: profile.isValid)
+                            .padding(.horizontal, geometry.size.width <= 375 ? 0 : 16)
                         }
-                        .animation(.easeInOut(duration: 0.25), value: profile.isValid)
-                        .padding(.horizontal, geometry.size.width <= 375 ? 0 : 16)
                     }
                 }
             }

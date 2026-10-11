@@ -4,10 +4,10 @@ struct MainSectionCaloriesAndAdjustments: View {
     let profile: ProfileViewModel
     let calculationResult: CalculatorResultViewModel
     let sectionManager: SectionManagerViewModel
-    
+    let outerScrollViewProxy: ScrollViewProxy
 
     var body: some View {
-        ScrollViewReader { proxy in
+        VStack(spacing: 0) {
             VStack(spacing: 0) {
                 SectionCaloriesAdjusted(profile: profile, calculationResult: calculationResult)
                 Divider()
@@ -27,34 +27,31 @@ struct MainSectionCaloriesAndAdjustments: View {
                 }
             }
             .onChange(of: profile.calorieAdjustmentMethod) { _, newValue in
-                handleCalorieAdjustmentChange(newValue: newValue, proxy: proxy)
+                handleCalorieAdjustmentChange(newValue: newValue)
             }
             .onChange(of: sectionManager.calorieAdjustmentExpanded) { _, _ in
-                scrollIfNecessary(proxy: proxy)
+                scrollIfNecessary()
             }
         }
     }
 
-    private func handleCalorieAdjustmentChange(newValue: CalorieAdjustmentMethod, proxy: ScrollViewProxy) {
+    private func handleCalorieAdjustmentChange(newValue: CalorieAdjustmentMethod) {
         if newValue == .cut || newValue == .bulk {
-            scrollIfNecessary(proxy: proxy)
+            scrollIfNecessary()
         }
     }
 
-    private func scrollIfNecessary(proxy: ScrollViewProxy) {
+    private func scrollIfNecessary() {
         Task {
             try? await Task.sleep(nanoseconds: 200_000_000) // Delay of 0.2 seconds (200 ms)
             withAnimation(.easeInOut(duration: 0.3)) {
-                proxy.scrollTo("CalorieAdjustment", anchor: .bottom) // Scroll to the anchor
+                outerScrollViewProxy.scrollTo("CalorieAdjustment", anchor: .bottom)
             }
         }
     }
 }
 
 #Preview {
-    MainSectionCaloriesAndAdjustments(
-        profile: ProfileViewModel(),
-        calculationResult: CalculatorResultViewModel(),
-        sectionManager: SectionManagerViewModel()
-    )
+    // Preview disabled - requires ScrollViewProxy from outer ScrollViewReader
+    EmptyView()
 }
