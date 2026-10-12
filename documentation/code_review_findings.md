@@ -14,7 +14,7 @@
 | **ISSUE-002** | High | Body fat validation range too strict (2-60% instead of 5-50%) | **Fixed** |
 | **ISSUE-003** | Medium | ScrollViewProxy not passed in 6 section files (auto-scroll broken) | **Fixed** |
 | **ISSUE-004** | Medium | Nil-unwrapping risk in MacroSplitViewModel (potential crash) | **Fixed** |
-| **ISSUE-005** | Medium | Inconsistent @Bindable usage (should use `let` for read-only) | Open |
+| **ISSUE-005** | Medium | Inconsistent @Bindable usage (should use `let` for read-only) | **Fixed** |
 | **ISSUE-006** | Medium | Magic numbers in UISliderCalorieAdjustmentValue | Open |
 | **ISSUE-007** | Medium | No error handling in CalculationService | Fixed (file deleted) |
 | **ISSUE-008** | Low | Memory potential - calculateAllDerivedValues called on every property change | Fixed (renamed to refreshResults) |
@@ -273,22 +273,19 @@ var selectedMacroId: UUID = FactoryMacroSplits.get().first?.id ?? UUID()
 **Current Code:**
 ```swift
 struct SectionCaloriesAdjusted: View {
-    @Bindable var profile : ProfileViewModel          // Only read, not written
-    @Bindable var calculationResult: CalculatorResultViewModel  // Only read, not written
-```
-
-**Recommendation:** 
-```swift
-struct SectionCaloriesAdjusted: View {
     let profile: ProfileViewModel         // Use let for read-only access
     let calculationResult: CalculatorResultViewModel  // Classes are reference types
 ```
 
 **Risk:** Low - Code clarity issue
 
-**Fix Steps:**
-1. Remove `@Bindable` from both properties
-2. Use `let` instead
+**Status:** **Fixed**
+
+**Changes Made:**
+1. Removed `@Bindable` from both properties
+2. Changed `var` to `let` for read-only access
+
+**Committed:** `2bc607d` on `develop` branch
 
 ---
 
