@@ -183,7 +183,13 @@ if self.bodyFatPercentageMethod == .manualEntry, self.bodyFatPercentage < 2 || s
 2. Change `> 60` to `> 50`
 3. Consider adding user-friendly warning messages
 
+**Status:** **FIXED**
+- Validation range updated to 5-50%
+- Added documentation comment explaining the function and validation logic
+
 ---
+
+## Medium Priority Issues
 
 ## Medium Priority Issues
 
