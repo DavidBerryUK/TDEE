@@ -11,7 +11,7 @@
 | Ref | Priority | Brief Description | Status |
 |-----|----------|-------------------|--------|
 | **ISSUE-001** | Critical | Calculation system duplication - different BMR formulas for females | **Fixed** |
-| **ISSUE-002** | High | Body fat validation range too strict (2-60% instead of 5-50%) | Open |
+| **ISSUE-002** | High | Body fat validation range too strict (2-60% instead of 5-50%) | **Fixed** |
 | **ISSUE-003** | Medium | ScrollViewProxy not passed in 6 section files (auto-scroll broken) | **Fixed** |
 | **ISSUE-004** | Medium | Nil-unwrapping risk in MacroSplitViewModel (potential crash) | Open |
 | **ISSUE-005** | Medium | Inconsistent @Bindable usage (should use `let` for read-only) | Open |
