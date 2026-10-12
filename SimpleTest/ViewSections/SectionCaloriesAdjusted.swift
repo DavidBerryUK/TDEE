@@ -8,9 +8,9 @@
 import SwiftUI
 
 struct SectionCaloriesAdjusted: View {
-    
-    @Bindable var profile : ProfileViewModel
-    @Bindable var calculationResult: CalculatorResultViewModel
+
+    let profile: ProfileViewModel
+    let calculationResult: CalculatorResultViewModel
     
     var body: some View {
                      
