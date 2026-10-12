@@ -13,7 +13,7 @@
 | **ISSUE-001** | Critical | Calculation system duplication - different BMR formulas for females | **Fixed** |
 | **ISSUE-002** | High | Body fat validation range too strict (2-60% instead of 5-50%) | **Fixed** |
 | **ISSUE-003** | Medium | ScrollViewProxy not passed in 6 section files (auto-scroll broken) | **Fixed** |
-| **ISSUE-004** | Medium | Nil-unwrapping risk in MacroSplitViewModel (potential crash) | Open |
+| **ISSUE-004** | Medium | Nil-unwrapping risk in MacroSplitViewModel (potential crash) | **Fixed** |
 | **ISSUE-005** | Medium | Inconsistent @Bindable usage (should use `let` for read-only) | Open |
 | **ISSUE-006** | Medium | Magic numbers in UISliderCalorieAdjustmentValue | Open |
 | **ISSUE-007** | Medium | No error handling in CalculationService | Fixed (file deleted) |
@@ -242,16 +242,25 @@ For each of the 6 affected files, change `proxy: nil` to `proxy: proxy`
 var selectedMacroId: UUID = FactoryMacroSplits.get().first!.id
 ```
 
-**Recommendation:** Use a safer initialization pattern:
+**Fixed Code:**
 ```swift
 var selectedMacroId: UUID = FactoryMacroSplits.get().first?.id ?? UUID()
 ```
 
 **Risk:** Medium - App crash on launch if factory returns empty array
 
-**Fix Steps:**
-1. Change `first!.id` to `first?.id ?? UUID()`
-2. This provides a fallback UUID if the array is empty
+**Status:** **Fixed**
+
+**Changes Made:**
+1. Changed `first!.id` to `first?.id ?? UUID()` for safe optional unwrapping
+2. Added fallback `UUID()` if factory returns empty array
+
+**Test Coverage:**
+- `testInitializationWithFactoryData` - Verifies initialization with normal factory data (7 macro splits)
+- `testInitializationWithEmptyFactory` - Tests safe fallback pattern when array is empty
+- `testSelectedMacroIdIsValid` - Confirms the ID is properly initialized
+
+**Committed:** `690ac14` on `develop` branch
 
 ---
 
