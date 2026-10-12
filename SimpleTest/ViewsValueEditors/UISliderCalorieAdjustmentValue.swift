@@ -4,6 +4,11 @@ struct UISliderCalorieAdjustmentValue: View {
 
     @Bindable var model: ProfileViewModel
 
+    // Slider range constants
+    private static let minAdjustment: Double = 0
+    private static let maxAdjustment: Double = 1000
+    private static let adjustmentStep: Double = 25
+
     var body: some View {
 
         var perDay = Int(model.calorieAdjustment)
@@ -62,8 +67,8 @@ struct UISliderCalorieAdjustmentValue: View {
             GridRow {
                 Slider(
                     value: $model.calorieAdjustment,
-                    in: 0...1000,
-                    step: 25
+                    in: Self.minAdjustment...Self.maxAdjustment,
+                    step: Self.adjustmentStep
                 )
                 .gridCellColumns(2)
                 .accessibilityLabel("Calorie adjustment slider")
