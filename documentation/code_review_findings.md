@@ -186,6 +186,14 @@ if self.bodyFatPercentageMethod == .manualEntry, self.bodyFatPercentage < 2 || s
 **Status:** **FIXED**
 - Validation range updated to 5-50%
 - Added documentation comment explaining the function and validation logic
+- Added comprehensive unit tests covering all validation branches:
+  - Valid profile returns nil
+  - Zero age/height/weight returns error
+  - Multiple missing fields reported together
+  - Body fat not validated when method is .omit or .estimate
+  - Body fat validation triggers with manual entry and invalid value
+  - Boundary values (5% and 50% valid, 4% and 51% invalid)
+  - Range boundary edge cases
 
 ---
 
