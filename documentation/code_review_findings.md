@@ -18,7 +18,7 @@
 | **ISSUE-006** | Medium | Magic numbers in UISliderCalorieAdjustmentValue | Open |
 | **ISSUE-007** | Medium | No error handling in CalculationService | Fixed (file deleted) |
 | **ISSUE-008** | Low | Memory potential - calculateAllDerivedValues called on every property change | Fixed (renamed to refreshResults) |
-| **ISSUE-009** | Low | Division by zero edge case in macro calculation | Open |
+| **ISSUE-009** | Low | Division by zero edge case in macro calculation | **Fixed** |
 | **ISSUE-010** | Low | Inconsistent naming conventions across files | Open |
 | **ISSUE-011** | Low | Missing documentation comments on public APIs | Open |
 | **ISSUE-012** | Low | Unused preview code in multiple files | Open |
@@ -356,9 +356,18 @@ Slider(
 
 **Issue:** The macro calculation divides by 4 and 9 without checking if the result would be zero.
 
-**Note:** Since the division constants (4, 4, 9) are fixed and non-zero, this is not a critical issue.
+**Note:** Since the division constants (4, 4, 9) are fixed and non-zero, this is not a critical issue. The real edge case is negative calorie values.
 
 **Risk:** Low - Edge case handling
+
+**Status:** **Fixed**
+
+**Changes Made:**
+1. Added guard clause to check for negative `caloriesAdjustedPerDay`
+2. Returns zero grams for all macros if calories are negative
+3. Added comments clarifying the division by fixed nutrient constants (4 cal/g for protein/carbs, 9 cal/g for fats)
+
+**Committed:** `d1a3466` on `develop` branch
 
 ---
 
