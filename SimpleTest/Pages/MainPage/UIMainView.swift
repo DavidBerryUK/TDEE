@@ -40,7 +40,8 @@ struct UIMainView: View {
                             VStack(spacing: 8) {
                                 MainSectionProfileInput(
                                     profile: profile,
-                                    sectionManager: sectionManager)
+                                    sectionManager: sectionManager,
+                                    proxy: outerProxy)
 
                                 if ( profile.isValid) {
                                     VStack( spacing: 8) {

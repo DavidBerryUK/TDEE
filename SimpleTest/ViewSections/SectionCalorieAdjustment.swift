@@ -8,10 +8,11 @@
 import SwiftUI
 
 struct SectionCalorieAdjustment: View {
-    
+
     @Bindable var profile: ProfileViewModel
     @Bindable var sectionManager: SectionManagerViewModel
-    
+    let proxy: ScrollViewProxy?
+
     var body: some View {
 
         UILayoutSectionView(
@@ -20,6 +21,8 @@ struct SectionCalorieAdjustment: View {
             isExpanded: $sectionManager.calorieAdjustmentExpanded,
             validationText: "",
             accessibilityId: "sectionCalorieAdjustment",
+            sectionId: "sectionCalorieAdjustment",
+            proxy: proxy,
             sectionSummaryValueView: {
                 UISectionSummaryValueCalorieAdjustment(model: profile, sectionManager: sectionManager)
             },

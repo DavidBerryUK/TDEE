@@ -11,6 +11,7 @@ struct SectionWeight: View {
 
     @Bindable var model: ProfileViewModel
     @Bindable var sectionManager: SectionManagerViewModel
+    let proxy: ScrollViewProxy?
 
     var body: some View {
 
@@ -22,6 +23,8 @@ struct SectionWeight: View {
             isExpanded: $sectionManager.weightIsExpanded,
             validationText: validationText,
             accessibilityId: "sectionWeight",
+            sectionId: "sectionWeight",
+            proxy: nil,
             sectionSummaryValueView: {
                 UISectionSummaryValueWeight(model: model, sectionManager: sectionManager)
             },
@@ -34,5 +37,5 @@ struct SectionWeight: View {
 
 #Preview {
     @Previewable @State var sectionManager = SectionManagerViewModel()
-    SectionWeight(model: ProfileViewModel(), sectionManager: sectionManager)
+    SectionWeight(model: ProfileViewModel(), sectionManager: sectionManager, proxy: nil)
 }

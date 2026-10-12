@@ -13,6 +13,7 @@ struct SectionMacroSplit: View {
     @Bindable var sectionManager : SectionManagerViewModel
     let calculationResult: CalculatorResultViewModel
     @Binding var path: [EnumAppRoute]
+    let proxy: ScrollViewProxy?
 
     var body: some View {
 
@@ -22,6 +23,8 @@ struct SectionMacroSplit: View {
             isExpanded: $sectionManager.macroMixExpanded,
             validationText: "",
             accessibilityId: "sectionMacroSplit",
+            sectionId: "sectionMacroSplit",
+            proxy: proxy,
             sectionSummaryValueView: {
                 UISectionSummaryValueMacroMix(macroMix: macroMix, sectionManager: sectionManager)
             },

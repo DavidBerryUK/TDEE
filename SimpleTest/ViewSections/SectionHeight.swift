@@ -11,6 +11,7 @@ struct SectionHeight: View {
 
     @Bindable var model: ProfileViewModel
     @Bindable var sectionManager: SectionManagerViewModel
+    let proxy: ScrollViewProxy?
 
     var body: some View {
 
@@ -22,6 +23,8 @@ struct SectionHeight: View {
             isExpanded: $sectionManager.heightIsExpanded,
             validationText: validationText,
             accessibilityId: "sectionHeight",
+            sectionId: "sectionHeight",
+            proxy: nil,
             sectionSummaryValueView: {
                 UISectionSummaryValueHeight(model: model, sectionManager: sectionManager)
             },

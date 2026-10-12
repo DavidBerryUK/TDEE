@@ -11,7 +11,7 @@ struct MainSectionCaloriesAndAdjustments: View {
             VStack(spacing: 0) {
                 SectionCaloriesAdjusted(profile: profile, calculationResult: calculationResult)
                 Divider()
-                SectionCalorieAdjustment(profile: profile, sectionManager: sectionManager)
+                SectionCalorieAdjustment(profile: profile, sectionManager: sectionManager, proxy: outerScrollViewProxy)
                     .id("CalorieAdjustment")
             }
             .background(Color.white)

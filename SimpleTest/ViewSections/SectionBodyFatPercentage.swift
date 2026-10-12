@@ -11,6 +11,7 @@ struct SectionBodyFatPercentage: View {
 
     @Bindable var model: ProfileViewModel
     @Bindable var sectionManager : SectionManagerViewModel
+    let proxy: ScrollViewProxy?
 
     var body: some View {
         UILayoutSectionView(
@@ -19,6 +20,8 @@ struct SectionBodyFatPercentage: View {
             isExpanded: $sectionManager.bodyFatPercentageIsExpanded,
             validationText: "",
             accessibilityId: "sectionBodyFatPercentage",
+            sectionId: "sectionBodyFatPercentage",
+            proxy: nil,
             sectionSummaryValueView: {
                 UISectionSummaryValueBodyFat(model: model, sectionManager: sectionManager)
             },
@@ -30,5 +33,5 @@ struct SectionBodyFatPercentage: View {
 }
 
 #Preview {
-    SectionBodyFatPercentage(model: ProfileViewModel(), sectionManager: SectionManagerViewModel())
+    SectionBodyFatPercentage(model: ProfileViewModel(), sectionManager: SectionManagerViewModel(), proxy: nil)
 }

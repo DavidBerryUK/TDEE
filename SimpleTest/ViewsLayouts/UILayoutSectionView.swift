@@ -13,9 +13,11 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
     @Binding var isExpanded: Bool
     let validationText : String
     let accessibilityId: String?
+    let sectionId: String?
 
     let sectionSummaryValueView: () -> SectionSummaryValueView
     let editorView: () -> EditorView
+    let proxy: ScrollViewProxy?
 
     // Update hasError to control the isVisible binding
     var body: some View {
@@ -72,6 +74,15 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
         // animation to assist in the Validation message appearing / disappearing smoothly
         .animation(AnimationParams.fastDuration, value: validationText) // <-- FIX 8: Using animation constant
         .accessibilityIdentifier(accessibilityId ?? "")
+        // Auto-scroll when section expands
+        .onChange(of: isExpanded) { _, expanded in
+            if expanded, let sectionId = sectionId, let proxy = proxy {
+                Task {
+                    try? await Task.sleep(nanoseconds: 200_000_000) // 0.2s delay
+                    proxy.scrollTo(sectionId, anchor: .top)
+                }
+            }
+        }
     }
 }
 
@@ -85,6 +96,8 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
         isExpanded: $sectionManager.weightIsExpanded,
         validationText: "",
         accessibilityId: nil,
+        sectionId: "sectionWeight",
+        proxy: nil,
         sectionSummaryValueView: {
             Text("75 kg")
         },
@@ -108,6 +121,8 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
         isExpanded: $sectionManager.weightIsExpanded,
         validationText: validationText,
         accessibilityId: nil,
+        sectionId: "sectionWeight",
+        proxy: nil,
         sectionSummaryValueView: {
             Text("75 kg")
         },
@@ -135,6 +150,8 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
             isExpanded: $expanded,
             validationText: showError ? "Weight is required" : "",
             accessibilityId: nil,
+            sectionId: "sectionWeight",
+            proxy: nil,
             sectionSummaryValueView: {
                 Text("75 kg")
             },

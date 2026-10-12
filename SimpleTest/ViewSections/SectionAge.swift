@@ -12,6 +12,7 @@ struct SectionAge: View {
 
     @Bindable var model: ProfileViewModel
     @Bindable var sectionManager : SectionManagerViewModel
+    let proxy: ScrollViewProxy?
 
     var body: some View {
         UILayoutSectionView(
@@ -20,6 +21,8 @@ struct SectionAge: View {
             isExpanded: $sectionManager.ageIsExpanded,
             validationText: "",
             accessibilityId: "sectionAge",
+            sectionId: "sectionAge",
+            proxy: nil,
             sectionSummaryValueView: {
                 UISectionSummaryValueAge(model: model, sectionManager: sectionManager)
             },

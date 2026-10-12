@@ -8,10 +8,11 @@
 import SwiftUI
 
 struct SectionActivityLevel: View {
-    
+
     @Bindable var model: ProfileViewModel
     @Bindable var sectionManager : SectionManagerViewModel
-    
+    let proxy: ScrollViewProxy?
+
     var body: some View {
         UILayoutSectionView(
             title: "Activity Level",
@@ -19,6 +20,8 @@ struct SectionActivityLevel: View {
             isExpanded: $sectionManager.activityLevelIsExpanded,
             validationText: "",
             accessibilityId: "sectionActivityLevel",
+            sectionId: "sectionActivityLevel",
+            proxy: nil,
             sectionSummaryValueView: {
                 UISectionSummaryValueActivityLevel(model: model, sectionManager: sectionManager)
             },

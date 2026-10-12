@@ -11,7 +11,7 @@ struct MainSectionMacroMix: View {
     var body: some View {
         VStack(spacing: 0) {
             Divider()
-            SectionMacroSplit(macroMix: macroMix, sectionManager: sectionManager, calculationResult: calculationResult, path: $path)
+            SectionMacroSplit(macroMix: macroMix, sectionManager: sectionManager, calculationResult: calculationResult, path: $path, proxy: outerScrollViewProxy)
                 .id("MacroSplit")
             Divider()
         }
