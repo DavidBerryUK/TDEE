@@ -21,18 +21,18 @@ struct SectionGender: View {
             validationText: "",
             accessibilityId: "sectionGender",
             sectionId: "sectionGender",
-            proxy: nil,
             sectionSummaryValueView: {
                 UISectionSummaryValueGender(model: model, sectionManager: sectionManager)
             },
             editorView: {
                 UISegmentGenderView(option: $model.gender)
-            }
+            },
+            proxy: proxy
         )
     }
 }
 
 #Preview {
     @Previewable @State var sectionManager = SectionManagerViewModel()
-    SectionGender(model: ProfileViewModel(), sectionManager: sectionManager)
+    SectionGender(model: ProfileViewModel(), sectionManager: sectionManager, proxy: nil)
 }

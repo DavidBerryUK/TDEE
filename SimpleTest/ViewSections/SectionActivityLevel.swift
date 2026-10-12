@@ -21,18 +21,18 @@ struct SectionActivityLevel: View {
             validationText: "",
             accessibilityId: "sectionActivityLevel",
             sectionId: "sectionActivityLevel",
-            proxy: nil,
             sectionSummaryValueView: {
                 UISectionSummaryValueActivityLevel(model: model, sectionManager: sectionManager)
             },
             editorView: {
                 SectionEditorActivityLevel(model: model)
-            }
+            },
+            proxy: proxy
         )
     }
 }
 
 #Preview {
     @Previewable @State var sectionManager = SectionManagerViewModel()
-    SectionActivityLevel(model: ProfileViewModel(), sectionManager: sectionManager)
+    SectionActivityLevel(model: ProfileViewModel(), sectionManager: sectionManager, proxy: nil)
 }

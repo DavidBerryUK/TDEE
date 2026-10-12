@@ -97,7 +97,6 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
         validationText: "",
         accessibilityId: nil,
         sectionId: "sectionWeight",
-        proxy: nil,
         sectionSummaryValueView: {
             Text("75 kg")
         },
@@ -106,7 +105,8 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
                 Text("Content goes here")
                 Spacer()
             }
-        }
+        },
+        proxy: nil
     )
 }
 
@@ -122,7 +122,6 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
         validationText: validationText,
         accessibilityId: nil,
         sectionId: "sectionWeight",
-        proxy: nil,
         sectionSummaryValueView: {
             Text("75 kg")
         },
@@ -131,7 +130,8 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
                 Text("Content goes here")
                 Spacer()
             }
-        }
+        },
+        proxy: nil
     )
 }
 
@@ -151,7 +151,6 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
             validationText: showError ? "Weight is required" : "",
             accessibilityId: nil,
             sectionId: "sectionWeight",
-            proxy: nil,
             sectionSummaryValueView: {
                 Text("75 kg")
             },
@@ -160,7 +159,8 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
                     Text("Content goes here")
                     Spacer()
                 }
-            }
+            },
+            proxy: nil
         )
     }
     .padding()

@@ -22,18 +22,18 @@ struct SectionAge: View {
             validationText: "",
             accessibilityId: "sectionAge",
             sectionId: "sectionAge",
-            proxy: nil,
             sectionSummaryValueView: {
                 UISectionSummaryValueAge(model: model, sectionManager: sectionManager)
             },
             editorView: {
                 SectionEditorAge(model: model)
-            }
+            },
+            proxy: proxy
         )
     }
 }
 
 #Preview {
     @Previewable @State var sectionManager = SectionManagerViewModel()
-    SectionAge(model: ProfileViewModel(), sectionManager: sectionManager)
+    SectionAge(model: ProfileViewModel(), sectionManager: sectionManager, proxy: nil)
 }

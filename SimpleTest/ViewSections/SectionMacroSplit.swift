@@ -24,7 +24,6 @@ struct SectionMacroSplit: View {
             validationText: "",
             accessibilityId: "sectionMacroSplit",
             sectionId: "sectionMacroSplit",
-            proxy: proxy,
             sectionSummaryValueView: {
                 UISectionSummaryValueMacroMix(macroMix: macroMix, sectionManager: sectionManager)
             },
@@ -45,7 +44,8 @@ struct SectionMacroSplit: View {
                     .padding(.vertical, 12)
                     .padding(.horizontal)
                 }
-            }
+            },
+            proxy: proxy
         )
     }
 }

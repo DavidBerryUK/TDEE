@@ -21,13 +21,13 @@ struct SectionBodyFatPercentage: View {
             validationText: "",
             accessibilityId: "sectionBodyFatPercentage",
             sectionId: "sectionBodyFatPercentage",
-            proxy: nil,
             sectionSummaryValueView: {
                 UISectionSummaryValueBodyFat(model: model, sectionManager: sectionManager)
             },
             editorView: {
                 SectionEditorBodyFatPercentage(model: model)
-            }
+            },
+            proxy: proxy
         )
     }
 }

@@ -24,18 +24,18 @@ struct SectionHeight: View {
             validationText: validationText,
             accessibilityId: "sectionHeight",
             sectionId: "sectionHeight",
-            proxy: nil,
             sectionSummaryValueView: {
                 UISectionSummaryValueHeight(model: model, sectionManager: sectionManager)
             },
             editorView: {
                 SectionEditorHeight(model: model)
-            }
+            },
+            proxy: proxy
         )
     }
 }
 
 #Preview {
     @Previewable @State var sectionManager = SectionManagerViewModel()
-    SectionHeight(model: ProfileViewModel(), sectionManager: sectionManager)
+    SectionHeight(model: ProfileViewModel(), sectionManager: sectionManager, proxy: nil)
 }

@@ -17,6 +17,7 @@ This directory contains user stories for the SimpleTest iOS project.
 | 009 | Section Spacing Consistency | Done |
 | 010 | Animation Performance | Done |
 | 011 | Focus Management | Done |
+| 012 | Calculation System Consolidation | Done |
 
 ---
 
@@ -107,3 +108,176 @@ This directory contains user stories for the SimpleTest iOS project.
 - Keep expansion behavior for the section (toggle detail view)
 
 **Depends on:** None
+
+---
+
+## Story 012: Calculation System Consolidation
+
+**Objective:** Consolidate duplicate calculation systems to ensure consistent BMR and TDEE calculations across the application.
+
+**Motivation:** There are two separate calculation systems in the codebase that use different formulas for BMR calculation. This is CRITICAL because:
+- `CalculationService.calculateBMR()` returns 1200 for females (default value)
+- `ProfileViewModel.calculateMifflinStJeor()` uses the correct female-adjusted formula
+- This causes incorrect BMR calculations for female users
+
+### Current State
+
+#### System 1: CalculationService (used by ProfileViewModel.calculateAllDerivedValues)
+```swift
+func calculateAllDerivedValues() {
+    let bmr = CalculationService.calculateBMR(profile: self)  // Returns 1200 for females
+    let tdee = CalculationService.calculateTdee(bmr: bmr, activityLevel: self.activityLevel)
+    self.tdee = tdee
+    let macros = CalculationService.calculateMacros(tdee: tdee, profile: self)
+    self.macroTargets = (protein: macros.protein, carbs: macros.carbs, fats: macros.fats)
+}
+```
+
+**CalculationService.calculateBMR()** - Mifflin-St Jeor ONLY, males only:
+```swift
+guard profile.gender == .male && profile.age > 0 else {
+    return 1200.0  // DEFAULT for females - WRONG!
+}
+```
+
+#### System 2: Calculator (used by Calculator.calculate())
+```swift
+static func calculate(person: ProfileViewModel, createAudit: Bool = false) -> CalculatorResultViewModel {
+    let result = CalculatorResultViewModel()
+    Calculator.calculateTdee(result: result, person: person, createAudit: createAudit)  // Uses extensions!
+    person.calculateMacros(result: result)
+    return result
+}
+```
+
+**ProfileViewModel.calculateMifflinStJeor()** - Correct gender handling:
+```swift
+let adjustment = self.gender == .male ? 5.0 : -161.0  // DIFFERENT for women!
+let bmr = 10.0 * weight + 6.25 * height - 5.0 * age + adjustment
+```
+
+### Expected State
+
+- Single source of truth for all calculation logic
+- Consistent BMR calculations regardless of which path is used
+- Body fat support (Katch-McArdle) available when user has body fat data
+
+### Decisions
+
+#### Consolidation Approach
+
+**Use `Calculator` struct with `ProfileViewModel` extensions as the single source.**
+
+**Rationale:**
+1. `Calculator.calculateMifflinStJeor()` correctly handles gender-specific formulas
+2. `Calculator.calculateKatchMcArdle()` supports body fat percentage calculations
+3. Extensions provide clean separation of concerns
+4. `CalculatorResultViewModel` provides a clean result structure
+
+#### Files to Modify
+
+| File | Change |
+|------|--------|
+| `Models/ProfileViewModel/ProfileViewModel.swift` | Update `calculateAllDerivedValues()` to use `Calculator.calculateMifflinStJeor()` instead of `CalculationService.calculateBMR()` |
+| `Services/CalculationService.swift` | Either deprecate or update to delegate to `Calculator` |
+| `Calculations/Calculator.swift` | Ensure all calculation methods are accessible and complete |
+| `Calculations/Extensions/*.swift` | Verify all extensions are properly integrated |
+
+### Implementation
+
+#### Step 1: Update ProfileViewModel.calculateAllDerivedValues()
+
+**File:** `Models/ProfileViewModel/ProfileViewModel.swift`
+
+**Current:**
+```swift
+func calculateAllDerivedValues() {
+    let bmr = CalculationService.calculateBMR(profile: self)
+    let tdee = CalculationService.calculateTdee(bmr: bmr, activityLevel: self.activityLevel)
+    self.tdee = tdee
+    let macros = CalculationService.calculateMacros(tdee: tdee, profile: self)
+    self.macroTargets = (protein: macros.protein, carbs: macros.carbs, fats: macros.fats)
+}
+```
+
+**Proposed:**
+```swift
+func calculateAllDerivedValues() {
+    // Use the correct calculation with body fat support
+    let bmr: Double
+    if self.bodyFatPercentageMethod != .omit, let bodyFat = self.bodyFatPercentage {
+        bmr = self.calculateKatchMcArdle()
+    } else {
+        bmr = self.calculateMifflinStJeor()
+    }
+    
+    let tdee = self.calculateTDEE(bmr: bmr, activityLevel: self.activityLevel)
+    self.tdee = tdee
+    self.macroTargets = self.calculateMacros(tdee: tdee)
+}
+```
+
+#### Step 2: Update ProfileViewModel extensions (if needed)
+
+**File:** `Calculations/Extensions/*.swift`
+
+Ensure extensions are accessible from `ProfileViewModel`:
+
+```swift
+// In ProfileViewModel+Calculations.swift (or similar)
+extension ProfileViewModel {
+    func calculateMifflinStJeor() -> Double {
+        // Current implementation
+    }
+    
+    func calculateKatchMcArdle() -> Double? {
+        // Current implementation - may need to return Optional
+    }
+    
+    func calculateTDEE(bmr: Double, activityLevel: ActivityLevel) -> Double {
+        // Current implementation
+    }
+    
+    func calculateMacros(tdee: Double) -> (protein: Double, carbs: Double, fats: Double) {
+        // Current implementation
+    }
+}
+```
+
+#### Step 3: Consider deprecating CalculationService
+
+**Option A:** Deprecate with warnings
+```swift
+@available(*, deprecated, message: "Use ProfileViewModel calculation methods instead")
+extension CalculationService {
+    // Keep for backwards compatibility but mark deprecated
+}
+```
+
+**Option B:** Update to delegate to Calculator
+```swift
+static func calculateBMR(profile: ProfileViewModel) -> Double {
+    return profile.calculateMifflinStJeor()
+}
+```
+
+### Testing Checklist
+
+- [ ] Female users get correct BMR (not 1200 default)
+- [ ] Male users get correct BMR
+- [ ] Users with body fat data get Katch-McArdle BMR
+- [ ] Users without body fat data get Mifflin-St Jeor BMR
+- [ ] TDEE calculations are consistent
+- [ ] Macro calculations are consistent
+- [ ] Both calculation paths produce identical results for same inputs
+- [ ] Existing tests still pass
+
+### Dependencies
+
+None - this is a standalone refactoring.
+
+### Open Questions
+
+1. Should we keep `CalculationService` at all, or fully deprecate it?
+2. Should `ProfileViewModel.calculateAllDerivedValues()` be renamed or documented as the "preferred" path?
+3. Should we add unit tests to verify both systems produce identical results?

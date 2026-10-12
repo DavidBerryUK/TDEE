@@ -24,13 +24,13 @@ struct SectionWeight: View {
             validationText: validationText,
             accessibilityId: "sectionWeight",
             sectionId: "sectionWeight",
-            proxy: nil,
             sectionSummaryValueView: {
                 UISectionSummaryValueWeight(model: model, sectionManager: sectionManager)
             },
             editorView: {
                 SectionEditorWeight(model: model)
-            }
+            },
+            proxy: proxy
         )
     }
 }

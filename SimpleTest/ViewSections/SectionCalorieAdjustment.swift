@@ -22,13 +22,13 @@ struct SectionCalorieAdjustment: View {
             validationText: "",
             accessibilityId: "sectionCalorieAdjustment",
             sectionId: "sectionCalorieAdjustment",
-            proxy: proxy,
             sectionSummaryValueView: {
                 UISectionSummaryValueCalorieAdjustment(model: profile, sectionManager: sectionManager)
             },
             editorView: {
                 SectionEditorCalorieAdjustment(model: profile)
-            }
+            },
+            proxy: proxy
         )
     }
 }
@@ -38,14 +38,14 @@ struct SectionCalorieAdjustment: View {
     let model = ProfileViewModel()
     model.calorieAdjustmentMethod = .cut
     model.calorieAdjustment = 250
-    return SectionCalorieAdjustment(profile: model, sectionManager: sectionManager)
+    return SectionCalorieAdjustment(profile: model, sectionManager: sectionManager, proxy: nil)
 }
 
 #Preview("Maintain") {
     @Previewable @State var sectionManager = SectionManagerViewModel()
     let model = ProfileViewModel()
     model.calorieAdjustmentMethod = .maintain
-    return SectionCalorieAdjustment(profile: model, sectionManager: sectionManager)
+    return SectionCalorieAdjustment(profile: model, sectionManager: sectionManager, proxy: nil)
 }
 
 #Preview("Bulk") {
@@ -53,6 +53,6 @@ struct SectionCalorieAdjustment: View {
     let model = ProfileViewModel()
     model.calorieAdjustmentMethod = .bulk
     model.calorieAdjustment = 500
-    return SectionCalorieAdjustment(profile: model, sectionManager: sectionManager)
+    return SectionCalorieAdjustment(profile: model, sectionManager: sectionManager, proxy: nil)
 }
 
