@@ -27,6 +27,12 @@ struct SectionMacroSplit: View {
             },
             editorView: {
                 VStack(spacing: 0) {
+                    Text("Current Selection")
+                        .font(.callout)
+                        .fontWeight(.medium)
+                        .foregroundColor(.secondary)
+                        .padding(.bottom, 8)
+
                     SectionEditorMacroMix(macroMix: macroMix)
                     SectionMacroMixResults(calculationResults: calculationResult)
                         .padding(.top, Spacing.medium)

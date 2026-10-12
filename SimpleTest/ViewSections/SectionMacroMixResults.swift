@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SectionMacroMixResults: View {
 
-    @Bindable var calculationResults: CalculatorResultViewModel // Assuming this type exists
+    @Bindable var calculationResults: CalculatorResultViewModel
 
     var body: some View {
         VStack{
@@ -17,18 +17,21 @@ struct SectionMacroMixResults: View {
                 UICardNumericResult(
                     title: "protein \(calculationResults.proteinPercent)%",
                     value:  calculationResults.proteinGrams,
-                    suffix:"g"
+                    suffix:"g",
+                    color: .red
                 )
 
                 UICardNumericResult(
                     title: "carbs \(calculationResults.carbsPercent)%",
                     value: calculationResults.carbsGrams,
-                    suffix:"g"
+                    suffix:"g",
+                    color: .blue
                 )
                 UICardNumericResult(
                     title: "fats \(calculationResults.fatsPercent)%",
                     value: calculationResults.fatsGrams,
-                    suffix:"g"
+                    suffix:"g",
+                    color: .mint
                 )
             }
         }.padding(Spacing.large) // <-- Using central constant

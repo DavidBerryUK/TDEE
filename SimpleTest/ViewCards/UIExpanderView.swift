@@ -47,12 +47,8 @@ struct UIExpanderView<Content: View>: View {
                 }
 
                 // Then fade content in
-                DispatchQueue.main.asyncAfter(deadline: .now() + contentFadeDelay) {
-                    guard isExpanded else { return }
-
-                    withAnimation(.easeInOut(duration: contentFadeDuration)) {
-                        isVisible = true
-                    }
+                withAnimation(.easeInOut(duration: contentFadeDuration).delay(contentFadeDelay)) {
+                    isVisible = true
                 }
 
             } else {
@@ -63,12 +59,8 @@ struct UIExpanderView<Content: View>: View {
                 }
 
                 // Then collapse container
-                DispatchQueue.main.asyncAfter(deadline: .now() + contentFadeDelay) {
-                    guard !isExpanded else { return }
-
-                    withAnimation(.easeInOut(duration: containerAnimationDuration)) {
-                        hasHeight = false
-                    }
+                withAnimation(.easeInOut(duration: containerAnimationDuration).delay(contentFadeDelay)) {
+                    hasHeight = false
                 }
             }
         }

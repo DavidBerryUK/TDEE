@@ -5,17 +5,12 @@ struct MainSectionProfileInput: View {
     @Bindable var sectionManager: SectionManagerViewModel
 
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(spacing: 12) {
             SectionGender(model: profile, sectionManager: sectionManager)
-            Divider()
             SectionAge(model: profile, sectionManager: sectionManager)
-            Divider()
             SectionHeight(model: profile, sectionManager: sectionManager)
-            Divider()
             SectionWeight(model: profile, sectionManager: sectionManager)
-            Divider()
             SectionActivityLevel(model: profile, sectionManager: sectionManager)
-            Divider()
             SectionBodyFatPercentage(model: profile, sectionManager: sectionManager)
         }
         .background(Color.white)

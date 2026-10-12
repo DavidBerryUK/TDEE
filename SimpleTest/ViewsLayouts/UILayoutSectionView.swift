@@ -19,7 +19,7 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
 
     // Update hasError to control the isVisible binding
     var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.small) // <-- FIX 1: Use constant for initial stack spacing
+        VStack(alignment: .leading, spacing: Spacing.medium)
         {
 
             // First row: header only (icon, title, summary, chevron) with internal 16pt padding and error highlight

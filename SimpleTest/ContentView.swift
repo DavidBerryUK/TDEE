@@ -29,18 +29,9 @@ struct ContentView: View {
                         }
                         .accessibilityLabel("Open navigation menu")
                     }
-
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                        } label: {
-                            Image(systemName: "square.and.arrow.up")
-                        }
-                        .accessibilityLabel("Share current settings")
-                    }
                 }
 
                 .toolbarBackground(.hidden, for: .navigationBar)
-                .toolbar(.visible, for: .navigationBar)
                 .toolbarTitleDisplayMode(.inline)
                 .navigationBarTitleDisplayMode(.inline)
                 .ignoresSafeArea(edges: .top)
