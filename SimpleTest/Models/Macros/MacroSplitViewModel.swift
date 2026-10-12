@@ -12,5 +12,5 @@ import Observation
 ///
 @Observable
 final class MacroSplitViewModel {
-    var selectedMacroId: UUID = FactoryMacroSplits.get().first!.id
+    var selectedMacroId: UUID = FactoryMacroSplits.get().first?.id ?? UUID()
 }
