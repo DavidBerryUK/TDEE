@@ -100,7 +100,7 @@ final class ProfileViewModel {
     var macroTargets: (protein: Int, carbs: Int, fats: Int) = (40, 30, 30)
 
     //*******************************
-    // Initialiser                  *
+    // Initializer                  *
     //*******************************
     init() {
         self.bodyFatPercentageShowManualEntry = false

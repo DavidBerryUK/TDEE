@@ -5,7 +5,7 @@
 //  Created by David Berry on 03/04/2026.
 //
 
-public enum Gender : Int, CaseIterable {
+public enum Gender : Int, CaseIterable, Sendable {
     case male = 0,
          female = 1
 }

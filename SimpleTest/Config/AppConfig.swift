@@ -9,7 +9,7 @@ import Foundation
 
 /// Main configuration entry point for the application.
 /// Provides access to environment-specific default values.
-struct AppConfig {
+struct AppConfig: Sendable {
     static let shared = AppConfig()
 
     let profileDefaults: ProfileDefaults

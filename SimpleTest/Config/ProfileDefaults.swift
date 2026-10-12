@@ -9,7 +9,7 @@ import Foundation
 
 /// Represents default values for user profile metrics.
 /// Different values are provided for simulator vs. physical device contexts.
-struct ProfileDefaults {
+struct ProfileDefaults: Sendable {
     let gender: Gender
     let age: Int
     let height: Double

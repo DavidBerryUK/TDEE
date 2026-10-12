@@ -5,7 +5,7 @@
 //  Created by David Berry on 03/04/2026.
 //
 
-public enum ActivityLevel : Int, CaseIterable {
+public enum ActivityLevel : Int, CaseIterable, Sendable {
     case sedentary = 0,
          lightExercise = 1,
          moderateExercise = 2,

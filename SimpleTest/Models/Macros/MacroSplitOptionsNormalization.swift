@@ -12,7 +12,7 @@ import Foundation
 /// All values are clamped to [0, 100] and overflow from the third field is
 /// distributed proportionally so that the total target of 100 is approximated.
 ///
-/// - Warning: `step` in `snapToStep` must be a divisor of 100 (currently 5).
+/// - Warning: `step` in snapToStep must be a divisor of 100 (currently 5).
 ///   Changing this without updating callers can produce totals != 100.
 
 // Static normalization helpers — defined in an extension on MacroSplitOptionModel.
@@ -71,5 +71,35 @@ extension MacroSplitOptionModel {
 
     private static func clampValueTo100(_ value: Int) -> Int {
         min(max(value, 0), 100)
+    }
+}
+
+// MARK: - Model extension for smooth slider updates
+
+extension MacroSplitOptionModel {
+    /// Update protein, adjusting carbs and fats (original distribution logic)
+    /// - Parameters:
+    ///   - newValue: The new protein value
+    func updateProtein(to newValue: Double) {
+        let result = MacroSplitOptionModel.normalizeAfterProteinChange(newValue: newValue, originalCarbs: self.carbs, originalFats: self.fats)
+        self.protein = result.protein
+        self.carbs   = result.carbs
+        self.fats    = result.fats
+    }
+
+    /// Update carbs, adjusting protein and fats (original distribution logic)
+    func updateCarbs(to newValue: Double) {
+        let result = MacroSplitOptionModel.normalizeAfterCarbsChange(newValue: newValue, originalProtein: self.protein, originalFats: self.fats)
+        self.protein = result.protein
+        self.carbs   = result.carbs
+        self.fats    = result.fats
+    }
+
+    /// Update fats, adjusting protein and carbs (original distribution logic)
+    func updateFats(to newValue: Double) {
+        let result = MacroSplitOptionModel.normalizeAfterFatsChange(newValue: newValue, originalProtein: self.protein, originalCarbs: self.carbs)
+        self.protein = result.protein
+        self.carbs   = result.carbs
+        self.fats    = result.fats
     }
 }
