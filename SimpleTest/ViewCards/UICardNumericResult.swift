@@ -36,7 +36,7 @@ struct UICardNumericResult: View {
         )
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(color ?? Color(red: 0.25, green: 0.75, blue: 0.75), lineWidth: 1)
+                .stroke(color ?? Color(red: 0.25, green: 0.75, blue: 0.75), lineWidth: 1.5)
         )
     }
 }
