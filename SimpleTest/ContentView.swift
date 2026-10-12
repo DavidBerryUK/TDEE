@@ -31,7 +31,7 @@ struct ContentView: View {
                     }
                 }
 
-                .toolbarBackground(.hidden, for: .navigationBar)
+                .toolbarBackground(.visible, for: .navigationBar)
                 .toolbarTitleDisplayMode(.inline)
                 .navigationBarTitleDisplayMode(.inline)
                 .ignoresSafeArea(edges: .top)
