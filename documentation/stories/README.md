@@ -7,16 +7,16 @@ This directory contains user stories for the SimpleTest iOS project.
 | # | Title | Status |
 |---|-------|--------|
 | 001 | Simulator/Device Configuration | Done |
-| 002 | Macro Split Visibility | In Progress |
+| 002 | Macro Split Visibility | Done |
 | 003 | Navigate from Macro Split to Macro Options | Done |
 | 004 | Main Screen Polish | Done |
-| 005 | Result Card Styling | In Progress |
-| 006 | Macro Picker Label | In Progress |
-| 007 | Share Button Fix | In Progress |
-| 008 | Toolbar Background Fix | In Progress |
-| 009 | Section Spacing Consistency | In Progress |
-| 010 | Animation Performance | In Progress |
-| 011 | Focus Management | In Progress |
+| 005 | Result Card Styling | Done |
+| 006 | Macro Picker Label | Done |
+| 007 | Share Button Fix | Done |
+| 008 | Toolbar Background Fix | Done |
+| 009 | Section Spacing Consistency | Done |
+| 010 | Animation Performance | Done |
+| 011 | Focus Management | Done |
 
 ---
 
