@@ -428,6 +428,204 @@ struct FormulaVerificationTests {
 
 // MARK: - Helper Extension for ProfileViewModel
 
+// MARK: - ProfileViewModel Validation Tests
+
+@Suite("ProfileViewModel Validation Tests")
+struct ProfileViewModelValidationTests {
+
+    @Test("validateForCalculation returns nil when all fields valid")
+    func testValidProfileReturnsNil() throws {
+        let profile = ProfileViewModel()
+        profile.age = 30
+        profile.height = 170
+        profile.weight = 70
+
+        let result = profile.validateForCalculation()
+        #expect(result == nil, "Valid profile should return nil")
+    }
+
+    @Test("validateForCalculation returns error when age is 0")
+    func testZeroAgeReturnsError() throws {
+        let profile = ProfileViewModel()
+        profile.age = 0
+        profile.height = 170
+        profile.weight = 70
+
+        let result = profile.validateForCalculation()
+        #expect(result != nil, "Zero age should return error")
+        #expect(result?.contains("Age") == true, "Error should mention Age")
+    }
+
+    @Test("validateForCalculation returns error when height is 0")
+    func testZeroHeightReturnsError() throws {
+        let profile = ProfileViewModel()
+        profile.age = 30
+        profile.height = 0
+        profile.weight = 70
+
+        let result = profile.validateForCalculation()
+        #expect(result != nil, "Zero height should return error")
+        #expect(result?.contains("Height") == true, "Error should mention Height")
+    }
+
+    @Test("validateForCalculation returns error when weight is 0")
+    func testZeroWeightReturnsError() throws {
+        let profile = ProfileViewModel()
+        profile.age = 30
+        profile.height = 170
+        profile.weight = 0
+
+        let result = profile.validateForCalculation()
+        #expect(result != nil, "Zero weight should return error")
+        #expect(result?.contains("Weight") == true, "Error should mention Weight")
+    }
+
+    @Test("validateForCalculation returns all missing fields in error")
+    func testMultipleMissingFields() throws {
+        let profile = ProfileViewModel()
+        profile.age = 0
+        profile.height = 0
+        profile.weight = 0
+
+        let result = profile.validateForCalculation()
+        #expect(result != nil, "Multiple zeros should return error")
+        #expect(result?.contains("Age") == true, "Error should mention Age")
+        #expect(result?.contains("Height") == true, "Error should mention Height")
+        #expect(result?.contains("Weight") == true, "Error should mention Weight")
+    }
+
+    @Test("Body fat validation does not trigger when method is omit")
+    func testBodyFatNotValidatedWhenOmit() throws {
+        let profile = ProfileViewModel()
+        profile.age = 30
+        profile.height = 170
+        profile.weight = 70
+        profile.bodyFatPercentageMethod = .omit
+        profile.bodyFatPercentage = 1  // Even invalid value should not trigger
+
+        let result = profile.validateForCalculation()
+        #expect(result == nil, "Body fat should not be validated when method is .omit")
+    }
+
+    @Test("Body fat validation does not trigger when method is estimate")
+    func testBodyFatNotValidatedWhenEstimate() throws {
+        let profile = ProfileViewModel()
+        profile.age = 30
+        profile.height = 170
+        profile.weight = 70
+        profile.bodyFatPercentageMethod = .estimate
+        profile.bodyFatPercentage = 1  // Even invalid value should not trigger
+
+        let result = profile.validateForCalculation()
+        #expect(result == nil, "Body fat should not be validated when method is .estimate")
+    }
+
+    @Test("Body fat validation triggers when method is manualEntry with invalid value")
+    func testBodyFatValidationWithManualEntryInvalid() throws {
+        let profile = ProfileViewModel()
+        profile.age = 30
+        profile.height = 170
+        profile.weight = 70
+        profile.bodyFatPercentageMethod = .manualEntry
+        profile.bodyFatPercentage = 1  // Below minimum
+
+        let result = profile.validateForCalculation()
+        #expect(result != nil, "Invalid body fat should return error")
+        #expect(result?.contains("Body Fat Percentage") == true, "Error should mention Body Fat Percentage")
+    }
+
+    @Test("Body fat validation passes with valid manual entry (5%)")
+    func testBodyFatValidMinimum() throws {
+        let profile = ProfileViewModel()
+        profile.age = 30
+        profile.height = 170
+        profile.weight = 70
+        profile.bodyFatPercentageMethod = .manualEntry
+        profile.bodyFatPercentage = 5  // At minimum boundary
+
+        let result = profile.validateForCalculation()
+        #expect(result == nil, "Body fat at 5% should be valid")
+    }
+
+    @Test("Body fat validation passes with valid manual entry (50%)")
+    func testBodyFatValidMaximum() throws {
+        let profile = ProfileViewModel()
+        profile.age = 30
+        profile.height = 170
+        profile.weight = 70
+        profile.bodyFatPercentageMethod = .manualEntry
+        profile.bodyFatPercentage = 50  // At maximum boundary
+
+        let result = profile.validateForCalculation()
+        #expect(result == nil, "Body fat at 50% should be valid")
+    }
+
+    @Test("Body fat validation fails below minimum (4%)")
+    func testBodyFatBelowMinimum() throws {
+        let profile = ProfileViewModel()
+        profile.age = 30
+        profile.height = 170
+        profile.weight = 70
+        profile.bodyFatPercentageMethod = .manualEntry
+        profile.bodyFatPercentage = 4  // Below minimum
+
+        let result = profile.validateForCalculation()
+        #expect(result != nil, "Body fat below 5% should be invalid")
+        #expect(result?.contains("Body Fat Percentage") == true, "Error should mention Body Fat Percentage")
+    }
+
+    @Test("Body fat validation fails above maximum (51%)")
+    func testBodyFatAboveMaximum() throws {
+        let profile = ProfileViewModel()
+        profile.age = 30
+        profile.height = 170
+        profile.weight = 70
+        profile.bodyFatPercentageMethod = .manualEntry
+        profile.bodyFatPercentage = 51  // Above maximum
+
+        let result = profile.validateForCalculation()
+        #expect(result != nil, "Body fat above 50% should be invalid")
+        #expect(result?.contains("Body Fat Percentage") == true, "Error should mention Body Fat Percentage")
+    }
+
+    @Test("Body fat validation range boundary values")
+    func testBodyFatRangeBoundaries() throws {
+        // Test just inside boundaries - should pass
+        let profile1 = ProfileViewModel()
+        profile1.age = 30
+        profile1.height = 170
+        profile1.weight = 70
+        profile1.bodyFatPercentageMethod = .manualEntry
+        profile1.bodyFatPercentage = 5.1
+        #expect(profile1.validateForCalculation() == nil, "5.1% should be valid")
+
+        let profile2 = ProfileViewModel()
+        profile2.age = 30
+        profile2.height = 170
+        profile2.weight = 70
+        profile2.bodyFatPercentageMethod = .manualEntry
+        profile2.bodyFatPercentage = 49.9
+        #expect(profile2.validateForCalculation() == nil, "49.9% should be valid")
+
+        // Test just outside boundaries - should fail
+        let profile3 = ProfileViewModel()
+        profile3.age = 30
+        profile3.height = 170
+        profile3.weight = 70
+        profile3.bodyFatPercentageMethod = .manualEntry
+        profile3.bodyFatPercentage = 4.9
+        #expect(profile3.validateForCalculation() != nil, "4.9% should be invalid")
+
+        let profile4 = ProfileViewModel()
+        profile4.age = 30
+        profile4.height = 170
+        profile4.weight = 70
+        profile4.bodyFatPercentageMethod = .manualEntry
+        profile4.bodyFatPercentage = 50.1
+        #expect(profile4.validateForCalculation() != nil, "50.1% should be invalid")
+    }
+}
+
 extension ProfileViewModel {
     /// Calculate TDEE from BMR and activity level
     func calculateTDEE(bmr: Double, activityLevel: ActivityLevel) -> Double {
