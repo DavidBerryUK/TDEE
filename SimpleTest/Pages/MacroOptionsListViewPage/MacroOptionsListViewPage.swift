@@ -1,29 +1,29 @@
 import SwiftUI
-
+import SimpleTest
 
 
 struct MacroOptionsListViewPage: View {
-    
+
     @Environment(MacroSplitOptionsModelCollection.self)
     var collection
-    
+
     @Binding var path: [AppRoute]
-    
+
     //
     // move these into a collection handler
     //
     func handleOnEdit (item: MacroSplitOptionModel)  {
         path.append(.macroEditorEdit(item))
     }
-    
+
     func handleOnDelete (item: MacroSplitOptionModel) {
         collection.remove(item)
     }
-    
+
     func handleOnSave(item: MacroSplitOptionModel) {
         collection.update(item)
     }
-    
+
     //
     //
     //
@@ -43,7 +43,7 @@ struct MacroOptionsListViewPage: View {
                         collection.move(from: source, to: destination)
                     }
                 }
-             
+
                 // Spacer so last row isn't hidden behind footer
                 Color.clear
                     .frame(height: 40)
@@ -68,4 +68,11 @@ struct MacroOptionsListViewPage: View {
         .background(Color(.systemGroupedBackground))
         .navigationTitle("Maintain Macros (1)")
     }
+}
+
+#Preview {
+    MacroOptionsListViewPage(
+        path: .constant([])
+    )
+    .environment(MacroSplitOptionsModelCollection(items: FactoryMacroSplits.get()))
 }

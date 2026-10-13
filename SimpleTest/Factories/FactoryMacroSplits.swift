@@ -7,7 +7,7 @@
 
 import Foundation
 
-final class FactoryMacroSplits {
+public final class FactoryMacroSplits {
     
     // MARK: - Stable IDs
     enum Id {
