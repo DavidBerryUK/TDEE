@@ -27,7 +27,7 @@ struct MacroOptionsListViewPage: View {
     //
     //
     var body: some View {
-        NavigationStack {
+        ZStack(alignment: .bottom) {
             List {
                 SwiftUI.Section {
                     //
@@ -35,6 +35,7 @@ struct MacroOptionsListViewPage: View {
                     //
                     ForEach(collection.sortedItems, id: \.id) { item in
                         MacroOptionsListCardView(item: item, path: $path)
+                            .listRowSeparator(.hidden)
                     }
                     .onMove { source, destination in
                         collection.move(from: source, to: destination)
@@ -46,7 +47,7 @@ struct MacroOptionsListViewPage: View {
                     .frame(height: 40)
                     .listRowBackground(Color.clear)
             }
-            .listStyle(.insetGrouped)
+            .listStyle(.plain)            
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     EditButton()
@@ -62,7 +63,6 @@ struct MacroOptionsListViewPage: View {
             MacroOptionsListInstructions()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(.systemGroupedBackground))
         .navigationTitle("Maintain Macros")
     }
 }

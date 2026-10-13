@@ -63,17 +63,17 @@ struct MacroOptionsListCardView: View {
                 macroDetail(
                     icon: "bolt.fill",
                     color: UIStyle.Text.macroProtein,
-                    text: "\(item.protein)% protein"
+                    text: "protein \(item.protein)%"
                 )
                 macroDetail(
                     icon: "leaf.fill",
                     color: UIStyle.Text.macroCarbs,
-                    text: "\(item.carbs)% carbs"
+                    text: "carbs \(item.carbs)%"
                 )
                 macroDetail(
                     icon: "drop.fill",
                     color: UIStyle.Text.macroFats,
-                    text: "\(item.fats)% fats"
+                    text: "fats \(item.fats)%"
                 )
             }
             .font(.subheadline)
