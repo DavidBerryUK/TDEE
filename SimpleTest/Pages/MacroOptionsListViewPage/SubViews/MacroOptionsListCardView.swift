@@ -1,0 +1,180 @@
+import SwiftUI
+
+struct MacroOptionsListCardView: View {
+
+    @Environment(MacroSplitOptionsModelCollection.self)
+    var collection
+
+    @Bindable var item: MacroSplitOptionModel
+    @Binding var path: [AppRoute]
+
+    func handleOnDelete(item: MacroSplitOptionModel) {
+        collection.remove(item)
+    }
+
+    func handleOnEdit(item: MacroSplitOptionModel) {
+        path.append(.macroEditorEdit(item))
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // Card content
+            VStack(alignment: .leading, spacing: 12) {
+
+                // Header: Name
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    Text(item.name)
+                        .font(.headline)
+                        .fontWeight(.semibold)
+
+                    Spacer()
+                }
+
+                // Macro color bands with segment labels
+                HStack(spacing: 2) {
+                    // Protein segment
+                    macroSegment(
+                        color: UIStyle.Text.macroProtein,
+                        value: item.protein,
+                        label: "P"
+                    )
+
+                    // Carbs segment
+                    macroSegment(
+                        color: UIStyle.Text.macroCarbs,
+                        value: item.carbs,
+                        label: "C"
+                    )
+
+                    // Fats segment
+                    macroSegment(
+                        color: UIStyle.Text.macroFats,
+                        value: item.fats,
+                        label: "F"
+                    )
+                }
+                .frame(height: 28)
+                .background(Color(.systemGray6))
+                .clipShape(RoundedRectangle(cornerRadius: 6))
+
+                // Macro details as clean list
+                HStack(spacing: 16) {
+                    macroDetail(
+                        icon: "bolt.fill",
+                        color: UIStyle.Text.macroProtein,
+                        text: "\(item.protein)% protein"
+                    )
+                    macroDetail(
+                        icon: "leaf.fill",
+                        color: UIStyle.Text.macroCarbs,
+                        text: "\(item.carbs)% carbs"
+                    )
+                    macroDetail(
+                        icon: "drop.fill",
+                        color: UIStyle.Text.macroFats,
+                        text: "\(item.fats)% fats"
+                    )
+                }
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            }
+            .padding(16)
+
+            // Card border
+            Divider()
+                .background(Color(.systemGray4))
+        }
+        .background(Color.white)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .shadow(color: Color.black.opacity(0.06), radius: 8, x: 0, y: 2)
+        .frame(maxWidth: .infinity, alignment: .leading)
+
+        // Tap to edit
+        .onTapGesture {
+            handleOnEdit(item: item)
+        }
+
+        // Swipe actions
+        .swipeActions(edge: .leading, allowsFullSwipe: true) {
+            Button {
+                handleOnEdit(item: item)
+            } label: {
+                Label("Edit", systemImage: "pencil")
+            }
+            .tint(.blue)
+        }
+        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+            Button(role: .destructive) {
+                handleOnDelete(item: item)
+            } label: {
+                Label("Delete", systemImage: "trash")
+            }
+        }
+    }
+
+    // MARK: - Helper Views
+
+    @ViewBuilder
+    private func macroSegment(color: Color, value: Int, label: String) -> some View {
+        GeometryReader { geo in
+            let total = CGFloat(max(item.protein + item.carbs + item.fats, 1))
+            let width = geo.size.width * CGFloat(value) / total
+
+            ZStack {
+                color
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
+
+                if width > 24 {
+                    Text("\(label)\(value)%")
+                        .font(.caption2)
+                        .fontWeight(.medium)
+                        .foregroundStyle(colorReadForeground(color: color))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.75)
+                }
+            }
+            .frame(width: width)
+        }
+    }
+
+    private func colorReadForeground(color: Color) -> Color {
+        // Return white for darker colors, dark gray for lighter colors
+        switch color {
+        case UIStyle.Text.macroProtein:
+            return .white
+        case UIStyle.Text.macroCarbs:
+            return .white
+        case UIStyle.Text.macroFats:
+            return Color(.darkGray)
+        default:
+            return .primary
+        }
+    }
+
+    @ViewBuilder
+    private func macroDetail(icon: String, color: Color, text: String) -> some View {
+        HStack(spacing: 4) {
+            Image(systemName: icon)
+                .font(.caption2)
+                .foregroundStyle(color)
+            Text(text)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+        }
+    }
+}
+
+#Preview {
+    MacroOptionsListCardView(
+        item: MacroSplitOptionModel(
+            id: UUID(uuidString: "11111111-1111-1111-1111-111111111111")!,
+            name: "Balanced",
+            protein: 34,
+            carbs: 33,
+            fats: 33,
+            ordinal: 1
+        ),
+        path: .constant([])
+    )
+    .environment(MacroSplitOptionsModelCollection())
+}

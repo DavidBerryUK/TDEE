@@ -1,5 +1,4 @@
 import SwiftUI
-import SimpleTest
 
 
 struct MacroOptionsListViewPage: View {
@@ -12,11 +11,11 @@ struct MacroOptionsListViewPage: View {
     //
     // move these into a collection handler
     //
-    func handleOnEdit (item: MacroSplitOptionModel)  {
+    func handleOnEdit(item: MacroSplitOptionModel) {
         path.append(.macroEditorEdit(item))
     }
 
-    func handleOnDelete (item: MacroSplitOptionModel) {
+    func handleOnDelete(item: MacroSplitOptionModel) {
         collection.remove(item)
     }
 
@@ -28,16 +27,14 @@ struct MacroOptionsListViewPage: View {
     //
     //
     var body: some View {
-        ZStack(alignment: .bottom) {
+        NavigationStack {
             List {
                 SwiftUI.Section {
                     //
                     // list items using a sub view for readability
                     //
                     ForEach(collection.sortedItems, id: \.id) { item in
-                        MacroOptionsListItemView( item: item, path: $path)
-//                            onEdit: { item in handleOnEdit(item: item) },
-//                            onDelete: { item in handleOnDelete(item: item) }
+                        MacroOptionsListCardView(item: item, path: $path)
                     }
                     .onMove { source, destination in
                         collection.move(from: source, to: destination)
@@ -66,7 +63,7 @@ struct MacroOptionsListViewPage: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(.systemGroupedBackground))
-        .navigationTitle("Maintain Macros (1)")
+        .navigationTitle("Maintain Macros")
     }
 }
 
