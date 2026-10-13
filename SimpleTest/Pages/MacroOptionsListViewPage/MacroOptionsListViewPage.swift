@@ -1,6 +1,5 @@
 import SwiftUI
 
-
 struct MacroOptionsListViewPage: View {
 
     @Environment(MacroSplitOptionsModelCollection.self)
@@ -12,6 +11,8 @@ struct MacroOptionsListViewPage: View {
     // move these into a collection handler
     //
     func handleOnEdit(item: MacroSplitOptionModel) {
+        // Mark this item as selected when editing
+        collection.selectItem(byId: item.id)
         path.append(.macroEditorEdit(item))
     }
 
@@ -36,6 +37,7 @@ struct MacroOptionsListViewPage: View {
                     ForEach(collection.sortedItems, id: \.id) { item in
                         MacroOptionsListCardView(item: item, path: $path)
                             .listRowSeparator(.hidden)
+                            .listRowBackground(Color.clear)
                     }
                     .onMove { source, destination in
                         collection.move(from: source, to: destination)
@@ -47,7 +49,10 @@ struct MacroOptionsListViewPage: View {
                     .frame(height: 40)
                     .listRowBackground(Color.clear)
             }
-            .listStyle(.plain)            
+            .listStyle(.plain)
+            .onAppear {
+                collection.selectFirstItem()
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     EditButton()
@@ -56,7 +61,10 @@ struct MacroOptionsListViewPage: View {
                     Button {
                         path.append(.macroEditorCreate)
                     } label: {
-                        Image(systemName: "plus")
+                        HStack(spacing: 4) {
+                            Image(systemName: "plus")
+                            Text("Add")
+                        }
                     }
                 }
             }

@@ -21,6 +21,7 @@ final class MacroSplitOptionModelTests: XCTestCase {
         XCTAssertEqual(model.carbs, 30)
         XCTAssertEqual(model.fats, 30)
         XCTAssertEqual(model.ordinal, -1)
+        XCTAssertFalse(model.isSelected)
         XCTAssertFalse(model.id == UUID()) // ID should be generated
     }
 
@@ -41,6 +42,16 @@ final class MacroSplitOptionModelTests: XCTestCase {
         XCTAssertEqual(model.carbs, 30)
         XCTAssertEqual(model.fats, 20)
         XCTAssertEqual(model.ordinal, 1)
+        XCTAssertFalse(model.isSelected)
+    }
+
+    func testInitWithSelected() {
+        let model = MacroSplitOptionModel(isSelected: true)
+
+        XCTAssertTrue(model.isSelected)
+
+        let model2 = MacroSplitOptionModel(isSelected: false)
+        XCTAssertFalse(model2.isSelected)
     }
 
     func testInitNormalizationWhenTotalOver100() {
