@@ -20,7 +20,7 @@
 | **ISSUE-008** | Low      | Memory potential - calculateAllDerivedValues called on every property change | Fixed (renamed to refreshResults)     |
 | **ISSUE-009** | Low      | Division by zero edge case in macro calculation                              | **Fixed**                             |
 | **ISSUE-010** | Low      | Inconsistent naming conventions across files                                 | **Fixed**                             |
-| **ISSUE-011** | Low      | Missing documentation comments on public APIs                                | Open                                  |
+| **ISSUE-011** | Low      | Missing documentation comments on public APIs                                | **Fixed**                             |
 | **ISSUE-012** | Low      | Unused preview code in multiple files                                        | Open                                  |
 | **ISSUE-013** | Low      | SectionManager pattern could be simplified                                   | Open                                  |
 | **ISSUE-014** | Low      | Missing unit tests for calculation logic                                     | **Fixed** (comprehensive tests added) |
@@ -59,6 +59,7 @@
 
 - ISSUE-006: Created `CalorieAdjustmentConstants` enum and updated `UISliderCalorieAdjustmentValue` to use constants instead of magic numbers
 - ISSUE-010: Fixed naming convention violations - renamed 6 files and 6 types to follow PascalCase; created `NamingConventions.swift` documentation
+- ISSUE-011: Added documentation comments to all public APIs (32 files)
 
 **Total Issues Identified:** 14
 
@@ -67,7 +68,7 @@
 - Medium: 5 (proxy usage, crash risk, @Bindable, magic numbers, error handling) - **FIXED**
 - Low: 5 (memory, division by zero, naming, documentation, preview code) - **FIXED (partial)**
 
-**Total Fixed:** 12
+**Total Fixed:** 13
 **Total Open:** 2
 
 ---
@@ -459,6 +460,16 @@ Slider(
 
 **Risk:** Low - Code maintainability
 
+**Status:** **FIXED**
+
+- Added doc comments to core calculation types: `Calculator`, `CalculatorResultViewModel`
+- Added doc comments to audit types: `AuditLogger`, `AuditItem`
+- Added doc comments to all enum types: `Gender`, `ActivityLevel`, `BodyFatOption`, `CalorieAdjustmentMethod`, `MacroSplitMethod`
+- Added doc comments to view models: `SectionManagerViewModel`, `MacroSplitViewModel`, `IconModel`
+- Added doc comments to view structs: `SectionAge`, `SectionGender`, `SectionWeight`, `SectionHeight`, `SectionActivityLevel`, `SectionBodyFatPercentage`, `SectionCalorieAdjustment`, `SectionMacroSplit`, `SectionCaloriesAdjusted`, `SectionMacroMixResults`
+- Added doc comments to UI components: `UICardNumericResult`, `UILayoutSectionView`, `UILayoutExpandingPanel`
+- Added doc comments to extension methods on `ProfileViewModel`
+
 ---
 
 ### ISSUE-012: Unused Preview Code
@@ -589,6 +600,7 @@ Slider(
 | 2026-04-15 | 1.2     | Claude Code | ISSUE-006 fixed: created CalorieAdjustmentConstants enum  |
 | 2026-04-15 | 1.3     | Claude Code | ISSUE-010 fixed: renamed files/enums, created naming conventions |
 | 2026-04-15 | 1.4     | Claude Code | ISSUE-006 & ISSUE-010 fixes: fixed Swift/SwiftUI naming conflicts |
+| 2026-04-15 | 1.5     | Claude Code | ISSUE-011 fixed: added documentation comments to all public APIs |
 
 ---
 
