@@ -21,7 +21,7 @@
 | **ISSUE-009** | Low      | Division by zero edge case in macro calculation                              | **Fixed**                             |
 | **ISSUE-010** | Low      | Inconsistent naming conventions across files                                 | **Fixed**                             |
 | **ISSUE-011** | Low      | Missing documentation comments on public APIs                                | **Fixed**                             |
-| **ISSUE-012** | Low      | Unused preview code in multiple files                                        | Open                                  |
+| **ISSUE-012** | Low      | Unused preview code in multiple files                                        | **Fixed**                             |
 | **ISSUE-013** | Low      | SectionManager pattern could be simplified                                   | Open                                  |
 | **ISSUE-014** | Low      | Missing unit tests for calculation logic                                     | **Fixed** (comprehensive tests added) |
 
@@ -61,15 +61,19 @@
 - ISSUE-010: Fixed naming convention violations - renamed 6 files and 6 types to follow PascalCase; created `NamingConventions.swift` documentation
 - ISSUE-011: Added documentation comments to all public APIs (32 files)
 
+**Fixed in this update:**
+
+- ISSUE-012: Uncommented and fixed preview code in 2 files (SectionEditorMacroMix, UISectionSummaryValueMacroMix)
+
 **Total Issues Identified:** 14
 
 - Critical: 1 (calculation system duplication - different BMR formulas) - **FIXED**
 - High: 1 (body fat validation range) - **FIXED**
 - Medium: 5 (proxy usage, crash risk, @Bindable, magic numbers, error handling) - **FIXED**
-- Low: 5 (memory, division by zero, naming, documentation, preview code) - **FIXED (partial)**
+- Low: 5 (memory, division by zero, naming, documentation, preview code) - **FIXED**
 
-**Total Fixed:** 13
-**Total Open:** 2
+**Total Fixed:** 14
+**Total Open:** 1
 
 ---
 
@@ -481,6 +485,15 @@ Slider(
 **Recommendation:** Either restore useful previews or remove dead code
 
 **Risk:** Low - Code clutter
+
+**Status:** **FIXED**
+
+**Changes Made:**
+
+- `SectionEditorMacroMix.swift`: Uncommented preview and added `MacroSplitOptionsModelCollection` environment variable
+- `UISectionSummaryValueMacroMix.swift`: Uncommented preview and fixed parameter mismatch (removed non-existent `isExpanded` parameter)
+
+**Committed:** `5649080` on `develop` branch
 
 ---
 
