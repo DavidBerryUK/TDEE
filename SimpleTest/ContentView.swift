@@ -32,7 +32,6 @@ struct ContentView: View {
                 .toolbarBackground(.visible, for: .navigationBar)
                 .toolbarTitleDisplayMode(.inline)
                 .navigationBarTitleDisplayMode(.inline)
-                .ignoresSafeArea(edges: .top)
 
                 .navigationDestination(for: AppRoute.self) { route in
                     switch route {
