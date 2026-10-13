@@ -5,6 +5,7 @@
 //  Created by David Berry on 03/04/2026.
 //
 
+/// Represents the user's activity level for TDEE calculation.
 public enum ActivityLevel : Int, CaseIterable, Sendable {
     case sedentary = 0,
          lightExercise = 1,
@@ -13,7 +14,8 @@ public enum ActivityLevel : Int, CaseIterable, Sendable {
          athlete = 4
 }
 
-public extension ActivityLevel {
+extension ActivityLevel {
+    /// The display name for this activity level.
     var displayName: String {
         switch self {
         case .sedentary: return "Sedentary (office job)"
@@ -25,7 +27,8 @@ public extension ActivityLevel {
     }
 }
 
-public extension ActivityLevel {
+extension ActivityLevel {
+    /// A short display name for this activity level.
     var displayShortName: String {
         switch self {
         case .sedentary: return "Sedentary"
@@ -37,7 +40,8 @@ public extension ActivityLevel {
     }
 }
 
-public extension ActivityLevel {
+extension ActivityLevel {
+    /// The Katch-McArdle multiplier for this activity level.
     var KatchMcArdleMultipliers: Double {
         switch self {
         case .sedentary:

@@ -1,12 +1,14 @@
 //
-//  SectionAge.swift
+//  SectionBodyFatPercentage.swift
 //  SimpleTest
 //
 //  Created by David Berry on 05/04/2026.
 //
 
 import SwiftUI
+import Observation
 
+/// A view section for managing the user's body fat percentage measurement.
 struct SectionBodyFatPercentage: View {
 
     @Bindable var model: ProfileViewModel

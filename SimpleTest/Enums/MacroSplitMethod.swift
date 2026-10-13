@@ -5,6 +5,7 @@
 //  Created by David Berry on 03/04/2026.
 //
 
+/// Represents a macro split dietary method.
 public enum MacroSplitMethod : Int, CaseIterable {
     case ketogenic = 0,
          lowCarb = 1,
@@ -14,6 +15,7 @@ public enum MacroSplitMethod : Int, CaseIterable {
 }
 
 extension MacroSplitMethod {
+    /// The display name for this macro split method.
     var displayName: String {
         switch self {
         case .ketogenic: return "Ketogenic"

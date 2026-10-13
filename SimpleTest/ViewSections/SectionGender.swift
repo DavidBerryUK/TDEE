@@ -1,12 +1,14 @@
 //
-//  SectionAge.swift
+//  SectionGender.swift
 //  SimpleTest
 //
 //  Created by David Berry on 05/04/2026.
 //
 
 import SwiftUI
+import Observation
 
+/// A view section for displaying and editing the user's gender.
 struct SectionGender: View {
 
     @Bindable var model: ProfileViewModel

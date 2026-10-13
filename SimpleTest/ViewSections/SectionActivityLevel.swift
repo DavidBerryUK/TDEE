@@ -1,12 +1,14 @@
 //
-//  SectionAge.swift
+//  SectionActivityLevel.swift
 //  SimpleTest
 //
 //  Created by David Berry on 05/04/2026.
 //
 
 import SwiftUI
+import Observation
 
+/// A view section for selecting the user's activity level.
 struct SectionActivityLevel: View {
 
     @Bindable var model: ProfileViewModel

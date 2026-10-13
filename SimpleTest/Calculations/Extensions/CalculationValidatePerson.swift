@@ -1,9 +1,11 @@
 //
-//  CalculateLeanBodyMass.swift
+//  CalculationValidatePerson.swift
 //  SimpleTest
 //
 //  Created by David Berry on 30/06/2026.
 //
+
+import Foundation
 
 extension ProfileViewModel {
     /// Validates required fields for calculation.

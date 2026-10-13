@@ -5,6 +5,7 @@
 //  Created by David Berry on 03/04/2026.
 //
 
+/// Represents the method for adjusting daily calorie intake.
 public enum CalorieAdjustmentMethod : Int, CaseIterable, Sendable {
     case cut = 0,
          maintain = 1,
@@ -12,6 +13,7 @@ public enum CalorieAdjustmentMethod : Int, CaseIterable, Sendable {
 }
 
 extension CalorieAdjustmentMethod {
+    /// The display name for this adjustment method.
     var displayName: String {
         switch self {
         case .cut: return "Cut"
@@ -20,6 +22,7 @@ extension CalorieAdjustmentMethod {
         }
     }
 
+    /// The section title for this adjustment method.
     var sectionTitle: String {
         switch self {
         case .cut: return "Daily Deficit"
@@ -28,6 +31,7 @@ extension CalorieAdjustmentMethod {
         }
     }
 
+    /// The prefix to show before the adjustment value.
     var adjustmentPrefix: String {
         switch self {
         case .cut: return "-"

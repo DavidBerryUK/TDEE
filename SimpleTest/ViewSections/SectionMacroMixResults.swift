@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+/// A view section displaying macro targets (protein, carbs, fats) in grams.
 struct SectionMacroMixResults: View {
 
     @Bindable var calculationResults: CalculatorResultViewModel
@@ -40,15 +41,5 @@ struct SectionMacroMixResults: View {
 
 #Preview {
     let results = CalculatorResultViewModel();
-//    results.updateMacros(
-//        proteinPercent: 40,
-//        carbsPercent: 20,
-//        fatsPercent: 20,
-//        proteinGrams: 450,
-//        carbsGrams: 210,
-//        fatsGrams: 80,
-//        caloriesAdjustedPerDay: 100,
-//        caloriesAdjustedPerWeek: 700)
-
     SectionMacroMixResults(calculationResults: results)
 }

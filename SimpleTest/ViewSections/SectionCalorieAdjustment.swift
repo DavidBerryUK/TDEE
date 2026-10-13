@@ -6,7 +6,9 @@
 //
 
 import SwiftUI
+import Observation
 
+/// A view section for adjusting daily calorie intake.
 struct SectionCalorieAdjustment: View {
 
     @Bindable var profile: ProfileViewModel

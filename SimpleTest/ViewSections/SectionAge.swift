@@ -1,6 +1,3 @@
-import SwiftUI
-import Observation
-
 //
 //  SectionAge.swift
 //  SimpleTest
@@ -8,6 +5,10 @@ import Observation
 //  Created by David Berry on 05/04/2026.
 //
 
+import SwiftUI
+import Observation
+
+/// A view section for displaying and editing the user's age.
 struct SectionAge: View {
 
     @Bindable var model: ProfileViewModel

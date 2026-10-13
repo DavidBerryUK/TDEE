@@ -7,11 +7,16 @@
 
 import SwiftUI
 
+/// A numeric result card displaying a value with a title and optional suffix.
 struct UICardNumericResult: View {
 
+    /// The descriptive title for this result
     var title : String
+    /// The numeric value to display
     var value : Int
+    /// An optional suffix to append to the value (e.g., "g" for grams)
     var suffix : String = ""
+    /// An optional color for the card border and background tint
     var color : Color? = nil
 
     var body: some View {

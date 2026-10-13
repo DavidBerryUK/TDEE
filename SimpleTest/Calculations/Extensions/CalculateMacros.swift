@@ -5,8 +5,12 @@
 //  Created by David Berry on 30/06/2026.
 //
 
-extension ProfileViewModel {
+import Foundation
 
+extension ProfileViewModel {
+    /// Calculates macro targets from TDEE and updates the result model.
+    ///
+    /// - Parameter result: The result model to update with macro calculations
     func calculateMacros(result: CalculatorResultViewModel) {
 
         let caloriesAdjustedPerDay: Int = Int(result.adjustedCalories)
@@ -27,7 +31,7 @@ extension ProfileViewModel {
             return
         }
 
-        // Use the profile's stored macro split (synced from user selection or sliders)
+        // Use the profile's stored macro split
         let proteinPercent: Int = protein
         let carbsPercent: Int = carbs
         let fatsPercent: Int = fats

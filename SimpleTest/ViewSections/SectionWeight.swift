@@ -1,12 +1,14 @@
 //
-//  SectionAge.swift
+//  SectionWeight.swift
 //  SimpleTest
 //
 //  Created by David Berry on 05/04/2026.
 //
 
 import SwiftUI
+import Observation
 
+/// A view section for displaying and editing the user's weight.
 struct SectionWeight: View {
 
     @Bindable var model: ProfileViewModel

@@ -24,23 +24,29 @@ final class ProfileViewModel {
             refreshResults()
         }
     }
+    /// User's age in years
     var age: Int = AppConfig.shared.profileDefaults.age {
         didSet {
             refreshResults()
         }
     }
+    /// Unit of measure for weight (kilograms or pounds)
     var weightUom: OptionWeight = OptionWeight.kilograms
-    var weight: Double = AppConfig.shared.profileDefaults.weight { // Raw input state
+    /// User's weight in the current unit of measure
+    var weight: Double = AppConfig.shared.profileDefaults.weight {
         didSet {
             refreshResults()
         }
     }
+    /// Unit of measure for height (centimeters or inches)
     var heightUom: OptionLength = OptionLength.centimeters
+    /// User's height in the current unit of measure
     var height: Double = AppConfig.shared.profileDefaults.height {
         didSet {
             refreshResults()
         }
     }
+    /// User's activity level for TDEE calculation
     var activityLevel: ActivityLevel = AppConfig.shared.profileDefaults.activityLevel {
         didSet {
             refreshResults()
@@ -48,44 +54,53 @@ final class ProfileViewModel {
     }
 
     // Body Fat Management (Retained pattern)
+    /// Method used to determine body fat percentage
     var bodyFatPercentageMethod: BodyFatOption = AppConfig.shared.profileDefaults.bodyFatPercentageMethod {
         didSet {
             bodyFatPercentageShowManualEntry = bodyFatPercentageMethod == .manualEntry
             refreshResults()
         }
     }
+    /// User's body fat percentage
     var bodyFatPercentage: Double = AppConfig.shared.profileDefaults.bodyFatPercentage {
         didSet {
             refreshResults()
         }
     }
+    /// Whether to show the manual entry field for body fat
     var bodyFatPercentageShowManualEntry: Bool
 
     // Calorie Adjustment (Retained pattern)
+    /// Method for adjusting daily calorie intake
     var calorieAdjustmentMethod: CalorieAdjustmentMethod = AppConfig.shared.profileDefaults.calorieAdjustmentMethod {
         didSet {
             calorieAdjustmentShowSliders = calorieAdjustmentMethod != .maintain
             refreshResults()
         }
     }
+    /// Amount of calories to adjust up or down
     var calorieAdjustment : Double {
         didSet {
             refreshResults()
         }
     }
+    /// Whether to show the calorie adjustment slider controls
     var calorieAdjustmentShowSliders : Bool
 
     // Macro Split (Retained pattern)
+    /// Protein percentage target
     var protein: Int = 40 {
         didSet {
             refreshResults()
         }
     }
+    /// Carbs percentage target
     var carbs: Int = 30 {
         didSet {
             refreshResults()
         }
     }
+    /// Fats percentage target
     var fats: Int = 30 {
         didSet {
             refreshResults()
@@ -93,14 +108,15 @@ final class ProfileViewModel {
     }
 
     // MARK: - Derived/Calculated State (The single source of truth for calculations)
-    /// The TDEE calculated value, read-only.
+    /// The TDEE calculated value
     var tdee: Double = 1800.0
-    /// The macro targets derived from the latest TDEE calculation.
+    /// The macro targets derived from the latest TDEE calculation
     var macroTargets: (protein: Int, carbs: Int, fats: Int) = (40, 30, 30)
 
     //*******************************
     // Initializer                  *
     //*******************************
+    /// Creates a new ProfileViewModel with default values
     init() {
         self.bodyFatPercentageShowManualEntry = false
         self.calorieAdjustment = 0

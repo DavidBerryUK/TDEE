@@ -6,20 +6,32 @@
 //
 import SwiftUI
 
+/// A reusable section view with expand/collapse functionality.
+///
+/// This view provides a consistent UI pattern for sections in the app,
+/// including a header with icon, title, summary, chevron, and content area.
+/// The section can be expanded or collapsed to show/hide the editor view.
 struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: View {
 
+    /// The section title displayed in the header
     let title: String
+    /// The icon to display in the header
     let icon : Icon // Assuming this type exists
     @Binding var isExpanded: Bool
+    /// Validation error text to display (if any)
     let validationText : String
+    /// Accessibility identifier for this section
     let accessibilityId: String?
+    /// Unique identifier for auto-scroll targeting
     let sectionId: String?
 
+    /// A view builder that returns the summary value view
     let sectionSummaryValueView: () -> SectionSummaryValueView
+    /// A view builder that returns the editor view shown when expanded
     let editorView: () -> EditorView
+    /// A ScrollViewProxy for auto-scrolling when section expands
     let proxy: ScrollViewProxy?
 
-    // Update hasError to control the isVisible binding
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.medium)
         {
@@ -30,12 +42,10 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
                 Text(title)
                     .font(.headline)
                     .contentTransition(.interpolate)
-                    // Animation is harder to fully refactor without knowing the full build setup, keeping explicit type for now.
                     .animation(.easeInOut, value: title)
                 Spacer()
                 sectionSummaryValueView()
                 Image(systemName: "chevron.down")
-                    // FIX 2: Using constant animation
                     .rotationEffect(.degrees(isExpanded ? 180 : 0))
                     .animation(AnimationParams.springDefault, value: isExpanded)
                     .font(.subheadline)
@@ -53,7 +63,6 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
             if !validationText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 UILabelValidationMessage(validationText)
                     .transition(.move(edge: .top).combined(with: .opacity))
-                    // FIX 5: Using animation constant
                     .animation(AnimationParams.fastDuration, value: validationText)
             }
 
@@ -67,12 +76,8 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
         // Make the entire VStack area tappable
         .contentShape(Rectangle())
         // Expose the section as a container whose children remain individually queryable.
-        // NOTE: a bare `.accessibilityElement()` means `children: .ignore`, which hides every
-        // descendant. It used to be applied here immediately before the `.contain` variant; the
-        // two contradict each other. Do not reintroduce it.
         .accessibilityElement(children: .contain)
-        // animation to assist in the Validation message appearing / disappearing smoothly
-        .animation(AnimationParams.fastDuration, value: validationText) // <-- FIX 8: Using animation constant
+        .animation(AnimationParams.fastDuration, value: validationText)
         .accessibilityIdentifier(accessibilityId ?? "")
         // Auto-scroll when section expands
         .onChange(of: isExpanded) { _, expanded in

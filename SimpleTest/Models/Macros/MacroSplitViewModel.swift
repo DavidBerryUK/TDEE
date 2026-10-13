@@ -7,10 +7,9 @@
 import Foundation
 import Observation
 
-/// Used in the main application to keep track of the users currently selected
-///  macro split  options, and if the macro split section is in expanded mode
-///
+/// Manages the selected macro split option and expansion state.
 @Observable
 final class MacroSplitViewModel {
+    /// The UUID of the currently selected macro split option
     var selectedMacroId: UUID = FactoryMacroSplits.get().first?.id ?? UUID()
 }

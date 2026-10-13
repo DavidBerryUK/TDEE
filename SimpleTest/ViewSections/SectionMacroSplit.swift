@@ -1,12 +1,14 @@
 //
-//  SectionMaintenanceCalories.swift
+//  SectionMacroSplit.swift
 //  SimpleTest
 //
 //  Created by David Berry on 08/04/2026.
 //
 
 import SwiftUI
+import Observation
 
+/// A view section for managing macro split preferences and viewing results.
 struct SectionMacroSplit: View {
 
     @Bindable var macroMix: MacroSplitViewModel
@@ -49,18 +51,3 @@ struct SectionMacroSplit: View {
         )
     }
 }
-
-// Preview disabled due to compiler crash with @Previewable and @Bindable
-// #Preview("collapsed") {
-//     @Previewable @State var macroMix = MacroSplitViewModel()
-//     @Previewable @State var sectionManager = SectionManagerViewModel()
-//     sectionManager.macroMixExpanded = false
-//     return SectionMacroSplit(macroMix: macroMix, sectionManager: sectionManager)
-// }
-//
-// #Preview("expanded") {
-//     @Previewable @State var macroMix = MacroSplitViewModel()
-//     @Previewable @State var sectionManager = SectionManagerViewModel()
-//     sectionManager.macroMixExpanded = true
-//     return SectionMacroSplit(macroMix: macroMix, sectionManager: sectionManager)
-// }
