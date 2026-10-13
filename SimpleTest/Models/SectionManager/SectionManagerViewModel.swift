@@ -88,7 +88,7 @@ final class SectionManagerViewModel {
     //
     // Enforce only 1 section being expanded
     //
-    internal func enforceExclusiveExpansion(changed: enumSection, newValue: Bool) {
+    internal func enforceExclusiveExpansion(changed: Section, newValue: Bool) {
         if isUpdatingExpansion { return }
         guard newValue == true else { return }
         isUpdatingExpansion = true

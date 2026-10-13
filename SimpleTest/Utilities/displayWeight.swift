@@ -1,12 +1,12 @@
 //
-//  DisplayFormat.swift
+//  DisplayWeight.swift
 //  SimpleTest
 //
 //  Created by David Berry on 05/04/2026.
 //
 import Foundation
 
-struct displayWeight {
+struct DisplayWeight {
 
     static func asKg(kilograms : Double) -> Int {
         return Int(round(kilograms))
@@ -27,11 +27,11 @@ struct displayWeight {
     static func asMajorValue(weight : Double, unit: OptionWeight) -> String {
         switch unit {
         case .kilograms:
-            return "\(displayWeight.asKg(kilograms: weight))"
+            return "\(DisplayWeight.asKg(kilograms: weight))"
         case .pounds:
-            return "\(displayWeight.asPounds(kilograms: weight))"
+            return "\(DisplayWeight.asPounds(kilograms: weight))"
         case .stonesAndPounds:
-            return "\(displayWeight.asStones(kilograms: weight))"
+            return "\(DisplayWeight.asStones(kilograms: weight))"
         }
     }
     
@@ -42,7 +42,7 @@ struct displayWeight {
         case .pounds:
             return ""
         case .stonesAndPounds:
-            return "\(displayWeight.asPoundsRemaining(kilograms: weight))"
+            return "\(DisplayWeight.asPoundsRemaining(kilograms: weight))"
         }
     }
 }

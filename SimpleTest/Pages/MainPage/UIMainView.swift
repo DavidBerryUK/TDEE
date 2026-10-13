@@ -14,7 +14,7 @@ struct UIMainView: View {
     @State var sectionManager = SectionManagerViewModel()
 
     @Environment(MacroSplitOptionsModelCollection.self) private var globalMacroCollection
-    @Binding var path: [EnumAppRoute]
+    @Binding var path: [AppRoute]
 
     /// Sync the user's selected macro preset into profile so calculations use their choice.
     private func syncSelectedMacro() {

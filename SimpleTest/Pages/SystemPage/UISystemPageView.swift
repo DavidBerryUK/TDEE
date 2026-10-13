@@ -7,11 +7,11 @@
 import SwiftUI
 
 struct UISystemPageView: View {
-    @Binding var path: [EnumAppRoute]
+    @Binding var path: [AppRoute]
 
     var body: some View {
         List {
-            Section("Navigation") {
+            SwiftUI.Section("Navigation") {
                 Button("Maintain Macro Config") { path.append(.maintainMacroConfig) }
                     .accessibilityLabel("Open macro configuration settings")
                     .accessibilityValue("Navigate to macro configuration")

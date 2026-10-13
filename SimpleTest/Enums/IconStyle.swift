@@ -1,12 +1,12 @@
 //
-//  enumIconStyle.swift
+//  IconStyle.swift
 //  SimpleTest
 //
 //  Created by David Berry on 07/04/2026.
 //
 
 
-enum enumIconStyle {
+enum IconStyle {
     case plainOutline,
          plainSolid,
          coloredOutline,

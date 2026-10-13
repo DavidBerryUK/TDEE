@@ -44,13 +44,13 @@ struct UISectionSummaryValueWeight: View {
             //
             // Major Value e.g. 95
             //
-            Text(displayWeight.asMajorValue(weight: model.weight, unit: model.weightUom))
+            Text(DisplayWeight.asMajorValue(weight: model.weight, unit: model.weightUom))
                 .contentTransition(.numericText())
                 .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded, isError: isError))
                 .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
                 .animation(.easeInOut, value: model.weight)
                 .accessibilityLabel("Weight major value")
-                .accessibilityValue(displayWeight.asMajorValue(weight: model.weight, unit: model.weightUom))
+                .accessibilityValue(DisplayWeight.asMajorValue(weight: model.weight, unit: model.weightUom))
 
             //
             // Major unit, e.g. kg, pounds, stones
@@ -65,13 +65,13 @@ struct UISectionSummaryValueWeight: View {
             //
             // Minor Value
             //
-            Text(displayWeight.asMinorValue(weight: model.weight, unit: model.weightUom))
+            Text(DisplayWeight.asMinorValue(weight: model.weight, unit: model.weightUom))
                 .contentTransition(.numericText())
                 .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded, isError: isError))
                 .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
                 .animation(.easeInOut, value: model.weight)
                 .accessibilityLabel("Weight minor value")
-                .accessibilityValue(displayWeight.asMinorValue(weight: model.weight, unit: model.weightUom))
+                .accessibilityValue(DisplayWeight.asMinorValue(weight: model.weight, unit: model.weightUom))
 
             //
             // Minor Unit, e.g. pounds (when stones)

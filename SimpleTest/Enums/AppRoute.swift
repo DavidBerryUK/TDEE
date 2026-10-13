@@ -6,7 +6,7 @@
 //
 
 
-public enum EnumAppRoute: Hashable {
+public enum AppRoute: Hashable {
     case system
     case maintainMacroConfig
     case theme

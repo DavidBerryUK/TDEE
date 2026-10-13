@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-private let iconCatalog: [EnumIcon: IconModel] = [
+private let iconCatalog: [Icon: IconModel] = [
     .gender: IconModel(id: .gender, label: "Gender", symbolSolid: "person.fill", symbolOutlined: "person", color: .blue),
     .age: IconModel(id: .age, label: "Age", symbolSolid: "calendar", symbolOutlined: "calendar", color: .red),
     .weight: IconModel(id: .weight, label: "Weight", symbolSolid: "scalemass.fill", symbolOutlined: "scalemass", color: .green),
@@ -22,8 +22,8 @@ private let iconCatalog: [EnumIcon: IconModel] = [
 ]
 
 struct UIIcon: View {
-    let icon: EnumIcon
-    let style: enumIconStyle
+    let icon: Icon
+    let style: IconStyle
     
     var body: some View {
         if let iconInfo = iconCatalog[icon] {
@@ -67,7 +67,7 @@ struct UIIcon: View {
     ScrollView{
         Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 12) {
             // Loop over the enum cases
-            ForEach(EnumIcon.allCases, id: \.self) { metric in
+            ForEach(Icon.allCases, id: \.self) { metric in
                 if let iconInfo = iconCatalog[metric] {
                     // Label row spans all columns
                     GridRow {

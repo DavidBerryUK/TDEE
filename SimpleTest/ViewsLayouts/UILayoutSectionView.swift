@@ -9,7 +9,7 @@ import SwiftUI
 struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: View {
 
     let title: String
-    let icon : EnumIcon // Assuming this type exists
+    let icon : Icon // Assuming this type exists
     @Binding var isExpanded: Bool
     let validationText : String
     let accessibilityId: String?

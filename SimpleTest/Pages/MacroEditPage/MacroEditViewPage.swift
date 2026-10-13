@@ -6,7 +6,7 @@ struct MacroEditViewPage: View {
     @Environment(MacroSplitOptionsModelCollection.self)
     var collection
     
-    @Binding var path: [EnumAppRoute]
+    @Binding var path: [AppRoute]
     @State private var editMacro: MacroSplitOptionModel
     @State private var showDeleteSheet = false
     
@@ -25,7 +25,7 @@ struct MacroEditViewPage: View {
 //    }
     
     init(
-        path: Binding<[EnumAppRoute]> = .constant([]),
+        path: Binding<[AppRoute]> = .constant([]),
         item: MacroSplitOptionModel? = nil
     ) {
         self._path = path
@@ -46,16 +46,16 @@ struct MacroEditViewPage: View {
     
     var body: some View {
         Form {
-            Section("Name") {
+            SwiftUI.Section("Name") {
                 TextField("Name", text: $editMacro.name)
             }
             
-            Section("Macros (%)") {
+            SwiftUI.Section("Macros (%)") {
                 UISliderMacroMixView(model: editMacro)
             }
             
             if isNew {
-                Section {
+                SwiftUI.Section {
                     Button {
                         dismiss()
                     } label: {
@@ -75,7 +75,7 @@ struct MacroEditViewPage: View {
                 }
             } else {
                 
-                    Section {
+                    SwiftUI.Section {
                         Button(role: .destructive) {
                             showDeleteSheet = true
                         } label: {

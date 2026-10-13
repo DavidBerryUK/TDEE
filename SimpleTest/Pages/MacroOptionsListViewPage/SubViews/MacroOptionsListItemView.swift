@@ -6,7 +6,7 @@ struct MacroOptionsListItemView: View {
     var collection
     
     @Bindable var item: MacroSplitOptionModel
-    @Binding var path: [EnumAppRoute]
+    @Binding var path: [AppRoute]
     
     func handleOnDelete (item: MacroSplitOptionModel) {
         collection.remove(item)

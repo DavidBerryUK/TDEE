@@ -1,12 +1,12 @@
 //
-//  enumIcon.swift
+//  Icon.swift
 //  SimpleTest
 //
 //  Created by David Berry on 07/04/2026.
 //
 
 
-enum EnumIcon : Int, CaseIterable {
+enum Icon : Int, CaseIterable {
     case gender,
          age,
          weight,

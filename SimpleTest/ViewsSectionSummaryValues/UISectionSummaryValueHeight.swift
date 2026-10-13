@@ -44,13 +44,13 @@ struct UISectionSummaryValueHeight: View {
             //
             // Major Value e.g. 18
             //
-            Text(displayLength.asMajorValue(length: model.height, unit: model.heightUom))
+            Text(DisplayLength.asMajorValue(length: model.height, unit: model.heightUom))
                 .contentTransition(.numericText())
                 .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded, isError: isError))
                 .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
                 .animation(.easeInOut, value: model.height)
                 .accessibilityLabel("Height major value")
-                .accessibilityValue(displayLength.asMajorValue(length: model.height, unit: model.heightUom))
+                .accessibilityValue(DisplayLength.asMajorValue(length: model.height, unit: model.heightUom))
 
             //
             // Major unit, e.g. Stones
@@ -65,13 +65,13 @@ struct UISectionSummaryValueHeight: View {
             //
             // Minor Value
             //
-            Text(displayLength.asMinorValue(length: model.height, unit: model.heightUom))
+            Text(DisplayLength.asMinorValue(length: model.height, unit: model.heightUom))
                 .contentTransition(.numericText())
                 .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded, isError: isError))
                 .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
                 .animation(.easeInOut, value: model.height)
                 .accessibilityLabel("Height minor value")
-                .accessibilityValue(displayLength.asMinorValue(length: model.height, unit: model.heightUom))
+                .accessibilityValue(DisplayLength.asMinorValue(length: model.height, unit: model.heightUom))
 
             //
             // Minor Unit, e.g. Kg, pounds

@@ -7,7 +7,7 @@ struct MacroOptionsListViewPage: View {
     @Environment(MacroSplitOptionsModelCollection.self)
     var collection
     
-    @Binding var path: [EnumAppRoute]
+    @Binding var path: [AppRoute]
     
     //
     // move these into a collection handler
@@ -30,7 +30,7 @@ struct MacroOptionsListViewPage: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             List {
-                Section {
+                SwiftUI.Section {
                     //
                     // list items using a sub view for readability
                     //

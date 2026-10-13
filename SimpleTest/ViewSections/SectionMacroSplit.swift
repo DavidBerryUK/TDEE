@@ -12,7 +12,7 @@ struct SectionMacroSplit: View {
     @Bindable var macroMix: MacroSplitViewModel
     @Bindable var sectionManager : SectionManagerViewModel
     let calculationResult: CalculatorResultViewModel
-    @Binding var path: [EnumAppRoute]
+    @Binding var path: [AppRoute]
     let proxy: ScrollViewProxy?
 
     var body: some View {

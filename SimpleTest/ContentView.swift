@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
 
-    @State private var path: [EnumAppRoute] = []
+    @State private var path: [AppRoute] = []
 
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
@@ -36,7 +36,7 @@ struct ContentView: View {
                 .navigationBarTitleDisplayMode(.inline)
                 .ignoresSafeArea(edges: .top)
 
-                .navigationDestination(for: EnumAppRoute.self) { route in
+                .navigationDestination(for: AppRoute.self) { route in
                     switch route {
                     case .system:
                         UISystemPageView(path: $path)

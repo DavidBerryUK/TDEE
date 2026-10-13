@@ -5,7 +5,7 @@ struct MainSectionMacroMix: View {
     let macroMix: MacroSplitViewModel
     let sectionManager: SectionManagerViewModel
     let calculationResult: CalculatorResultViewModel
-    @Binding var path: [EnumAppRoute]
+    @Binding var path: [AppRoute]
     let outerScrollViewProxy: ScrollViewProxy
 
     var body: some View {

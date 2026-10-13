@@ -4,10 +4,10 @@ struct UISliderCalorieAdjustmentValue: View {
 
     @Bindable var model: ProfileViewModel
 
-    // Slider range constants
-    private static let minAdjustment: Double = 0
-    private static let maxAdjustment: Double = 1000
-    private static let adjustmentStep: Double = 25
+    // Slider range constants - imported from CalorieAdjustmentConstants
+    private static let minAdjustment: Double = CalorieAdjustmentConstants.minAdjustment
+    private static let maxAdjustment: Double = CalorieAdjustmentConstants.maxAdjustment
+    private static let adjustmentStep: Double = CalorieAdjustmentConstants.adjustmentStep
 
     var body: some View {
 

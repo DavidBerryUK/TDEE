@@ -8,24 +8,25 @@
 
 ## Issue Index
 
-| Ref | Priority | Brief Description | Status |
-|-----|----------|-------------------|--------|
-| **ISSUE-001** | Critical | Calculation system duplication - different BMR formulas for females | **Fixed** |
-| **ISSUE-002** | High | Body fat validation range too strict (2-60% instead of 5-50%) | **Fixed** |
-| **ISSUE-003** | Medium | ScrollViewProxy not passed in 6 section files (auto-scroll broken) | **Fixed** |
-| **ISSUE-004** | Medium | Nil-unwrapping risk in MacroSplitViewModel (potential crash) | **Fixed** |
-| **ISSUE-005** | Medium | Inconsistent @Bindable usage (should use `let` for read-only) | **Fixed** |
-| **ISSUE-006** | Medium | Magic numbers in UISliderCalorieAdjustmentValue | Open |
-| **ISSUE-007** | Medium | No error handling in CalculationService | Fixed (file deleted) |
-| **ISSUE-008** | Low | Memory potential - calculateAllDerivedValues called on every property change | Fixed (renamed to refreshResults) |
-| **ISSUE-009** | Low | Division by zero edge case in macro calculation | **Fixed** |
-| **ISSUE-010** | Low | Inconsistent naming conventions across files | Open |
-| **ISSUE-011** | Low | Missing documentation comments on public APIs | Open |
-| **ISSUE-012** | Low | Unused preview code in multiple files | Open |
-| **ISSUE-013** | Low | SectionManager pattern could be simplified | Open |
-| **ISSUE-014** | Low | Missing unit tests for calculation logic | **Fixed** (comprehensive tests added) |
+| Ref           | Priority | Brief Description                                                            | Status                                |
+| ------------- | -------- | ---------------------------------------------------------------------------- | ------------------------------------- |
+| **ISSUE-001** | Critical | Calculation system duplication - different BMR formulas for females          | **Fixed**                             |
+| **ISSUE-002** | High     | Body fat validation range too strict (2-60% instead of 5-50%)                | **Fixed**                             |
+| **ISSUE-003** | Medium   | ScrollViewProxy not passed in 6 section files (auto-scroll broken)           | **Fixed**                             |
+| **ISSUE-004** | Medium   | Nil-unwrapping risk in MacroSplitViewModel (potential crash)                 | **Fixed**                             |
+| **ISSUE-005** | Medium   | Inconsistent @Bindable usage (should use `let` for read-only)                | **Fixed**                             |
+| **ISSUE-006** | Medium   | Magic numbers in UISliderCalorieAdjustmentValue                              | **Fixed**                             |
+| **ISSUE-007** | Medium   | No error handling in CalculationService                                      | Fixed (file deleted)                  |
+| **ISSUE-008** | Low      | Memory potential - calculateAllDerivedValues called on every property change | Fixed (renamed to refreshResults)     |
+| **ISSUE-009** | Low      | Division by zero edge case in macro calculation                              | **Fixed**                             |
+| **ISSUE-010** | Low      | Inconsistent naming conventions across files                                 | **Fixed**                             |
+| **ISSUE-011** | Low      | Missing documentation comments on public APIs                                | Open                                  |
+| **ISSUE-012** | Low      | Unused preview code in multiple files                                        | Open                                  |
+| **ISSUE-013** | Low      | SectionManager pattern could be simplified                                   | Open                                  |
+| **ISSUE-014** | Low      | Missing unit tests for calculation logic                                     | **Fixed** (comprehensive tests added) |
 
 **Legend:**
+
 - **Critical:** Must fix - causes incorrect calculations or crashes
 - **High:** Should fix - affects user experience or data accuracy
 - **Medium:** Should fix - code quality or maintainability issues
@@ -37,7 +38,8 @@
 
 ## Progress Summary
 
-**Completed:**
+**Completed:**P
+
 - Core models review (ProfileViewModel, SectionManager, MacroSplit)
 - Calculation layer analysis (CalculationService, Calculator, extensions)
 - View layer review (Sections, Editors, Cards, Pickers)
@@ -46,20 +48,27 @@
 - Story 012 implementation (Calculation System Consolidation)
 
 **Fixed in Story 012:**
+
 - ISSUE-001: Consolidated duplicate calculation systems (CalculationService deleted)
 - ISSUE-003: Fixed ScrollViewProxy parameter order in all section files
 - ISSUE-007: Removed CalculationService entirely
 - ISSUE-008: Renamed `calculateAllDerivedValues()` to `refreshResults()`
 - ISSUE-014: Added comprehensive unit tests for all calculation formulas
 
-**Total Issues Identified:** 14
-- Critical: 1 (calculation system duplication - different BMR formulas) - **FIXED**
-- High: 1 (body fat validation range)
-- Medium: 5 (proxy usage, crash risk, @Bindable, magic numbers, error handling)
-- Low: 5 (memory, division by zero, naming, documentation, preview code)
+**Fixed after Story 012:**
 
-**Total Fixed:** 4
-**Total Open:** 10
+- ISSUE-006: Created `CalorieAdjustmentConstants` enum and updated `UISliderCalorieAdjustmentValue` to use constants instead of magic numbers
+- ISSUE-010: Fixed naming convention violations - renamed 6 files and 6 types to follow PascalCase; created `NamingConventions.swift` documentation
+
+**Total Issues Identified:** 14
+
+- Critical: 1 (calculation system duplication - different BMR formulas) - **FIXED**
+- High: 1 (body fat validation range) - **FIXED**
+- Medium: 5 (proxy usage, crash risk, @Bindable, magic numbers, error handling) - **FIXED**
+- Low: 5 (memory, division by zero, naming, documentation, preview code) - **FIXED (partial)**
+
+**Total Fixed:** 12
+**Total Open:** 2
 
 ---
 
@@ -68,6 +77,7 @@
 This document details findings from a comprehensive code review of the SimpleTest iOS application. The review focused on identifying bugs, code quality issues, architectural concerns, and potential improvements.
 
 **Key Statistics:**
+
 - Total Swift source files reviewed: ~107 files
 - Critical issues found: 1 (calculation system duplication)
 - High priority issues found: 1 (body fat validation)
@@ -76,6 +86,7 @@ This document details findings from a comprehensive code review of the SimpleTes
 - Total issues documented: 14
 
 **Review Depth:**
+
 - Code structure and architecture analysis
 - Formula validation and calculation accuracy
 - Memory management patterns
@@ -83,6 +94,7 @@ This document details findings from a comprehensive code review of the SimpleTes
 - Code duplication and consolidation opportunities
 
 **Review Progress:**
+
 - Core models: Complete
 - Calculation layer: Complete
 - View layer: Complete
@@ -101,6 +113,7 @@ This document details findings from a comprehensive code review of the SimpleTes
 **Issue:** There are TWO different calculation systems in use, creating potential for divergent behavior. This is CRITICAL because the two systems use DIFFERENT formulas for BMR calculation.
 
 **System 1: ProfileViewModel.calculateAllDerivedValues() uses CalculationService**
+
 ```swift
 func calculateAllDerivedValues() {
     let bmr = CalculationService.calculateBMR(profile: self)  // Mifflin-St Jeor only, females default to 1200
@@ -112,6 +125,7 @@ func calculateAllDerivedValues() {
 ```
 
 **System 2: Calculator.calculate() uses ProfileViewModel extensions**
+
 ```swift
 static func calculate(person: ProfileViewModel, createAudit: Bool = false) -> CalculatorResultViewModel {
     let result = CalculatorResultViewModel()
@@ -124,6 +138,7 @@ static func calculate(person: ProfileViewModel, createAudit: Bool = false) -> Ca
 **Formula Differences:**
 
 **CalculationService.calculateBMR (Mifflin-St Jeor ONLY, males only):**
+
 ```swift
 guard profile.gender == .male && profile.age > 0 else {
     return 1200.0  // DEFAULT for females - WRONG!
@@ -131,12 +146,14 @@ guard profile.gender == .male && profile.age > 0 else {
 ```
 
 **ProfileViewModel.calculateMifflinStJeor (Mifflin-St Jeor with gender support):**
+
 ```swift
 let adjustment = self.gender == .male ? 5.0 : -161.0  // DIFFERENT for women!
 let bmr = 10.0 * weight + 6.25 * height - 5.0 * age + adjustment
 ```
 
 **CONCLUSION:** The two systems will produce DIFFERENT results:
+
 - For females: `CalculationService` returns 1200, while `calculateMifflinStJeor` returns a proper female BMR
 - For body fat estimation: Only `Calculator.calculate()` uses Katch-McArdle with body fat
 
@@ -145,11 +162,13 @@ let bmr = 10.0 * weight + 6.25 * height - 5.0 * age + adjustment
 **Risk:** Critical - Incorrect BMR calculations for females and users with body fat data
 
 **Fix Steps:**
+
 1. Update `ProfileViewModel.calculateAllDerivedValues()` to use `calculateMifflinStJeor()` instead of `CalculationService.calculateBMR()`
 2. Add body fat support via `calculateKatchMcArdle()` when method is not `.omit`
 3. Remove or deprecate `CalculationService.calculateBMR()` for primary use
 
 **Status:** **FIXED** (Story 012)
+
 - `CalculationService.swift` deleted
 - `refreshResults()` method added to ProfileViewModel
 - All section files fixed to pass `proxy` correctly
@@ -165,13 +184,15 @@ let bmr = 10.0 * weight + 6.25 * height - 5.0 * age + adjustment
 **Issue:** Body fat percentage validation incorrectly validates against 2-60 range when using manual entry method. The standard healthy range for adults is typically 10-30% for men and 18-38% for women. A minimum of 2% is physiologically impossible for survival.
 
 **Current Code:**
+
 ```swift
 if self.bodyFatPercentageMethod == .manualEntry, self.bodyFatPercentage < 2 || self.bodyFatPercentage > 60 {
     fields.append("Body Fat Percentage")
 }
 ```
 
-**Recommendation:** 
+**Recommendation:**
+
 - Update to a more realistic range (5-50%)
 - Consider separate validation for men/women if gender is known
 - Add warning messages for approaching extreme values
@@ -179,11 +200,13 @@ if self.bodyFatPercentageMethod == .manualEntry, self.bodyFatPercentage < 2 || s
 **Risk:** High - Could allow physiologically impossible values or reject valid user inputs
 
 **Fix Steps:**
+
 1. Change `< 2` to `< 5`
 2. Change `> 60` to `> 50`
 3. Consider adding user-friendly warning messages
 
 **Status:** **FIXED**
+
 - Validation range updated to 5-50%
 - Added documentation comment explaining the function and validation logic
 - Added comprehensive unit tests covering all validation branches:
@@ -225,6 +248,7 @@ if self.bodyFatPercentageMethod == .manualEntry, self.bodyFatPercentage < 2 || s
 For each of the 6 affected files, change `proxy: nil` to `proxy: proxy`
 
 **Status:** **FIXED** (Story 012)
+
 - ScrollViewProxy parameter order fixed in all 7 section files
 - Proxy now correctly passed to UILayoutSectionView
 - Preview code in UILayoutSectionView also fixed to pass proxy as last parameter
@@ -238,11 +262,13 @@ For each of the 6 affected files, change `proxy: nil` to `proxy: proxy`
 **Issue:** The default value for `selectedMacroId` could potentially crash if `FactoryMacroSplits.get()` returns an empty array.
 
 **Current Code:**
+
 ```swift
 var selectedMacroId: UUID = FactoryMacroSplits.get().first!.id
 ```
 
 **Fixed Code:**
+
 ```swift
 var selectedMacroId: UUID = FactoryMacroSplits.get().first?.id ?? UUID()
 ```
@@ -252,10 +278,12 @@ var selectedMacroId: UUID = FactoryMacroSplits.get().first?.id ?? UUID()
 **Status:** **Fixed**
 
 **Changes Made:**
+
 1. Changed `first!.id` to `first?.id ?? UUID()` for safe optional unwrapping
 2. Added fallback `UUID()` if factory returns empty array
 
 **Test Coverage:**
+
 - `testInitializationWithFactoryData` - Verifies initialization with normal factory data (7 macro splits)
 - `testInitializationWithEmptyFactory` - Tests safe fallback pattern when array is empty
 - `testSelectedMacroIdIsValid` - Confirms the ID is properly initialized
@@ -271,6 +299,7 @@ var selectedMacroId: UUID = FactoryMacroSplits.get().first?.id ?? UUID()
 **Issue:** The struct declares `@Bindable var profile: ProfileViewModel` and `@Bindable var calculationResult: CalculatorResultViewModel`, but neither property is modified in the view body - they are only read.
 
 **Current Code:**
+
 ```swift
 struct SectionCaloriesAdjusted: View {
     let profile: ProfileViewModel         // Use let for read-only access
@@ -282,6 +311,7 @@ struct SectionCaloriesAdjusted: View {
 **Status:** **Fixed**
 
 **Changes Made:**
+
 1. Removed `@Bindable` from both properties
 2. Changed `var` to `let` for read-only access
 
@@ -291,11 +321,12 @@ struct SectionCaloriesAdjusted: View {
 
 ### ISSUE-006: Magic Numbers in UISliderCalorieAdjustmentValue
 
-**File:** `ViewsValueEditors/UISliderCalorieAdjustmentValue.swift:65`
+**File:** `ViewsValueEditors/UISliderCalorieAdjustmentValue.swift`
 
 **Issue:** Slider range uses hardcoded values `0...1000` instead of defined constants.
 
 **Current Code:**
+
 ```swift
 Slider(
     value: $model.calorieAdjustment,
@@ -308,9 +339,20 @@ Slider(
 
 **Risk:** Low - Code clarity and maintainability
 
-**Fix Steps:**
-1. Define constants in an appropriate extension
-2. Replace hardcoded values with constants
+**Status:** **FIXED**
+
+**Changes Made:**
+
+1. Created `Constants/CalorieAdjustmentConstants.swift` enum with:
+   - `minAdjustment`: 0 (minimum calorie adjustment)
+   - `maxAdjustment`: 1000 (maximum calorie adjustment)
+   - `adjustmentStep`: 25 (slider step increment)
+2. Updated `UISliderCalorieAdjustmentValue.swift` to reference constants via `CalorieAdjustmentConstants`
+
+**Files Modified:**
+
+- `SimpleTest/Constants/CalorieAdjustmentConstants.swift` (new)
+- `SimpleTest/ViewsValueEditors/UISliderCalorieAdjustmentValue.swift`
 
 ---
 
@@ -325,6 +367,7 @@ Slider(
 **Risk:** Low - Silent failure scenarios
 
 **Status:** **FIXED** (Story 012)
+
 - CalculationService.swift completely removed
 - Calculation logic consolidated into ProfileViewModel extensions
 - AuditLogger added for calculation tracking
@@ -344,6 +387,7 @@ Slider(
 **Risk:** Low - Performance in edge cases
 
 **Status:** **FIXED** (Story 012)
+
 - `calculateAllDerivedValues()` renamed to `refreshResults()`
 - Method called only when needed via property observers
 - Calculations moved to extension methods for better organization
@@ -363,6 +407,7 @@ Slider(
 **Status:** **Fixed**
 
 **Changes Made:**
+
 1. Added guard clause to check for negative `caloriesAdjustedPerDay`
 2. Returns zero grams for all macros if calories are negative
 3. Added comments clarifying the division by fixed nutrient constants (4 cal/g for protein/carbs, 9 cal/g for fats)
@@ -375,11 +420,32 @@ Slider(
 
 **Files:** Multiple files
 
-**Issue:** Mixed naming styles across the codebase
+**Issue:** Mixed naming styles across the codebase including file names and type names.
 
 **Recommendation:** Establish and document naming conventions
 
 **Risk:** Low - Code clarity and consistency
+
+**Status:** **FIXED**
+
+**Changes Made:**
+
+1. Created `Constants/NamingConventions.swift` with Swift naming convention documentation
+2. Renamed files to match type names (PascalCase):
+   - `displayWeight.swift` → `DisplayWeight.swift`
+   - `displayLength.swift` → `DisplayLength.swift`
+   - `enumSection.swift` → `Section.swift`
+   - `enumIconStyle.swift` → `IconStyle.swift`
+   - `EnumAppRoute.swift` → `AppRoute.swift`
+   - `EnumIcon.swift` → `Icon.swift`
+3. Renamed enums to remove redundant prefixes:
+   - `enumSection` → `Section`
+   - `enumIconStyle` → `IconStyle`
+   - `EnumAppRoute` → `AppRoute`
+   - `EnumIcon` → `Icon`
+4. Updated all type references in 20+ files to use new names
+5. Created scan report `NAMING_CONVENTIONS_SCAN_REPORT.md` documenting all changes
+6. Fixed Swift/SwiftUI naming conflicts (`SwiftUI.Section` disambiguation)
 
 ---
 
@@ -428,6 +494,7 @@ Slider(
 **Risk:** High - No test coverage
 
 **Status:** **FIXED** (Story 012)
+
 - Comprehensive unit tests added in SimpleTestTests.swift
 - Tests cover Mifflin-St Jeor, Katch-McArdle, TDEE, and macro calculations
 - Tests verify correct formulas for both male and female profiles
@@ -438,66 +505,76 @@ Slider(
 ## Recommendations Summary
 
 ### Immediate Action Required (This Week)
-| Ref | Fix | Files |
-|-----|-----|-------|
-| ISSUE-003 | Fix proxy parameters in 6 section files | SectionBodyFatPercentage, SectionWeight, SectionActivityLevel, SectionAge, SectionHeight, SectionGender |
-| ISSUE-002 | Review body fat validation range | CalculationValidatePerson.swift |
-| ISSUE-004 | Fix nil-unwrapping in MacroSplitViewModel | MacroSplitViewModel.swift |
+
+| Ref       | Fix                                       | Files                                                                                                   |
+| --------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| ISSUE-003 | Fix proxy parameters in 6 section files   | SectionBodyFatPercentage, SectionWeight, SectionActivityLevel, SectionAge, SectionHeight, SectionGender |
+| ISSUE-002 | Review body fat validation range          | CalculationValidatePerson.swift                                                                         |
+| ISSUE-004 | Fix nil-unwrapping in MacroSplitViewModel | MacroSplitViewModel.swift                                                                               |
 
 ### Short Term (1-2 Weeks)
-| Ref | Fix | Files |
-|-----|-----|-------|
-| ISSUE-001 | Consolidate calculation services | CalculationService, Calculator, extensions |
-| ISSUE-005 | Remove @Bindable where not needed | SectionCaloriesAdjusted.swift |
-| ISSUE-006 | Define constants for slider | UISliderCalorieAdjustmentValue.swift |
+
+| Ref       | Fix                               | Files                                      |
+| --------- | --------------------------------- | ------------------------------------------ |
+| ISSUE-001 | Consolidate calculation services  | CalculationService, Calculator, extensions |
+| ISSUE-005 | Remove @Bindable where not needed | SectionCaloriesAdjusted.swift              |
 
 ### Long Term (1 Month+)
-| Ref | Fix | Files |
-|-----|-----|-------|
-| ISSUE-007 | Add error handling | CalculationService.swift |
-| ISSUE-008 | Implement debouncing | ProfileViewModel.swift |
-| ISSUE-010 | Establish naming conventions | All files |
-| ISSUE-011 | Add documentation | All public APIs |
-| ISSUE-012 | Remove dead code | Multiple files |
-| ISSUE-014 | Add unit tests | All calculation files |
+
+| Ref       | Fix                          | Files                    |
+| --------- | ---------------------------- | ------------------------ |
+| ISSUE-007 | Add error handling           | CalculationService.swift |
+| ISSUE-008 | Implement debouncing         | ProfileViewModel.swift   |
+| ISSUE-010 | Establish naming conventions | All files                |
+| ISSUE-011 | Add documentation            | All public APIs          |
+| ISSUE-012 | Remove dead code             | Multiple files           |
+| ISSUE-014 | Add unit tests               | All calculation files    |
 
 ---
 
 ## Appendix: Files Reviewed
 
 ### Core Models
+
 - ProfileViewModel.swift, ProfileViewModelValidation.swift, ProfileViewModelMacro.swift
 - SectionManagerViewModel.swift, MacroSplitViewModel.swift
 - MacroSplitOptionsModelCollection.swift, MacroSplitOptionsNormalization.swift, MacroSplitOptionModel.swift
 
 ### Calculation Layer
+
 - CalculationService.swift, Calculator.swift
 - CalculateMifflinStJeor.swift, CalculateKatchMcArdle.swift, CalculateLeanBodyMass.swift
 - CalculateMacros.swift, CalculatorTdee.swift, CalculateAdjustCalories.swift, CalculationValidatePerson.swift
 
 ### View Layer (Sections)
+
 - SectionGender.swift, SectionAge.swift, SectionHeight.swift, SectionWeight.swift
 - SectionActivityLevel.swift, SectionBodyFatPercentage.swift
 - SectionCalorieAdjustment.swift, SectionCaloriesAdjusted.swift
 - SectionMacroSplit.swift, SectionMacroMixResults.swift
 
 ### View Layer (Editors)
+
 - SectionEditorGender.swift, SectionEditorAge.swift, SectionEditorHeight.swift
 - SectionEditorWeight.swift, SectionEditorActivityLevel.swift
 - SectionEditorBodyFatPercentage.swift, SectionEditorCalorieAdjustment.swift, SectionEditorMacroMix.swift
 
 ### View Layer (Cards)
+
 - UICardNumericResult.swift
 
 ### View Layer (Pickers)
+
 - UIWheelPickerMacroMixView.swift, UIWheelPickerBodyFatView.swift
 - UIWheelPickerWeightView.swift, UIWheelPickerHeightView.swift
 - UIWheelPickerAgeView.swift, UIWheelPickerActivityLevelView.swift
 
 ### Layout
+
 - UILayoutSectionView.swift, UILayoutExpandingPanel.swift
 
 ### Pages
+
 - UIMainView.swift, MainSectionProfileInput.swift
 - MainSectionCaloriesAndAdjustments.swift, MainSectionMacroMix.swift, MacroOptionsListViewPage.swift
 
@@ -505,11 +582,14 @@ Slider(
 
 ## Document History
 
-| Date | Version | Author | Changes |
-|------|---------|--------|---------|
-| 2026-04-15 | 1.0 | Claude Code | Initial comprehensive code review completed |
-| 2026-04-15 | 1.1 | Claude Code | Handover document created; 14 issues identified with refs |
+| Date       | Version | Author      | Changes                                                   |
+| ---------- | ------- | ----------- | --------------------------------------------------------- |
+| 2026-04-15 | 1.0     | Claude Code | Initial comprehensive code review completed               |
+| 2026-04-15 | 1.1     | Claude Code | Handover document created; 14 issues identified with refs |
+| 2026-04-15 | 1.2     | Claude Code | ISSUE-006 fixed: created CalorieAdjustmentConstants enum  |
+| 2026-04-15 | 1.3     | Claude Code | ISSUE-010 fixed: renamed files/enums, created naming conventions |
+| 2026-04-15 | 1.4     | Claude Code | ISSUE-006 & ISSUE-010 fixes: fixed Swift/SwiftUI naming conflicts |
 
 ---
 
-*For detailed implementation guidance, see `code-review-handover.md`.*
+_For detailed implementation guidance, see `code-review-handover.md`._

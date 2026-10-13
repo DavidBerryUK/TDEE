@@ -1,12 +1,12 @@
 //
-//  DisplayFormat.swift
+//  DisplayLength.swift
 //  SimpleTest
 //
 //  Created by David Berry on 05/04/2026.
 //
 import Foundation
 
-struct displayLength {
+struct DisplayLength {
 
     static func asCentimeters(cm : Double) -> Int {
         return Int(round(cm))
