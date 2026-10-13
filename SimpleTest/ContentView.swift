@@ -12,8 +12,6 @@ struct ContentView: View {
 
             UIMainView(path: $path)
 
-                .safeAreaPadding(.top, 100)
-
                 .navigationTitle(
                     horizontalSizeClass == .compact
                         ? "TDEE"
