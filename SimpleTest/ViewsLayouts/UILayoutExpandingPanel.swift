@@ -12,8 +12,6 @@ struct UILayoutExpandingPanel<HeaderView: View, ContentView: View>: View {
 
     /// Binding controlling whether the panel is open
     @Binding var isOpen: Bool
-    /// Internal state for animation management
-    @State private var isVisible: Bool
 
     /// The header view displayed when the panel is collapsed or expanded
     let headerView: () -> HeaderView
@@ -44,7 +42,6 @@ struct UILayoutExpandingPanel<HeaderView: View, ContentView: View>: View {
         self._isOpen = isOpen
         self.headerView = header
         self.contentView = content
-        _isVisible = State(initialValue: isOpen.wrappedValue)
     }
 
     var body: some View {
@@ -52,28 +49,12 @@ struct UILayoutExpandingPanel<HeaderView: View, ContentView: View>: View {
 
             headerView()
 
-            if isOpen || isVisible {
+            if isOpen {
                 contentView()
-                    .opacity(isVisible ? 1 : 0)
-                    .frame(maxHeight: isVisible ? .infinity : 0)
+                    .frame(maxHeight: .infinity)
                     .clipped()
             }
         }
         .accessibilityElement(children: .contain)
-        .onChange(of: isOpen) { _, newValue in
-
-            if newValue {
-                isVisible = false
-
-                withAnimation(expandAnimation) {
-                    isVisible = true
-                }
-
-            } else {
-                withAnimation(collapseAnimation) {
-                    isVisible = false
-                }
-            }
-        }
     }
 }

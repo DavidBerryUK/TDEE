@@ -52,15 +52,7 @@ public final class MacroSplitOptionModel : Identifiable, Hashable {
     }
 
     private static func validateOnInit(protein: Int, carbs: Int, fats: Int) -> (protein: Int, carbs: Int, fats: Int) {
-        let snapshotProtein = protein
-        let snapshotCarbs   = carbs
-        let snapshotFats    = fats
-        let overflow        = 100 - (snapshotProtein + snapshotCarbs + snapshotFats)
-        return (
-            clampValueTo100(snapshotProtein + overflow),
-            clampValueTo100(snapshotCarbs   + overflow),
-            clampValueTo100(snapshotFats    + overflow)
-        )
+        MacroSplitOptionModel.normalizeAll(protein: protein, carbs: carbs, fats: fats)
     }
 
     public func updateFromUiProtein(to newValue: Double) {

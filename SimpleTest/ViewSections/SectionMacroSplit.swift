@@ -51,3 +51,15 @@ struct SectionMacroSplit: View {
         )
     }
 }
+
+#Preview {
+    @Previewable @State var sectionManager = SectionManagerViewModel()
+    @Previewable @State var path: [AppRoute] = []
+    SectionMacroSplit(
+        macroMix: MacroSplitViewModel(),
+        sectionManager: sectionManager,
+        calculationResult: CalculatorResultViewModel(),
+        path: $path,
+        proxy: nil
+    )
+}
