@@ -17,84 +17,69 @@ struct MacroOptionsListCardView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            // Card content
-            VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 12) {
 
-                // Header: Name
-                HStack(alignment: .firstTextBaseline, spacing: 8) {
-                    Text(item.name)
-                        .font(.headline)
-                        .fontWeight(.semibold)
+            // Header: Name
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text(item.name)
+                    .font(.headline)
+                    .fontWeight(.semibold)
 
-                    Spacer()
-                }
-
-                // Macro color bands with segment labels
-                GeometryReader { geo in
-                    let total = item.protein + item.carbs + item.fats
-                    let availableWidth = geo.size.width - 6 // subtract spacing
-
-                    HStack(spacing: 2) {
-                        // Protein segment
-                        macroSegment(
-                            color: UIStyle.Text.macroProtein,
-                            value: item.protein,
-                            label: "P",
-                            total: total,
-                            availableWidth: availableWidth
-                        )
-
-                        // Carbs segment
-                        macroSegment(
-                            color: UIStyle.Text.macroCarbs,
-                            value: item.carbs,
-                            label: "C",
-                            total: total,
-                            availableWidth: availableWidth
-                        )
-
-                        // Fats segment
-                        macroSegment(
-                            color: UIStyle.Text.macroFats,
-                            value: item.fats,
-                            label: "F",
-                            total: total,
-                            availableWidth: availableWidth
-                        )
-                    }
-                }
-                .frame(height: 28)
-                .background(Color(.systemGray6))
-                .clipShape(RoundedRectangle(cornerRadius: 6))
-
-                // Macro details as clean list
-                HStack(spacing: 16) {
-                    macroDetail(
-                        icon: "bolt.fill",
-                        color: UIStyle.Text.macroProtein,
-                        text: "\(item.protein)% protein"
-                    )
-                    macroDetail(
-                        icon: "leaf.fill",
-                        color: UIStyle.Text.macroCarbs,
-                        text: "\(item.carbs)% carbs"
-                    )
-                    macroDetail(
-                        icon: "drop.fill",
-                        color: UIStyle.Text.macroFats,
-                        text: "\(item.fats)% fats"
-                    )
-                }
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+                Spacer()
             }
-            .padding(16)
 
-            // Card border
-            Divider()
-                .background(Color(.systemGray4))
+            // Macro color bands
+            GeometryReader { geo in
+                let total = item.protein + item.carbs + item.fats
+                let availableWidth = geo.size.width - 6
+
+                HStack(spacing: 2) {
+                    macroSegment(
+                        color: UIStyle.Text.macroProtein,
+                        value: item.protein,
+                        total: total,
+                        availableWidth: availableWidth
+                    )
+
+                    macroSegment(
+                        color: UIStyle.Text.macroCarbs,
+                        value: item.carbs,
+                        total: total,
+                        availableWidth: availableWidth
+                    )
+
+                    macroSegment(
+                        color: UIStyle.Text.macroFats,
+                        value: item.fats,
+                        total: total,
+                        availableWidth: availableWidth
+                    )
+                }
+            }
+            .frame(height: 24)
+
+            // Macro details as clean list
+            HStack(spacing: 16) {
+                macroDetail(
+                    icon: "bolt.fill",
+                    color: UIStyle.Text.macroProtein,
+                    text: "\(item.protein)% protein"
+                )
+                macroDetail(
+                    icon: "leaf.fill",
+                    color: UIStyle.Text.macroCarbs,
+                    text: "\(item.carbs)% carbs"
+                )
+                macroDetail(
+                    icon: "drop.fill",
+                    color: UIStyle.Text.macroFats,
+                    text: "\(item.fats)% fats"
+                )
+            }
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
         }
+        .padding(16)
         .background(Color.white)
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(color: Color.black.opacity(0.06), radius: 8, x: 0, y: 2)
@@ -126,26 +111,12 @@ struct MacroOptionsListCardView: View {
     // MARK: - Helper Views
 
     @ViewBuilder
-    private func macroSegment(color: Color, value: Int, label: String, total: Int, availableWidth: CGFloat) -> some View {
+    private func macroSegment(color: Color, value: Int, total: Int, availableWidth: CGFloat) -> some View {
         let width = availableWidth * CGFloat(value) / CGFloat(max(total, 1))
 
         color
             .clipShape(RoundedRectangle(cornerRadius: 4))
             .frame(width: max(width, 4))
-    }
-
-    private func colorReadForeground(color: Color) -> Color {
-        // Return white for darker colors, dark gray for lighter colors
-        switch color {
-        case UIStyle.Text.macroProtein:
-            return .white
-        case UIStyle.Text.macroCarbs:
-            return .white
-        case UIStyle.Text.macroFats:
-            return Color(.darkGray)
-        default:
-            return .primary
-        }
     }
 
     @ViewBuilder
