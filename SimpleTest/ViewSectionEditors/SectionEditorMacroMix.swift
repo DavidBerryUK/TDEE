@@ -25,7 +25,8 @@ struct SectionEditorMacroMix: View {
     }
 }
 
-//#Preview {
-//    @Previewable @State var macroMix = MacroSplitViewModel()
-//    SectionEditorMacroMix(macroMix: macroMix)
-//}
+#Preview {
+    let collection = MacroSplitOptionsModelCollection(items: FactoryMacroSplits.get())
+    return SectionEditorMacroMix(macroMix: MacroSplitViewModel())
+        .environment(collection)
+}

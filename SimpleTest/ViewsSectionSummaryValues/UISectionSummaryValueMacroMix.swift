@@ -34,14 +34,10 @@ struct UISectionSummaryValueMacroMix: View {
         }
     }
 }
-//#Preview("collapsed") {
-//    @Previewable @State var macroMix: MacroSplitOptionModel =    MacroSplitOptionsModelCollection(items: FactoryMacroSplits.get()).items.first!
-//    @Previewable @State var isExpanded : Bool = false
-//     UISectionSummaryValueMacroMix(macroMix: macroMix, isExpanded: isExpanded)
-//}
-//
-//#Preview("expanded") {
-//    @Previewable @State var macroMix: MacroSplitOptionModel =    MacroSplitOptionsModelCollection(items: FactoryMacroSplits.get()).items.first!
-//    @Previewable  @State var isExpanded : Bool = true
-//    UISectionSummaryValueMacroMix(macroMix: macroMix, isExpanded: isExpanded)
-//}
+#Preview {
+    let collection = MacroSplitOptionsModelCollection(items: FactoryMacroSplits.get())
+    let macroMix = MacroSplitViewModel()
+    let sectionManager = SectionManagerViewModel()
+    return UISectionSummaryValueMacroMix(macroMix: macroMix, sectionManager: sectionManager)
+        .environment(collection)
+}
