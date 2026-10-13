@@ -31,27 +31,38 @@ struct MacroOptionsListCardView: View {
                 }
 
                 // Macro color bands with segment labels
-                HStack(spacing: 2) {
-                    // Protein segment
-                    macroSegment(
-                        color: UIStyle.Text.macroProtein,
-                        value: item.protein,
-                        label: "P"
-                    )
+                GeometryReader { geo in
+                    let total = item.protein + item.carbs + item.fats
+                    let availableWidth = geo.size.width - 6 // subtract spacing
 
-                    // Carbs segment
-                    macroSegment(
-                        color: UIStyle.Text.macroCarbs,
-                        value: item.carbs,
-                        label: "C"
-                    )
+                    HStack(spacing: 2) {
+                        // Protein segment
+                        macroSegment(
+                            color: UIStyle.Text.macroProtein,
+                            value: item.protein,
+                            label: "P",
+                            total: total,
+                            availableWidth: availableWidth
+                        )
 
-                    // Fats segment
-                    macroSegment(
-                        color: UIStyle.Text.macroFats,
-                        value: item.fats,
-                        label: "F"
-                    )
+                        // Carbs segment
+                        macroSegment(
+                            color: UIStyle.Text.macroCarbs,
+                            value: item.carbs,
+                            label: "C",
+                            total: total,
+                            availableWidth: availableWidth
+                        )
+
+                        // Fats segment
+                        macroSegment(
+                            color: UIStyle.Text.macroFats,
+                            value: item.fats,
+                            label: "F",
+                            total: total,
+                            availableWidth: availableWidth
+                        )
+                    }
                 }
                 .frame(height: 28)
                 .background(Color(.systemGray6))
@@ -115,26 +126,12 @@ struct MacroOptionsListCardView: View {
     // MARK: - Helper Views
 
     @ViewBuilder
-    private func macroSegment(color: Color, value: Int, label: String) -> some View {
-        GeometryReader { geo in
-            let total = CGFloat(max(item.protein + item.carbs + item.fats, 1))
-            let width = geo.size.width * CGFloat(value) / total
+    private func macroSegment(color: Color, value: Int, label: String, total: Int, availableWidth: CGFloat) -> some View {
+        let width = availableWidth * CGFloat(value) / CGFloat(max(total, 1))
 
-            ZStack {
-                color
-                    .clipShape(RoundedRectangle(cornerRadius: 4))
-
-                if width > 24 {
-                    Text("\(label)\(value)%")
-                        .font(.caption2)
-                        .fontWeight(.medium)
-                        .foregroundStyle(colorReadForeground(color: color))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.75)
-                }
-            }
-            .frame(width: width)
-        }
+        color
+            .clipShape(RoundedRectangle(cornerRadius: 4))
+            .frame(width: max(width, 4))
     }
 
     private func colorReadForeground(color: Color) -> Color {
