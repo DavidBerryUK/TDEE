@@ -11,141 +11,98 @@ import Observation
 /// Manages the expansion state of sections in the UI.
 ///
 /// Ensures only one section is expanded at a time through exclusive expansion logic.
+/// Simplified to use a single `expandedSection` property instead of individual booleans.
 @Observable
 final class SectionManagerViewModel {
 
-    // custom properties
-    /// Whether expansion updates are in progress (prevents recursion)
-    internal var isUpdatingExpansion = false
+    /// The currently expanded section, or nil if all sections are collapsed
+    private(set) var expandedSection: Section?
+
+    // MARK: - Computed properties for backwards compatibility
 
     /// Whether the gender section is expanded
-    var genderIsExpanded: Bool
-    {
-        didSet {
-            enforceExclusiveExpansion(changed: .gender, newValue: genderIsExpanded)
+    var genderIsExpanded: Bool {
+        get { expandedSection == .gender }
+        set {
+            if newValue { expandedSection = .gender }
+            else if expandedSection == .gender { expandedSection = nil }
         }
     }
 
     /// Whether the age section is expanded
     var ageIsExpanded: Bool {
-        didSet {
-            enforceExclusiveExpansion(changed: .age, newValue: ageIsExpanded)
+        get { expandedSection == .age }
+        set {
+            if newValue { expandedSection = .age }
+            else if expandedSection == .age { expandedSection = nil }
         }
     }
 
     /// Whether the weight section is expanded
     var weightIsExpanded: Bool {
-        didSet {
-            enforceExclusiveExpansion(changed: .weight, newValue: weightIsExpanded)
+        get { expandedSection == .weight }
+        set {
+            if newValue { expandedSection = .weight }
+            else if expandedSection == .weight { expandedSection = nil }
         }
     }
 
     /// Whether the height section is expanded
     var heightIsExpanded: Bool {
-        didSet {
-            enforceExclusiveExpansion(changed: .height, newValue: heightIsExpanded)
+        get { expandedSection == .height }
+        set {
+            if newValue { expandedSection = .height }
+            else if expandedSection == .height { expandedSection = nil }
         }
     }
 
     /// Whether the activity level section is expanded
     var activityLevelIsExpanded: Bool {
-        didSet {
-            enforceExclusiveExpansion(changed: .activityLevel, newValue: activityLevelIsExpanded)
+        get { expandedSection == .activityLevel }
+        set {
+            if newValue { expandedSection = .activityLevel }
+            else if expandedSection == .activityLevel { expandedSection = nil }
         }
     }
 
     /// Whether the body fat percentage section is expanded
     var bodyFatPercentageIsExpanded: Bool {
-        didSet {
-            enforceExclusiveExpansion(changed: .bodyFatPercentage, newValue: bodyFatPercentageIsExpanded)
+        get { expandedSection == .bodyFatPercentage }
+        set {
+            if newValue { expandedSection = .bodyFatPercentage }
+            else if expandedSection == .bodyFatPercentage { expandedSection = nil }
         }
     }
 
     /// Whether the calorie adjustment section is expanded
     var calorieAdjustmentExpanded: Bool {
-        didSet {
-            enforceExclusiveExpansion(changed: .calorieAdjustmentMethod, newValue: calorieAdjustmentExpanded)
+        get { expandedSection == .calorieAdjustmentMethod }
+        set {
+            if newValue { expandedSection = .calorieAdjustmentMethod }
+            else if expandedSection == .calorieAdjustmentMethod { expandedSection = nil }
         }
     }
 
     /// Whether the macro mix section is expanded
     var macroMixExpanded: Bool {
-        didSet {
-            enforceExclusiveExpansion(changed: .macroMix, newValue: macroMixExpanded)
+        get { expandedSection == .macroMix }
+        set {
+            if newValue { expandedSection = .macroMix }
+            else if expandedSection == .macroMix { expandedSection = nil }
         }
     }
 
+    // MARK: - Initialization
 
-    //*******************************
-    // Initialiser                  *
-    //*******************************
     /// Creates a new SectionManagerViewModel with all sections collapsed
     init() {
-        // Initialize expansion flags without triggering observers
-        self.isUpdatingExpansion = true
-
-        self.ageIsExpanded = false
-        self.genderIsExpanded = false
-        self.weightIsExpanded = false
-        self.heightIsExpanded = false
-        self.activityLevelIsExpanded = false
-        self.bodyFatPercentageIsExpanded = false
-        self.calorieAdjustmentExpanded = false
-        self.macroMixExpanded = false
-
-        self.isUpdatingExpansion = false
+        self.expandedSection = nil
     }
 
-    //
-    // Enforce only 1 section being expanded
-    //
-    /// Collapses all sections except the one that was just expanded.
-    /// - Parameters:
-    ///   - changed: The section that changed state
-    ///   - newValue: The new expansion state (should be true to trigger logic)
-    internal func enforceExclusiveExpansion(changed: Section, newValue: Bool) {
-        if isUpdatingExpansion { return }
-        guard newValue == true else { return }
-        isUpdatingExpansion = true
-
-        if ( changed != .age && ageIsExpanded)
-        {
-            ageIsExpanded = false
-        }
-        if ( changed != .gender && genderIsExpanded)
-        {
-            genderIsExpanded = false
-        }
-        if ( changed != .height && heightIsExpanded)
-        {
-            heightIsExpanded = false
-        }
-        if ( changed != .weight && weightIsExpanded)
-        {
-            weightIsExpanded = false
-        }
-        if ( changed != .bodyFatPercentage && bodyFatPercentageIsExpanded)
-        {
-            bodyFatPercentageIsExpanded = false
-        }
-        if ( changed != .activityLevel && activityLevelIsExpanded)
-        {
-            activityLevelIsExpanded = false
-        }
-        if ( changed != .calorieAdjustmentMethod && calorieAdjustmentExpanded)
-        {
-            calorieAdjustmentExpanded = false
-        }
-        if ( changed != .macroMix && macroMixExpanded)
-        {
-            macroMixExpanded = false
-        }
-
-        isUpdatingExpansion = false
-    }
+    // MARK: - Public methods
 
     /// Collapses all sections.
-    public func collapseAll() {
-        enforceExclusiveExpansion(changed: .none, newValue: true)
+    func collapseAll() {
+        expandedSection = nil
     }
 }
