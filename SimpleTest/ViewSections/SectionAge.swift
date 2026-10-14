@@ -36,5 +36,5 @@ struct SectionAge: View {
 
 #Preview {
     @Previewable @State var sectionManager = SectionManagerViewModel()
-    SectionAge(model: ProfileViewModel(), sectionManager: sectionManager, proxy: nil)
+    SectionAge(model: ProfileViewModel(profileRepository: SwiftDataContainer.shared.profileRepository), sectionManager: sectionManager, proxy: nil)
 }

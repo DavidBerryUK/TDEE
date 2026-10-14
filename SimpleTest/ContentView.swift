@@ -3,9 +3,17 @@ import SwiftUI
 struct ContentView: View {
 
     @State private var path: [AppRoute] = []
-    @State private var profile = ProfileViewModel()
+
+    // Use dependency injection for profile
+    @State private var profile: ProfileViewModel
 
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
+    init() {
+        // Initialize with the shared repository for persistence
+        let repository = SwiftDataContainer.shared.profileRepository
+        self._profile = State(initialValue: ProfileViewModel(profileRepository: repository))
+    }
 
     var body: some View {
 

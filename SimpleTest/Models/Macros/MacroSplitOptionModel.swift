@@ -24,6 +24,7 @@ public final class MacroSplitOptionModel : Identifiable, Hashable {
     public var fats: Int
 
     public var ordinal: Int
+    public var isCustom: Bool  // true if user-created, false if system preset
 
     public init() {
         self.id = UUID()
@@ -33,13 +34,14 @@ public final class MacroSplitOptionModel : Identifiable, Hashable {
         self.fats = 30
         self.ordinal = -1
         self.isSelected = false
+        self.isCustom = false
         let normalized = MacroSplitOptionModel.validateOnInit(protein: 40, carbs: 30, fats: 30)
         self.protein   = normalized.protein
         self.carbs     = normalized.carbs
         self.fats      = normalized.fats
     }
 
-    public init(id: UUID = UUID(), name: String = "", protein: Int = 40, carbs: Int = 30, fats: Int = 30, ordinal: Int = 0, isSelected: Bool = false) {
+    public init(id: UUID = UUID(), name: String = "", protein: Int = 40, carbs: Int = 30, fats: Int = 30, ordinal: Int = 0, isSelected: Bool = false, isCustom: Bool = false) {
         self.id = id
         self.name = name
         let normalized = MacroSplitOptionModel.validateOnInit(protein: protein, carbs: carbs, fats: fats)
@@ -48,10 +50,11 @@ public final class MacroSplitOptionModel : Identifiable, Hashable {
         self.fats      = normalized.fats
         self.ordinal   = ordinal
         self.isSelected = isSelected
+        self.isCustom = isCustom
     }
 
     public func clone() -> MacroSplitOptionModel {
-        return MacroSplitOptionModel(id: self.id, name: self.name, protein: self.protein, carbs: self.carbs, fats: self.fats, ordinal: self.ordinal, isSelected: self.isSelected)
+        return MacroSplitOptionModel(id: self.id, name: self.name, protein: self.protein, carbs: self.carbs, fats: self.fats, ordinal: self.ordinal, isSelected: self.isSelected, isCustom: self.isCustom)
     }
 
     private static func validateOnInit(protein: Int, carbs: Int, fats: Int) -> (protein: Int, carbs: Int, fats: Int) {

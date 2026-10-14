@@ -13,8 +13,15 @@ import Observation
 /// - Clean separation between input data and derived calculations
 /// - Comprehensive validation and error handling
 /// - Environment-specific defaults via AppConfig (simulator vs. device)
+/// - SwiftData persistence integration
 @Observable
 final class ProfileViewModel {
+    // MARK: - Persistence Properties
+
+    private let profileRepository: ProfileRepository
+    private var saveTask: Task<Void, Never>?  // For throttled saves
+    private let saveDelay: TimeInterval = 1.0  // Wait 1 second after last change
+    private var swiftDataId: UUID?  // Track the SwiftData entity ID
 
     // MARK: - State Properties (Input/Raw Data)
 
@@ -22,12 +29,14 @@ final class ProfileViewModel {
     var gender: Gender = AppConfig.shared.profileDefaults.gender {
         didSet {
             refreshResults()
+            triggerSave()  // Throttled save
         }
     }
     /// User's age in years
     var age: Int = AppConfig.shared.profileDefaults.age {
         didSet {
             refreshResults()
+            triggerSave()  // Throttled save
         }
     }
     /// Unit of measure for weight (kilograms or pounds)
@@ -36,6 +45,7 @@ final class ProfileViewModel {
     var weight: Double = AppConfig.shared.profileDefaults.weight {
         didSet {
             refreshResults()
+            triggerSave()  // Throttled save
         }
     }
     /// Unit of measure for height (centimeters or inches)
@@ -44,12 +54,14 @@ final class ProfileViewModel {
     var height: Double = AppConfig.shared.profileDefaults.height {
         didSet {
             refreshResults()
+            triggerSave()  // Throttled save
         }
     }
     /// User's activity level for TDEE calculation
     var activityLevel: ActivityLevel = AppConfig.shared.profileDefaults.activityLevel {
         didSet {
             refreshResults()
+            triggerSave()  // Throttled save
         }
     }
 
@@ -59,12 +71,14 @@ final class ProfileViewModel {
         didSet {
             bodyFatPercentageShowManualEntry = bodyFatPercentageMethod == .manualEntry
             refreshResults()
+            triggerSave()  // Throttled save
         }
     }
     /// User's body fat percentage
     var bodyFatPercentage: Double = AppConfig.shared.profileDefaults.bodyFatPercentage {
         didSet {
             refreshResults()
+            triggerSave()  // Throttled save
         }
     }
     /// Whether to show the manual entry field for body fat
@@ -76,12 +90,14 @@ final class ProfileViewModel {
         didSet {
             calorieAdjustmentShowSliders = calorieAdjustmentMethod != .maintain
             refreshResults()
+            triggerSave()  // Throttled save
         }
     }
     /// Amount of calories to adjust up or down
     var calorieAdjustment : Double {
         didSet {
             refreshResults()
+            triggerSave()  // Throttled save
         }
     }
     /// Whether to show the calorie adjustment slider controls
@@ -92,18 +108,21 @@ final class ProfileViewModel {
     var protein: Int = 40 {
         didSet {
             refreshResults()
+            triggerSave()  // Throttled save
         }
     }
     /// Carbs percentage target
     var carbs: Int = 30 {
         didSet {
             refreshResults()
+            triggerSave()  // Throttled save
         }
     }
     /// Fats percentage target
     var fats: Int = 30 {
         didSet {
             refreshResults()
+            triggerSave()  // Throttled save
         }
     }
 
@@ -113,6 +132,7 @@ final class ProfileViewModel {
         didSet {
             // When selection changes, sync the macro percentages from the selected preset
             syncSelectedMacro()
+            triggerSave()  // Throttled save
         }
     }
 
@@ -125,8 +145,9 @@ final class ProfileViewModel {
     //*******************************
     // Initializer                  *
     //*******************************
-    /// Creates a new ProfileViewModel with default values
-    init() {
+    /// Creates a new ProfileViewModel with dependency injection for persistence
+    init(profileRepository: ProfileRepository) {
+        self.profileRepository = profileRepository
         self.bodyFatPercentageShowManualEntry = false
         self.calorieAdjustment = 0
         self.calorieAdjustmentShowSliders = false
@@ -135,6 +156,80 @@ final class ProfileViewModel {
         self.protein = 40
         self.carbs = 30
         self.fats = 30
+
+        // Load from SwiftData on init (if profile exists)
+        loadFromSwiftData()
+    }
+
+    /// Creates a new ProfileViewModel with default values (for backward compatibility)
+    init() {
+        self.profileRepository = SwiftDataContainer.shared.profileRepository
+        self.bodyFatPercentageShowManualEntry = false
+        self.calorieAdjustment = 0
+        self.calorieAdjustmentShowSliders = false
+
+        // Macro Split
+        self.protein = 40
+        self.carbs = 30
+        self.fats = 30
+
+        // Load from SwiftData on init (if profile exists)
+        loadFromSwiftData()
+    }
+
+    /// Load profile data from SwiftData
+    private func loadFromSwiftData() {
+        Task {
+            do {
+                if let profile = try await profileRepository.fetchActiveProfile() {
+                    let viewModel = ProfileMapper.mapToViewModel(profile)
+                    // Copy values from the loaded profile to this ViewModel
+                    self.gender = viewModel.gender
+                    self.age = viewModel.age
+                    self.weight = viewModel.weight
+                    self.height = viewModel.height
+                    self.activityLevel = viewModel.activityLevel
+                    self.bodyFatPercentageMethod = viewModel.bodyFatPercentageMethod
+                    self.bodyFatPercentage = viewModel.bodyFatPercentage
+                    self.swiftDataId = profile.id
+                }
+            } catch {
+                // Handle error - could log or show user message
+                print("Failed to load profile from SwiftData: \(error)")
+            }
+        }
+    }
+
+    /// Throttle saves by cancelling previous task and starting new one
+    private func triggerSave() {
+        saveTask?.cancel()  // Cancel any pending save
+
+        saveTask = Task { [weak self] in
+            // Wait for the delay
+            try? await Task.sleep(nanoseconds: UInt64(self!.saveDelay * 1_000_000_000))
+
+            // Check if task was cancelled during wait
+            guard !Task.isCancelled else { return }
+
+            // Perform save via repository (@MainActor, runs on main thread)
+            await self?.saveToSwiftData()
+        }
+    }
+
+    /// Save profile data to SwiftData
+    private func saveToSwiftData() async {
+        // Convert ProfileViewModel to Profile entity
+        let profile = ProfileMapper.mapToEntity(self, existing: nil) // Pass nil for new entity
+
+        // Save via repository with retry logic (background thread via actor)
+        do {
+            try await profileRepository.save(profile)
+            self.swiftDataId = profile.id  // Store the ID after successful save
+        } catch {
+            // Failed after retries - could surface to user via a coordinator/delegate
+            // For now, log the error
+            print("Failed to save profile: \(error)")
+        }
     }
 
     /// Public method to trigger a recalculation cycle.
@@ -178,4 +273,8 @@ final class ProfileViewModel {
     }
 
     // [Retained other methods if they do not involve calculation logic]
+
+    deinit {
+        saveTask?.cancel()
+    }
 }

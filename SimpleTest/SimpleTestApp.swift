@@ -6,16 +6,17 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct SimpleTestApp: App {
-    
-    var macroSplitCollection = MacroSplitOptionsModelCollection(items: FactoryMacroSplits.get())
-    
+
+    // Initialize SwiftData container
+    private let swiftDataContainer = SwiftDataContainer.shared
+
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environment(macroSplitCollection)
         }
     }
 }

@@ -36,5 +36,5 @@ struct SectionGender: View {
 
 #Preview {
     @Previewable @State var sectionManager = SectionManagerViewModel()
-    SectionGender(model: ProfileViewModel(), sectionManager: sectionManager, proxy: nil)
+    SectionGender(model: ProfileViewModel(profileRepository: SwiftDataContainer.shared.profileRepository), sectionManager: sectionManager, proxy: nil)
 }
