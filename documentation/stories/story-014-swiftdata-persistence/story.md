@@ -70,16 +70,17 @@ App Launch → SwiftData model initialized (local storage)
 
 | File | Action | Description |
 |------|--------|-------------|
-| `Models/SwiftData/Profile.swift` | Create | SwiftData schema for Profile |
-| `Models/SwiftData/MacroPreset.swift` | Create | SwiftData schema for MacroPreset |
-| `Models/SwiftData/SwiftDataContainer.swift` | Create | SwiftData model container initialization & CloudKit config |
-| `Models/SwiftData/PersistenceActor.swift` | Create | `ModelActor` for thread-safe background operations & reset logic |
-| `Models/SwiftData/SeedData.swift` | Create | Uses `ProfileDefaults` and `FactoryMacroSplits` as single source of truth |
-| `Models/SwiftData/ProfileRepository.swift` | Create | Repository pattern for profile access (uses constant UUID for single profile) |
-| `Models/SwiftData/ProfileMapper.swift` | Create | Convert between ProfileViewModel and Profile entity |
-| `Models/SwiftData/MacroPresetMapper.swift` | Create | Convert between MacroSplitOptionModel and MacroPreset entity |
-| `Models/ProfileViewModel/ProfileViewModel.swift` | Modify | Add SwiftData save/load triggers with throttled save |
-| `Models/MacroSplitOptionsModelCollection.swift` | Modify | Load/save presets via PersistenceActor |
+| `SimpleTest/Models/SwiftData/Profile.swift` | Create | SwiftData schema for Profile |
+| `SimpleTest/Models/SwiftData/MacroPreset.swift` | Create | SwiftData schema for MacroPreset |
+| `SimpleTest/Models/SwiftData/SwiftDataContainer.swift` | Create | SwiftData model container initialization & CloudKit config |
+| `SimpleTest/Models/SwiftData/ProfileRepository.swift` | Create | `@MainActor class` for thread-safe profile access, preset CRUD, and reset logic (replaces PersistenceActor) |
+| `SimpleTest/Models/SwiftData/SeedData.swift` | Create | Uses `ProfileDefaults` and `FactoryMacroSplits` as single source of truth |
+| `SimpleTest/Models/SwiftData/ProfileMapper.swift` | Create | Convert between ProfileViewModel and Profile entity |
+| `SimpleTest/Models/SwiftData/MacroPresetMapper.swift` | Create | Convert between MacroSplitOptionModel and MacroPreset entity |
+| `SimpleTest/Models/ProfileViewModel/ProfileViewModel.swift` | Modify | Add SwiftData save/load triggers with throttled save |
+| `SimpleTest/Models/Macros/MacroSplitOptionsModelCollection.swift` | Modify | Load/save presets via ProfileRepository |
+| `SimpleTest/Models/Macros/MacroSplitOptionModel.swift` | Modify | Add `isCustom: Bool` property |
+| `SimpleTest/SimpleTestApp.swift` | Modify | Initialize SwiftData container on app launch |
 | `SimpleTest/Models/Macros/MacroSplitOptionModel.swift` | Modify | Add `isCustom: Bool` property |
 | `App/SimpleTestApp.swift` | Modify | Initialize SwiftData container on app launch |
 
@@ -89,7 +90,7 @@ App Launch → SwiftData model initialized (local storage)
 ```swift
 @Model
 class Profile {
-    @Attribute(.unique) var id: UUID
+    var id: UUID
     var gender: Int16
     var age: Int16
     var height: Double
@@ -101,10 +102,6 @@ class Profile {
     var seedVersion: Int16  // Track which version of seed data was applied
     var createdAt: Date
     var updatedAt: Date
-    
-    // Relationship: One profile to many presets
-    @Relationship(inverse: \MacroPreset.owner)
-    var presets: [MacroPreset]?
 }
 ```
 
@@ -112,35 +109,33 @@ class Profile {
 ```swift
 @Model
 class MacroPreset {
-    @Attribute(.unique) var id: UUID
+    var id: UUID
     var name: String
     var protein: Int16
     var carbs: Int16
     var fats: Int16
     var ordinal: Int16
     var isCustom: Bool
-    var isSystemPreset: Bool  // Distinguish system from user presets
+    /// Derived: `!isCustom`. Presets are a shared catalog, not owned by any profile.
+    var isSystemPreset: Bool { !isCustom }
     var systemId: String?  // e.g., "balanced", "diet" for system presets
     var createdAt: Date
     var updatedAt: Date
-    
-    // Relationship: Many presets belong to one profile
-    weak var owner: Profile?
 }
 ```
 
 ### Design Decisions
 
-1. **Relationship between Profile and MacroPreset**
-   - Each `Profile` has a one-to-many relationship with `MacroPreset`
-   - `MacroPreset` has a `weak` reference back to its `owner` Profile
-   - This enables proper cascade deletion and ensures presets are always associated with their owner
-   - **Future-proofing**: When multi-profile support is added, presets will automatically belong to their owner
+1. **No relationship between Profile and MacroPreset**
+   - `MacroPreset` is a shared catalog that all profiles pick from
+   - No `owner` field on `MacroPreset` — presets are not owned by any profile
+   - Presets are fetched via a simple `FetchDescriptor<MacroPreset>()` with no filter
+   - **Future-proofing**: When multi-profile support is added, a profile can reference presets by ID without ownership
 
 2. **Should we keep the in-memory models alongside SwiftData?**
    - Yes - SwiftData for persistence, models for UI binding
    - Mapping layer converts between them
-   - `ProfileRepository` manages the single active profile instance
+   - `ProfileRepository` (as `@MainActor class`) manages the single active profile instance and all persistence operations
 
 3. **Where should the SwiftData container be initialized?**
    - In `SimpleTestApp` at app launch
@@ -148,38 +143,33 @@ class MacroPreset {
 
 4. **Should changes save automatically or require explicit save?**
    - Automatic save on changes for better UX
-   - Triggered by ViewModel changes, executed by a background `ModelActor` to avoid UI blocking
+   - Triggered by ViewModel changes, executed by `ProfileRepository` (`@MainActor class`) to keep database operations on the main thread
 
 5. **How to handle the single active profile?**
-   - `ProfileRepository` manages a single "active" profile (ID stored in user defaults or as a constant for first run)
+   - `ProfileRepository` manages a single "active" profile (ID stored as a constant for first run)
    - When multi-profile support is added, this will evolve to a profile selector
 
 6. **How to handle missing data on first launch?**
    - Seed predefined macro presets from `SeedData.swift` if none exist
    - Create default profile with empty values
 
-## Open Questions
-
-1. Should we use SwiftUI's `@Query` property wrapper for list views?
-
 ## Decisions
 
 ### Approach
-1. Create SwiftData schemas with Profile and MacroPreset classes, including proper relationships
-2. Implement `ProfileRepository` to manage the single active profile (with multi-profile foundation)
-3. Implement `PersistenceActor` (Swift concurrency actor) for all background read/write operations, including a `resetAllData()` method
-4. Define `SeedData` for predefined presets to avoid hardcoding in the container
-5. **Local storage only** - iCloud sync can be added in a follow-up story by adding CloudKit container properties
-6. Use **dependency injection** for `PersistenceActor` (consistent with existing `MacroSplitOptionsModelCollection` pattern)
-7. Update `ProfileViewModel` to trigger saves via the actor with throttled save pattern
-8. Update `MacroOptionsModel` to persist custom presets via the actor
-9. Initialize SwiftData container on app launch and seed predefined presets if necessary
-10. Implement a "Reset to Defaults" feature that clears all user data and re-seeds defaults
+1. Create SwiftData schemas with `Profile` and `MacroPreset` classes (no relationship between them — presets are shared)
+2. Implement `ProfileRepository` as `@MainActor class` to manage the single active profile, preset CRUD, and reset logic
+3. Define `SeedData` for predefined presets to avoid hardcoding in the container
+4. **Local storage only** - iCloud sync can be added in a follow-up story by adding CloudKit container properties
+5. Use **dependency injection** for `ProfileRepository` (consistent with existing `MacroSplitOptionsModelCollection` pattern)
+6. Update `ProfileViewModel` to trigger saves via the repository with a throttled save pattern
+7. Update `MacroSplitOptionsModelCollection` to persist custom presets via the repository (keep existing `init(items:)` for backward compatibility)
+8. Initialize SwiftData container on app launch and seed predefined presets if necessary
+9. Implement a "Reset to Defaults" feature that clears all user data and re-seeds defaults
 
 ### Rationale
 1. **SwiftData** - Modern Swift framework, simple API, integrates with SwiftUI
-2. **Relationships** - Proper data modeling ensures data integrity and enables future multi-profile support
-3. **Swift Concurrency Actor** - Essential for thread safety; ensures database operations don't crash the app or freeze the UI
+2. **No relationship** - Presets are a shared catalog; all profiles reference the same list. Simpler data model, no cascade-delete complexity.
+3. **`@MainActor class`** - `ModelContext` is not thread-safe and must run on the main thread. Using `@MainActor class` ensures all database operations stay on the main thread without manual wrapping.
 4. **Dependency Injection** - Allows testability and consistency with existing app patterns (same as `MacroSplitOptionsModelCollection`)
 5. **ProfileRepository** - Centralizes profile management with single-profile focus and multi-profile foundation
 6. **Seed Data File** - Centralizes "gold" data for easier maintenance

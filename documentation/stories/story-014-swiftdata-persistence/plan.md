@@ -12,7 +12,7 @@ import SwiftData
 
 @Model
 class Profile {
-    @Attribute(.unique) var id: UUID
+    var id: UUID
     var gender: Int16
     var age: Int16
     var height: Double
@@ -36,14 +36,14 @@ import SwiftData
 
 @Model
 class MacroPreset {
-    @Attribute(.unique) var id: UUID
+    var id: UUID
     var name: String
     var protein: Int16
     var carbs: Int16
     var fats: Int16
-    var ordinal: Int16
+    var ordinal: Int
     var isCustom: Bool
-    var isSystemPreset: Bool  // Distinguish system from user presets
+    /// Derived: `!isCustom` — presets are a shared catalog, not owned by any profile.
     var systemId: String?  // e.g., "balanced", "diet" for system presets
     var createdAt: Date
     var updatedAt: Date
@@ -91,16 +91,18 @@ Implement a repository pattern for profile management:
 - `fetchActiveProfile() async throws -> Profile?` - Get the current profile by ID
 - `save(_ profile: Profile) async throws` - Save profile with retry logic (3 attempts)
 - `createDefaultProfile() async throws -> Profile` - Create a new default profile from seed data
-- `saveSharedPreset(_ preset: MacroPreset) async throws` - Save a preset (shared, no owner)
-- `fetchSharedPresets() async throws -> [MacroPreset]` - Fetch all presets (no owner filter)
+- `savePreset(_ preset: MacroPreset) async throws` - Save a preset (shared, no owner)
+- `fetchPresets() async throws -> [MacroPreset]` - Fetch all presets (no owner filter)
 
-**Note:** The repository uses a fixed UUID (`ProfileRepository.activeProfileId`) since the app currently supports only one profile. It's implemented as an `actor` for thread-safe async operations. Macro presets are shared across all profiles - no owner relationship exists.
+**Note:** The repository uses a fixed UUID (`ProfileRepository.activeProfileId`) since the app currently supports only one profile. It's implemented as a `@MainActor class` for thread-safe operations on `ModelContext`. Macro presets are shared across all profiles - no owner relationship exists.
 
 ```swift
 // File: SimpleTest/Models/SwiftData/ProfileRepository.swift
 import SwiftData
 
-actor ProfileRepository {
+/// ProfileRepository manages all profile and preset persistence.
+/// Uses @MainActor because ModelContext is not thread-safe.
+@MainActor class ProfileRepository {
     private let context: ModelContext
     
     static let activeProfileId = UUID(uuidString: "11111111-1111-1111-1111-111111111111")!
@@ -114,27 +116,31 @@ actor ProfileRepository {
         return try context.fetch(request).first
     }
     
-    /// Fetch all shared presets (no owner)
-    func fetchSharedPresets() async throws -> [MacroPreset] {
-        let request = FetchDescriptor<MacroPreset>(predicate: #Predicate { $0.owner == nil })
+    /// Fetch all shared presets (presets are a shared catalog, no owner filter needed)
+    func fetchPresets() async throws -> [MacroPreset] {
+        let request = FetchDescriptor<MacroPreset>()
         return try context.fetch(request)
     }
     
     /// Save profile with retry logic (3 attempts)
-    func save(_ profile: Profile) async throws {
+    /// Distinguishes create (new entity) from update (existing entity)
+    func save(_ profile: Profile, isNew: Bool = true) async throws {
         let maxRetries = 3
         var lastError: Error?
         
         for attempt in 1...maxRetries {
             do {
-                context.insert(profile)
+                if isNew {
+                    context.insert(profile)  // Only insert new entities
+                }
+                // For updates, the entity is already tracked by the context
                 try context.save()
                 return  // Success
             } catch {
                 lastError = error
                 if attempt < maxRetries {
-                    // Wait before retry
-                    try? await Task.sleep(nanoseconds: UInt64(100_000_000 * UInt64(attempt)))  // 100ms, 200ms
+                    // Wait before retry (linear backoff: 100ms, 200ms)
+                    try? await Task.sleep(nanoseconds: UInt64(100_000_000 * UInt64(attempt)))
                 }
             }
         }
@@ -159,7 +165,7 @@ actor ProfileRepository {
             createdAt: Date(),
             updatedAt: Date()
         )
-        context.insert(profile)
+        context.insert(profile)  // New entity - safe to insert
         try context.save()
         return profile
     }
@@ -180,13 +186,12 @@ import SwiftData
 struct SwiftDataContainer {
     static let shared = SwiftDataContainer()
     
-    private let container: ModelContainer
+    let container: ModelContainer
     let profileRepository: ProfileRepository
     
-    init() {
+    init(isInMemory: Bool = false) {
         let config = ModelConfiguration(
-            bundle: Bundle.main,
-            seed: [:]  // Optional: seed data from JSON
+            isStoredInMemoryOnly: isInMemory
         )
         // No iCloud container properties - local only for now
         
@@ -194,7 +199,7 @@ struct SwiftDataContainer {
             container = try ModelContainer(for: Profile.self, MacroPreset.self, configurations: config)
             profileRepository = ProfileRepository(context: container.mainContext)
         } catch {
-            fatalError("Failed to initialize SwiftData container: \(error)")
+            throw error
         }
     }
     
@@ -210,7 +215,7 @@ struct SwiftDataContainer {
 3. Test iCloud sync behavior
 
 ### Changes Summary
-- **Retry logic**: 3 attempts with exponential backoff (100ms, 200ms)
+- **Retry logic**: 3 attempts with linear backoff (100ms, 200ms)
 - **Preset sharing**: No owner relationship - presets are shared across all profiles
 - **First launch**: Attempt load, create if missing, seed presets from factory
 
@@ -236,12 +241,12 @@ private func triggerSave() {
     
     saveTask = Task { [weak self] in
         // Wait for the delay
-        try? await Task.sleep(for: .seconds(saveDelay))
+        try? await Task.sleep(nanoseconds: UInt64(saveDelay * 1_000_000_000))
         
         // Check if task was cancelled during wait
         guard !Task.isCancelled else { return }
         
-        // Perform save on background actor
+        // Perform save via repository (@MainActor, runs on main thread)
         await self?.saveToSwiftData()
     }
 }
@@ -249,6 +254,8 @@ private func triggerSave() {
 
 **Add save method:**
 ```swift
+import os.logger
+
 private func saveToSwiftData() async {
     // Convert ProfileViewModel to Profile entity
     let profile = ProfileMapper.mapToEntity(self)
@@ -260,7 +267,7 @@ private func saveToSwiftData() async {
     } catch {
         // Failed after retries - could surface to user via a coordinator/delegate
         // For now, log the error
-        print("Failed to save profile: \(error)")
+        os.Logger.default.error("Failed to save profile: \(error)")
     }
 }
 ```
@@ -297,6 +304,8 @@ deinit {
 }
 ```
 
+**Note:** If `ProfileViewModel` uses Swift's `@Observable` macro (iOS 17+), `deinit` execution is not guaranteed in all scenarios. Consider adding a cancellation mechanism tied to the view lifecycle (e.g., a `cancel()` method called from the view's `.onDisappear()`) for robust cancellation.
+
 **Rationale:** This approach provides UI responsiveness while avoiding redundant saves during rapid changes (e.g., user typing). The `Task.cancel()` pattern ensures only the final state after a pause is saved. Saves occur via the `ProfileRepository` actor on background threads.
 
 ### 2.2 Add ProfileMapper
@@ -308,7 +317,9 @@ import SwiftData
 /// Maps between ProfileViewModel and SwiftData Profile entity
 enum ProfileMapper {
     /// Convert entity to ViewModel for reading from SwiftData
-    static func mapToViewModel(_ entity: Profile, into viewModel: ProfileViewModel) {
+    static func mapToViewModel(_ entity: Profile) -> ProfileViewModel {
+        let viewModel = ProfileViewModel()
+        viewModel.swiftDataId = entity.id
         viewModel.gender = Gender(rawValue: entity.gender) ?? .male
         viewModel.age = Int(entity.age)
         viewModel.height = entity.height
@@ -317,11 +328,12 @@ enum ProfileMapper {
         viewModel.bodyFatPercentage = entity.bodyFatPercentage ?? 0.0
         viewModel.bodyFatPercentageMethod = BodyFatOption(rawValue: entity.bodyFatMethod ?? 0) ?? .omit
         // Note: Derived values (tdee, macroTargets) are recalculated automatically by ProfileViewModel
+        return viewModel
     }
     
     /// Convert ViewModel to entity for saving to SwiftData
-    static func mapToEntity(_ viewModel: ProfileViewModel) -> Profile {
-        let profile = Profile()
+    static func mapToEntity(_ viewModel: ProfileViewModel, existing: Profile?) -> Profile {
+        let profile = existing ?? Profile()
         profile.id = viewModel.swiftDataId ?? ProfileRepository.activeProfileId
         profile.gender = Int16(viewModel.gender.rawValue)
         profile.age = Int16(viewModel.age)
@@ -331,8 +343,7 @@ enum ProfileMapper {
         profile.bodyFatPercentage = viewModel.bodyFatPercentage > 0 ? viewModel.bodyFatPercentage : nil
         profile.bodyFatMethod = Int16(viewModel.bodyFatPercentageMethod.rawValue)
         profile.updatedAt = Date()
-        // createdAt is set on first creation
-        // presets are handled separately via relationship
+        // createdAt is preserved from existing entity, set on first creation
         return profile
     }
 }
@@ -349,9 +360,12 @@ These map directly to `Int16` for SwiftData storage.
 
 ### 2.3 Update App Initialization
 **File:** `SimpleTest/SimpleTestApp.swift`
-- Initialize SwiftData container and the `ProfileRepository`
+- Initialize SwiftData container and the `ProfileRepository` on the main thread
 - On app launch, attempt to load profile from SwiftData
-- If no profile exists, create default profile and save
+- If no profile exists:
+  1. Create default profile from `SeedData.profileDefaults()` and save
+  2. Seed macro presets from `SeedData.macroPresets()` using `mapSystemPresetToEntity()` and `savePreset()`
+- If profile exists but `seedVersion` differs: re-seed system presets (preserve custom presets where `isCustom == true`)
 - Pass the repository via environment for dependency injection
 
 ## Phase 3: Macro Preset Persistence
@@ -359,25 +373,28 @@ These map directly to `Int16` for SwiftData storage.
 ### 3.1 Update MacroSplitOptionsModelCollection
 **File:** `SimpleTest/SimpleTest/Models/Macros/MacroSplitOptionsModelCollection.swift`
 
-**Add dependency:**
+**Add dependency (keep existing init for backward compatibility):**
 ```swift
-private let profileRepository: ProfileRepository
+private var profileRepository: ProfileRepository?
 
+/// Existing initializer - keeps working for callers that don't need persistence
+init(items: [MacroSplitOptionModel] = []) {
+    self.items = items
+}
+
+/// New initializer with persistence support
 init(profileRepository: ProfileRepository) {
     self.profileRepository = profileRepository
     self.items = []
-    // Load presets from SwiftData
-    loadPresets()
+    // Caller must await loadPresets() before using items
 }
-```
 
-**Add methods:**
-```swift
-/// Load presets from SwiftData (shared across all profiles)
-private func loadPresets() async {
+/// Load presets from SwiftData (presets are a shared catalog)
+/// Call this after init(profileRepository:) to populate items
+func loadPresets() async {
+    guard let repository = profileRepository else { return }
     do {
-        // Fetch presets without owner (shared presets)
-        let presets = try await profileRepository.fetchSharedPresets()
+        let presets = try await repository.fetchPresets()
         self.items = presets.map { MacroPresetMapper.mapToModel($0) }
     } catch {
         // Handle error - fallback to factory presets
@@ -396,11 +413,12 @@ private func loadPresets() async {
     }
 }
 
-/// Save a preset to SwiftData (shared, no owner)
-private func savePreset(_ preset: MacroSplitOptionModel) async {
+/// Save a preset to SwiftData (presets are shared, no owner)
+func savePreset(_ preset: MacroSplitOptionModel) async {
+    guard let repository = profileRepository else { return }
     do {
         let entity = MacroPresetMapper.mapToEntity(preset)
-        try await profileRepository.saveSharedPreset(entity)
+        try await repository.savePreset(entity)
     } catch {
         // Handle error - could surface to user
     }
@@ -408,10 +426,11 @@ private func savePreset(_ preset: MacroSplitOptionModel) async {
 
 /// Batch save all presets
 func saveAll(_ presets: [MacroSplitOptionModel]) async {
+    guard let repository = profileRepository else { return }
     do {
         for preset in presets {
             let entity = MacroPresetMapper.mapToEntity(preset)
-            try await profileRepository.saveSharedPreset(entity)
+            try await repository.savePreset(entity)
         }
     } catch {
         // Handle error - could surface to user
@@ -478,9 +497,7 @@ enum MacroPresetMapper {
         preset.fats = Int16(model.fats)
         preset.ordinal = Int16(model.ordinal)
         preset.isCustom = model.isCustom
-        preset.isSystemPreset = !model.isCustom  // Custom presets are user-created
         preset.updatedAt = Date()
-        // owner is nil - presets are shared across all profiles
         return preset
     }
     
@@ -494,11 +511,9 @@ enum MacroPresetMapper {
         preset.fats = Int16(fats)
         preset.ordinal = Int16(ordinal)
         preset.isCustom = false
-        preset.isSystemPreset = true
         preset.systemId = name.lowercased().replacingOccurrences(of: " ", with: "_")
         preset.createdAt = Date()
         preset.updatedAt = Date()
-        // owner is nil - presets are shared across all profiles
         return preset
     }
 }
@@ -506,9 +521,20 @@ enum MacroPresetMapper {
 
 ## Phase 4: UI Updates
 
-### 4.1 Update Views to Use SwiftData Context
-- The repository will handle profile loading; views remain unchanged for now
-- Evaluate `@Query` for list views when macro options are displayed
+### 4.1 System Screen Integration (Reset to Defaults)
+- Add a "Database" link to the existing system screen in the app
+- New database view displays:
+  - SwiftData container status (connected / disconnected)
+  - Active profile info (seed version, created/updated timestamps)
+  - Preset count (system presets vs custom presets)
+  - Container location (for debugging)
+- Include a "Reset to Defaults" button that calls `ProfileRepository.resetAllData()`
+  - Clears all user data, re-seeds defaults from `SeedData`
+  - Requires user confirmation (alert dialog)
+
+### 4.2 View Updates
+- Views use the repository for loading; no `@Query` used in the app
+- Evaluate `@Query` in a future story if needed
 
 ## Phase 5: Cleanup
 
@@ -531,6 +557,7 @@ SimpleTest/Models/SwiftData/
 ```
 SimpleTest/Models/ProfileViewModel/ProfileViewModel.swift
 SimpleTest/Models/Macros/MacroSplitOptionsModelCollection.swift
+SimpleTest/Models/Macros/MacroSplitOptionModel.swift
 SimpleTest/SimpleTestApp.swift
 ```
 
@@ -554,7 +581,7 @@ SimpleTest/SimpleTestApp.swift
 2. If no profile exists:
    - Create default profile from `SeedData.profileDefaults()`
    - Create all presets from `SeedData.macroPresets()` using `mapSystemPresetToEntity()`
-   - Save all to SwiftData via `saveSharedPreset()`
+   - Save all to SwiftData via `savePreset()`
 3. On subsequent launches, load from SwiftData only
 
 ### Seed Data Initial Import
@@ -572,7 +599,7 @@ for seedPreset in seedPresets {
         fats: seedPreset.fats,
         ordinal: seedPreset.ordinal
     )
-    try await profileRepository.saveSharedPreset(entity)
+    try await profileRepository.savePreset(entity)
 }
 ```
 
@@ -655,7 +682,7 @@ struct ProfileRepositoryTests {
         let container = try ModelContainer(for: MacroPreset.self, configurations: .inMemory)
         let repository = ProfileRepository(context: container.mainContext)
         
-        let presets = try await repository.fetchSharedPresets()
+        let presets = try await repository.fetchPresets()
         
         #expect(presets.isEmpty)
     }
@@ -749,7 +776,6 @@ struct MacroPresetMapperTests {
         
         #expect(entity.name == "Test")
         #expect(entity.isCustom == true)
-        #expect(entity.isSystemPreset == false)
     }
     
     @Test func testMapSystemPresetToEntity() async throws {
@@ -762,8 +788,8 @@ struct MacroPresetMapperTests {
             ordinal: 1
         )
         
-        #expect(entity.isSystemPreset == true)
         #expect(entity.isCustom == false)
+        #expect(entity.systemId == "balanced")
         #expect(entity.systemId == "balanced")
     }
 }
@@ -780,7 +806,8 @@ struct SwiftDataContainerTests {
         let container = SwiftDataContainer()
         
         // Container should be initialized successfully
-        #expect(container.modelContext != nil)
+        #expect(container.container != nil)
+        #expect(container.profileRepository != nil)
     }
 }
 ```
@@ -832,13 +859,13 @@ struct ProfilePersistenceIntegrationTests {
         preset.fats = 25
         preset.isCustom = true
         
-        try await repo1.saveSharedPreset(preset)
+        try await repo1.savePreset(preset)
         
         // Second "session" - load presets
         let container2 = try ModelContainer(for: MacroPreset.self, configurations: .inMemory)
         let repo2 = ProfileRepository(context: container2.mainContext)
         
-        let loaded = try await repo2.fetchSharedPresets()
+        let loaded = try await repo2.fetchPresets()
         
         #expect(loaded.count == 1)
         #expect(loaded[0].name == "Custom Preset")
