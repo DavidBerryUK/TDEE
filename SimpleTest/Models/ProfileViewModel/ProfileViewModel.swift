@@ -1,4 +1,5 @@
 import Foundation
+import SimpleTest
 import SwiftUI
 import Observation
 
@@ -15,7 +16,8 @@ import Observation
 /// - Environment-specific defaults via AppConfig (simulator vs. device)
 /// - SwiftData persistence integration
 @Observable
-final class ProfileViewModel {
+@MainActor
+class ProfileViewModel {
     // MARK: - Persistence Properties
 
     private let profileRepository: ProfileRepository
