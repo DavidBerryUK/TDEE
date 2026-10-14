@@ -39,9 +39,6 @@ struct MacroOptionsListViewPage: View {
                             .listRowSeparator(.hidden)
                             .listRowBackground(Color.clear)
                     }
-                    .onMove { source, destination in
-                        collection.move(from: source, to: destination)
-                    }
                 }
 
                 // Spacer so last row isn't hidden behind footer
@@ -54,9 +51,6 @@ struct MacroOptionsListViewPage: View {
                 collection.selectFirstItem()
             }
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    EditButton()
-                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         path.append(.macroEditorCreate)

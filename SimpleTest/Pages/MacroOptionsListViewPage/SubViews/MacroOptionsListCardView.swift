@@ -17,86 +17,83 @@ struct MacroOptionsListCardView: View {
     }
 
     var body: some View {
-        HStack(spacing: 0) {
-            VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 12) {
 
-                // Header: Name with selected indicator
-                HStack(alignment: .firstTextBaseline, spacing: 8) {
-                    Text(item.name)
-                        .font(.headline)
-                        .fontWeight(.semibold)
+            // Header: Name with selected indicator
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text(item.name)
+                    .font(.headline)
+                    .fontWeight(.semibold)
 
-                    if item.isSelected {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundStyle(.green)
-                            .font(.caption)
-                    }
-
-                    Spacer()
+                if item.isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundStyle(.green)
+                        .font(.caption)
                 }
 
-                // Macro color bands
-                GeometryReader { geo in
-                    let total = item.protein + item.carbs + item.fats
-                    let availableWidth = geo.size.width - 6
-
-                    HStack(spacing: 2) {
-                        macroSegment(
-                            color: UIStyle.Text.macroProtein,
-                            value: item.protein,
-                            total: total,
-                            availableWidth: availableWidth
-                        )
-
-                        macroSegment(
-                            color: UIStyle.Text.macroCarbs,
-                            value: item.carbs,
-                            total: total,
-                            availableWidth: availableWidth
-                        )
-
-                        macroSegment(
-                            color: UIStyle.Text.macroFats,
-                            value: item.fats,
-                            total: total,
-                            availableWidth: availableWidth
-                        )
-                    }
-                }
-                .frame(height: 24)
-
-                // Macro details as clean list
-                HStack(spacing: 16) {
-                    macroDetail(
-                        icon: "bolt.fill",
-                        color: UIStyle.Text.macroProtein,
-                        text: "protein \(item.protein)%"
-                    )
-                    macroDetail(
-                        icon: "leaf.fill",
-                        color: UIStyle.Text.macroCarbs,
-                        text: "carbs \(item.carbs)%"
-                    )
-                    macroDetail(
-                        icon: "drop.fill",
-                        color: UIStyle.Text.macroFats,
-                        text: "fats \(item.fats)%"
-                    )
-                }
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
+                Spacer()
             }
-            .padding(16)
-            .background(Color.white)
-            .clipShape(RoundedRectangle(cornerRadius: 12))
-            .shadow(color: Color.black.opacity(0.06), radius: 8, x: 0, y: 2)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .stroke(item.isSelected ? Color.green.opacity(0.5) : Color.clear, lineWidth: 2)
-            )
+
+            // Macro color bands
+            GeometryReader { geo in
+                let total = item.protein + item.carbs + item.fats
+                let availableWidth = geo.size.width - 6
+
+                HStack(spacing: 2) {
+                    macroSegment(
+                        color: UIStyle.Text.macroProtein,
+                        value: item.protein,
+                        total: total,
+                        availableWidth: availableWidth
+                    )
+
+                    macroSegment(
+                        color: UIStyle.Text.macroCarbs,
+                        value: item.carbs,
+                        total: total,
+                        availableWidth: availableWidth
+                    )
+
+                    macroSegment(
+                        color: UIStyle.Text.macroFats,
+                        value: item.fats,
+                        total: total,
+                        availableWidth: availableWidth
+                    )
+                }
+            }
+            .frame(height: 24)
+
+            // Macro details as clean list
+            HStack(spacing: 16) {
+                macroDetail(
+                    icon: "bolt.fill",
+                    color: UIStyle.Text.macroProtein,
+                    text: "protein \(item.protein)%"
+                )
+                macroDetail(
+                    icon: "leaf.fill",
+                    color: UIStyle.Text.macroCarbs,
+                    text: "carbs \(item.carbs)%"
+                )
+                macroDetail(
+                    icon: "drop.fill",
+                    color: UIStyle.Text.macroFats,
+                    text: "fats \(item.fats)%"
+                )
+            }
+            .font(.subheadline)
+            .foregroundStyle(.secondary)
         }
-        .background(Color.clear)
+        .padding(16)
+        .background(Color.white)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .shadow(color: Color.black.opacity(0.06), radius: 8, x: 0, y: 2)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(item.isSelected ? Color.green.opacity(0.5) : Color.clear, lineWidth: 2)
+        )
         .contentShape(Rectangle()) // Make the whole card tappable
         .onTapGesture {
             handleOnEdit(item: item)
