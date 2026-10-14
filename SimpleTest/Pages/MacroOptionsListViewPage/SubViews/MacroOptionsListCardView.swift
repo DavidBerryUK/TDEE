@@ -12,7 +12,14 @@ struct MacroOptionsListCardView: View {
         collection.remove(item)
     }
 
+    func handleOnSelect(item: MacroSplitOptionModel) {
+        // Mark this item as selected and return to previous screen
+        collection.selectItem(byId: item.id)
+        path.removeLast()
+    }
+
     func handleOnEdit(item: MacroSplitOptionModel) {
+        // Navigate to edit screen
         path.append(.macroEditorEdit(item))
     }
 
@@ -99,7 +106,7 @@ struct MacroOptionsListCardView: View {
         )
         .contentShape(Rectangle()) // Make the whole card tappable
         .onTapGesture {
-            handleOnEdit(item: item)
+            handleOnSelect(item: item)
         }
 
         // Swipe actions

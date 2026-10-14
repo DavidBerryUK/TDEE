@@ -10,12 +10,6 @@ struct MacroOptionsListViewPage: View {
     //
     // move these into a collection handler
     //
-    func handleOnEdit(item: MacroSplitOptionModel) {
-        // Mark this item as selected when editing
-        collection.selectItem(byId: item.id)
-        path.append(.macroEditorEdit(item))
-    }
-
     func handleOnDelete(item: MacroSplitOptionModel) {
         collection.remove(item)
     }
