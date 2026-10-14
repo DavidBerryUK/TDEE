@@ -19,6 +19,7 @@ This directory contains user stories for the SimpleTest iOS project.
 | 011 | Focus Management | Done |
 | 012 | Calculation System Consolidation | Done |
 | 013 | Align Macro Model With Profile View | Done |
+| 014 | SwiftData Persistence | In Planning |
 
 ---
 
