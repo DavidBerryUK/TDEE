@@ -69,17 +69,20 @@ struct MacroOptionsListCardView: View {
                 macroDetail(
                     icon: "bolt.fill",
                     color: UIStyle.Text.macroProtein,
-                    text: "protein \(item.protein)%"
+                    text: "protein \(item.protein)%",
+                    alignment: .leading
                 )
                 macroDetail(
                     icon: "leaf.fill",
                     color: UIStyle.Text.macroCarbs,
-                    text: "carbs \(item.carbs)%"
+                    text: "carbs \(item.carbs)%",
+                    alignment: .center
                 )
                 macroDetail(
                     icon: "drop.fill",
                     color: UIStyle.Text.macroFats,
-                    text: "fats \(item.fats)%"
+                    text: "fats \(item.fats)%",
+                    alignment: .trailing
                 )
             }
             .font(.subheadline)
@@ -129,7 +132,7 @@ struct MacroOptionsListCardView: View {
     }
 
     @ViewBuilder
-    private func macroDetail(icon: String, color: Color, text: String) -> some View {
+    private func macroDetail(icon: String, color: Color, text: String, alignment: Alignment = .leading) -> some View {
         HStack(spacing: 4) {
             Image(systemName: icon)
                 .font(.caption2)
@@ -138,6 +141,9 @@ struct MacroOptionsListCardView: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
         }
+        .font(.subheadline)
+        .foregroundStyle(.secondary)
+        .frame(maxWidth: .infinity, alignment: alignment)
     }
 }
 
