@@ -8,23 +8,14 @@
 import SwiftUI
 
 struct UIMainView: View {
-    @State private var profile = ProfileViewModel()
+    @Binding var profile: ProfileViewModel
+    @Binding var path: [AppRoute]
     @State private var calculationResult = CalculatorResultViewModel()
-    @State var macroMix = MacroSplitViewModel()
     @State var sectionManager = SectionManagerViewModel()
 
     @Environment(MacroSplitOptionsModelCollection.self) private var globalMacroCollection
-    @Binding var path: [AppRoute]
-
-    /// Sync the user's selected macro preset into profile so calculations use their choice.
-    private func syncSelectedMacro() {
-        if let selected = globalMacroCollection.items.first(where: { $0.id == macroMix.selectedMacroId }) {
-            profile.syncMacros(from: selected)
-        }
-    }
 
     private func recalculate() {
-        syncSelectedMacro()
         calculationResult = Calculator.calculate(person: profile)
     }
 
@@ -52,7 +43,7 @@ struct UIMainView: View {
                                             outerScrollViewProxy: outerProxy)
 
                                         MainSectionMacroMix(
-                                            macroMix: macroMix,
+                                            profile: profile,
                                             sectionManager: sectionManager,
                                             calculationResult: calculationResult,
                                             path: $path,
@@ -99,7 +90,7 @@ struct UIMainView: View {
             .onChange(of: profile.calorieAdjustment) { _, _ in
                 recalculate()
             }
-            .onChange(of: macroMix.selectedMacroId) { _, _ in
+            .onChange(of: profile.selectedMacroId) { _, _ in
                 recalculate()
             }
         }

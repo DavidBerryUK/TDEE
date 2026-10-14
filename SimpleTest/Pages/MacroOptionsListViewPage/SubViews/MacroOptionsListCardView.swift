@@ -7,14 +7,16 @@ struct MacroOptionsListCardView: View {
 
     @Bindable var item: MacroSplitOptionModel
     @Binding var path: [AppRoute]
+    @Binding var selectedMacroId: UUID
 
     func handleOnDelete(item: MacroSplitOptionModel) {
         collection.remove(item)
     }
 
     func handleOnSelect(item: MacroSplitOptionModel) {
-        // Mark this item as selected and return to previous screen
+        // Mark this item as selected, update profile's selection, and return to previous screen
         collection.selectItem(byId: item.id)
+        selectedMacroId = item.id
         path.removeLast()
     }
 
@@ -165,7 +167,8 @@ struct MacroOptionsListCardView: View {
             ordinal: 1,
             isSelected: true
         ),
-        path: .constant([])
+        path: .constant([]),
+        selectedMacroId: .constant(FactoryMacroSplits.Id.balanced)
     )
     .environment(MacroSplitOptionsModelCollection())
 }

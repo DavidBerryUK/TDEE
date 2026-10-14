@@ -11,7 +11,7 @@ import Observation
 /// A view section for managing macro split preferences and viewing results.
 struct SectionMacroSplit: View {
 
-    @Bindable var macroMix: MacroSplitViewModel
+    @Bindable var profile: ProfileViewModel
     @Bindable var sectionManager : SectionManagerViewModel
     let calculationResult: CalculatorResultViewModel
     @Binding var path: [AppRoute]
@@ -27,11 +27,11 @@ struct SectionMacroSplit: View {
             accessibilityId: "sectionMacroSplit",
             sectionId: "sectionMacroSplit",
             sectionSummaryValueView: {
-                UISectionSummaryValueMacroMix(macroMix: macroMix, sectionManager: sectionManager)
+                UISectionSummaryValueMacroMix(profile: profile, sectionManager: sectionManager)
             },
             editorView: {
                 VStack(spacing: 0) {
-                    SectionEditorMacroMix(macroMix: macroMix)
+                    SectionEditorMacroMix(profile: profile)
                     SectionMacroMixResults(calculationResults: calculationResult)
                         .padding(.top, Spacing.medium)
                         .padding(.bottom, Spacing.small)
@@ -56,7 +56,7 @@ struct SectionMacroSplit: View {
     @Previewable @State var sectionManager = SectionManagerViewModel()
     @Previewable @State var path: [AppRoute] = []
     SectionMacroSplit(
-        macroMix: MacroSplitViewModel(),
+        profile: ProfileViewModel(),
         sectionManager: sectionManager,
         calculationResult: CalculatorResultViewModel(),
         path: $path,

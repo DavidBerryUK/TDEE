@@ -9,12 +9,12 @@ import SwiftUI
 
 struct UISectionSummaryValueMacroMix: View {
 
-    @Bindable var macroMix: MacroSplitViewModel
+    @Bindable var profile: ProfileViewModel
     @Bindable var sectionManager : SectionManagerViewModel
     @Environment(MacroSplitOptionsModelCollection.self) private var collection
 
     private var displayText: String {
-        let selectedOption = collection.items.first { $0.id == macroMix.selectedMacroId }
+        let selectedOption = collection.items.first { $0.id == profile.selectedMacroId }
         if let selectedOption = selectedOption {
             return selectedOption.name
         } else {
@@ -36,8 +36,8 @@ struct UISectionSummaryValueMacroMix: View {
 }
 #Preview {
     let collection = MacroSplitOptionsModelCollection(items: FactoryMacroSplits.get())
-    let macroMix = MacroSplitViewModel()
+    let profile = ProfileViewModel()
     let sectionManager = SectionManagerViewModel()
-    return UISectionSummaryValueMacroMix(macroMix: macroMix, sectionManager: sectionManager)
+    return UISectionSummaryValueMacroMix(profile: profile, sectionManager: sectionManager)
         .environment(collection)
 }

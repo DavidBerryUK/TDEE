@@ -3,6 +3,7 @@ import SwiftUI
 struct ContentView: View {
 
     @State private var path: [AppRoute] = []
+    @State private var profile = ProfileViewModel()
 
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
@@ -10,7 +11,7 @@ struct ContentView: View {
 
         NavigationStack(path: $path) {
 
-            UIMainView(path: $path)
+            UIMainView(profile: $profile, path: $path)
 
                 .navigationTitle(
                     horizontalSizeClass == .compact
@@ -38,7 +39,7 @@ struct ContentView: View {
                     case .system:
                         UISystemPageView(path: $path)
                     case .maintainMacroConfig:
-                        MacroOptionsListViewPage(path: $path)
+                        MacroOptionsListViewPage(path: $path, selectedMacroId: $profile.selectedMacroId)
                     case .theme:
                         ThemeView()
                     case .about:

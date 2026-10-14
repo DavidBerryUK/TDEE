@@ -107,6 +107,15 @@ final class ProfileViewModel {
         }
     }
 
+    // MARK: - Macro Selection (Added for story-013 alignment)
+    /// The UUID of the currently selected macro split option
+    var selectedMacroId: UUID = FactoryMacroSplits.Id.balanced {
+        didSet {
+            // When selection changes, sync the macro percentages from the selected preset
+            syncSelectedMacro()
+        }
+    }
+
     // MARK: - Derived/Calculated State (The single source of truth for calculations)
     /// The TDEE calculated value
     var tdee: Double = 1800.0
@@ -148,7 +157,7 @@ final class ProfileViewModel {
     /// - Returns: Tuple of (protein, carbs, fats) in grams
     func calculateMacros(tdee: Double) -> (protein: Int, carbs: Int, fats: Int) {
         let totalCalories = Int(tdee)
-        let proteinCal = Double(totalCalories) * 0.4
+        let proteinCal = Double(totalCalories) * 00.4
         let carbCal = Double(totalCalories) * 0.3
         let fatCal = Double(totalCalories) - proteinCal - carbCal
 
@@ -157,6 +166,15 @@ final class ProfileViewModel {
             carbs: Int(carbCal / 4),
             fats: Int(fatCal / 9)
         )
+    }
+
+    /// Copy protein/carbs/fats from a macro preset option into this profile.
+    /// Call before calculating so the computation uses the user's actual selection.
+    private func syncSelectedMacro() {
+        // Find the selected macro option and sync its values
+        if let selected = MacroSplitOptionsModelCollection(items: FactoryMacroSplits.get()).items.first(where: { $0.id == selectedMacroId }) {
+            syncMacros(from: selected)
+        }
     }
 
     // [Retained other methods if they do not involve calculation logic]

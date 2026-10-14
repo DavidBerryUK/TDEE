@@ -6,6 +6,7 @@ struct MacroOptionsListViewPage: View {
     var collection
 
     @Binding var path: [AppRoute]
+    @Binding var selectedMacroId: UUID
 
     //
     // move these into a collection handler
@@ -29,7 +30,7 @@ struct MacroOptionsListViewPage: View {
                     // list items using a sub view for readability
                     //
                     ForEach(collection.sortedItems, id: \.id) { item in
-                        MacroOptionsListCardView(item: item, path: $path)
+                        MacroOptionsListCardView(item: item, path: $path, selectedMacroId: $selectedMacroId)
                             .listRowSeparator(.hidden)
                             .listRowBackground(Color.clear)
                     }
@@ -42,7 +43,8 @@ struct MacroOptionsListViewPage: View {
             }
             .listStyle(.plain)
             .onAppear {
-                collection.selectFirstItem()
+                // Select the current profile's macro selection instead of always the first item
+                collection.selectItem(byId: selectedMacroId)
             }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -65,7 +67,8 @@ struct MacroOptionsListViewPage: View {
 
 #Preview {
     MacroOptionsListViewPage(
-        path: .constant([])
+        path: .constant([]),
+        selectedMacroId: .constant(FactoryMacroSplits.Id.balanced)
     )
     .environment(MacroSplitOptionsModelCollection(items: FactoryMacroSplits.get()))
 }

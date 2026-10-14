@@ -9,11 +9,11 @@ import SwiftUI
 
 struct UIWheelPickerMacroMixView: View {
 
-    @Bindable var macroSplit: MacroSplitViewModel
+    @Bindable var profile: ProfileViewModel
     @Environment(MacroSplitOptionsModelCollection.self) private var collection
 
     var body: some View {
-        Picker("Macro Split", selection: $macroSplit.selectedMacroId) {
+        Picker("Macro Split", selection: $profile.selectedMacroId) {
             ForEach(collection.items) { item in
                 Text(item.name)
                     .tag(item.id)
@@ -22,26 +22,4 @@ struct UIWheelPickerMacroMixView: View {
         .pickerStyle(.wheel)
         .accessibilityIdentifier("macroSplitPicker")
     }
-}
-
-private struct UIWheelPickerMacroMixPreviewHost: View {
-    let collection: MacroSplitOptionsModelCollection
-    @State private var macroSplit: MacroSplitViewModel
-    
-    init(collection: MacroSplitOptionsModelCollection) {
-        self.collection = collection
-        _macroSplit = State(
-            initialValue: MacroSplitViewModel()
-        )
-    }
-    
-    var body: some View {
-        UIWheelPickerMacroMixView(macroSplit: macroSplit)
-            .environment(collection)
-    }
-}
-
-#Preview {
-    let collection = MacroSplitOptionsModelCollection(items: FactoryMacroSplits.get())
-    UIWheelPickerMacroMixPreviewHost(collection: collection)
 }

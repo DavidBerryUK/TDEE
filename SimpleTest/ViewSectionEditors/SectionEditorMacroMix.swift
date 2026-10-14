@@ -1,5 +1,5 @@
 //
-//  SectionEditorWeight.swift
+//  SectionEditorMacroMix.swift
 //  SimpleTest
 //
 //  Created by David Berry on 05/04/2026.
@@ -8,18 +8,18 @@
 import SwiftUI
 
 struct SectionEditorMacroMix: View {
-    
+
     @Environment(MacroSplitOptionsModelCollection.self) private var collection
-    @Bindable var macroMix: MacroSplitViewModel
-    
+    @Bindable var profile: ProfileViewModel
+
     var body: some View {
 
         var selectedOption: MacroSplitOptionModel? {
-            collection.items.first { $0.id == macroMix.selectedMacroId }
+            collection.items.first { $0.id == profile.selectedMacroId }
         }
 
         VStack {
-            UIWheelPickerMacroMixView(macroSplit: macroMix)
+            UIWheelPickerMacroMixView(profile: profile)
         }
         .accessibilityElement(children: .contain)
     }
@@ -27,6 +27,6 @@ struct SectionEditorMacroMix: View {
 
 #Preview {
     let collection = MacroSplitOptionsModelCollection(items: FactoryMacroSplits.get())
-    return SectionEditorMacroMix(macroMix: MacroSplitViewModel())
+    return SectionEditorMacroMix(profile: ProfileViewModel())
         .environment(collection)
 }

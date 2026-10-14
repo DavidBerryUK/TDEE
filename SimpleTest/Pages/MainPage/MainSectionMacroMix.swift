@@ -2,7 +2,7 @@ import SwiftUI
 
 struct MainSectionMacroMix: View {
 
-    let macroMix: MacroSplitViewModel
+    let profile: ProfileViewModel
     let sectionManager: SectionManagerViewModel
     let calculationResult: CalculatorResultViewModel
     @Binding var path: [AppRoute]
@@ -11,7 +11,7 @@ struct MainSectionMacroMix: View {
     var body: some View {
         VStack(spacing: 0) {
             Divider()
-            SectionMacroSplit(macroMix: macroMix, sectionManager: sectionManager, calculationResult: calculationResult, path: $path, proxy: outerScrollViewProxy)
+            SectionMacroSplit(profile: profile, sectionManager: sectionManager, calculationResult: calculationResult, path: $path, proxy: outerScrollViewProxy)
                 .id("MacroSplit")
             Divider()
         }
