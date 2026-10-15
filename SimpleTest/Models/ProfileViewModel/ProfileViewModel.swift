@@ -1,5 +1,4 @@
 import Foundation
-import SimpleTest
 import SwiftUI
 import Observation
 
@@ -21,7 +20,7 @@ class ProfileViewModel {
     // MARK: - Persistence Properties
 
     private let profileRepository: ProfileRepository
-    private var saveTask: Task<Void, Never>?  // For throttled saves
+    nonisolated(unsafe) private var saveTask: Task<Void, Never>?  // For throttled saves
     private let saveDelay: TimeInterval = 1.0  // Wait 1 second after last change
     private var swiftDataId: UUID?  // Track the SwiftData entity ID
 
@@ -204,7 +203,7 @@ class ProfileViewModel {
 
     /// Throttle saves by cancelling previous task and starting new one
     private func triggerSave() {
-        saveTask?.cancel()  // Cancel any pending save
+        Task { [weak self] in self?.saveTask?.cancel() }  // Cancel any pending save
 
         saveTask = Task { [weak self] in
             // Wait for the delay
@@ -276,7 +275,7 @@ class ProfileViewModel {
 
     // [Retained other methods if they do not involve calculation logic]
 
-    deinit {
+    nonisolated deinit {
         saveTask?.cancel()
     }
 }

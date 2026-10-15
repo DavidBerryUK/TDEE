@@ -1,62 +1,61 @@
-import Foundation
 import SwiftData
+import Foundation
 
 @Model
-class Profile {
-    var id: UUID
-    var gender: Int16
-    var age: Int16
-    var height: Double
-    var weight: Double
-    var activityLevel: Int16
-    var bodyFatPercentage: Double?
-    var bodyFatMethod: Int16?
-    var name: String?
-    var seedVersion: Int16  // Track which version of seed data was applied
-    var createdAt: Date
-    var updatedAt: Date
+public class Profile {
+    /// User's gender (0 = male, 1 = female)
+    public var gender: Int16
 
-    init(
-        id: UUID,
+    /// User's age in years
+    public var age: Int
+
+    /// User's height in meters
+    public var height: Double
+
+    /// User's weight in kilograms
+    public var weight: Double
+
+    /// Body fat percentage (0.0-100.0)
+    public var bodyFatPercentage: Double
+
+    /// Activity level (stored as raw value string)
+    public var activityLevelRaw: String
+
+    /// Transient property for ActivityLevel access
+    public var activityLevel: ActivityLevel {
+        get { ActivityLevel(rawValue: activityLevelRaw) ?? .sedentary }
+        set { activityLevelRaw = newValue.rawValue }
+    }
+
+    /// Unique identifier for this profile
+    public var id: UUID
+
+    /// When this profile was created
+    public var createdAt: Date
+
+    /// When this profile was last updated
+    public var updatedAt: Date
+
+    /// Create a new profile instance
+    public init(
         gender: Int16,
-        age: Int16,
+        age: Int,
         height: Double,
         weight: Double,
-        activityLevel: Int16,
-        bodyFatPercentage: Double? = nil,
-        bodyFatMethod: Int16? = nil,
-        name: String? = nil,
-        seedVersion: Int16,
-        createdAt: Date,
-        updatedAt: Date
+        bodyFatPercentage: Double = 0.0,
+        activityLevel: ActivityLevel = .sedentary,
+        id: UUID = UUID(),
+        createdAt: Date = Date(),
+        updatedAt: Date = Date()
     ) {
-        self.id = id
         self.gender = gender
         self.age = age
         self.height = height
         self.weight = weight
-        self.activityLevel = activityLevel
         self.bodyFatPercentage = bodyFatPercentage
-        self.bodyFatMethod = bodyFatMethod
-        self.name = name
-        self.seedVersion = seedVersion
+        self.activityLevelRaw = activityLevel.rawValue
+        self.id = id
         self.createdAt = createdAt
         self.updatedAt = updatedAt
-    }
-
-    // For testing and initialization purposes
-    init() {
-        self.id = UUID()
-        self.gender = 0
-        self.age = 0
-        self.height = 0.0
-        self.weight = 0.0
-        self.activityLevel = 0
-        self.bodyFatPercentage = nil
-        self.bodyFatMethod = nil
-        self.name = nil
-        self.seedVersion = 0
-        self.createdAt = Date()
-        self.updatedAt = Date()
     }
 }

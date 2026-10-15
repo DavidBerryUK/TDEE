@@ -57,16 +57,13 @@ import Foundation
     func createDefaultProfile() async throws -> Profile {
         let defaults = SeedData.profileDefaults()
         let profile = Profile(
-            id: ProfileRepository.activeProfileId,
             gender: Int16(defaults.gender.rawValue),
-            age: Int16(defaults.age),
+            age: defaults.age,
             height: defaults.height,
             weight: defaults.weight,
-            activityLevel: Int16(defaults.activityLevel.rawValue),
             bodyFatPercentage: defaults.bodyFatPercentage,
-            bodyFatMethod: Int16(defaults.bodyFatPercentageMethod.rawValue),
-            name: nil,
-            seedVersion: SeedData.version,
+            activityLevel: defaults.activityLevel,
+            id: ProfileRepository.activeProfileId,
             createdAt: Date(),
             updatedAt: Date()
         )

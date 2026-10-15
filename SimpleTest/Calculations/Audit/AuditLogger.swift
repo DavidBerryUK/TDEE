@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 /// Logs calculation steps for audit purposes.
 ///
@@ -26,6 +27,7 @@ struct AuditLogger {
 
     /// Logs the input values from a profile.
     /// - Parameter person: The profile to log inputs from
+    @MainActor
     mutating func logInputs(person: ProfileViewModel) {
         guard enabled else { return }
 

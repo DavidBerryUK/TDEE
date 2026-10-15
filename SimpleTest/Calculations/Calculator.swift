@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 /// Performs TDEE and macro calculations based on user profile data.
 ///
@@ -16,6 +17,7 @@ import Foundation
 /// ```swift
 /// let calculator = Calculator.calculate(person: profile)
 /// ```
+@MainActor
 struct Calculator {
 
     /// Calculates TDEE and macro targets for a given profile.
@@ -24,7 +26,7 @@ struct Calculator {
     ///   - person: The user's profile data
     ///   - createAudit: Whether to create an audit trail of calculations
     /// - Returns: A `CalculatorResultViewModel` containing all calculation results
-    static func calculate(person: ProfileViewModel, createAudit: Bool = false) -> CalculatorResultViewModel {
+    static func calculate(person: ProfileViewModel, createAudit: Bool = false) async -> CalculatorResultViewModel {
 
         let result = CalculatorResultViewModel()
 
@@ -33,8 +35,8 @@ struct Calculator {
             return result
         }
 
-        Calculator.calculateTdee(result: result, person: person, createAudit: createAudit)
-        person.calculateMacros(result: result )
+        await Calculator.calculateTdee(result: result, person: person, createAudit: createAudit)
+        person.calculateMacros(result: result)
         return result
 
     }

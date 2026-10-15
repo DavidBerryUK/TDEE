@@ -1,5 +1,4 @@
 import SwiftData
-import SimpleTest
 import Foundation
 
 /// Maps between MacroSplitOptionModel and SwiftData MacroPreset entity
@@ -9,10 +8,10 @@ enum MacroPresetMapper {
         MacroSplitOptionModel(
             id: entity.id,
             name: entity.name,
-            protein: Int(entity.protein),
-            carbs: Int(entity.carbs),
-            fats: Int(entity.fats),
-            ordinal: Int(entity.ordinal), // This was the problem - converting Int16 to Int
+            protein: Int(entity.primaryProtein),
+            carbs: Int(entity.primaryCarbs),
+            fats: Int(entity.primaryFat),
+            ordinal: Int(entity.ordinal),
             isSelected: false,  // Selection managed separately
             isCustom: entity.isCustom
         )
@@ -21,32 +20,38 @@ enum MacroPresetMapper {
     /// Convert model to entity for saving to SwiftData
     /// Note: Presets are shared, so no owner is set
     static func mapToEntity(_ model: MacroSplitOptionModel) -> MacroPreset {
-        let preset = MacroPreset()
-        preset.id = model.id
-        preset.name = model.name
-        preset.protein = Int16(model.protein)
-        preset.carbs = Int16(model.carbs)
-        preset.fats = Int16(model.fats)
-        preset.ordinal = Int(model.ordinal) // Explicit conversion to Int16
-        preset.isCustom = model.isCustom
+        let breakdown = MacroBreakdown(
+            calories: 2000,  // Placeholder - calories not stored in model
+            carbs: model.carbs,
+            fat: model.fats,
+            protein: model.protein
+        )
+        let preset = MacroPreset(
+            id: model.id,
+            name: model.name,
+            primaryBreakdown: breakdown,
+            ordinal: Int16(model.ordinal),
+            isCustom: model.isCustom
+        )
         preset.updatedAt = Date()
-        // createdAt is set when entity is created
-        if preset.createdAt == Date(timeIntervalSince1970: 0) { // Default date check
-            preset.createdAt = Date()
-        }
         return preset
     }
 
     /// Create a system preset entity from seed data
     static func mapSystemPresetToEntity(id: UUID, name: String, protein: Int, carbs: Int, fats: Int, ordinal: Int) -> MacroPreset {
-        let preset = MacroPreset()
-        preset.id = id
-        preset.name = name
-        preset.protein = Int16(protein)
-        preset.carbs = Int16(carbs)
-        preset.fats = Int16(fats)
-        preset.ordinal = Int16(ordinal)
-        preset.isCustom = false
+        let breakdown = MacroBreakdown(
+            calories: 2000,  // Placeholder
+            carbs: carbs,
+            fat: fats,
+            protein: protein
+        )
+        let preset = MacroPreset(
+            id: id,
+            name: name,
+            primaryBreakdown: breakdown,
+            ordinal: Int16(ordinal),
+            isCustom: false
+        )
         preset.systemId = name.lowercased().replacingOccurrences(of: " ", with: "_")
         preset.createdAt = Date()
         preset.updatedAt = Date()

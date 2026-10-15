@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Observation
 
 struct UIMainView: View {
     @Binding var profile: ProfileViewModel
@@ -15,8 +16,8 @@ struct UIMainView: View {
 
     @Environment(MacroSplitOptionsModelCollection.self) private var globalMacroCollection
 
-    private func recalculate() {
-        calculationResult = Calculator.calculate(person: profile)
+    private func recalculate() async {
+        calculationResult = await Calculator.calculate(person: profile)
     }
 
     var body: some View {
@@ -59,7 +60,7 @@ struct UIMainView: View {
                 }
             }
             .task {
-                recalculate()
+                await recalculate()
             }
             .onTapGesture {
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
@@ -67,31 +68,31 @@ struct UIMainView: View {
                 }
             }
             .onChange(of: profile.gender) { _, _ in
-                recalculate()
+                Task { await recalculate() }
             }
             .onChange(of: profile.age) { _, _ in
-                recalculate()
+                Task { await recalculate() }
             }
             .onChange(of: profile.weight) { _, _ in
-                recalculate()
+                Task { await recalculate() }
             }
             .onChange(of: profile.height) { _, _ in
-                recalculate()
+                Task { await recalculate() }
             }
             .onChange(of: profile.bodyFatPercentageMethod) { _, _ in
-                recalculate()
+                Task { await recalculate() }
             }
             .onChange(of: profile.bodyFatPercentage) { _, _ in
-                recalculate()
+                Task { await recalculate() }
             }
             .onChange(of: profile.calorieAdjustmentMethod) { _, _ in
-                recalculate()
+                Task { await recalculate() }
             }
             .onChange(of: profile.calorieAdjustment) { _, _ in
-                recalculate()
+                Task { await recalculate() }
             }
             .onChange(of: profile.selectedMacroId) { _, _ in
-                recalculate()
+                Task { await recalculate() }
             }
         }
     }

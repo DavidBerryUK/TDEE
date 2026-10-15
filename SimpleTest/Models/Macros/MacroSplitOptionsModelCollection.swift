@@ -2,9 +2,9 @@ import Observation
 import Foundation
 import SwiftUI
 
-
 /// Collection of all the Macro Split Options
 @Observable
+@MainActor
 final class MacroSplitOptionsModelCollection {
 
     // Source of truth

@@ -2,39 +2,54 @@ import SwiftData
 import Foundation
 
 /// Maps between ProfileViewModel and SwiftData Profile entity
+@MainActor
 enum ProfileMapper {
     /// Convert entity to ViewModel for reading from SwiftData
     static func mapToViewModel(_ entity: Profile) -> ProfileViewModel {
+        // Create a new ViewModel with default values
         let viewModel = ProfileViewModel()
-        // Set the ID via the initializer since swiftDataId is private
-        // We'll just set it after initialization
-        viewModel.gender = Gender(rawValue: entity.gender) ?? .male
+        switch entity.gender {
+        case 0: viewModel.gender = .male
+        case 1: viewModel.gender = .female
+        default: viewModel.gender = .male
+        }
         viewModel.age = Int(entity.age)
         viewModel.height = entity.height
         viewModel.weight = entity.weight
-        viewModel.activityLevel = ActivityLevel(rawValue: entity.activityLevel) ?? .sedentary
-        viewModel.bodyFatPercentage = entity.bodyFatPercentage ?? 0.0
-        viewModel.bodyFatPercentageMethod = BodyFatOption(rawValue: entity.bodyFatMethod ?? 0) ?? .omit
+        viewModel.activityLevel = entity.activityLevel
+        viewModel.bodyFatPercentage = entity.bodyFatPercentage
+        viewModel.bodyFatPercentageMethod = .omit  // Default since we don't store this
         // Note: Derived values (tdee, macroTargets) are recalculated automatically by ProfileViewModel
         return viewModel
     }
 
     /// Convert ViewModel to entity for saving to SwiftData
+    /// When updating an existing profile, pass the existing entity.
+    /// When creating a new profile, pass nil and use the repository's createDefaultProfile or insert a new entity.
     static func mapToEntity(_ viewModel: ProfileViewModel, existing: Profile?) -> Profile {
-        let profile = existing ?? Profile()
-        // We can't directly set swiftDataId since it's private - this is handled in the save operation
-        profile.gender = Int16(viewModel.gender.rawValue)
-        profile.age = Int16(viewModel.age)
-        profile.height = viewModel.height
-        profile.weight = viewModel.weight
-        profile.activityLevel = Int16(viewModel.activityLevel.rawValue)
-        profile.bodyFatPercentage = viewModel.bodyFatPercentage > 0 ? viewModel.bodyFatPercentage : nil
-        profile.bodyFatMethod = Int16(viewModel.bodyFatPercentageMethod.rawValue)
-        profile.updatedAt = Date()
-        // createdAt is preserved from existing entity, set on first creation
-        if existing == nil {
-            profile.createdAt = Date()
+        guard let existingProfile = existing else {
+            // Create a new profile with a new UUID
+            let profile = Profile(
+                gender: Int16(viewModel.gender.rawValue),
+                age: viewModel.age,
+                height: viewModel.height,
+                weight: viewModel.weight,
+                bodyFatPercentage: viewModel.bodyFatPercentage,
+                activityLevel: viewModel.activityLevel,
+                id: UUID(),
+                createdAt: Date(),
+                updatedAt: Date()
+            )
+            return profile
         }
-        return profile
+        // Update existing profile
+        existingProfile.gender = Int16(viewModel.gender.rawValue)
+        existingProfile.age = viewModel.age
+        existingProfile.height = viewModel.height
+        existingProfile.weight = viewModel.weight
+        existingProfile.activityLevel = viewModel.activityLevel
+        existingProfile.bodyFatPercentage = viewModel.bodyFatPercentage
+        existingProfile.updatedAt = Date()
+        return existingProfile
     }
 }

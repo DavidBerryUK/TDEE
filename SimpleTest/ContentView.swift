@@ -4,7 +4,7 @@ struct ContentView: View {
 
     @State private var path: [AppRoute] = []
 
-    // Use dependency injection for profile
+    // Use dependency injection for profile - @State for reference types with @Observable
     @State private var profile: ProfileViewModel
 
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
@@ -59,6 +59,8 @@ struct ContentView: View {
                     }
                 }
         }
+        // Inject the global macro collection for environment access
+        .environment(MacroSplitOptionsModelCollection(items: FactoryMacroSplits.get()))
     }
 }
 

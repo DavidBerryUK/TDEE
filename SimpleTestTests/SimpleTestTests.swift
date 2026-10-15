@@ -9,6 +9,7 @@ private func format(_ value: Double, _ specifier: String) -> String {
 // MARK: - ProfileViewModel Calculation Tests (Mifflin-St Jeor)
 
 @Suite("ProfileViewModel Mifflin-St Jeor BMR Tests")
+@MainActor
 struct ProfileViewModelMifflinStJeorTests {
 
     @Test("Calculate BMR for male with manual body fat")
@@ -97,6 +98,7 @@ struct ProfileViewModelMifflinStJeorTests {
 // MARK: - ProfileViewModel Katch-McArdle Tests
 
 @Suite("ProfileViewModel Katch-McArdle BMR Tests")
+@MainActor
 struct ProfileViewModelKatchMcArdleTests {
 
     @Test("Calculate BMR using Katch-McArdle with manual body fat")
@@ -169,6 +171,7 @@ struct ProfileViewModelKatchMcArdleTests {
 // MARK: - ProfileViewModel TDEE Tests
 
 @Suite("ProfileViewModel TDEE Tests")
+@MainActor
 struct ProfileViewModelTDEETests {
 
     @Test("Calculate TDEE with sedentary activity level")
@@ -220,6 +223,7 @@ struct ProfileViewModelTDEETests {
 // MARK: - MacroSplitViewModel Tests
 
 @Suite("MacroSplitViewModel Tests")
+@MainActor
 struct MacroSplitViewModelTests {
 
     @Test("Initialization uses first macro ID when available")
@@ -255,6 +259,7 @@ struct MacroSplitViewModelTests {
 // MARK: - ProfileViewModel Macro Tests
 
 @Suite("ProfileViewModel Macro Calculation Tests")
+@MainActor
 struct ProfileViewModelMacroTests {
 
     @Test("Calculate macros from TDEE")
@@ -291,6 +296,7 @@ struct ProfileViewModelMacroTests {
 // MARK: - ProfileViewModel Integration Tests
 
 @Suite("ProfileViewModel Integration Tests")
+@MainActor
 struct ProfileViewModelIntegrationTests {
 
     @Test("refreshResults updates tdee and macroTargets")
@@ -355,6 +361,7 @@ struct ProfileViewModelIntegrationTests {
 // MARK: - Unit Tests for Calculation Formulas
 
 @Suite("Formula Verification Tests")
+@MainActor
 struct FormulaVerificationTests {
 
     @Test("Mifflin-St Jeor male formula verification")
@@ -461,11 +468,10 @@ struct FormulaVerificationTests {
     }
 }
 
-// MARK: - Helper Extension for ProfileViewModel
-
 // MARK: - ProfileViewModel Validation Tests
 
 @Suite("ProfileViewModel Validation Tests")
+@MainActor
 struct ProfileViewModelValidationTests {
 
     @Test("validateForCalculation returns nil when all fields valid")
