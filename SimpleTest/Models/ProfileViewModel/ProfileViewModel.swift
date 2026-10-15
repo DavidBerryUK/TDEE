@@ -207,13 +207,14 @@ class ProfileViewModel {
 
         saveTask = Task { [weak self] in
             // Wait for the delay
-            try? await Task.sleep(nanoseconds: UInt64(self!.saveDelay * 1_000_000_000))
+            guard let self else { return }
+            try? await Task.sleep(nanoseconds: UInt64(self.saveDelay * 1_000_000_000))
 
             // Check if task was cancelled during wait
             guard !Task.isCancelled else { return }
 
             // Perform save via repository (@MainActor, runs on main thread)
-            await self?.saveToSwiftData()
+            await self.saveToSwiftData()
         }
     }
 

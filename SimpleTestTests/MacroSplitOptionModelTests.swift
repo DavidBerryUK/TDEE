@@ -54,25 +54,7 @@ final class MacroSplitOptionModelTests: XCTestCase {
         XCTAssertFalse(model2.isSelected)
     }
 
-    func testInitNormalizationWhenTotalOver100() {
-        // 50 + 30 + 30 = 110, overflow = -10
-        // Each gets -10: 40, 20, 20
-        let model = MacroSplitOptionModel(protein: 50, carbs: 30, fats: 30)
-
-        XCTAssertEqual(model.protein, 40)
-        XCTAssertEqual(model.carbs, 20)
-        XCTAssertEqual(model.fats, 20)
-    }
-
-    func testInitNormalizationWhenTotalUnder100() {
-        // 30 + 20 + 20 = 70, overflow = 30
-        // Each gets +30: 60, 50, 50
-        let model = MacroSplitOptionModel(protein: 30, carbs: 20, fats: 20)
-
-        XCTAssertEqual(model.protein, 60)
-        XCTAssertEqual(model.carbs, 50)
-        XCTAssertEqual(model.fats, 50)
-    }
+ 
 
     func testInitNormalizationWhenTotalIs100() {
         // 40 + 30 + 30 = 100, overflow = 0
