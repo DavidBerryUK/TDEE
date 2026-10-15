@@ -20,6 +20,36 @@ This directory contains user stories for the SimpleTest iOS project.
 | 012 | Calculation System Consolidation | Done |
 | 013 | Align Macro Model With Profile View | Done |
 | 014 | SwiftData Persistence | In Planning |
+| 015 | Share Results | In Planning |
+
+## Story 015: Share Results
+
+**Objective:** Implement a functional share button that allows users to share their calculation results via iOS share sheet (ActivityViewController).
+
+**Motivation:** Users want to share their calculation results (BMR, TDEE, macros) with others - for example, to share with a nutritionist, friend, or social media. The current share button is non-functional.
+
+**Current State:**
+- Share button shows a share icon (square with up arrow)
+- Has accessibility label "Share current settings"
+- Has no action when tapped
+
+**Implementation Plan:**
+1. **ShareResultsModel** (`Models/ShareResultsModel.swift`) - Already exists with formatters for all data
+2. **ProfileViewModel** - Add `createShareResultsModel(result:)` method to look up macro preset and create share model
+3. **UIMainView** - Add share button with presentation handler for UIActivityViewController
+
+**Key Decisions:**
+- Use `MacroSplitOptionsModelCollection` to look up macro preset name from `selectedMacroId`
+- Pass presentation handler from parent view since UIMainView is pure SwiftUI
+
+**Files to Modify:**
+| File | Change |
+|------|--------|
+| `Models/ProfileViewModel/ProfileViewModel.swift` | Add `createShareResultsModel()` with macro lookup |
+| `Pages/MainPage/UIMainView.swift` | Add share button with presentation handler |
+| `SimpleTestTests/ShareResultsModelTests.swift` | Create unit tests |
+
+**Dependencies:** None - standalone feature
 
 ---
 
