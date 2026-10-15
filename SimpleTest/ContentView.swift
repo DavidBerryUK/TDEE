@@ -1,4 +1,18 @@
 import SwiftUI
+import UIKit
+
+/// SwiftUI wrapper for UIActivityViewController
+struct ActivityView: UIViewControllerRepresentable {
+    let items: [Any]
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: items, applicationActivities: nil)
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {
+        // No updates needed - items are set on creation
+    }
+}
 
 struct ContentView: View {
 
@@ -8,6 +22,8 @@ struct ContentView: View {
     @State private var profile: ProfileViewModel
 
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @State private var isShareSheetPresented = false
+    @State private var shareText: String = ""
 
     init() {
         // Initialize with the shared repository for persistence
@@ -19,7 +35,10 @@ struct ContentView: View {
 
         NavigationStack(path: $path) {
 
-            UIMainView(profile: $profile, path: $path)
+            UIMainView(profile: $profile, path: $path) { shareText in
+                self.shareText = shareText
+                isShareSheetPresented = true
+            }
 
                 .navigationTitle(
                     horizontalSizeClass == .compact
@@ -61,6 +80,9 @@ struct ContentView: View {
         }
         // Inject the global macro collection for environment access
         .environment(MacroSplitOptionsModelCollection(items: FactoryMacroSplits.get()))
+        .sheet(isPresented: $isShareSheetPresented) {
+            ActivityView(items: [shareText])
+        }
     }
 }
 

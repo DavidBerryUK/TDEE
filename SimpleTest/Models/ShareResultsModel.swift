@@ -170,4 +170,39 @@ struct ShareResultsModel {
             macroTargetsText: ""
         )
     }
+
+    /// Creates a ShareResultsModel with all text fields (for testing with empty data).
+    init(
+        genderText: String,
+        ageText: String,
+        heightText: String,
+        weightText: String,
+        activityLevelText: String,
+        bodyFatMethodText: String,
+        bodyFatText: String,
+        calorieAdjustmentText: String,
+        calorieAdjustmentAmountText: String,
+        macroSplitMethodText: String,
+        macroPresetText: String,
+        bmrText: String,
+        tdeeText: String,
+        adjustedCaloriesText: String,
+        macroTargetsText: String
+    ) {
+        self.genderText = genderText
+        self.ageText = ageText
+        self.heightText = heightText
+        self.weightText = weightText
+        self.activityLevelText = activityLevelText
+        self.bodyFatMethodText = bodyFatMethodText
+        self.bodyFatText = bodyFatText
+        self.calorieAdjustmentText = calorieAdjustmentText
+        self.calorieAdjustmentAmountText = calorieAdjustmentAmountText
+        self.macroSplitMethodText = macroSplitMethodText
+        self.macroPresetText = macroPresetText
+        self.bmrText = bmrText
+        self.tdeeText = tdeeText
+        self.adjustedCaloriesText = adjustedCaloriesText
+        self.macroTargetsText = macroTargetsText
+    }
 }

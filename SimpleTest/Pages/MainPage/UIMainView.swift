@@ -13,6 +13,7 @@ struct UIMainView: View {
     @Binding var path: [AppRoute]
     @State private var calculationResult = CalculatorResultViewModel()
     @State var sectionManager = SectionManagerViewModel()
+    var presentationHandler: ((String) -> Void)?
 
     @Environment(MacroSplitOptionsModelCollection.self) private var globalMacroCollection
 
@@ -57,6 +58,19 @@ struct UIMainView: View {
                             .padding(.horizontal, geometry.size.width <= 375 ? 0 : 16)
                         }
                     }
+                }
+            }
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        guard profile.isValid else { return }
+                        let shareModel = profile.createShareResultsModel(result: calculationResult)
+                        presentationHandler?(shareModel.shareText)
+                    } label: {
+                        Image(systemName: "square.and.arrow.up")
+                    }
+                    .accessibilityLabel("Share calculation results")
+                    .disabled(!profile.isValid)
                 }
             }
             .task {

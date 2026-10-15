@@ -281,6 +281,21 @@ class ProfileViewModel {
         fats = macroOption.fats
     }
 
+    /// Creates a ShareResultsModel from the current profile and result.
+    /// - Parameter result: The calculation results
+    /// - Returns: A ShareResultsModel with pre-formatted data for sharing
+    func createShareResultsModel(result: CalculatorResultViewModel) -> ShareResultsModel {
+        let macroCollection = MacroSplitOptionsModelCollection(items: FactoryMacroSplits.get())
+        let selectedMacro = macroCollection.items.first(where: { $0.id == selectedMacroId })
+
+        return ShareResultsModel(
+            profile: self,
+            result: result,
+            macroMethodName: selectedMacro?.name ?? "Custom",
+            macroPresetName: selectedMacro?.name ?? "Custom"
+        )
+    }
+
     func updateProtein(to newValue: Double) {
         let result = MacroSplitOptionModel.normalizeAfterProteinChange(newValue: newValue, originalCarbs: carbs, originalFats: fats)
         protein = result.protein
