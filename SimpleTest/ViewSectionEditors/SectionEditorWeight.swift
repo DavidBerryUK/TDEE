@@ -8,17 +8,17 @@
 import SwiftUI
 
 struct SectionEditorWeight: View {
-    
+
     @Bindable var model: ProfileViewModel
-    
+
     var body: some View {
-        VStack {
-            UISegmentUomWeightView(option: $model.weightUom)
-                .padding(.leading, 8)
-                .padding(.trailing, 8)
-            UIWheelPickerWeightView(value: $model.weight, unitOfMeasure: $model.weightUom)
+        Picker("Weight", selection: $model.weightUom) {
+            ForEach(OptionWeight.allCases, id: \.self) { option in
+                Text(option.displayName)
+            }
         }
-        .accessibilityElement(children: .contain)
+        .pickerStyle(.menu)
+        .accessibilityLabel("Weight unit")
     }
 }
 

@@ -1,5 +1,5 @@
 //
-//  SectionEditorWeight.swift
+//  SectionEditorAge.swift
 //  SimpleTest
 //
 //  Created by David Berry on 05/04/2026.
@@ -12,10 +12,13 @@ struct SectionEditorAge: View {
     @Bindable var model: ProfileViewModel
 
     var body: some View {
-        VStack {
-            UIWheelPickerAgeView(value: $model.age)
+        Picker("Age", selection: $model.age) {
+            ForEach(18...100, id: \.self) { year in
+                Text("\(year)")
+            }
         }
-        .accessibilityElement(children: .contain)
+        .pickerStyle(.menu)
+        .accessibilityLabel("Age")
     }
 }
 
