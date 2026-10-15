@@ -7,6 +7,18 @@
 
 import Foundation
 
+// MARK: - Helper Functions
+
+/// Formats a Double as an integer string if it has no decimal places, otherwise returns the full value.
+/// - Parameter value: The Double value to format
+/// - Returns: A string representation of the value without unnecessary decimal places
+private func formatAsInteger(_ value: Double) -> String {
+    if value.truncatingRemainder(dividingBy: 1) == 0 {
+        return String(Int(value))
+    }
+    return String(value)
+}
+
 /// Model containing all data needed for sharing calculation results.
 ///
 /// This model provides a clean separation between calculation logic
@@ -101,10 +113,10 @@ struct ShareResultsModel {
         self.ageText = "\(profile.age) years"
 
         // Format height (assuming cm from profile, could add UOM support)
-        self.heightText = "\(profile.height) cm"
+        self.heightText = formatAsInteger(profile.height) + " cm"
 
         // Format weight (assuming kg from profile, could add UOM support)
-        self.weightText = "\(profile.weight) kg"
+        self.weightText = formatAsInteger(profile.weight) + " kg"
 
         // Format activity level with full description
         self.activityLevelText = profile.activityLevel.description
@@ -114,7 +126,7 @@ struct ShareResultsModel {
 
         // Format body fat percentage
         if profile.bodyFatPercentageMethod != .omit, profile.bodyFatPercentage > 0 {
-            self.bodyFatText = "\(profile.bodyFatPercentage)%"
+            self.bodyFatText = formatAsInteger(profile.bodyFatPercentage) + "%"
         } else {
             self.bodyFatText = "N/A"
         }
