@@ -60,7 +60,7 @@ A complete formatted summary ready for ActivityViewController.
 
 ### ShareResultsModel Initializer
 
-The model requires macro method and preset names to be passed explicitly since ProfileViewModel only stores percentage values:
+The model requires macro method and preset names to be passed explicitly. Since `MacroSplitOptionModel` only has a `name` property, both parameters will have the same value (the preset name).
 
 ```swift
 init(
@@ -73,7 +73,7 @@ init(
 
 To populate these values, call `ProfileViewModel.createShareResultsModel(result:)` which:
 1. Queries `MacroSplitOptionsModelCollection` for the selected macro preset
-2. Extracts `methodName` and `presetName` from the selected option
+2. Extracts `name` from the selected option (or "Custom" if not found)
 3. Returns a fully populated ShareResultsModel
 
 ## Expected Behavior
@@ -98,13 +98,8 @@ A struct containing all pre-formatted shareable data with:
 ### 2. Integrate into ProfileViewModel
 **File:** `Models/ProfileViewModel/ProfileViewModel.swift`
 
-Add import statements:
-```swift
-import MacroSplitOptionsModelCollection
-import FactoryMacroSplits
-```
-
 Add a method to create a share model with macro preset lookup:
+
 ```swift
 func createShareResultsModel(result: CalculatorResultViewModel) -> ShareResultsModel {
     let macroCollection = MacroSplitOptionsModelCollection(items: FactoryMacroSplits.get())
@@ -113,11 +108,13 @@ func createShareResultsModel(result: CalculatorResultViewModel) -> ShareResultsM
     return ShareResultsModel(
         profile: self,
         result: result,
-        macroMethodName: selectedMacro?.methodName ?? "Custom",
-        macroPresetName: selectedMacro?.presetName ?? "Custom"
+        macroMethodName: selectedMacro?.name ?? "Custom",
+        macroPresetName: selectedMacro?.name ?? "Custom"
     )
 }
 ```
+
+**Important:** `MacroSplitOptionModel` only has a `name` property (e.g., "Balanced", "Ketogenic"). The `methodName` and `presetName` parameters in `ShareResultsModel` both use the preset's name.
 
 ### 3. Implement Share Action in UIMainView
 **File:** `Pages/MainPage/UIMainView.swift`
@@ -157,7 +154,7 @@ Since UIMainView is a pure SwiftUI View without UIViewController access, add a p
 | File | Action |
 |------|--------|
 | `Models/ShareResultsModel.swift` | Already exists - review and verify |
-| `Models/ProfileViewModel/ProfileViewModel.swift` | **Modify** - Add `createShareResultsModel()` method and imports |
+| `Models/ProfileViewModel/ProfileViewModel.swift` | **Modify** - Add `createShareResultsModel()` method |
 | `Pages/MainPage/UIMainView.swift` | **Modify** - Add share button with presentation handler |
 | `SimpleTestTests/ShareResultsModelTests.swift` | **Create** - Unit tests for model |
 

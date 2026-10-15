@@ -8,7 +8,7 @@ This plan implements a functional share button that allows users to share their 
 
 1. **ShareResultsModel already exists** - Model is complete with all formatters
 2. **UIMainView is SwiftUI only** - Cannot directly call `present()` on UIViewController; requires a UIViewControllerRepresentable wrapper or parent view controller passed as a binding
-3. **Macro preset lookup required** - `ProfileViewModel.createShareResultsModel()` must query `MacroSplitOptionsModelCollection` to get `methodName` and `presetName` from `selectedMacroId`
+3. **Macro preset lookup** - ProfileViewModel.selectedMacroId references a preset in MacroSplitOptionsModelCollection; the preset has a `name` property
 
 ## Approach: Three-Part Implementation
 
@@ -18,22 +18,26 @@ This plan implements a functional share button that allows users to share their 
 
 #### Tasks:
 
-1. **Add import statements to `ProfileViewModel.swift`**
-   ```swift
-   import MacroSplitOptionsModelCollection  // For preset lookup
-   import FactoryMacroSplits                // For macro options
-   ```
-
-2. **Add `createShareResultsModel()` method to `ProfileViewModel`**
+1. **Add `createShareResultsModel()` method to `ProfileViewModel`**
    - Location: `Models/ProfileViewModel/ProfileViewModel.swift`
    - Signature: `func createShareResultsModel(result: CalculatorResultViewModel) -> ShareResultsModel`
    - Lookup selected macro preset using `MacroSplitOptionsModelCollection(items: FactoryMacroSplits.get())`
-   - Extract `methodName` and `presetName` from selected option (or "Custom" if not found)
-   - Returns fully populated `ShareResultsModel` with macro details
+   - Extract `name` from selected option (or "Custom" if not found)
+   - Returns fully populated `ShareResultsModel`
 
-3. **Verify existing `ShareResultsModel` initializer**
-   - Confirm it accepts `macroMethodName` and `macroPresetName` parameters
-   - Verify all formatters produce user-friendly output
+   ```swift
+   func createShareResultsModel(result: CalculatorResultViewModel) -> ShareResultsModel {
+       let macroCollection = MacroSplitOptionsModelCollection(items: FactoryMacroSplits.get())
+       let selectedMacro = macroCollection.items.first(where: { $0.id == selectedMacroId })
+       
+       return ShareResultsModel(
+           profile: self,
+           result: result,
+           macroMethodName: selectedMacro?.name ?? "Custom",
+           macroPresetName: selectedMacro?.name ?? "Custom"
+       )
+   }
+   ```
 
 ### Part B: Share Button Implementation (UIMainView)
 
@@ -93,7 +97,6 @@ This plan implements a functional share button that allows users to share their 
 | File | Change |
 |------|--------|
 | `Models/ProfileViewModel/ProfileViewModel.swift` | Add `createShareResultsModel()` method with macro lookup |
-| `Models/ProfileViewModel/ProfileViewModel.swift` | Add imports for `MacroSplitOptionsModelCollection`, `FactoryMacroSplits` |
 | `Pages/MainPage/UIMainView.swift` | Add share button with presentation handler |
 | `SimpleTestTests/ShareResultsModelTests.swift` | Create unit tests for model |
 
