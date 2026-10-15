@@ -274,6 +274,34 @@ class ProfileViewModel {
         }
     }
 
+    /// Copy protein/carbs/fats from a macro preset option into this profile.
+    func syncMacros(from macroOption: MacroSplitOptionModel) {
+        protein = macroOption.protein
+        carbs = macroOption.carbs
+        fats = macroOption.fats
+    }
+
+    func updateProtein(to newValue: Double) {
+        let result = MacroSplitOptionModel.normalizeAfterProteinChange(newValue: newValue, originalCarbs: carbs, originalFats: fats)
+        protein = result.protein
+        carbs = result.carbs
+        fats = result.fats
+    }
+
+    func updateCarbs(to newValue: Double) {
+        let result = MacroSplitOptionModel.normalizeAfterCarbsChange(newValue: newValue, originalProtein: protein, originalFats: fats)
+        protein = result.protein
+        carbs = result.carbs
+        fats = result.fats
+    }
+
+    func updateFats(to newValue: Double) {
+        let result = MacroSplitOptionModel.normalizeAfterFatsChange(newValue: newValue, originalProtein: protein, originalCarbs: carbs)
+        protein = result.protein
+        carbs = result.carbs
+        fats = result.fats
+    }
+
     // [Retained other methods if they do not involve calculation logic]
 
     nonisolated deinit {
