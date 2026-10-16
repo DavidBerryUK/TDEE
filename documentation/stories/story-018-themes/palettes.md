@@ -1,13 +1,32 @@
-# Story 018: Theme Palettes (draft v2, Flat UI based)
+# Story 018: Theme Palettes
 
-Each theme is built on one Flat UI hue. Accents are shifted in lightness until they meet contrast. Backgrounds are lightly tinted with the theme hue. Macro colours are shared across themes (protein pink, carbs blue, fat yellow), adjusted per mode.
+**Default** reproduces the app's current colours: iOS system colours, the system blue accent (`AccentColor` is unset), and macros of red at 85% opacity, blue and mint. It should be implemented with **system dynamic colours** (`Color(.systemGroupedBackground)`, `.primary`, `.secondary`, `.blue`, `.mint`, etc.), not these hex values. The hex values are the iOS 17+ resolved equivalents, used for previews and documentation. Default is **exempt** from the contrast checks: in light mode, Apple's `secondaryLabel` (3.4:1) and mint (2.1:1) fall below the thresholds the other themes meet.
 
-Checks: text/primary ≥ 4.5:1 (High Contrast ≥ 7:1), secondary and macros ≥ 3:1 vs surface, macros distinguishable under deuteranopia and protanopia simulation. Preview: [palette-preview.html](palette-preview.html).
+The other themes are each built on one Flat UI hue. Accents are shifted in lightness to meet contrast, and backgrounds are lightly tinted. Macro colours (protein pink, carbs blue, fat yellow) are shared across those themes.
 
+Checks (all themes except Default): text and primary ≥ 4.5:1 (High Contrast ≥ 7:1); secondary and macros ≥ 3:1 vs surface; macros distinguishable under deuteranopia and protanopia simulation (Default passes this). Preview: [palette-preview.html](palette-preview.html).
+
+
+## Default
+
+The app's current look: iOS system colours, blue accent
+
+| Token | Light | Dark |
+|---|---|---|
+| `primary` | `#007AFF` | `#0A84FF` |
+| `secondary` | `#FF3B30` | `#FF453A` |
+| `background` | `#F2F2F7` | `#000000` |
+| `surface` | `#FFFFFF` | `#1C1C1E` |
+| `text` | `#000000` | `#FFFFFF` |
+| `textSecondary` | `#8A8A8E` | `#98989F` |
+| `border` | `#C6C6C8` | `#38383A` |
+| `macroProtein` | `#FF584F` | `#DD3F36` |
+| `macroCarbs` | `#007AFF` | `#0A84FF` |
+| `macroFat` | `#00C7BE` | `#63E6E2` |
 
 ## Clouds
 
-Calm greys with a wet-asphalt accent (default)
+Calm greys with a wet-asphalt accent
 
 | Token | Light | Dark |
 |---|---|---|
@@ -162,6 +181,8 @@ Maximum legibility, single strong accent
 
 | Theme | Mode | text | textSecondary | primary | lowest macro |
 |---|---|---|---|---|---|
+| Default | light | 21.0 | 3.4 | 4.0 | 2.1 |
+| Default | dark | 17.0 | 5.9 | 4.7 | 3.9 |
 | Clouds | light | 14.6 | 6.1 | 9.3 | 3.1 |
 | Clouds | dark | 14.0 | 6.0 | 6.3 | 3.7 |
 | Turquoise | light | 12.5 | 5.0 | 5.1 | 3.1 |

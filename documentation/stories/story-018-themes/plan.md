@@ -2,7 +2,7 @@
 
 Branch: `features/story-018-themes`
 
-Palettes: [palettes.md](palettes.md) (final, 9 themes × light/dark). Preview: [palette-preview.html](palette-preview.html).
+Palettes: [palettes.md](palettes.md) (final, 10 themes × light/dark). Preview: [palette-preview.html](palette-preview.html).
 
 ## Findings from the code
 - `TDEEApp` is a bare `WindowGroup { ContentView() }`, with no colour scheme handling.
@@ -17,29 +17,30 @@ Palettes: [palettes.md](palettes.md) (final, 9 themes × light/dark). Preview: [
 ## Decisions
 - **Palette source of truth:** `DefaultThemes.swift`, with hex values copied from `palettes.md`. A `Color(hex:)` initialiser is added if not already present.
 - **Resolution:** `ThemeManager` is `@Observable`, injected with `.environment(themeManager)` at the root. Views read `@Environment(\.palette)`. A custom `EnvironmentKey` is set at the root from `themeManager.theme` + `@Environment(\.colorScheme)`, so the light/dark switch is automatic, including Auto.
-- **Persistence:** `UserDefaults` keys `theme.id` and `theme.appearance` (raw strings). An unknown value falls back to `.clouds` / `.auto`.
+- **Persistence:** `UserDefaults` keys `theme.id` and `theme.appearance` (raw strings). An unknown value falls back to `.standard` / `.auto`.
 - **Semantic colours:** error and validation red stays `Color.red` (system), not themed, as the story specifies.
 - **Section icons** (`UIIcon`): these are content colours, not theme chrome, so they keep their hues. The macro icons (protein/carbs/fats) switch to the palette macro tokens so they match the bars. The other icons are checked for contrast on dark surfaces and adjusted if needed.
 - **Share card:** always renders with the **light** palette of the current theme (a predictable shared image, and readable in messaging apps). It is passed as a parameter, not taken from the environment.
-- **Theme count:** 9 (8 Flat UI colour themes + High Contrast).
+- **Theme count:** 10: Default + 8 Flat UI colour themes + High Contrast.
+- **Default theme** = the current app colours, built from **system dynamic colours** (`Color(.systemGroupedBackground)`, `Color(.secondarySystemGroupedBackground)`, `.primary`, `.secondary`, `Color(.separator)`, `.blue`, `.red`, `.mint`), not hex values, so it matches today's app exactly and follows iOS. Macro protein stays `.red.opacity(0.85)`. It is the default and the fallback. Its enum case is `standard` (`default` is a Swift keyword), shown to users as "Default". The existing `Color.white` card backgrounds become `palette.surface`, which also fixes them in dark mode.
 
 ## Phase 1: Model and persistence (test-first)
 New files in `TDEE/Models/Theme/`:
 1. `AppearanceMode.swift`: `enum AppearanceMode: String, CaseIterable { auto, light, dark }` with `colorScheme: ColorScheme?`.
 2. `Theme.swift`: `struct ColorPalette` (10 tokens from `palettes.md`) and `struct Theme { id: ThemeID, name, description, light, dark }`, plus `func palette(for: ColorScheme)`.
-3. `DefaultThemes.swift`: `enum ThemeID: String, CaseIterable` (clouds, turquoise, emerald, peterRiver, amethyst, sunflower, carrot, alizarin, highContrast) and `static let all: [Theme]`.
+3. `DefaultThemes.swift`: `enum ThemeID: String, CaseIterable` (standard, clouds, turquoise, emerald, peterRiver, amethyst, sunflower, carrot, alizarin, highContrast) and `static let all: [Theme]`.
 4. `ThemeManager.swift`: `@Observable final class`, with `themeID` and `appearance` persisted in `didSet`, `init(defaults: UserDefaults = .standard)` and a computed `theme`.
 
 Tests in `TDEETests/ThemeTests.swift`:
-- Defaults are Clouds + Auto when no stored values exist.
+- Defaults are Default (`.standard`) + Auto when no stored values exist.
 - Persistence round trip through a suite-named `UserDefaults`.
 - An invalid stored ID or appearance falls back to the defaults.
-- All 9 themes exist, with unique IDs.
-- **Contrast test:** for every theme and mode, text and primary are ≥ 4.5 (7.0 for High Contrast), and secondary and macros are ≥ 3.0 vs surface. This is a port of the WCAG luminance formula and guards against later edits to the palettes.
+- All 10 themes exist, with unique IDs.
+- **Contrast test:** for every theme and mode, text and primary are ≥ 4.5 (7.0 for High Contrast), and secondary and macros are ≥ 3.0 vs surface. **Default is skipped**, because it uses system colours that are deliberately unchanged. This is a port of the WCAG luminance formula and guards against later edits to the palettes.
 - `AppearanceMode.colorScheme` mapping.
 
 ## Phase 2: App wiring
-1. `Constants/Color+Theme.swift`: `Color(hex:)`, `PaletteKey: EnvironmentKey` (default = Clouds light) and `EnvironmentValues.palette`.
+1. `Constants/Color+Theme.swift`: `Color(hex:)`, `PaletteKey: EnvironmentKey` (default = Default light) and `EnvironmentValues.palette`.
 2. `TDEEApp`: `@State private var themeManager = ThemeManager()`. The root gets `.environment(themeManager)` and `.preferredColorScheme(themeManager.appearance.colorScheme)`.
 3. A small root wrapper view reads `colorScheme` and sets `.environment(\.palette, themeManager.theme.palette(for: colorScheme))`. Also set `.tint(palette.primary)` so system controls pick up the accent.
 4. Smoke check: switching the simulator appearance in Auto changes the palette.
