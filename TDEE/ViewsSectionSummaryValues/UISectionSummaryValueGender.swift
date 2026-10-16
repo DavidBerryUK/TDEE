@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct UISectionSummaryValueGender: View {
+    @Environment(\.palette) private var palette
 
     @Bindable var model: ProfileViewModel
     @Bindable var sectionManager : SectionManagerViewModel
@@ -19,7 +20,7 @@ struct UISectionSummaryValueGender: View {
         Text(model.gender.displayName)
             .contentTransition(.interpolate)
             .animation(.easeInOut, value: model.gender)
-            .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded))
+            .foregroundColor(UITextStyleResolver.fontColor(palette, isExpanded: isExpanded))
             .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
             .accessibilityLabel("Gender value")
             .accessibilityValue(model.gender == .male ? "Male" : "Female")

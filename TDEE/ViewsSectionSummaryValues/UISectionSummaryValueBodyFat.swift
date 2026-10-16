@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct UISectionSummaryValueBodyFat: View {
+    @Environment(\.palette) private var palette
 
     @Bindable var model: ProfileViewModel
     @Bindable var sectionManager: SectionManagerViewModel
@@ -54,7 +55,7 @@ struct UISectionSummaryValueBodyFat: View {
             Text(dataValue)
                 .contentTransition(.numericText())
                 .animation(.easeInOut, value: model.bodyFatPercentage)
-                .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded))
+                .foregroundColor(UITextStyleResolver.fontColor(palette, isExpanded: isExpanded))
                 .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
                 .accessibilityLabel("Body fat percentage value")
             Text(labelSuffix)

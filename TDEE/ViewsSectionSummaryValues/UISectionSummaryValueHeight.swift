@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct UISectionSummaryValueHeight: View {
+    @Environment(\.palette) private var palette
 
     @Bindable var model: ProfileViewModel
     @Bindable var sectionManager: SectionManagerViewModel
@@ -45,8 +46,9 @@ struct UISectionSummaryValueHeight: View {
             // Major Value e.g. 18
             //
             Text(DisplayLength.asMajorValue(length: model.height, unit: model.heightUom))
+                .fixedSize()
                 .contentTransition(.numericText())
-                .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded, isError: isError))
+                .foregroundColor(UITextStyleResolver.fontColor(palette, isExpanded: isExpanded, isError: isError))
                 .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
                 .animation(.easeInOut, value: model.height)
                 .accessibilityLabel("Height major value")
@@ -57,7 +59,7 @@ struct UISectionSummaryValueHeight: View {
             //
             Text(labelMajorUnit)
                 .contentTransition(.interpolate)
-                .foregroundColor(UITextStyleResolver.unitOfMeasureColor(isError: isError))
+                .foregroundColor(UITextStyleResolver.unitOfMeasureColor(palette, isError: isError))
                 .animation(.easeInOut, value: model.height)
                 .accessibilityLabel("Height major units")
                 .accessibilityValue(labelMajorUnit)
@@ -66,8 +68,9 @@ struct UISectionSummaryValueHeight: View {
             // Minor Value
             //
             Text(DisplayLength.asMinorValue(length: model.height, unit: model.heightUom))
+                .fixedSize()
                 .contentTransition(.numericText())
-                .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded, isError: isError))
+                .foregroundColor(UITextStyleResolver.fontColor(palette, isExpanded: isExpanded, isError: isError))
                 .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
                 .animation(.easeInOut, value: model.height)
                 .accessibilityLabel("Height minor value")
@@ -78,7 +81,7 @@ struct UISectionSummaryValueHeight: View {
             //
             Text(labelMinorUnit)
                 .contentTransition(.interpolate)
-                .foregroundColor(UITextStyleResolver.unitOfMeasureColor(isError: isError))
+                .foregroundColor(UITextStyleResolver.unitOfMeasureColor(palette, isError: isError))
                 .animation(.easeInOut, value: model.height)
                 .accessibilityLabel("Height minor units")
                 .accessibilityValue(labelMinorUnit)

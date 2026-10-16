@@ -155,11 +155,7 @@ class ProfileViewModel {
         self.bodyFatPercentageShowManualEntry = false
         self.calorieAdjustment = 0
         self.calorieAdjustmentShowSliders = false
-
-        // Macro Split
-        self.protein = 40
-        self.carbs = 30
-        self.fats = 30
+        // protein/carbs/fats keep their declared defaults: assigning them here runs didSet and schedules a save
 
         // Load from SwiftData on init (if profile exists)
         loadFromSwiftData()
@@ -198,7 +194,7 @@ class ProfileViewModel {
     /// Throttle saves by cancelling previous task and starting new one
     private func triggerSave() {
         guard !isLoading else { return }
-        Task { [weak self] in self?.saveTask?.cancel() }  // Cancel any pending save
+        saveTask?.cancel()  // Cancel any pending save before replacing it
 
         saveTask = Task { [weak self] in
             // Wait for the delay

@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct UISectionSummaryValueMacroMix: View {
+    @Environment(\.palette) private var palette
 
     @Bindable var profile: ProfileViewModel
     @Bindable var sectionManager : SectionManagerViewModel
@@ -27,7 +28,7 @@ struct UISectionSummaryValueMacroMix: View {
             Text(displayText)
                 .contentTransition(.interpolate)
                 .animation(.easeInOut, value: sectionManager.macroMixExpanded)
-                .foregroundColor(UITextStyleResolver.fontColor(isExpanded: sectionManager.macroMixExpanded))
+                .foregroundColor(UITextStyleResolver.fontColor(palette, isExpanded: sectionManager.macroMixExpanded))
                 .fontWeight(UITextStyleResolver.fontWeight(isExpanded: sectionManager.macroMixExpanded))
                 .accessibilityLabel("Selected macro mix")
                 .accessibilityValue(displayText)

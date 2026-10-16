@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct UISectionSummaryValueWeight: View {
+    @Environment(\.palette) private var palette
     
     @Bindable var model: ProfileViewModel
     @Bindable var sectionManager: SectionManagerViewModel
@@ -46,7 +47,7 @@ struct UISectionSummaryValueWeight: View {
             //
             Text(DisplayWeight.asMajorValue(weight: model.weight, unit: model.weightUom))
                 .contentTransition(.numericText())
-                .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded, isError: isError))
+                .foregroundColor(UITextStyleResolver.fontColor(palette, isExpanded: isExpanded, isError: isError))
                 .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
                 .animation(.easeInOut, value: model.weight)
                 .accessibilityLabel("Weight major value")
@@ -57,7 +58,7 @@ struct UISectionSummaryValueWeight: View {
             //
             Text(labelMajorUnit)
                 .contentTransition(.interpolate)
-                .foregroundColor(UITextStyleResolver.unitOfMeasureColor(isError: isError))
+                .foregroundColor(UITextStyleResolver.unitOfMeasureColor(palette, isError: isError))
                 .animation(.easeInOut, value: model.weight)
                 .accessibilityLabel("Weight major units")
                 .accessibilityValue(labelMajorUnit)
@@ -67,7 +68,7 @@ struct UISectionSummaryValueWeight: View {
             //
             Text(DisplayWeight.asMinorValue(weight: model.weight, unit: model.weightUom))
                 .contentTransition(.numericText())
-                .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded, isError: isError))
+                .foregroundColor(UITextStyleResolver.fontColor(palette, isExpanded: isExpanded, isError: isError))
                 .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
                 .animation(.easeInOut, value: model.weight)
                 .accessibilityLabel("Weight minor value")
@@ -78,7 +79,7 @@ struct UISectionSummaryValueWeight: View {
             //
             Text(labelMinorUnit)
                 .contentTransition(.interpolate)
-                .foregroundColor(UITextStyleResolver.unitOfMeasureColor(isError: isError))
+                .foregroundColor(UITextStyleResolver.unitOfMeasureColor(palette, isError: isError))
                 .animation(.easeInOut, value: model.weight)
                 .accessibilityLabel("Weight minor units")
                 .accessibilityValue(labelMinorUnit)

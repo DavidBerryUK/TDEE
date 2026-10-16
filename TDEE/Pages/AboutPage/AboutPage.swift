@@ -7,15 +7,16 @@
 import SwiftUI
 
 struct AboutPage: View {
+    @Environment(\.palette) private var palette
     var body: some View {
         VStack(spacing: 12) {
             Text("About This App")
                 .font(.title2).bold()
             Text("Version 1.0")
-                .foregroundStyle(.secondary)
+                .foregroundStyle(palette.textSecondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(.systemGroupedBackground))
+        .background(palette.background)
         .navigationTitle("About")
     }
 }

@@ -12,6 +12,7 @@ import SwiftUI
 /// including a header with icon, title, summary, chevron, and content area.
 /// The section can be expanded or collapsed to show/hide the editor view.
 struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: View {
+    @Environment(\.palette) private var palette
 
     /// The section title displayed in the header
     let title: String
@@ -32,24 +33,50 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
     /// A ScrollViewProxy for auto-scrolling when section expands
     let proxy: ScrollViewProxy?
 
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+    private var titleText: some View {
+        Text(title)
+            .font(.headline)
+            .contentTransition(.interpolate)
+            .animation(.easeInOut, value: title)
+    }
+
+    private var chevron: some View {
+        Image(systemName: "chevron.down")
+            .rotationEffect(.degrees(isExpanded ? 180 : 0))
+            .animation(AnimationParams.springDefault, value: isExpanded)
+            .font(.subheadline)
+            .foregroundStyle(palette.textSecondary)
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.medium)
         {
 
             // First row: header only (icon, title, summary, chevron) with internal 16pt padding and error highlight
-            HStack {
-                UIIcon(icon: icon, style: .coloredBackgroundSolid)
-                Text(title)
-                    .font(.headline)
-                    .contentTransition(.interpolate)
-                    .animation(.easeInOut, value: title)
-                Spacer()
-                sectionSummaryValueView()
-                Image(systemName: "chevron.down")
-                    .rotationEffect(.degrees(isExpanded ? 180 : 0))
-                    .animation(AnimationParams.springDefault, value: isExpanded)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+            Group {
+                if dynamicTypeSize.isAccessibilitySize {
+                    // Accessibility sizes: the value gets its own full-width line under the title,
+                    // so neither the title nor the value is squeezed into breaking mid-word.
+                    VStack(alignment: .leading, spacing: Spacing.small) {
+                        HStack {
+                            UIIcon(icon: icon, style: .coloredBackgroundSolid)
+                            titleText
+                            Spacer()
+                            chevron
+                        }
+                        sectionSummaryValueView()
+                    }
+                } else {
+                    HStack {
+                        UIIcon(icon: icon, style: .coloredBackgroundSolid)
+                        titleText
+                        Spacer()
+                        sectionSummaryValueView()
+                        chevron
+                    }
+                }
             }
             .padding(Spacing.large) // <-- FIX 3: Using constant for main header padding (replaces 16)
             .contentShape(Rectangle()) // Make the entire HStack area tappable

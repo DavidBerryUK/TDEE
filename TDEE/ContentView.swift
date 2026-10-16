@@ -36,11 +36,11 @@ struct ContentView: View {
     @State private var shareContent: ShareContent?
     @State private var macroCollection: MacroSplitOptionsModelCollection
 
-    init() {
-        // Initialize with the shared repository for persistence
-        let repository = SwiftDataContainer.shared.profileRepository
-        self._profile = State(initialValue: ProfileViewModel(profileRepository: repository))
-        self._macroCollection = State(initialValue: MacroSplitOptionsModelCollection(profileRepository: repository))
+    /// Takes models created once by the owner. This initializer runs on every parent body update,
+    /// so creating them here would build (and load, and save) a new ProfileViewModel each time.
+    init(profile: ProfileViewModel, macroCollection: MacroSplitOptionsModelCollection) {
+        self._profile = State(initialValue: profile)
+        self._macroCollection = State(initialValue: macroCollection)
     }
 
     var body: some View {
@@ -65,6 +65,14 @@ struct ContentView: View {
                             Image(systemName: "line.3.horizontal")
                         }
                         .accessibilityLabel("Open navigation menu")
+                    }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            path.append(.theme)
+                        } label: {
+                            Image(systemName: "paintpalette")
+                        }
+                        .accessibilityLabel("Change theme")
                     }
                 }
 
@@ -106,5 +114,9 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    ThemedRoot(themeManager: ThemeManager(defaults: UserDefaults(suiteName: "ContentViewPreview")!)) {
+        ContentView(
+            profile: ProfileViewModel(profileRepository: SwiftDataContainer.shared.profileRepository),
+            macroCollection: MacroSplitOptionsModelCollection(profileRepository: SwiftDataContainer.shared.profileRepository))
+    }
 }
