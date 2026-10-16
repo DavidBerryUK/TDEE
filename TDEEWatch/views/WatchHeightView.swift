@@ -14,7 +14,7 @@ struct WatchHeightView: View {
     }
 
     var body: some View {
-        WheelScreen(title: "Height") {
+        WheelScreen(title: "Height", showChangeUnit: true) {
             Picker("Height in centimetres", selection: centimetres) {
                 ForEach(WatchRanges.heightCm, id: \.self) { Text("\($0) cm").tag($0) }
             }

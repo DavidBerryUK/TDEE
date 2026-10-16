@@ -14,9 +14,12 @@ struct WatchWeightView: View {
     }
 
     var body: some View {
-        WheelScreen(title: "Weight") {
-            Picker("Weight in kilograms", selection: kilograms) {
-                ForEach(WatchRanges.weightKg, id: \.self) { Text("\($0) kg").tag($0) }
+        WheelScreen(title: "Weight", showChangeUnit: true) {
+            
+                Picker("Weight in kilograms", selection: kilograms) {
+                    ForEach(WatchRanges.weightKg, id: \.self) { Text("\($0) kg").tag($0) }
+            
+                
             }
         }
         // A new profile has no weight: start the wheel near a typical value

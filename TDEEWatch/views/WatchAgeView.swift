@@ -10,7 +10,7 @@ struct WatchAgeView: View {
     @Bindable var profile: ProfileViewModel
 
     var body: some View {
-        WheelScreen(title: "Age") {
+        WheelScreen(title: "Age", showChangeUnit: false) {
             Picker("Age in years", selection: $profile.age) {
                 ForEach(WatchRanges.age, id: \.self) { Text("\($0) years").tag($0) }
             }
