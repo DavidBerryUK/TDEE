@@ -20,12 +20,15 @@ struct WatchMacroPresetsView: View {
                 HStack {
                     VStack(alignment: .leading, spacing: 2) {
                         Text(item.name)
+                        // Letters as well as colour, so the split reads without colour vision
                         HStack(spacing: 6) {
-                            Text("\(item.protein)%").foregroundStyle(WatchPalette.macroProtein)
-                            Text("\(item.carbs)%").foregroundStyle(WatchPalette.macroCarbs)
-                            Text("\(item.fats)%").foregroundStyle(WatchPalette.macroFat)
+                            Text("P \(item.protein)").foregroundStyle(WatchPalette.macroProtein)
+                            Text("C \(item.carbs)").foregroundStyle(WatchPalette.macroCarbs)
+                            Text("F \(item.fats)").foregroundStyle(WatchPalette.macroFat)
                         }
                         .font(.caption2)
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel("Protein \(item.protein)%, carbs \(item.carbs)%, fats \(item.fats)%")
                     }
                     Spacer()
                     if item.id == profile.selectedMacroId {
@@ -34,6 +37,7 @@ struct WatchMacroPresetsView: View {
                     }
                 }
             }
+            .accessibilityAddTraits(item.id == profile.selectedMacroId ? .isSelected : [])
         }
         .navigationTitle("Macros")
     }

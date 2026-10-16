@@ -25,5 +25,11 @@ internal enum WatchRanges {
     static let startingHeightCm = 170.0
     static let startingBodyFatPercent = 20.0
 
-    static let adjustment = Array(stride(from: 0, through: 1000, by: 25))
+    /// Cut or bulk by 25-1000 kcal. 0 would be the same as Maintain.
+    static let adjustment = Array(stride(from: 25, through: 1000, by: 25))
+    static let startingAdjustment = 250.0
+
+    /// The activity levels the watch offers. ActivityLevel also has older near-duplicates
+    /// (Light, Moderate, Active, Very Active) that use the same multipliers as these.
+    static let activityLevels: [ActivityLevel] = [.sedentary, .lightExercise, .moderateExercise, .heavyExercise, .athlete]
 }

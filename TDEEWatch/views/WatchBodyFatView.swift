@@ -39,10 +39,17 @@ struct WatchBodyFatView: View {
 
     var body: some View {
         VStack {
-            Picker("Method", selection: $profile.bodyFatPercentageMethod) {
+            Picker("Body fat", selection: $profile.bodyFatPercentageMethod) {
                 ForEach(BodyFatOption.allCases, id: \.self) { Text($0.displayName).tag($0) }
             }
             .pickerStyle(.navigationLink)
+
+            if profile.bodyFatPercentageMethod != .manualEntry {
+                Text(profile.bodyFatPercentageMethod.watchCaption)
+                    .font(.footnote)
+                    .foregroundStyle(WatchPalette.textSecondary)
+                    .multilineTextAlignment(.center)
+            }
 
             if profile.bodyFatPercentageMethod == .manualEntry {
                 HStack(spacing: 0) {
@@ -65,6 +72,17 @@ struct WatchBodyFatView: View {
             if method == .manualEntry, !WatchRanges.bodyFatPercent.contains(profile.bodyFatPercentage) {
                 profile.bodyFatPercentage = WatchRanges.startingBodyFatPercent
             }
+        }
+    }
+}
+
+extension BodyFatOption {
+    /// Explains what each choice does, shown under the picker on the watch.
+    var watchCaption: String {
+        switch self {
+        case .omit: return "Calories are worked out without body fat."
+        case .estimate: return "Estimated from your gender, weight and height."
+        case .manualEntry: return "Enter your own measurement."
         }
     }
 }

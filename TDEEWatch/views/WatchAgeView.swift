@@ -12,7 +12,7 @@ struct WatchAgeView: View {
     var body: some View {
         WheelScreen(title: "Age") {
             Picker("Age in years", selection: $profile.age) {
-                ForEach(WatchRanges.age, id: \.self) { Text("\($0)").tag($0) }
+                ForEach(WatchRanges.age, id: \.self) { Text("\($0) years").tag($0) }
             }
         }
     }

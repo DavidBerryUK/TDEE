@@ -11,6 +11,8 @@ struct WatchMainView: View {
     let profile: ProfileViewModel
     let macroCollection: MacroSplitOptionsModelCollection
     @State private var result = CalculatorResultViewModel()
+    /// False until the first calculation finishes, so launch never flashes "0".
+    @State private var hasResult = false
 
     /// Everything the result depends on. `.task(id:)` re-runs the calculation when it changes.
     private struct Inputs: Hashable {
@@ -58,15 +60,16 @@ struct WatchMainView: View {
                     isMissing: missingFields.contains(.weight)) { WatchWeightView(profile: profile) }
                 row("Height", value: profile.height == 0 ? "Not set" : "\(Int(profile.height.rounded())) cm",
                     isMissing: missingFields.contains(.height)) { WatchHeightView(profile: profile) }
-                row("Activity", value: profile.activityLevel.displayName) { WatchActivityLevelView(profile: profile) }
+                row("Activity", value: profile.activityLevel.watchLevel.displayName) { WatchActivityLevelView(profile: profile) }
                 row("Body Fat", value: bodyFatSummary, isMissing: missingFields.contains(.bodyFat)) { WatchBodyFatView(profile: profile) }
-                row("Adjust", value: adjustmentSummary) { WatchCalorieAdjustmentView(profile: profile) }
+                row("Goal", value: adjustmentSummary) { WatchCalorieAdjustmentView(profile: profile) }
                 row("Macros", value: macroName) { WatchMacroPresetsView(profile: profile, macroCollection: macroCollection) }
             }
         }
         .navigationTitle("TDEE")
         .task(id: inputs) {
             result = await Calculator.calculate(person: profile)
+            hasResult = true
         }
     }
 
@@ -96,7 +99,7 @@ struct WatchMainView: View {
     private var bodyFatSummary: String {
         guard profile.bodyFatPercentageMethod == .manualEntry else { return profile.bodyFatPercentageMethod.displayName }
         return WatchRanges.bodyFatPercent.contains(profile.bodyFatPercentage)
-            ? String(format: "%.1f%%", profile.bodyFatPercentage)
+            ? (profile.bodyFatPercentage / 100).formatted(.percent.precision(.fractionLength(1)))
             : "Not set"
     }
 
@@ -107,8 +110,8 @@ struct WatchMainView: View {
     private var adjustmentSummary: String {
         let method = profile.calorieAdjustmentMethod
         return method == .maintain
-            ? method.displayName
-            : "\(method.adjustmentPrefix)\(Int(profile.calorieAdjustment))"
+            ? method.goalName
+            : "\(method == .cut ? "−" : "+")\(Int(profile.calorieAdjustment)) kcal"
     }
 
     @ViewBuilder
@@ -132,23 +135,35 @@ struct WatchMainView: View {
                 }
                 .buttonStyle(.plain)
                 .padding(.top, 4)
+            } else if !hasResult {
+                ProgressView()
             } else if let message = result.message {
                 Text(message)
                     .font(.footnote)
                     .foregroundStyle(WatchPalette.textSecondary)
             } else {
-                Text("\(result.caloriesAdjustedPerDay)")
-                    .font(.system(.largeTitle, design: .rounded, weight: .bold))
-                Text("calories per day")
-                    .font(.footnote)
-                    .foregroundStyle(WatchPalette.textSecondary)
+                // Read as one sentence by VoiceOver
+                VStack(spacing: 4) {
+                    Text(result.caloriesAdjustedPerDay.formatted())
+                        .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+                    Text("calories per day \(profile.calorieAdjustmentMethod.resultCaption)")
+                        .font(.footnote)
+                        .foregroundStyle(WatchPalette.textSecondary)
+                        .multilineTextAlignment(.center)
 
-                HStack {
-                    macro("Protein", grams: result.proteinGrams, colour: WatchPalette.macroProtein)
-                    macro("Carbs", grams: result.carbsGrams, colour: WatchPalette.macroCarbs)
-                    macro("Fats", grams: result.fatsGrams, colour: WatchPalette.macroFat)
+                    HStack {
+                        macro("Protein", grams: result.proteinGrams, colour: WatchPalette.macroProtein)
+                        macro("Carbs", grams: result.carbsGrams, colour: WatchPalette.macroCarbs)
+                        macro("Fats", grams: result.fatsGrams, colour: WatchPalette.macroFat)
+                    }
+                    .padding(.top, 4)
                 }
-                .padding(.top, 4)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(
+                    "\(result.caloriesAdjustedPerDay.formatted()) calories per day \(profile.calorieAdjustmentMethod.resultCaption). "
+                    + "Protein \(result.proteinGrams) grams, carbs \(result.carbsGrams) grams, fats \(result.fatsGrams) grams.")
             }
         }
         .frame(maxWidth: .infinity)
@@ -172,6 +187,8 @@ struct WatchMainView: View {
             Text("\(grams)g")
                 .font(.headline)
                 .foregroundStyle(colour)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
             Text(name)
                 .font(.caption2)
                 .foregroundStyle(WatchPalette.textSecondary)
