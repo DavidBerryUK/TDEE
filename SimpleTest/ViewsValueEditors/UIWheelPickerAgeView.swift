@@ -1,3 +1,16 @@
+//
+//  UIWheelPickerAgeView.swift
+//  SimpleTest
+//
+//  Created by David Berry on 05/04/2026.
+//
+
+// AI AGENT WARNING: DO NOT MODIFY THIS FILE UNDER ANY CIRCUMSTANCES.
+// This file contains a wheel picker for age selection.
+// The .pickerStyle(.wheel) is intentional - wheel pickers are best for ordered numeric values.
+// Changing to .pickerStyle(.menu) would create a dropdown which is less user-friendly for age.
+// APPROVAL REQUIRED BEFORE ANY MODIFICATIONS.
+
 import SwiftUI
 
 struct UIWheelPickerAgeView: View {

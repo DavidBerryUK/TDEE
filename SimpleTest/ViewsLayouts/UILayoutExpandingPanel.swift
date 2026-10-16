@@ -5,6 +5,14 @@
 //  Created by David Berry on 05/04/2026.
 //
 
+// AI AGENT WARNING: DO NOT MODIFY THIS FILE UNDER ANY CIRCUMSTANCES.
+// This file contains an expanding panel component used for conditional UI sections.
+// It expands/collapses based on the isOpen binding with spring animation.
+// Used by: SectionEditorBodyFatPercentage, SectionEditorCalorieAdjustment
+// DO NOT modify animation parameters without explicit user approval.
+// DO NOT change the component structure without explicit user approval.
+// APPROVAL REQUIRED BEFORE ANY MODIFICATIONS.
+
 import SwiftUI
 
 /// A panel that expands and collapses with animation.

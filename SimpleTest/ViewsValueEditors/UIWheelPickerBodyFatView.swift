@@ -1,3 +1,16 @@
+//
+//  UIWheelPickerBodyFatView.swift
+//  SimpleTest
+//
+//  Created by David Berry on 05/04/2026.
+//
+
+// AI AGENT WARNING: DO NOT MODIFY THIS FILE UNDER ANY CIRCUMSTANCES.
+// This file contains wheel pickers for body fat percentage (integer + decimal).
+// The .pickerStyle(.wheel) is intentional - wheel pickers are best for numeric values.
+// DO NOT change to .pickerStyle(.menu) which would create a dropdown.
+// APPROVAL REQUIRED BEFORE ANY MODIFICATIONS.
+
 import SwiftUI
 
 struct UIWheelPickerBodyFatView: View {

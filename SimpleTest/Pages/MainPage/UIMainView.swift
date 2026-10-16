@@ -12,13 +12,16 @@ struct UIMainView: View {
     @Binding var profile: ProfileViewModel
     @Binding var path: [AppRoute]
     @State private var calculationResult = CalculatorResultViewModel()
+    @State private var isCalculating = true
     @State var sectionManager = SectionManagerViewModel()
     var presentationHandler: ((String) -> Void)?
 
     @Environment(MacroSplitOptionsModelCollection.self) private var globalMacroCollection
 
     private func recalculate() async {
+        isCalculating = true
         calculationResult = await Calculator.calculate(person: profile)
+        isCalculating = false
     }
 
     var body: some View {
@@ -64,13 +67,20 @@ struct UIMainView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         guard profile.isValid else { return }
-                        let shareModel = profile.createShareResultsModel(result: calculationResult)
-                        presentationHandler?(shareModel.shareText)
+                        // Trigger a fresh recalculation before sharing
+                        Task {
+                            await recalculate()
+                            // Wait a moment for the state to update
+                            await MainActor.run {
+                                let shareModel = profile.createShareResultsModel(result: calculationResult)
+                                presentationHandler?(shareModel.shareText)
+                            }
+                        }
                     } label: {
                         Image(systemName: "square.and.arrow.up")
                     }
                     .accessibilityLabel("Share calculation results")
-                    .disabled(!profile.isValid)
+                    .disabled(!profile.isValid || isCalculating)
                 }
             }
             .task {

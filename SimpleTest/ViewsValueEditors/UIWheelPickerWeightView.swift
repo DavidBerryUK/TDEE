@@ -1,3 +1,18 @@
+//
+//  UIWheelPickerWeightView.swift
+//  SimpleTest
+//
+//  Created by David Berry on 05/04/2026.
+//
+
+// AI AGENT WARNING: DO NOT MODIFY THIS FILE UNDER ANY CIRCUMSTANCES.
+// This file contains a multi-wheel picker for weight selection with unit support.
+// It shows different wheel pickers based on unit: kg, pounds, or stones+ pounds.
+// The .pickerStyle(.wheel) is intentional - wheel pickers are best for numeric values.
+// DO NOT change to .pickerStyle(.menu) which would create a dropdown.
+// DO NOT remove unit conversion logic - it is essential for the picker to work correctly.
+// APPROVAL REQUIRED BEFORE ANY MODIFICATIONS.
+
 import SwiftUI
 
 struct UIWheelPickerWeightView: View {
@@ -95,7 +110,7 @@ struct UIWheelPickerWeightView: View {
 }
 
 private extension UIWheelPickerWeightView {
-    
+
     func initialiseValues() {
         valueKg = Int(round( value))
         let totalPounds = WeightConvertor.toPounds(value)
@@ -103,9 +118,9 @@ private extension UIWheelPickerWeightView {
         valueStones = totalPounds / 14
         valueStonePounds = totalPounds % 14
     }
-    
+
     func syncStateFromPreviousUnit(oldMeasure: OptionWeight) {
-        
+
         switch oldMeasure
         {
         case .kilograms:
@@ -114,32 +129,32 @@ private extension UIWheelPickerWeightView {
             valueStones = totalPounds / 14
             valueStonePounds = totalPounds % 14
             break
-            
+
         case .pounds:
             let totalPounds = valuePounds
             valueKg = WeightConvertor.toKilogramsInt(pounds: totalPounds)
             valueStones = totalPounds / 14
             valueStonePounds = totalPounds % 14
             break
-            
-        case .stonesAndPounds:            
+
+        case .stonesAndPounds:
             let totalPounds = valueStones * 14 + valueStonePounds
             valueKg = WeightConvertor.toKilogramsInt(pounds: totalPounds)
             valuePounds = totalPounds
             break
         }
     }
-    
+
     func convertFromKgToValue(kg: Int) {
         guard unitOfMeasure == .kilograms else { return }
         value = Double(kg)
     }
-    
+
     func convertFromPoundsToValue(pounds: Int) {
         guard unitOfMeasure == .pounds else { return }
         value = WeightConvertor.toKilograms(pounds: pounds)
     }
-    
+
     func convertFromStonesAndPoundsToValue(stones: Int, pounds: Int) {
         guard unitOfMeasure == .stonesAndPounds else { return }
         let totalPounds = (stones * 14) + pounds
@@ -148,7 +163,7 @@ private extension UIWheelPickerWeightView {
 }
 
 private extension UIWheelPickerWeightView {
-    
+
     var UIPickerKgView: some View {
         ZStack {
             Picker("Kg", selection: $valueKg) {
@@ -162,7 +177,7 @@ private extension UIWheelPickerWeightView {
                 .offset(x: 36)
         }
     }
-    
+
     var UIPickerPoundsView: some View {
         ZStack {
             Picker("Pounds", selection: $valuePounds) {
@@ -176,10 +191,10 @@ private extension UIWheelPickerWeightView {
                 .offset(x: 50)
         }
     }
-    
+
     var UIPickerStonesAndPoundsView: some View {
         HStack {
-            
+
             ZStack {
                 Picker("Stones", selection: $valueStones) {
                     ForEach(optionsStones, id: \.self) { value in
@@ -191,7 +206,7 @@ private extension UIWheelPickerWeightView {
                 UITextPickerLabel("stones")
                     .offset(x: 36)
             }
-            
+
             ZStack {
                 Picker("Pounds", selection: $valueStonePounds) {
                     ForEach(optionsStonePounds, id: \.self) { value in

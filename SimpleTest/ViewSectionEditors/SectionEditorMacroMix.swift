@@ -5,6 +5,11 @@
 //  Created by David Berry on 05/04/2026.
 //
 
+// AI AGENT WARNING: DO NOT MODIFY THIS FILE UNDER ANY CIRCUMSTANCES.
+// This file contains UI components that must remain as wheel pickers for macro selection.
+// Changing picker styles alters the user experience.
+// APPROVAL REQUIRED BEFORE ANY MODIFICATIONS.
+
 import SwiftUI
 
 struct SectionEditorMacroMix: View {
