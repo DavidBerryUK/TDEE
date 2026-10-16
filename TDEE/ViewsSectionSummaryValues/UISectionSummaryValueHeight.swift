@@ -46,6 +46,7 @@ struct UISectionSummaryValueHeight: View {
             // Major Value e.g. 18
             //
             Text(DisplayLength.asMajorValue(length: model.height, unit: model.heightUom))
+                .fixedSize()
                 .contentTransition(.numericText())
                 .foregroundColor(UITextStyleResolver.fontColor(palette, isExpanded: isExpanded, isError: isError))
                 .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
@@ -67,6 +68,7 @@ struct UISectionSummaryValueHeight: View {
             // Minor Value
             //
             Text(DisplayLength.asMinorValue(length: model.height, unit: model.heightUom))
+                .fixedSize()
                 .contentTransition(.numericText())
                 .foregroundColor(UITextStyleResolver.fontColor(palette, isExpanded: isExpanded, isError: isError))
                 .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
