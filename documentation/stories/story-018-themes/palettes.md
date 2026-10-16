@@ -168,8 +168,8 @@ Maximum legibility, single strong accent
 |---|---|---|
 | `primary` | `#0033CC` | `#7FB2FF` |
 | `secondary` | `#000000` | `#FFFFFF` |
-| `background` | `#FFFFFF` | `#000000` |
-| `surface` | `#FFFFFF` | `#000000` |
+| `background` | `#EBEBEB` | `#000000` |
+| `surface` | `#FFFFFF` | `#1A1A1A` |
 | `text` | `#000000` | `#FFFFFF` |
 | `textSecondary` | `#262626` | `#E0E0E0` |
 | `border` | `#000000` | `#FFFFFF` |
@@ -200,4 +200,4 @@ Maximum legibility, single strong accent
 | Alizarin | light | 13.7 | 5.2 | 5.1 | 3.1 |
 | Alizarin | dark | 12.9 | 6.1 | 4.7 | 3.4 |
 | High Contrast | light | 21.0 | 15.1 | 9.0 | 4.2 |
-| High Contrast | dark | 21.0 | 15.9 | 9.7 | 9.5 |
+| High Contrast | dark | 17.4 | 13.2 | 8.1 | 7.9 |

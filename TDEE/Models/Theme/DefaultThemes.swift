@@ -317,7 +317,7 @@ enum DefaultThemes {
         light: ColorPalette(
             primary: Color(hex: "#0033CC"),
             secondary: Color(hex: "#000000"),
-            background: Color(hex: "#FFFFFF"),
+            background: Color(hex: "#EBEBEB"),
             surface: Color(hex: "#FFFFFF"),
             text: Color(hex: "#000000"),
             textSecondary: Color(hex: "#262626"),
@@ -330,7 +330,7 @@ enum DefaultThemes {
             primary: Color(hex: "#7FB2FF"),
             secondary: Color(hex: "#FFFFFF"),
             background: Color(hex: "#000000"),
-            surface: Color(hex: "#000000"),
+            surface: Color(hex: "#1A1A1A"),
             text: Color(hex: "#FFFFFF"),
             textSecondary: Color(hex: "#E0E0E0"),
             border: Color(hex: "#FFFFFF"),

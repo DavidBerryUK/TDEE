@@ -178,3 +178,21 @@ None. This is a standalone feature, though the share card (story 015) should be 
 ## References
 - https://www.figma.com/resource-library/color-combinations/
 - https://color.adobe.com/explore?q=Luxury
+
+## Verification Results (2026-10-16, iPhone 17 Pro Max simulator, iOS 26)
+
+| Check | Result |
+|-------|--------|
+| Main screen, all 10 themes × light/dark (20 screenshots) | ✅ Readable, themed background, cards and calorie outlines |
+| Default light vs before the story | ✅ Unchanged |
+| Default dark | ✅ The white-card dark-mode bug is fixed |
+| Theme page: Auto/Light/Dark switch, live theme change, selected state | ✅ |
+| Main-screen palette shortcut → Theme page → back | ✅ |
+| Persistence across force-quit and relaunch | ✅ (Amethyst + Dark restored) |
+| System, About and Macro edit pages (Default dark) | ✅ |
+| Macro presets page and expanded Macro Split section (Amethyst) | ✅ Themed bars, cards and selection |
+| Share image, every theme | ✅ 1080×1350 renders (unit test). Default/Amethyst/High Contrast checked visually (light palette) |
+| Increase Contrast + accessibility-extra-large text | ✅ Colours fine. ⚠️ Pre-existing layout issue: summary values wrap mid-word ("17/5 cm") at large sizes. Not caused by themes; follow-up story |
+| Unit tests (persistence, fallback, contrast, share rendering) | ✅ All pass |
+
+**Fix made during verification:** High Contrast cards were the same colour as the page (white/white, black/black). The page background is now `#EBEBEB` in light mode and the card surface is `#1A1A1A` in dark mode. Contrast is still ≥ 7:1.

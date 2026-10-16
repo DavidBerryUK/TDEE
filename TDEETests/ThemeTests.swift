@@ -60,6 +60,28 @@ struct ThemeManagerTests {
     }
 }
 
+// MARK: - Share Card Tests
+
+@Suite("Share card theming")
+@MainActor
+struct ShareCardThemeTests {
+
+    @Test("Share image renders at 1080x1350 for every theme", arguments: ThemeID.allCases)
+    func testShareImageRenders(id: ThemeID) throws {
+        let result = CalculatorResultViewModel()
+        result.bmr = 1500
+        result.tdee = 2000
+        result.adjustedCalories = 1800
+        let model = ShareResultsModel(profile: ProfileViewModel(), result: result)
+
+        let content = ShareContent.make(.image, model: model, result: result, theme: DefaultThemes.theme(for: id))
+
+        let image = try #require(content.activityItems.first as? UIImage, "Expected an image, got a text fallback")
+        #expect(image.size.width * image.scale == 1080)
+        #expect(image.size.height * image.scale == 1350)
+    }
+}
+
 // MARK: - DefaultThemes Tests
 
 @Suite("DefaultThemes Tests")
