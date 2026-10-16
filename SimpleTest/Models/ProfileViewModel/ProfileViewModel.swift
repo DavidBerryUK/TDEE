@@ -24,6 +24,10 @@ class ProfileViewModel {
     private let saveDelay: TimeInterval = 1.0  // Wait 1 second after last change
     private var swiftDataId: UUID?  // Track the SwiftData entity ID
 
+    // MARK: - Macro Collection (Injected via Environment)
+    /// The global macro options collection - injected via environment
+    var macroCollection: MacroSplitOptionsModelCollection?
+
     // MARK: - State Properties (Input/Raw Data)
 
     /// User's gender, used in BMR calculation formulas
@@ -137,18 +141,16 @@ class ProfileViewModel {
         }
     }
 
-    // MARK: - Derived/Calculated State (The single source of truth for calculations)
-    /// The TDEE calculated value
-    var tdee: Double = 1800.0
-    /// The macro targets derived from the latest TDEE calculation
-    var macroTargets: (protein: Int, carbs: Int, fats: Int) = (40, 30, 30)
-
     //*******************************
     // Initializer                  *
     //*******************************
     /// Creates a new ProfileViewModel with dependency injection for persistence
-    init(profileRepository: ProfileRepository) {
+    /// - Parameters:
+    ///   - profileRepository: The repository for profile persistence
+    ///   - macroCollection: Optional macro collection (will be injected from environment when available)
+    init(profileRepository: ProfileRepository, macroCollection: MacroSplitOptionsModelCollection? = nil) {
         self.profileRepository = profileRepository
+        self.macroCollection = macroCollection
         self.bodyFatPercentageShowManualEntry = false
         self.calorieAdjustment = 0
         self.calorieAdjustmentShowSliders = false
@@ -162,20 +164,15 @@ class ProfileViewModel {
         loadFromSwiftData()
     }
 
+    // MARK: - Derived/Calculated State (The single source of truth for calculations)
+    /// The TDEE calculated value
+    var tdee: Double = 1800.0
+    /// The macro targets derived from the latest TDEE calculation
+    var macroTargets: (protein: Int, carbs: Int, fats: Int) = (40, 30, 30)
+
     /// Creates a new ProfileViewModel with default values (for backward compatibility)
-    init() {
-        self.profileRepository = SwiftDataContainer.shared.profileRepository
-        self.bodyFatPercentageShowManualEntry = false
-        self.calorieAdjustment = 0
-        self.calorieAdjustmentShowSliders = false
-
-        // Macro Split
-        self.protein = 40
-        self.carbs = 30
-        self.fats = 30
-
-        // Load from SwiftData on init (if profile exists)
-        loadFromSwiftData()
+    convenience init() {
+        self.init(profileRepository: SwiftDataContainer.shared.profileRepository, macroCollection: nil)
     }
 
     /// Load profile data from SwiftData
@@ -268,8 +265,10 @@ class ProfileViewModel {
     /// Copy protein/carbs/fats from a macro preset option into this profile.
     /// Call before calculating so the computation uses the user's actual selection.
     private func syncSelectedMacro() {
+        // Use the environment-injected macro collection if available
+        let collection = macroCollection ?? MacroSplitOptionsModelCollection(items: FactoryMacroSplits.get())
         // Find the selected macro option and sync its values
-        if let selected = MacroSplitOptionsModelCollection(items: FactoryMacroSplits.get()).items.first(where: { $0.id == selectedMacroId }) {
+        if let selected = collection.items.first(where: { $0.id == selectedMacroId }) {
             syncMacros(from: selected)
         }
     }
@@ -285,8 +284,9 @@ class ProfileViewModel {
     /// - Parameter result: The calculation results
     /// - Returns: A ShareResultsModel with pre-formatted data for sharing
     func createShareResultsModel(result: CalculatorResultViewModel) -> ShareResultsModel {
-        let macroCollection = MacroSplitOptionsModelCollection(items: FactoryMacroSplits.get())
-        let selectedMacro = macroCollection.items.first(where: { $0.id == selectedMacroId })
+        // Use the environment-injected macro collection if available
+        let collection = macroCollection ?? MacroSplitOptionsModelCollection(items: FactoryMacroSplits.get())
+        let selectedMacro = collection.items.first(where: { $0.id == selectedMacroId })
 
         return ShareResultsModel(
             profile: self,

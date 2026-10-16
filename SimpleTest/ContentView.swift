@@ -1,55 +1,6 @@
 import SwiftUI
 import UIKit
 
-/// Temporary preview sheet to display share text content
-struct SharePreviewSheet: View {
-    let shareText: String
-    @Environment(\.dismiss) private var dismiss
-
-    var body: some View {
-        NavigationStack {
-            VStack(alignment: .leading, spacing: 16) {
-                HStack {
-                    Text("Share Results")
-                        .font(.headline)
-                    Spacer()
-                }
-                .padding(.horizontal)
-
-                Text("Preview of text that would be shared:")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .padding(.horizontal)
-
-                ScrollView {
-                    Text(shareText)
-                        .font(.body)
-                        .padding()
-                }
-                .background(Color(.systemGroupedBackground))
-                .cornerRadius(10)
-                .padding()
-
-                Button(action: {
-                    UIPasteboard.general.string = shareText
-                }) {
-                    Label("Copy to Clipboard", systemImage: "doc.on.doc")
-                }
-                .buttonStyle(.borderedProminent)
-                .padding()
-            }
-            .navigationTitle("Share Results")
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                }
-            }
-        }
-    }
-}
-
 /// SwiftUI wrapper for UIActivityViewController
 struct ActivityView: UIViewControllerRepresentable {
     let items: [Any]
@@ -58,16 +9,12 @@ struct ActivityView: UIViewControllerRepresentable {
         let activityVC = UIActivityViewController(activityItems: items, applicationActivities: nil)
 
         // Exclude activities that don't make sense for calculation results
-        // Messages, Mail, Notes, Save to Files, and Copy to Clipboard appear by default
+        // Messages, Mail, Notes, Save to Files, and Copy to Clipboard appear by default;
+        // social apps (e.g. Instagram) appear because the share includes an image
         activityVC.excludedActivityTypes = [
             .print,
             .assignToContact,
-            .openInIBooks,
-            .postToVimeo,
-            .postToFacebook,
-            .postToTwitter,
-            .postToWeibo,
-            .saveToCameraRoll
+            .openInIBooks
         ]
 
         return activityVC
@@ -86,8 +33,7 @@ struct ContentView: View {
     @State private var profile: ProfileViewModel
 
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
-    @State private var isShareSheetPresented = false
-    @State private var shareText: String = ""
+    @State private var shareContent: ShareContent?
 
     init() {
         // Initialize with the shared repository for persistence
@@ -99,9 +45,8 @@ struct ContentView: View {
 
         NavigationStack(path: $path) {
 
-            UIMainView(profile: $profile, path: $path) { shareText in
-                self.shareText = shareText
-                isShareSheetPresented = true
+            UIMainView(profile: $profile, path: $path) { content in
+                shareContent = content
             }
 
                 .navigationTitle(
@@ -136,16 +81,18 @@ struct ContentView: View {
                     case .about:
                         AboutPage()
                     case .macroEditorCreate:
-                        MacroEditViewPage(item: nil)
+                        MacroEditViewPage(item: nil, onDismissAll: nil)
                     case .macroEditorEdit(let item):
-                        MacroEditViewPage(item: item)
+                        // For editing, clear the path to go back to main screen
+                        MacroEditViewPage(item: item, onDismissAll: { path.removeAll() })
                     }
                 }
         }
         // Inject the global macro collection for environment access
         .environment(MacroSplitOptionsModelCollection(items: FactoryMacroSplits.get()))
-        .sheet(isPresented: $isShareSheetPresented) {
-            SharePreviewSheet(shareText: shareText)
+        .sheet(item: $shareContent) { content in
+            ActivityView(items: content.activityItems)
+                .presentationDetents([.medium, .large])
         }
     }
 }

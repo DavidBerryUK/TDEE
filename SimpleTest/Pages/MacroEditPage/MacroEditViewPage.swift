@@ -2,35 +2,29 @@ import SwiftUI
 
 struct MacroEditViewPage: View {
     @Environment(\.dismiss) private var dismiss
-    
+    @Environment(\.presentationMode) private var presentationMode
+
     @Environment(MacroSplitOptionsModelCollection.self)
     var collection
-    
+
     @Binding var path: [AppRoute]
     @State private var editMacro: MacroSplitOptionModel
     @State private var showDeleteSheet = false
-    
+
     var isNew: Bool
-    
-    
-//    var onSave: (MacroSplitViewModel) -> Void
-//    var onDelete: (() -> Void)? = nil
-    
-//    func handleOnDelete(item: MacroSplitViewModel) {
-//        collection.remove(item)
-//    }
-//    
-//    func handleOnSave(item: MacroSplitViewModel) {
-//        collection.update(item)
-//    }
-    
+
+    // Callback to dismiss all the way back to main screen
+    var onDismissAll: (() -> Void)?
+
     init(
         path: Binding<[AppRoute]> = .constant([]),
-        item: MacroSplitOptionModel? = nil
+        item: MacroSplitOptionModel? = nil,
+        onDismissAll: (() -> Void)? = nil
     ) {
         self._path = path
         self.isNew = (item == nil)
         self._editMacro = State(initialValue: (item == nil) ? MacroSplitOptionModel() : item!.clone())
+        self.onDismissAll = onDismissAll
     }
     
     // MARK: - Actions
@@ -97,10 +91,18 @@ struct MacroEditViewPage: View {
         }
         .navigationTitle("Edit Macro")
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                Button("Save") {
-                    collection.update(editMacro)
+            ToolbarItem(placement: .topBarLeading) {
+                Button("Cancel") {
                     dismiss()
+                }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button("Done") {
+                    collection.update(editMacro)
+                    // Dismiss this editor view
+                    dismiss()
+                    // If we have a callback to dismiss all the way, use it
+                    onDismissAll?()
                 }
                 .disabled(
                     editMacro.name.isEmpty ||
