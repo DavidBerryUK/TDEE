@@ -11,6 +11,8 @@ struct WatchMainView: View {
     let profile: ProfileViewModel
     let macroCollection: MacroSplitOptionsModelCollection
     @State private var result = CalculatorResultViewModel()
+    /// False until the first calculation finishes, so launch never flashes "0".
+    @State private var hasResult = false
 
     /// Everything the result depends on. `.task(id:)` re-runs the calculation when it changes.
     private struct Inputs: Hashable {
@@ -54,24 +56,51 @@ struct WatchMainView: View {
             Section {
                 row("Gender", value: profile.gender.displayName) { WatchGenderView(profile: profile) }
                 row("Age", value: "\(profile.age)") { WatchAgeView(profile: profile) }
-                row("Weight", value: "\(Int(profile.weight.rounded())) kg") { WatchWeightView(profile: profile) }
-                row("Height", value: "\(Int(profile.height.rounded())) cm") { WatchHeightView(profile: profile) }
-                row("Activity", value: profile.activityLevel.displayName) { WatchActivityLevelView(profile: profile) }
-                row("Body Fat", value: bodyFatSummary) { WatchBodyFatView(profile: profile) }
-                row("Adjust", value: adjustmentSummary) { WatchCalorieAdjustmentView(profile: profile) }
+                row("Weight", value: profile.weight == 0 ? "Not set" : "\(Int(profile.weight.rounded())) kg",
+                    isMissing: missingFields.contains(.weight)) { WatchWeightView(profile: profile) }
+                row("Height", value: profile.height == 0 ? "Not set" : "\(Int(profile.height.rounded())) cm",
+                    isMissing: missingFields.contains(.height)) { WatchHeightView(profile: profile) }
+                row("Activity", value: profile.activityLevel.watchLevel.displayName) { WatchActivityLevelView(profile: profile) }
+                row("Body Fat", value: bodyFatSummary, isMissing: missingFields.contains(.bodyFat)) { WatchBodyFatView(profile: profile) }
+                row("Goal", value: adjustmentSummary) { WatchCalorieAdjustmentView(profile: profile) }
                 row("Macros", value: macroName) { WatchMacroPresetsView(profile: profile, macroCollection: macroCollection) }
             }
         }
         .navigationTitle("TDEE")
         .task(id: inputs) {
             result = await Calculator.calculate(person: profile)
+            hasResult = true
+        }
+    }
+
+    /// Inputs a new profile has not set yet, in the order the user should fill them in.
+    private var missingFields: [MissingField] {
+        var fields: [MissingField] = []
+        if profile.weight == 0 { fields.append(.weight) }
+        if profile.height == 0 { fields.append(.height) }
+        if profile.bodyFatPercentageMethod == .manualEntry,
+           !WatchRanges.bodyFatPercent.contains(profile.bodyFatPercentage) { fields.append(.bodyFat) }
+        return fields
+    }
+
+    private enum MissingField: String {
+        case weight, height, bodyFat = "body fat"
+    }
+
+    @ViewBuilder
+    private func screen(for field: MissingField) -> some View {
+        switch field {
+        case .weight: WatchWeightView(profile: profile)
+        case .height: WatchHeightView(profile: profile)
+        case .bodyFat: WatchBodyFatView(profile: profile)
         }
     }
 
     private var bodyFatSummary: String {
-        profile.bodyFatPercentageMethod == .manualEntry
-            ? String(format: "%.1f%%", profile.bodyFatPercentage)
-            : profile.bodyFatPercentageMethod.displayName
+        guard profile.bodyFatPercentageMethod == .manualEntry else { return profile.bodyFatPercentageMethod.displayName }
+        return WatchRanges.bodyFatPercent.contains(profile.bodyFatPercentage)
+            ? (profile.bodyFatPercentage / 100).formatted(.percent.precision(.fractionLength(1)))
+            : "Not set"
     }
 
     private var macroName: String {
@@ -81,36 +110,66 @@ struct WatchMainView: View {
     private var adjustmentSummary: String {
         let method = profile.calorieAdjustmentMethod
         return method == .maintain
-            ? method.displayName
-            : "\(method.adjustmentPrefix)\(Int(profile.calorieAdjustment))"
+            ? method.goalName
+            : "\(method == .cut ? "−" : "+")\(Int(profile.calorieAdjustment)) kcal"
     }
 
     @ViewBuilder
     private var summary: some View {
         VStack(spacing: 4) {
-            if let message = result.message {
+            if let first = missingFields.first {
+                Text("Set up your profile")
+                    .font(.headline)
+                Text("Add your \(missingFields.map(\.rawValue).formatted(.list(type: .and)))")
+                    .font(.footnote)
+                    .foregroundStyle(WatchPalette.textSecondary)
+                    .multilineTextAlignment(.center)
+                // Drawn as a filled button: a plain NavigationLink in this list row reads as text
+                NavigationLink { screen(for: first) } label: {
+                    Text("Start")
+                        .font(.headline)
+                        .foregroundStyle(.black)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                        .background(Capsule().fill(WatchPalette.attention))
+                }
+                .buttonStyle(.plain)
+                .padding(.top, 4)
+            } else if !hasResult {
+                ProgressView()
+            } else if let message = result.message {
                 Text(message)
                     .font(.footnote)
                     .foregroundStyle(WatchPalette.textSecondary)
             } else {
-                Text("\(result.caloriesAdjustedPerDay)")
-                    .font(.system(.largeTitle, design: .rounded, weight: .bold))
-                Text("calories per day")
-                    .font(.footnote)
-                    .foregroundStyle(WatchPalette.textSecondary)
+                // Read as one sentence by VoiceOver
+                VStack(spacing: 4) {
+                    Text(result.caloriesAdjustedPerDay.formatted())
+                        .font(.system(.largeTitle, design: .rounded, weight: .bold))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+                    Text("calories per day \(profile.calorieAdjustmentMethod.resultCaption)")
+                        .font(.footnote)
+                        .foregroundStyle(WatchPalette.textSecondary)
+                        .multilineTextAlignment(.center)
 
-                HStack {
-                    macro("Protein", grams: result.proteinGrams, colour: WatchPalette.macroProtein)
-                    macro("Carbs", grams: result.carbsGrams, colour: WatchPalette.macroCarbs)
-                    macro("Fats", grams: result.fatsGrams, colour: WatchPalette.macroFat)
+                    HStack {
+                        macro("Protein", grams: result.proteinGrams, colour: WatchPalette.macroProtein)
+                        macro("Carbs", grams: result.carbsGrams, colour: WatchPalette.macroCarbs)
+                        macro("Fats", grams: result.fatsGrams, colour: WatchPalette.macroFat)
+                    }
+                    .padding(.top, 4)
                 }
-                .padding(.top, 4)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(
+                    "\(result.caloriesAdjustedPerDay.formatted()) calories per day \(profile.calorieAdjustmentMethod.resultCaption). "
+                    + "Protein \(result.proteinGrams) grams, carbs \(result.carbsGrams) grams, fats \(result.fatsGrams) grams.")
             }
         }
         .frame(maxWidth: .infinity)
     }
 
-    private func row<Destination: View>(_ title: String, value: String, @ViewBuilder destination: () -> Destination) -> some View {
+    private func row<Destination: View>(_ title: String, value: String, isMissing: Bool = false, @ViewBuilder destination: () -> Destination) -> some View {
         NavigationLink {
             destination()
         } label: {
@@ -118,7 +177,7 @@ struct WatchMainView: View {
                 Text(title)
                 Spacer()
                 Text(value)
-                    .foregroundStyle(WatchPalette.textSecondary)
+                    .foregroundStyle(isMissing ? WatchPalette.attention : WatchPalette.textSecondary)
             }
         }
     }
@@ -128,6 +187,8 @@ struct WatchMainView: View {
             Text("\(grams)g")
                 .font(.headline)
                 .foregroundStyle(colour)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
             Text(name)
                 .font(.caption2)
                 .foregroundStyle(WatchPalette.textSecondary)

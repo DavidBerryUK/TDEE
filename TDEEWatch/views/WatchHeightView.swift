@@ -19,6 +19,10 @@ struct WatchHeightView: View {
                 ForEach(WatchRanges.heightCm, id: \.self) { Text("\($0) cm").tag($0) }
             }
         }
+        // A new profile has no height: start the wheel near a typical value
+        .onAppear {
+            if profile.height == 0 { profile.height = WatchRanges.startingHeightCm }
+        }
     }
 }
 

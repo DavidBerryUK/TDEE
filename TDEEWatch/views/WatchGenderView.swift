@@ -2,19 +2,32 @@
 //  WatchGenderView.swift
 //  TDEE Watch
 //
-//
 
 import SwiftUI
 
+/// Two options, so a list with a tick is quicker than a wheel.
 struct WatchGenderView: View {
     @Bindable var profile: ProfileViewModel
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        WheelScreen(title: "Gender") {
-            Picker("Gender", selection: $profile.gender) {
-                ForEach(Gender.allCases, id: \.self) { Text($0.displayName).tag($0) }
+        List(Gender.allCases, id: \.self) { gender in
+            Button {
+                profile.gender = gender
+                dismiss()
+            } label: {
+                HStack {
+                    Text(gender.displayName)
+                    Spacer()
+                    if gender == profile.gender {
+                        Image(systemName: "checkmark")
+                            .foregroundStyle(WatchPalette.selection)
+                    }
+                }
             }
+            .accessibilityAddTraits(gender == profile.gender ? .isSelected : [])
         }
+        .navigationTitle("Gender")
     }
 }
 

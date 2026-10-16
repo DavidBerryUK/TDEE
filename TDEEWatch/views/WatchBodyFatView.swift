@@ -13,7 +13,11 @@ struct WatchBodyFatView: View {
     private var bodyFatTenths: Binding<Int> {
         Binding(
             get: { Int((profile.bodyFatPercentage * 10).rounded()) },
-            set: { profile.bodyFatPercentage = Double($0) / 10 }
+            set: {
+                // 50.x is over the limit, so clamp to the accepted range
+                let percent = Double($0) / 10
+                profile.bodyFatPercentage = min(max(percent, WatchRanges.bodyFatPercent.lowerBound), WatchRanges.bodyFatPercent.upperBound)
+            }
         )
     }
 
@@ -35,10 +39,17 @@ struct WatchBodyFatView: View {
 
     var body: some View {
         VStack {
-            Picker("Method", selection: $profile.bodyFatPercentageMethod) {
+            Picker("Body fat", selection: $profile.bodyFatPercentageMethod) {
                 ForEach(BodyFatOption.allCases, id: \.self) { Text($0.displayName).tag($0) }
             }
             .pickerStyle(.navigationLink)
+
+            if profile.bodyFatPercentageMethod != .manualEntry {
+                Text(profile.bodyFatPercentageMethod.watchCaption)
+                    .font(.footnote)
+                    .foregroundStyle(WatchPalette.textSecondary)
+                    .multilineTextAlignment(.center)
+            }
 
             if profile.bodyFatPercentageMethod == .manualEntry {
                 HStack(spacing: 0) {
@@ -56,6 +67,23 @@ struct WatchBodyFatView: View {
             }
         }
         .navigationTitle("Body Fat")
+        // Manual entry needs a value the calculation accepts; a new profile has 0%
+        .onChange(of: profile.bodyFatPercentageMethod, initial: true) { _, method in
+            if method == .manualEntry, !WatchRanges.bodyFatPercent.contains(profile.bodyFatPercentage) {
+                profile.bodyFatPercentage = WatchRanges.startingBodyFatPercent
+            }
+        }
+    }
+}
+
+extension BodyFatOption {
+    /// Explains what each choice does, shown under the picker on the watch.
+    var watchCaption: String {
+        switch self {
+        case .omit: return "Calories are worked out without body fat."
+        case .estimate: return "Estimated from your gender, weight and height."
+        case .manualEntry: return "Enter your own measurement."
+        }
     }
 }
 
