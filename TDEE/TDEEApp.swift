@@ -14,9 +14,13 @@ struct TDEEApp: App {
     // Initialize SwiftData container
     private let swiftDataContainer = SwiftDataContainer.shared
 
+    @State private var themeManager = ThemeManager()
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ThemedRoot(themeManager: themeManager) {
+                ContentView()
+            }
         }
     }
 }

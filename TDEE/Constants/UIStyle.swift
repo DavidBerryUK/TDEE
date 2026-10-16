@@ -10,57 +10,37 @@ import SwiftUI
 struct UIStyle {
 
     struct Text {
-        /// Protein macro color with opacity for visual distinction (0.85)
-        static let macroProtein = Color.red.opacity(0.85)
-
-        /// Carbohydrate macro color
-        static let macroCarbs   = Color.blue
-
-        /// Fat macro color
-        static let macroFats    = Color.mint
-
-        /// Error color for edit fields
-        static let fontColorEditError = Color.red
-
-        /// Error color for read-only fields with reduced opacity (0.5)
-        static let fontColorReadOnlyError = Color.red.opacity(0.5) // You can adjust the opacity as needed
-
-        /// Default color for read-only text
-        static let fontColorReadOnly = Color.gray
-
         /// Font weight for read-only text
         static let fontWeightReadOnly: Font.Weight = .regular
 
-        /// Color for edit fields
-        static let fontColorEdit = Color.red
-
         /// Font weight for edit fields
         static let fontWeightEdit: Font.Weight = .bold
-
     }
 }
 
+/// Resolves section value text styling. Colours come from the active theme palette;
+/// error colours stay system red in every theme.
 struct UITextStyleResolver {
-    
-    static func fontColor(isExpanded: Bool, isError: Bool? = nil) -> Color {
+
+    static func fontColor(_ palette: ColorPalette, isExpanded: Bool, isError: Bool? = nil) -> Color {
         if let isError = isError {
             // If isError is provided (either true or false), return the appropriate color
-            return isError ? UIStyle.Text.fontColorEditError : UIStyle.Text.fontColorReadOnly
+            return isError ? .red : palette.textSecondary
         } else {
             // If isError is nil, return the default color based on isExpanded
-            return isExpanded ? UIStyle.Text.fontColorEdit : UIStyle.Text.fontColorReadOnly
+            return isExpanded ? palette.editText : palette.textSecondary
         }
     }
-    
+
     static func fontWeight(isExpanded: Bool) -> Font.Weight {
         isExpanded ? UIStyle.Text.fontWeightEdit : UIStyle.Text.fontWeightReadOnly
     }
-    
-    static func unitOfMeasureColor(isError: Bool? = nil) -> Color {
+
+    static func unitOfMeasureColor(_ palette: ColorPalette, isError: Bool? = nil) -> Color {
         if let isError = isError, isError {
             return .red
         } else {
-            return .primary // Default color for units of measure when not in error
+            return palette.text // Default color for units of measure when not in error
         }
     }
 }

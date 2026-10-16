@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct MainSectionProfileInput: View {
+    @Environment(\.palette) private var palette
     @Bindable var profile: ProfileViewModel
     @Bindable var sectionManager: SectionManagerViewModel
     let proxy: ScrollViewProxy?
@@ -14,7 +15,7 @@ struct MainSectionProfileInput: View {
             SectionActivityLevel(model: profile, sectionManager: sectionManager, proxy: proxy)
             SectionBodyFatPercentage(model: profile, sectionManager: sectionManager, proxy: proxy)
         }
-        .background(Color.white)
+        .background(palette.surface)
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
         .animation(.easeInOut(duration: 0.3), value: profile.isWeightValid)

@@ -12,6 +12,7 @@ import SwiftUI
 /// including a header with icon, title, summary, chevron, and content area.
 /// The section can be expanded or collapsed to show/hide the editor view.
 struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: View {
+    @Environment(\.palette) private var palette
 
     /// The section title displayed in the header
     let title: String
@@ -49,7 +50,7 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
                     .rotationEffect(.degrees(isExpanded ? 180 : 0))
                     .animation(AnimationParams.springDefault, value: isExpanded)
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(palette.textSecondary)
             }
             .padding(Spacing.large) // <-- FIX 3: Using constant for main header padding (replaces 16)
             .contentShape(Rectangle()) // Make the entire HStack area tappable

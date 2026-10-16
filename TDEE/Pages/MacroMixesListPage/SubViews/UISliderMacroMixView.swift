@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct UISliderMacroMixView: View {
+    @Environment(\.palette) private var palette
 
     @Bindable var model: MacroSplitOptionModel
     @State private var proteinValue: Double = 0
@@ -18,7 +19,7 @@ struct UISliderMacroMixView: View {
         VStack {
             Text("Adjust protein and carbs first, then set fats last. The app will automatically keep everything balanced to 100%.")
                 .font(.footnote)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(palette.textSecondary)
 
             Grid(alignment: .leading) {
                 GridRow {

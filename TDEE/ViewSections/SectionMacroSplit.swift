@@ -10,6 +10,7 @@ import Observation
 
 /// A view section for managing macro split preferences and viewing results.
 struct SectionMacroSplit: View {
+    @Environment(\.palette) private var palette
 
     @Bindable var profile: ProfileViewModel
     @Bindable var sectionManager : SectionManagerViewModel
@@ -46,7 +47,7 @@ struct SectionMacroSplit: View {
                                 path.append(.macroEditorEdit(currentMacro))
                             }
                         }
-                        .foregroundColor(.accentColor)
+                        .foregroundColor(palette.primary)
                         .font(.body.weight(.semibold))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
@@ -57,7 +58,7 @@ struct SectionMacroSplit: View {
                             // Navigate to full list
                             path.append(.maintainMacroConfig)
                         }
-                        .foregroundColor(.accentColor)
+                        .foregroundColor(palette.primary)
                         .font(.body.weight(.semibold))
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)

@@ -7,6 +7,8 @@ struct MacroEditViewPage: View {
     @Environment(MacroSplitOptionsModelCollection.self)
     var collection
 
+    @Environment(\.palette) private var palette
+
     @Binding var path: [AppRoute]
     @State private var editMacro: MacroSplitOptionModel
     @State private var showDeleteSheet = false
@@ -35,10 +37,12 @@ struct MacroEditViewPage: View {
         Form {
             SwiftUI.Section("Name") {
                 TextField("Name", text: $editMacro.name)
+                    .listRowBackground(palette.surface)
             }
             
             SwiftUI.Section("Macros (%)") {
                 UISliderMacroMixView(model: editMacro)
+                    .listRowBackground(palette.surface)
             }
             
             if isNew {
@@ -54,7 +58,7 @@ struct MacroEditViewPage: View {
                         }
                         .padding(.vertical, 10)
                     }
-                    .foregroundStyle(.primary)
+                    .foregroundStyle(palette.text)
                     .listRowBackground(
                         RoundedRectangle(cornerRadius: 10)
                             .fill(Color(.systemGray6))
@@ -83,6 +87,7 @@ struct MacroEditViewPage: View {
                 
             }
         }
+        .themedGroupedList(palette)
         .navigationTitle("Edit Macro")
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
@@ -124,6 +129,7 @@ struct MacroEditViewPage: View {
 // MARK: - Confirmation Sheet
 
 struct DeleteConfirmationSheet: View {
+    @Environment(\.palette) private var palette
     
     var onConfirm: () -> Void
     var onCancel: () -> Void
@@ -150,7 +156,7 @@ struct DeleteConfirmationSheet: View {
                 
                 Text("This action cannot be undone.")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(palette.textSecondary)
             }
             .multilineTextAlignment(.center)
             
@@ -177,7 +183,7 @@ struct DeleteConfirmationSheet: View {
                         .padding(.vertical, 12)
                         .font(.body.weight(.semibold))
                         .background(Color(.systemGray5))
-                        .foregroundStyle(.primary)
+                        .foregroundStyle(palette.text)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
             }

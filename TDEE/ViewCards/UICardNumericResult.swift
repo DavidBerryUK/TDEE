@@ -9,6 +9,7 @@ import SwiftUI
 
 /// A numeric result card displaying a value with a title and optional suffix.
 struct UICardNumericResult: View {
+    @Environment(\.palette) private var palette
 
     /// The descriptive title for this result
     var title : String
@@ -37,11 +38,11 @@ struct UICardNumericResult: View {
         .frame(maxWidth: .infinity)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(color?.opacity(0.1) ?? Color.gray.opacity(0.05))
+                .fill(color?.opacity(0.1) ?? palette.textSecondary.opacity(0.05))
         )
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(color ?? Color(red: 0.25, green: 0.75, blue: 0.75), lineWidth: 1.5)
+                .stroke(color ?? palette.highlight, lineWidth: 1.5)
         )
     }
 }

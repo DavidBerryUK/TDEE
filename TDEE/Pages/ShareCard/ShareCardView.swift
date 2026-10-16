@@ -18,14 +18,16 @@ struct ShareContent: Identifiable {
     let activityItems: [Any]
 
     /// Builds the share content for the current results in the requested format.
+    /// The image uses the theme's light palette so shared cards always look the same.
     @MainActor
-    static func make(_ format: Format, model: ShareResultsModel, result: CalculatorResultViewModel) -> ShareContent {
+    static func make(_ format: Format, model: ShareResultsModel, result: CalculatorResultViewModel, theme: Theme) -> ShareContent {
         switch format {
         case .text:
             return ShareContent(activityItems: [model.shareText])
         case .image:
             let card = ShareCardView(model: model, result: result)
                 .environment(\.colorScheme, .light)
+                .environment(\.palette, theme.light)
 
             let renderer = ImageRenderer(content: card)
             renderer.scale = 3  // 1080 x 1350, the 4:5 portrait ratio social apps expect
@@ -45,27 +47,28 @@ struct ShareCardView: View {
 
     let model: ShareResultsModel
     let result: CalculatorResultViewModel
+    @Environment(\.palette) private var palette
 
     var body: some View {
         VStack(spacing: 20) {
             VStack(spacing: 4) {
                 Text("Daily Calories")
                     .font(.headline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(palette.textSecondary)
                 Text("\(result.caloriesAdjustedPerDay.formatted())")
                     .font(.system(size: 64, weight: .bold, design: .rounded))
                 Text("\(model.calorieAdjustmentText) · \(result.caloriesAdjustedPerWeek.formatted()) per week")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(palette.textSecondary)
             }
 
             VStack(spacing: 6) {
                 Text(model.macroPresetText)
                     .font(.title3.weight(.semibold))
                 HStack(spacing: 10) {
-                    macroTile("protein", grams: result.proteinGrams, percent: result.proteinPercent, color: .red)
-                    macroTile("carbs", grams: result.carbsGrams, percent: result.carbsPercent, color: .blue)
-                    macroTile("fats", grams: result.fatsGrams, percent: result.fatsPercent, color: .teal)
+                    macroTile("protein", grams: result.proteinGrams, percent: result.proteinPercent, color: palette.macroProtein)
+                    macroTile("carbs", grams: result.carbsGrams, percent: result.carbsPercent, color: palette.macroCarbs)
+                    macroTile("fats", grams: result.fatsGrams, percent: result.fatsPercent, color: palette.macroFat)
                 }
             }
 
@@ -73,7 +76,7 @@ struct ShareCardView: View {
 
             Text("\(model.genderText) · \(model.ageText) · \(model.heightText) · \(model.weightText)")
                 .font(.footnote)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(palette.textSecondary)
                 .multilineTextAlignment(.center)
 
             Text("TDEE")
@@ -81,9 +84,9 @@ struct ShareCardView: View {
                 .foregroundStyle(.tertiary)
         }
         .padding(28)
-        .foregroundStyle(.primary)
+        .foregroundStyle(palette.text)
         .frame(width: Self.size.width, height: Self.size.height)
-        .background(Color.white)
+        .background(palette.surface)
     }
 
     private func macroTile(_ name: String, grams: Int, percent: Int, color: Color) -> some View {

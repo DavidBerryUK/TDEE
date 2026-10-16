@@ -23,6 +23,7 @@ This directory contains user stories for the SimpleTest iOS project.
 | 015 | Share Results | In Planning |
 | 016 | Test Macro Editor Update | In Planning |
 | 017 | SwiftData Persistence Fixes | Done |
+| 018 | Themes | Done |
 
 ## Story 015: Share Results
 
@@ -391,3 +392,9 @@ When user taps Macro Split section:
 **Related Issues:**
 - May be related to SwiftUI view lifecycle and data binding
 - May require `@StateObject` vs `@ObservedObject` review
+
+---
+
+## Story 018: Themes
+
+See [story-018-themes/story.md](story-018-themes/story.md).

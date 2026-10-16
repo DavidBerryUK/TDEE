@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct UISectionSummaryValueActivityLevel: View {
+    @Environment(\.palette) private var palette
 
     @Bindable var model: ProfileViewModel
     @Bindable var sectionManager: SectionManagerViewModel
@@ -20,7 +21,7 @@ struct UISectionSummaryValueActivityLevel: View {
             Text( model.activityLevel.displayShortName)
                 .contentTransition(.interpolate)
                 .animation(.easeInOut, value: model.activityLevel)
-                .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded))
+                .foregroundColor(UITextStyleResolver.fontColor(palette, isExpanded: isExpanded))
                 .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
                 .accessibilityLabel("Activity level value")
                 .accessibilityValue(model.activityLevel.displayShortName)

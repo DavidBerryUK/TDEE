@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct MacroOptionsListCardView: View {
+    @Environment(\.palette) private var palette
 
     @Environment(MacroSplitOptionsModelCollection.self)
     var collection
@@ -34,7 +35,7 @@ struct MacroOptionsListCardView: View {
 
                 if item.isSelected {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(.green)
+                        .foregroundStyle(palette.selection)
                         .font(.caption)
                 }
 
@@ -48,21 +49,21 @@ struct MacroOptionsListCardView: View {
 
                 HStack(spacing: 2) {
                     macroSegment(
-                        color: UIStyle.Text.macroProtein,
+                        color: palette.macroProtein,
                         value: item.protein,
                         total: total,
                         availableWidth: availableWidth
                     )
 
                     macroSegment(
-                        color: UIStyle.Text.macroCarbs,
+                        color: palette.macroCarbs,
                         value: item.carbs,
                         total: total,
                         availableWidth: availableWidth
                     )
 
                     macroSegment(
-                        color: UIStyle.Text.macroFats,
+                        color: palette.macroFat,
                         value: item.fats,
                         total: total,
                         availableWidth: availableWidth
@@ -75,34 +76,34 @@ struct MacroOptionsListCardView: View {
             HStack(spacing: 16) {
                 macroDetail(
                     icon: "bolt.fill",
-                    color: UIStyle.Text.macroProtein,
+                    color: palette.macroProtein,
                     text: "protein \(item.protein)%",
                     alignment: .leading
                 )
                 macroDetail(
                     icon: "leaf.fill",
-                    color: UIStyle.Text.macroCarbs,
+                    color: palette.macroCarbs,
                     text: "carbs \(item.carbs)%",
                     alignment: .center
                 )
                 macroDetail(
                     icon: "drop.fill",
-                    color: UIStyle.Text.macroFats,
+                    color: palette.macroFat,
                     text: "fats \(item.fats)%",
                     alignment: .trailing
                 )
             }
             .font(.subheadline)
-            .foregroundStyle(.secondary)
+            .foregroundStyle(palette.textSecondary)
         }
         .padding(16)
-        .background(Color.white)
+        .background(palette.surface)
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(color: Color.black.opacity(0.06), radius: 8, x: 0, y: 2)
         .frame(maxWidth: .infinity, alignment: .leading)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(item.isSelected ? Color.green.opacity(0.5) : Color.clear, lineWidth: 2)
+                .stroke(item.isSelected ? palette.selection.opacity(0.5) : Color.clear, lineWidth: 2)
         )
         .contentShape(Rectangle()) // Make the whole card tappable
         .onTapGesture {
@@ -116,7 +117,6 @@ struct MacroOptionsListCardView: View {
             } label: {
                 Label("Edit", systemImage: "pencil")
             }
-            .tint(.blue)
         }
         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
             Button(role: .destructive) {
@@ -149,7 +149,7 @@ struct MacroOptionsListCardView: View {
                 .minimumScaleFactor(0.8)
         }
         .font(.subheadline)
-        .foregroundStyle(.secondary)
+        .foregroundStyle(palette.textSecondary)
         .frame(maxWidth: .infinity, alignment: alignment)
     }
 }

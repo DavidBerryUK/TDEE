@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct UITextPickerLabel: View {
+    @Environment(\.palette) private var palette
     let text: String
     
     init(_ text: String = "") {
@@ -18,7 +19,7 @@ struct UITextPickerLabel: View {
         Text(text)
             .allowsHitTesting(false)
             .font(.footnote)
-            .foregroundStyle(.secondary)
+            .foregroundStyle(palette.textSecondary)
     }
 }
 

@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct MacroOptionsListItemView: View {
+    @Environment(\.palette) private var palette
     
     @Environment(MacroSplitOptionsModelCollection.self)
     var collection
@@ -25,7 +26,7 @@ struct MacroOptionsListItemView: View {
                     .font(.body)
                 Text("\(item.ordinal)")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(palette.textSecondary)
                 Spacer()        
             }
             
@@ -47,7 +48,6 @@ struct MacroOptionsListItemView: View {
             } label: {
                 Label("Edit", systemImage: "pencil")
             }
-            .tint(.blue)
         }
         
         // Swipe left = delete
