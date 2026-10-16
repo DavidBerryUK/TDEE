@@ -51,6 +51,7 @@ Replace the `ThemeView` placeholder:
 - A "Theme" section: `LazyVGrid` of `ThemeCardView` (new, `Pages/ThemePage/`). Each card has a swatch strip (primary, secondary, background, surface, macro colours), the name and a checkmark when selected. The swatches show the palette for the current scheme.
 - Tapping applies immediately. Add accessibility labels ("Turquoise theme, selected").
 - Previews: the page in light and dark.
+- **Main screen shortcut:** in the `ContentView` toolbar, add a `ToolbarItem(placement: .topBarTrailing)` with `Image(systemName: "paintpalette")` that calls `path.append(.theme)`, with accessibility label "Change theme". `UIMainView` already places the Share menu in `.topBarTrailing`, so check that the two sit side by side in the right order (palette before Share) on compact and regular widths.
 
 ## Phase 4: Migrate colours
 Work file by file and build after each group:
@@ -65,6 +66,7 @@ Work file by file and build after each group:
 
 ## Phase 5: Verification
 - Full test run: `xcodebuild -project TDEE.xcodeproj -scheme TDEE -destination 'platform=iOS Simulator,name=iPhone 17 Pro Max' test`.
+- Manual check: the main-screen palette button opens the Theme page and back returns.
 - Manual check on the simulator, for each theme in light and dark: main page (all sections expanded and collapsed), macro list, macro edit, About, System, Theme page and the share sheet image. Also check force-quit and relaunch (persistence), and an appearance change made in system settings while in Auto.
 - Check with Settings → Accessibility → Larger Text and Increase Contrast that nothing breaks.
 - Record the results in `story.md`.

@@ -48,7 +48,7 @@ ColorPalette
 └── macroProtein / macroCarbs / macroFat   (replaces hardcoded colours in ColorStyles)
 ```
 
-`success`, `warning` and `error` are **not** themed. They stay as system semantic colours so their meaning is not lost (for example red/green in Holiday).
+`success`, `warning` and `error` are **not** themed. They stay as system semantic colours so their meaning is not lost (for example in Alizarin or Emerald).
 
 ### Appearance modes
 
@@ -99,6 +99,10 @@ Sunflower light intentionally uses a darker, text-safe gold as its primary. No s
 - Themes: grid of cards, each with a swatch strip and name, and a checkmark on the selected one.
 - Selecting a card applies it immediately (live preview, no confirm step), and the page itself re-themes.
 
+### Access
+- **System page → Theme** (existing route).
+- **Main screen shortcut:** a `paintpalette` toolbar button at the top right, next to the Share menu, pushes the same `AppRoute.theme`. Its accessibility label is "Change theme".
+
 ## Phases
 
 ### Phase 1: Infrastructure
@@ -134,6 +138,7 @@ Paths follow the existing project layout under `TDEE/`.
 | File | Change |
 |------|--------|
 | `Pages/ThemePage/ThemeView.swift` | Replace placeholder with appearance picker and theme grid |
+| `ContentView.swift` | Add the main-screen `paintpalette` toolbar shortcut to the Theme page |
 | `TDEEApp.swift` | Create and inject `ThemeManager`, apply `.preferredColorScheme` |
 | `Constants/ColorStyles.swift` | Source macro/fill colours from the palette |
 | Views using literal colours (`Pages/*`, `ViewSections/*`, `ViewCards/*`, `ViewsLayouts/*`, `Pages/ShareCard/ShareCardView.swift`) | Use palette tokens |
@@ -146,6 +151,7 @@ Paths follow the existing project layout under `TDEE/`.
 - [ ] Theme and mode persist across relaunch.
 - [ ] A missing or invalid stored value results in Default + Auto without a crash.
 - [ ] No literal `Color.*` values remain in views, other than `.clear` and the semantic success/warning/error colours.
+- [ ] The palette button on the main screen opens the Theme page, and back returns to the main screen.
 - [ ] Contrast requirements met (see Accessibility) by every theme except Default.
 - [ ] Default looks identical to the app before this story in light mode, and uses correct system colours in dark mode.
 - [ ] Share-results card (story 015) renders legibly in every theme, and the shared image is still correct.
