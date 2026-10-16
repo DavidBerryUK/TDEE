@@ -16,7 +16,7 @@ The 2020 version of TDEE had a watch app built with storyboards and `WKInterface
 - **Macro presets:** pick from the stored presets.
 
 ## Shared code (compiled into both targets)
-`Calculations/`, `Enums/` (except `Icon`, `IconStyle`, `Section`, `AppRoute`), `Utilities/`, `Config/`, `Factories/`, `Models/ProfileViewModel/`, `Models/Macros/`, `Models/SwiftData/`.
+Lives in `TDEEShared/`, included by both the iPhone and watch targets: `Calculations/`, `Config/`, `Factories/`, `Utilities/`, `Enums/` (body fat, calorie adjustment, gender, macro split, length and weight options), `Models/ProfileViewModel/`, `Models/Macros/`, `Models/SwiftData/` and `Models/ShareResultsModel.swift`.
 
 ## Not shared (themes excluded)
 - **Themes are not part of the watch app.** `Models/Theme/`, `Color+Theme.swift`, the theme picker and the `palette` environment value stay iPhone-only.
