@@ -36,11 +36,21 @@ Make the collection's persistence awaitable for tests (currently `Task {}` fire 
 - Update `ProfileMapper` and `ProfileViewModel.loadFromSwiftData`
 - Tests: round trip of each field; the migration case is checked manually (install the old build, then the new one)
 
-## Phase 5: Calories (cause 8)
-Recommended: stop writing the placeholder 2000. Make `MacroPreset` calories fields stay but unused, documented, or remove them in a later story to avoid a schema change now. Decision pending on open question 3. Default: leave the schema, remove the misleading comment, move on.
+## Phase 5: Remove stored calories (cause 8)
+Calories are derived from the TDEE calculation, so they are not persisted.
+- Remove `calories` from `MacroBreakdown` and `primaryCalories`/`secondaryCalories` from `MacroPreset`; drop the 2000 placeholder in `MacroPresetMapper`
+- Remove the unused secondary breakdown fields too, and the unused `OptionMacroSplit` enum if nothing references it
+- Schema change: removing stored properties is a lightweight migration in SwiftData. Verify by upgrading an install from the previous build (manual)
+- Check nothing else reads preset calories (grep `primaryCalories`, `.calories`)
+
+## Phase 5b: Reset to defaults (S13)
+- Repository: `resetPresetsToDefaults()` deletes all `MacroPreset` rows and inserts `SeedData.macroPresets()` in one save
+- Collection: `resetToDefaults() async` calls it, then reloads `items`; if the selected id is gone, the caller falls back to Balanced
+- UI: add a "Reset Macro Presets to Defaults" row to `UISystemPageView` (system menu), using a destructive confirmation dialog (reuse the style of `DeleteConfirmationSheet`)
+- Tests: after edits, adds and deletes, reset gives exactly the 7 factory presets with factory ids, both in the collection and after a reload; the profile is unchanged; selection fallback works
 
 ## Phase 6: Manual verification on simulator
-Walk S1–S10 with a force-quit between steps; record results in `story.md`. Check there are no duplicate rows (log the preset count on load in a debug build).
+Walk S1–S10 and S13 with a force-quit between steps; record results in `story.md`. Check there are no duplicate rows (log the preset count on load in a debug build).
 
 ## Phase 7: Wrap-up
 - Full test run: `DEVELOPER_DIR=/Applications/Xcode-27.2.0-Beta.3.app/Contents/Developer xcodebuild -project SimpleTest.xcodeproj -scheme SimpleTest -destination 'platform=iOS Simulator,name=<device>' test`

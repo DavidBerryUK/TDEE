@@ -18,7 +18,7 @@
 | 5 | `saveToSwiftData` builds a new, never-inserted `Profile` on every save, so nothing is persisted and the id is random (never matches `activeProfileId`) | `ProfileViewModel.swift`, `ProfileMapper` |
 | 6 | No first-launch seeding of factory presets into the store | collection `loadPresets` |
 | 7 | Selected macro (`selectedMacroId`) and several profile fields (`bodyFatPercentageMethod`, uom, calorie adjustment) are not persisted | `Profile`, `ProfileMapper` |
-| 8 | Preset calories hardcoded to 2000; secondary breakdown fields unused | `MacroPresetMapper`, `MacroPreset` |
+| 8 | Preset calories hardcoded to 2000 though they are derived; secondary breakdown fields unused | `MacroPresetMapper`, `MacroPreset` |
 
 ## User Scenarios
 
@@ -37,6 +37,8 @@
 - **S10 Profile persists:** Age, gender, height, weight, activity level and body fat settings entered by the user are restored after relaunch, within about a second of the last change.
 - **S11 Single profile:** Repeated edits update one stored profile, never create more.
 
+- **S13 Reset to defaults:** Given the system menu, when I choose "Reset Macro Presets to Defaults" and confirm, all presets (edited, deleted and custom) are replaced by the seven factory presets, in the store as well as the list. The selected macro stays selected if it still exists, else falls back to Balanced. Cancelling the confirmation changes nothing. Profile data is untouched.
+
 ### Robustness
 - **S12 Store failure:** If a save or load fails, the app keeps working in memory and logs the error. It must not crash or lose the on-screen data.
 
@@ -46,7 +48,8 @@
 - Repository operations: upsert preset by `id`, delete preset, fetch ordered presets, seed-if-empty, upsert single active profile.
 - Add vs edit handled explicitly by the editor and collection.
 - Persist `selectedMacroId` and the remaining profile fields (schema change: confirm lightweight migration with existing installs).
-- Preset calories either removed from the model or stored properly (decide in plan).
+- Calories are derived from the TDEE calculation and are not stored. Remove the placeholder 2000 and the calories fields from `MacroPreset`/`MacroBreakdown`.
+- System menu has a "Reset Macro Presets to Defaults" action with a confirmation, backed by a repository/collection `resetToDefaults()`.
 - No duplicate rows for the same preset or profile id, verified by tests.
 
 ## Testing
@@ -66,8 +69,9 @@ Draft fixes for causes 1–6 are in the working tree on `develop` (uncommitted, 
 
 ## Open Questions
 
-1. Should factory presets be user-deletable? (Currently yes, via `remove`.)
-2. Add a "Reset to defaults" option for presets?
-3. Remove preset calories or keep them for a later story?
+Resolved:
+1. Factory presets stay user-deletable; recovery is via Reset to Defaults (S13).
+2. Reset to defaults is in scope, from the system menu.
+3. Calories are derived from the calculation, so they are not stored. Remove the fields.
 
 **Dependencies:** Story 014 (persistence foundation), Story 016 (editor flow).
