@@ -16,10 +16,14 @@ struct TDEEApp: App {
 
     @State private var themeManager = ThemeManager()
 
+    // Created once here: the App body re-runs, and ContentView.init with it
+    @State private var profile = ProfileViewModel(profileRepository: SwiftDataContainer.shared.profileRepository)
+    @State private var macroCollection = MacroSplitOptionsModelCollection(profileRepository: SwiftDataContainer.shared.profileRepository)
+
     var body: some Scene {
         WindowGroup {
             ThemedRoot(themeManager: themeManager) {
-                ContentView()
+                ContentView(profile: profile, macroCollection: macroCollection)
             }
         }
     }
