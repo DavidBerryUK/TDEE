@@ -317,65 +317,76 @@ None - this is a standalone refactoring.
 
 ---
 
-## Story 016: Test Macro Editor Update
+## Story 016: Macro Editor Navigation & Update Flow
 
-**Objective:** Verify that when a user selects a macro mix, edits it, and saves it, the main screen properly updates to display the new values.
+**Objective:** Improve the macro editor navigation flow so users can edit their current macro mix directly without having to navigate through the options list, while still providing access to manage the full list of presets. Also verify that the main screen updates correctly after saving changes.
 
-**Motivation:** Currently, when a user edits a macro preset and returns to the main screen, the displayed values do not refresh to show the updated macro mix. This creates a confusing user experience where changes appear to not be saved or applied.
+**Motivation:** The current navigation flow is clunky:
+1. User taps Macro Split section -> goes to Macro Options list
+2. User selects a macro -> goes to Macro Editor
+3. User saves changes -> returns to Macro Options list
+4. User must navigate back AGAIN to return to Main Screen
+
+This two-step navigation back is frustrating. Users primarily want to edit their CURRENT macro mix, not browse the entire list.
 
 **Current State:**
-- User can select a macro mix from the Macro Split section
-- User can edit the selected macro mix (e.g., adjust protein, carbs, fat percentages)
-- User can save the edited macro mix
-- Upon returning to the main screen, the macro values shown are the OLD values before editing
-- A manual refresh or navigation away and back is required to see the updated values
+- Macro Split section only shows the currently selected macro
+- Tapping opens the full Macro Options list (all presets)
+- User must navigate through list to find their macro
+- After saving, user returns to list, not main screen
+- Main screen does not update after saving changes
 
 **Expected Behavior:**
+- Tapping Macro Split section shows a quick menu with two options:
+  - **"Edit Current Macro"** -> Directly edit the currently selected macro, save returns to Main Screen
+  - **"Manage Macro Presets"** -> Browse full list, save returns to list
 - When a macro mix is edited and saved, the main screen should automatically reflect the new values
 - No manual refresh should be required
-- The update should happen seamlessly when the user returns to the main screen
-
-**Current Implementation Details:**
-
-### Macro Mix Editor Flow
-1. **UIMainView** -> Taps Macro Split section -> Navigates to macro options
-2. **MacroOptionsView** -> Selects a macro -> Navigates to macro editor
-3. **MacroEditorView** -> Edits values -> Saves
-
-### Data Flow
-- ProfileViewModel holds current macro targets
-- Macro mix editor modifies a stored macro preset
-- Changes persist to SwiftData
-- Main screen does NOT refresh when returning
-
-**Files to Investigate:**
-| File | Purpose |
-|------|---------|
-| `Models/ProfileViewModel/ProfileViewModel.swift` | Holds macro targets, needs update notification |
-| `Pages/MainPage/UIMainView.swift` | Main screen that displays macro values |
-| `Pages/MacroOptions/MacroOptionsView.swift` | Macro options list and navigation |
-| `Pages/MacroEditor/MacroEditorView.swift` | Macro mix editor |
-| `Models/MacroModel.swift` | Macro preset data model |
 
 **Implementation Approach:**
-1. Identify why the main screen doesn't receive update notifications
-2. Implement either:
-   - **Option A:** Use `@Published` properties or `ObservableObject` to trigger UI updates
-   - **Option B:** Use `onChange` modifiers to detect macro changes
-   - **Option C:** Re-fetch macro data when navigating back to main screen
+
+### Option A: Action Sheet / Popover Menu
+When user taps Macro Split section:
+```
+┌─────────────────────────────┐
+│  Edit Current Macro         │
+│  ( Edits active mix )      │
+├─────────────────────────────┤
+│  Manage Macro Presets       │
+│  ( Browse full list )      │
+├─────────────────────────────┤
+│  [ Cancel ]                 │
+└─────────────────────────────┘
+```
+
+### Option B: Two-Tap Flow
+1. Tap Macro Split -> Shows inline quick-edit (just the current macro values)
+2. Long press or tap "Manage" -> Opens full options list
+
+### Option C: Smart Navigation
+- First tap of Macro Split: Edit current macro directly
+- Navigation back from editor: Returns to Main Screen
+- Separate "Manage Presets" button (e.g., chevron icon) -> Opens full list
+
+**Files to Investigate/Modify:**
+| File | Change |
+|------|--------|
+| `Pages/MainPage/UIMainView.swift` | Add navigation menu for macro mix |
+| `Pages/MacroOptions/MacroOptionsView.swift` | Keep existing list view |
+| `Pages/MacroEditor/MacroEditorView.swift` | Add "save & return to main" option |
+| `Models/MacroModel.swift` | May need update to support inline editing |
 
 **Testing Checklist:**
-- [ ] Select an existing macro mix
-- [ ] Edit the macro percentages (protein, carbs, fat)
-- [ ] Save the changes
-- [ ] Return to main screen
-- [ ] Verify macro values display the updated percentages
-- [ ] Verify BMR and TDEE recalculate correctly with new macros
-- [ ] Test with multiple different macro mixes
-- [ ] Test editing and saving multiple times in a row
+- [ ] Tap Macro Split shows menu (or inline editor)
+- [ ] Edit current macro saves and returns to Main Screen
+- [ ] Macro values update correctly after save
+- [ ] "Manage Presets" option shows full list
+- [ ] List shows all available macros
+- [ ] Editing from list still works as before
+- [ ] Changes persist across app restarts
 
-**Dependencies:** None - standalone fix
+**Dependencies:** None - standalone improvement
 
-**Related Issues:** 
+**Related Issues:**
 - May be related to SwiftUI view lifecycle and data binding
 - May require `@StateObject` vs `@ObservedObject` review
