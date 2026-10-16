@@ -34,3 +34,6 @@ tmp/
 fastlane/report.html
 fastlane/preview.html
 fastlane/screenshots
+
+# Xcode per-user state
+xcuserdata/
