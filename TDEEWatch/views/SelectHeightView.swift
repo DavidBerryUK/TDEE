@@ -18,6 +18,8 @@ struct SelectHeightView: View {
                 Text(unit.displayName)
             }
         }
+        // The navigation bar already shows the title; hide the picker's own label so it isn't shown twice.
+        .labelsHidden()
         .navigationTitle("Height Unit")
     }
 }
