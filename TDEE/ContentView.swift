@@ -66,6 +66,14 @@ struct ContentView: View {
                         }
                         .accessibilityLabel("Open navigation menu")
                     }
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            path.append(.theme)
+                        } label: {
+                            Image(systemName: "paintpalette")
+                        }
+                        .accessibilityLabel("Change theme")
+                    }
                 }
 
                 .toolbarBackground(.visible, for: .navigationBar)
@@ -106,5 +114,7 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    ThemedRoot(themeManager: ThemeManager(defaults: UserDefaults(suiteName: "ContentViewPreview")!)) {
+        ContentView()
+    }
 }
