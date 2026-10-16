@@ -20,6 +20,38 @@ This directory contains user stories for the SimpleTest iOS project.
 | 012 | Calculation System Consolidation | Done |
 | 013 | Align Macro Model With Profile View | Done |
 | 014 | SwiftData Persistence | In Planning |
+| 015 | Share Results | In Planning |
+| 016 | Test Macro Editor Update | In Planning |
+| 017 | SwiftData Persistence Fixes | Done |
+
+## Story 015: Share Results
+
+**Objective:** Implement a functional share button that allows users to share their calculation results via iOS share sheet (ActivityViewController).
+
+**Motivation:** Users want to share their calculation results (BMR, TDEE, macros) with others - for example, to share with a nutritionist, friend, or social media. The current share button is non-functional.
+
+**Current State:**
+- Share button shows a share icon (square with up arrow)
+- Has accessibility label "Share current settings"
+- Has no action when tapped
+
+**Implementation Plan:**
+1. **ShareResultsModel** (`Models/ShareResultsModel.swift`) - Already exists with formatters for all data
+2. **ProfileViewModel** - Add `createShareResultsModel(result:)` method to look up macro preset and create share model
+3. **UIMainView** - Add share button with presentation handler for UIActivityViewController
+
+**Key Decisions:**
+- Use `MacroSplitOptionsModelCollection` to look up macro preset name from `selectedMacroId`
+- Pass presentation handler from parent view since UIMainView is pure SwiftUI
+
+**Files to Modify:**
+| File | Change |
+|------|--------|
+| `Models/ProfileViewModel/ProfileViewModel.swift` | Add `createShareResultsModel()` with macro lookup |
+| `Pages/MainPage/UIMainView.swift` | Add share button with presentation handler |
+| `SimpleTestTests/ShareResultsModelTests.swift` | Create unit tests |
+
+**Dependencies:** None - standalone feature
 
 ---
 
@@ -283,3 +315,79 @@ None - this is a standalone refactoring.
 1. Should we keep `CalculationService` at all, or fully deprecate it?
 2. Should `ProfileViewModel.calculateAllDerivedValues()` be renamed or documented as the "preferred" path?
 3. Should we add unit tests to verify both systems produce identical results?
+
+---
+
+## Story 016: Macro Editor Navigation & Update Flow
+
+**Objective:** Improve the macro editor navigation flow so users can edit their current macro mix directly without having to navigate through the options list, while still providing access to manage the full list of presets. Also verify that the main screen updates correctly after saving changes.
+
+**Motivation:** The current navigation flow is clunky:
+1. User taps Macro Split section -> goes to Macro Options list
+2. User selects a macro -> goes to Macro Editor
+3. User saves changes -> returns to Macro Options list
+4. User must navigate back AGAIN to return to Main Screen
+
+This two-step navigation back is frustrating. Users primarily want to edit their CURRENT macro mix, not browse the entire list.
+
+**Current State:**
+- Macro Split section only shows the currently selected macro
+- Tapping opens the full Macro Options list (all presets)
+- User must navigate through list to find their macro
+- After saving, user returns to list, not main screen
+- Main screen does not update after saving changes
+
+**Expected Behavior:**
+- Tapping Macro Split section shows a quick menu with two options:
+  - **"Edit Current Macro"** -> Directly edit the currently selected macro, save returns to Main Screen
+  - **"Manage Macro Presets"** -> Browse full list, save returns to list
+- When a macro mix is edited and saved, the main screen should automatically reflect the new values
+- No manual refresh should be required
+
+**Implementation Approach:**
+
+### Option A: Action Sheet / Popover Menu
+When user taps Macro Split section:
+```
+┌─────────────────────────────┐
+│  Edit Current Macro         │
+│  ( Edits active mix )      │
+├─────────────────────────────┤
+│  Manage Macro Presets       │
+│  ( Browse full list )      │
+├─────────────────────────────┤
+│  [ Cancel ]                 │
+└─────────────────────────────┘
+```
+
+### Option B: Two-Tap Flow
+1. Tap Macro Split -> Shows inline quick-edit (just the current macro values)
+2. Long press or tap "Manage" -> Opens full options list
+
+### Option C: Smart Navigation
+- First tap of Macro Split: Edit current macro directly
+- Navigation back from editor: Returns to Main Screen
+- Separate "Manage Presets" button (e.g., chevron icon) -> Opens full list
+
+**Files to Investigate/Modify:**
+| File | Change |
+|------|--------|
+| `Pages/MainPage/UIMainView.swift` | Add navigation menu for macro mix |
+| `Pages/MacroOptions/MacroOptionsView.swift` | Keep existing list view |
+| `Pages/MacroEditor/MacroEditorView.swift` | Add "save & return to main" option |
+| `Models/MacroModel.swift` | May need update to support inline editing |
+
+**Testing Checklist:**
+- [ ] Tap Macro Split shows menu (or inline editor)
+- [ ] Edit current macro saves and returns to Main Screen
+- [ ] Macro values update correctly after save
+- [ ] "Manage Presets" option shows full list
+- [ ] List shows all available macros
+- [ ] Editing from list still works as before
+- [ ] Changes persist across app restarts
+
+**Dependencies:** None - standalone improvement
+
+**Related Issues:**
+- May be related to SwiftUI view lifecycle and data binding
+- May require `@StateObject` vs `@ObservedObject` review
