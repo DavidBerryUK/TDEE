@@ -24,7 +24,9 @@ struct TDEEWatchApp: App {
 
     var body: some Scene {
         WindowGroup {
-            WatchMainView(profile: profile)
+            NavigationStack {
+                WatchMainView(profile: profile)
+            }
                 .task { await macroCollection.loadPresets() }
         }
     }

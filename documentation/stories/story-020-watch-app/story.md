@@ -27,6 +27,7 @@ Lives in `TDEEShared/`, included by both the iPhone and watch targets: `Calculat
 
 ## Out of Scope
 - Syncing the profile between phone and watch.
+- Pounds, stones and feet/inches on the watch. It edits weight in kg and height in cm, the units the profile stores.
 - Creating or editing custom macro presets on the watch (edit on the phone).
 - Share results, About and System pages.
 - Complications and widgets.
