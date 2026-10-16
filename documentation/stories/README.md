@@ -25,6 +25,7 @@ This directory contains user stories for the SimpleTest iOS project.
 | 017 | SwiftData Persistence Fixes | Done |
 | 018 | Themes | Done |
 | 019 | Dynamic Type Section Rows | Done |
+| 020 | Apple Watch App | In Planning |
 
 ## Story 015: Share Results
 
