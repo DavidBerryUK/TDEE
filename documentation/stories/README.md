@@ -22,6 +22,7 @@ This directory contains user stories for the SimpleTest iOS project.
 | 014 | SwiftData Persistence | In Planning |
 | 015 | Share Results | In Planning |
 | 016 | Test Macro Editor Update | In Planning |
+| 017 | SwiftData Persistence Fixes | In Planning |
 
 ## Story 015: Share Results
 

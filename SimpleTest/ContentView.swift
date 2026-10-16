@@ -34,11 +34,13 @@ struct ContentView: View {
 
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var shareContent: ShareContent?
+    @State private var macroCollection: MacroSplitOptionsModelCollection
 
     init() {
         // Initialize with the shared repository for persistence
         let repository = SwiftDataContainer.shared.profileRepository
         self._profile = State(initialValue: ProfileViewModel(profileRepository: repository))
+        self._macroCollection = State(initialValue: MacroSplitOptionsModelCollection(profileRepository: repository))
     }
 
     var body: some View {
@@ -88,7 +90,8 @@ struct ContentView: View {
                 }
         }
         // Inject the global macro collection for environment access
-        .environment(MacroSplitOptionsModelCollection(items: FactoryMacroSplits.get()))
+        .environment(macroCollection)
+        .task { await macroCollection.loadPresets() }
         .sheet(item: $shareContent) { content in
             ActivityView(items: content.activityItems)
                 .presentationDetents([.medium, .large])

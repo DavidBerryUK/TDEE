@@ -38,7 +38,14 @@ final class MacroSplitOptionsModelCollection {
     func loadPresets() async {
         guard let repository = profileRepository else { return }
         do {
-            let presets = try await repository.fetchPresets()
+            var presets = try await repository.fetchPresets()
+            if presets.isEmpty {
+                // First launch: seed the store with the factory presets
+                for model in SeedData.macroPresets() {
+                    try await repository.savePreset(MacroPresetMapper.mapToEntity(model))
+                }
+                presets = try await repository.fetchPresets()
+            }
             self.items = presets.map { MacroPresetMapper.mapToModel($0) }
         } catch {
             // Handle error - fallback to factory presets
@@ -104,6 +111,12 @@ final class MacroSplitOptionsModelCollection {
     }
 
     func update(_ item: MacroSplitOptionModel) {
+        guard items.contains(where: { $0.id == item.id }) else {
+            // Not in the collection yet (new macro from the editor)
+            item.isCustom = true
+            add(item)
+            return
+        }
         if let existing = items.first(where: { $0.id == item.id }) {
             existing.name = item.name
             existing.protein = item.protein
@@ -122,8 +135,12 @@ final class MacroSplitOptionsModelCollection {
         if let index = items.firstIndex(where: { $0.id == item.id }) {
             items.remove(at: index)
         }
-        // Save removal (if we want to delete from database, we would need to implement a delete method)
-        // For now, we'll just keep the items in memory
+        guard let repository = profileRepository else { return }
+        let id = item.id
+        Task {
+            do { try await repository.deletePreset(id: id) }
+            catch { print("Failed to delete preset: \(error)") }
+        }
     }
 
     func move(from source: IndexSet, to destination: Int) {

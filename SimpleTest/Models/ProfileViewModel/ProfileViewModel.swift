@@ -218,7 +218,9 @@ class ProfileViewModel {
     /// Save profile data to SwiftData
     private func saveToSwiftData() async {
         // Convert ProfileViewModel to Profile entity
-        let profile = ProfileMapper.mapToEntity(self, existing: nil) // Pass nil for new entity
+        let existing = try? await profileRepository.fetchActiveProfile()
+        let profile = ProfileMapper.mapToEntity(self, existing: existing)
+        if existing == nil { profile.id = ProfileRepository.activeProfileId }
 
         // Save via repository with retry logic (background thread via actor)
         do {

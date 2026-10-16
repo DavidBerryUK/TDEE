@@ -38,7 +38,10 @@ import Foundation
 
         for attempt in 1...maxRetries {
             do {
-                // For updates, the entity is already tracked by the context
+                // New (unmanaged) entities must be inserted; tracked ones are already in the context
+                if profile.modelContext == nil {
+                    context.insert(profile)
+                }
                 try context.save()
                 return  // Success
             } catch {
@@ -72,6 +75,32 @@ import Foundation
         return profile
     }
 
+    /// Insert the preset, or copy its values onto the stored preset with the same id.
+    private func upsertPreset(_ preset: MacroPreset) throws {
+        let id = preset.id
+        let existing = try context.fetch(FetchDescriptor<MacroPreset>(predicate: #Predicate { $0.id == id })).first
+        guard let existing else {
+            context.insert(preset)
+            return
+        }
+        if existing === preset { return }
+        existing.name = preset.name
+        existing.primaryCalories = preset.primaryCalories
+        existing.primaryCarbs = preset.primaryCarbs
+        existing.primaryFat = preset.primaryFat
+        existing.primaryProtein = preset.primaryProtein
+        existing.ordinal = preset.ordinal
+        existing.isCustom = preset.isCustom
+        existing.updatedAt = Date()
+    }
+
+    /// Delete the preset with the given id, if stored.
+    func deletePreset(id: UUID) async throws {
+        let matches = try context.fetch(FetchDescriptor<MacroPreset>(predicate: #Predicate { $0.id == id }))
+        matches.forEach { context.delete($0) }
+        try context.save()
+    }
+
     /// Save a preset (shared, no owner)
     func savePreset(_ preset: MacroPreset) async throws {
         let maxRetries = 3
@@ -79,7 +108,7 @@ import Foundation
 
         for attempt in 1...maxRetries {
             do {
-                context.insert(preset) // Insert new entity
+                try upsertPreset(preset)
                 try context.save()
                 return  // Success
             } catch {
