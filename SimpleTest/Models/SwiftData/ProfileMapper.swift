@@ -4,23 +4,20 @@ import Foundation
 /// Maps between ProfileViewModel and SwiftData Profile entity
 @MainActor
 enum ProfileMapper {
-    /// Convert entity to ViewModel for reading from SwiftData
-    static func mapToViewModel(_ entity: Profile) -> ProfileViewModel {
-        // Create a new ViewModel with default values
-        let viewModel = ProfileViewModel()
-        switch entity.gender {
-        case 0: viewModel.gender = .male
-        case 1: viewModel.gender = .female
-        default: viewModel.gender = .male
-        }
-        viewModel.age = Int(entity.age)
+    /// Copy stored values onto an existing ViewModel.
+    /// Never creates a ViewModel: its initializer loads from SwiftData, which would recurse.
+    static func apply(_ entity: Profile, to viewModel: ProfileViewModel) {
+        viewModel.gender = entity.gender == 1 ? .female : .male
+        viewModel.age = entity.age
         viewModel.height = entity.height
         viewModel.weight = entity.weight
         viewModel.activityLevel = entity.activityLevel
+        viewModel.bodyFatPercentageMethod = BodyFatOption(rawValue: entity.bodyFatMethodRaw) ?? .omit
         viewModel.bodyFatPercentage = entity.bodyFatPercentage
-        viewModel.bodyFatPercentageMethod = .omit  // Default since we don't store this
-        // Note: Derived values (tdee, macroTargets) are recalculated automatically by ProfileViewModel
-        return viewModel
+        viewModel.calorieAdjustmentMethod = CalorieAdjustmentMethod(rawValue: entity.calorieAdjustmentMethodRaw) ?? .maintain
+        viewModel.calorieAdjustment = entity.calorieAdjustment
+        viewModel.selectedMacroId = entity.selectedMacroId
+        // Derived values (tdee, macroTargets) are recalculated automatically by ProfileViewModel
     }
 
     /// Convert ViewModel to entity for saving to SwiftData
@@ -36,6 +33,10 @@ enum ProfileMapper {
                 weight: viewModel.weight,
                 bodyFatPercentage: viewModel.bodyFatPercentage,
                 activityLevel: viewModel.activityLevel,
+                bodyFatMethod: viewModel.bodyFatPercentageMethod,
+                calorieAdjustmentMethod: viewModel.calorieAdjustmentMethod,
+                calorieAdjustment: viewModel.calorieAdjustment,
+                selectedMacroId: viewModel.selectedMacroId,
                 id: UUID(),
                 createdAt: Date(),
                 updatedAt: Date()
@@ -49,6 +50,10 @@ enum ProfileMapper {
         existingProfile.weight = viewModel.weight
         existingProfile.activityLevel = viewModel.activityLevel
         existingProfile.bodyFatPercentage = viewModel.bodyFatPercentage
+        existingProfile.bodyFatMethodRaw = viewModel.bodyFatPercentageMethod.rawValue
+        existingProfile.calorieAdjustmentMethodRaw = viewModel.calorieAdjustmentMethod.rawValue
+        existingProfile.calorieAdjustment = viewModel.calorieAdjustment
+        existingProfile.selectedMacroId = viewModel.selectedMacroId
         existingProfile.updatedAt = Date()
         return existingProfile
     }

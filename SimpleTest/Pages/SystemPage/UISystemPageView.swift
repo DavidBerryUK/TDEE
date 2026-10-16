@@ -7,7 +7,9 @@
 import SwiftUI
 
 struct UISystemPageView: View {
+    @Environment(MacroSplitOptionsModelCollection.self) private var collection
     @Binding var path: [AppRoute]
+    @State private var showResetConfirmation = false
 
     var body: some View {
         List {
@@ -22,6 +24,22 @@ struct UISystemPageView: View {
                     .accessibilityLabel("View about information")
                     .accessibilityValue("Navigate to about page")
             }
+            SwiftUI.Section("Data") {
+                Button("Reset Macro Presets to Defaults", role: .destructive) {
+                    showResetConfirmation = true
+                }
+                .accessibilityLabel("Reset macro presets to defaults")
+            }
+        }
+        .confirmationDialog(
+            "Reset all macro presets to their defaults? Custom and edited presets will be lost.",
+            isPresented: $showResetConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button("Reset to Defaults", role: .destructive) {
+                Task { await collection.resetToDefaults() }
+            }
+            Button("Cancel", role: .cancel) {}
         }
         .navigationTitle("System")
     }

@@ -23,6 +23,7 @@ class ProfileViewModel {
     nonisolated(unsafe) private var saveTask: Task<Void, Never>?  // For throttled saves
     private let saveDelay: TimeInterval = 1.0  // Wait 1 second after last change
     private var swiftDataId: UUID?  // Track the SwiftData entity ID
+    private var isLoading = false  // Suppress saves while restoring stored values
 
     // MARK: - Macro Collection (Injected via Environment)
     /// The global macro options collection - injected via environment
@@ -177,29 +178,26 @@ class ProfileViewModel {
 
     /// Load profile data from SwiftData
     private func loadFromSwiftData() {
-        Task {
-            do {
-                if let profile = try await profileRepository.fetchActiveProfile() {
-                    let viewModel = ProfileMapper.mapToViewModel(profile)
-                    // Copy values from the loaded profile to this ViewModel
-                    self.gender = viewModel.gender
-                    self.age = viewModel.age
-                    self.weight = viewModel.weight
-                    self.height = viewModel.height
-                    self.activityLevel = viewModel.activityLevel
-                    self.bodyFatPercentageMethod = viewModel.bodyFatPercentageMethod
-                    self.bodyFatPercentage = viewModel.bodyFatPercentage
-                    self.swiftDataId = profile.id
-                }
-            } catch {
-                // Handle error - could log or show user message
-                print("Failed to load profile from SwiftData: \(error)")
+        Task { await load() }
+    }
+
+    /// Restore the stored profile, if any. Does not trigger a save.
+    func load() async {
+        isLoading = true
+        defer { isLoading = false }
+        do {
+            if let profile = try await profileRepository.fetchActiveProfile() {
+                ProfileMapper.apply(profile, to: self)
+                self.swiftDataId = profile.id
             }
+        } catch {
+            print("Failed to load profile from SwiftData: \(error)")
         }
     }
 
     /// Throttle saves by cancelling previous task and starting new one
     private func triggerSave() {
+        guard !isLoading else { return }
         Task { [weak self] in self?.saveTask?.cancel() }  // Cancel any pending save
 
         saveTask = Task { [weak self] in
@@ -216,9 +214,11 @@ class ProfileViewModel {
     }
 
     /// Save profile data to SwiftData
-    private func saveToSwiftData() async {
+    func saveToSwiftData() async {
         // Convert ProfileViewModel to Profile entity
-        let profile = ProfileMapper.mapToEntity(self, existing: nil) // Pass nil for new entity
+        let existing = try? await profileRepository.fetchActiveProfile()
+        let profile = ProfileMapper.mapToEntity(self, existing: existing)
+        if existing == nil { profile.id = ProfileRepository.activeProfileId }
 
         // Save via repository with retry logic (background thread via actor)
         do {

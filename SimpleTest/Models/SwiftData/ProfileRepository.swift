@@ -4,12 +4,15 @@ import Foundation
 /// ProfileRepository manages all profile and preset persistence.
 /// Uses @MainActor because ModelContext is not thread-safe.
 @MainActor class ProfileRepository {
+    /// Keeps the container alive for as long as the repository: a ModelContext traps if its container is gone.
+    private let container: ModelContainer
     private let context: ModelContext
 
     static let activeProfileId = UUID(uuidString: "11111111-1111-1111-1111-111111111111")!
 
-    init(context: ModelContext) {
-        self.context = context
+    init(container: ModelContainer) {
+        self.container = container
+        self.context = container.mainContext
     }
 
     func fetchActiveProfile() async throws -> Profile? {
@@ -26,7 +29,7 @@ import Foundation
 
     /// Fetch all shared presets (presets are a shared catalog, no owner filter needed)
     func fetchPresets() async throws -> [MacroPreset] {
-        let request = FetchDescriptor<MacroPreset>()
+        let request = FetchDescriptor<MacroPreset>(sortBy: [SortDescriptor(\.ordinal)])
         return try context.fetch(request)
     }
 
@@ -38,7 +41,10 @@ import Foundation
 
         for attempt in 1...maxRetries {
             do {
-                // For updates, the entity is already tracked by the context
+                // New (unmanaged) entities must be inserted; tracked ones are already in the context
+                if profile.modelContext == nil {
+                    context.insert(profile)
+                }
                 try context.save()
                 return  // Success
             } catch {
@@ -63,6 +69,7 @@ import Foundation
             weight: defaults.weight,
             bodyFatPercentage: defaults.bodyFatPercentage,
             activityLevel: defaults.activityLevel,
+            selectedMacroId: FactoryMacroSplits.Id.balanced,
             id: ProfileRepository.activeProfileId,
             createdAt: Date(),
             updatedAt: Date()
@@ -72,6 +79,51 @@ import Foundation
         return profile
     }
 
+    /// Insert the preset, or copy its values onto the stored preset with the same id.
+    private func upsertPreset(_ preset: MacroPreset) throws {
+        let id = preset.id
+        let existing = try context.fetch(FetchDescriptor<MacroPreset>(predicate: #Predicate { $0.id == id })).first
+        guard let existing else {
+            context.insert(preset)
+            return
+        }
+        if existing === preset { return }
+        existing.name = preset.name
+        existing.protein = preset.protein
+        existing.carbs = preset.carbs
+        existing.fats = preset.fats
+        existing.ordinal = preset.ordinal
+        existing.isCustom = preset.isCustom
+        existing.updatedAt = Date()
+    }
+
+    /// Delete the preset with the given id, if stored.
+    func deletePreset(id: UUID) async throws {
+        let matches = try context.fetch(FetchDescriptor<MacroPreset>(predicate: #Predicate { $0.id == id }))
+        matches.forEach { context.delete($0) }
+        try context.save()
+    }
+
+    /// Insert the factory presets when the store holds no presets. Returns true if seeded.
+    @discardableResult
+    func seedPresetsIfEmpty() async throws -> Bool {
+        guard try context.fetchCount(FetchDescriptor<MacroPreset>()) == 0 else { return false }
+        for model in SeedData.macroPresets() {
+            context.insert(MacroPresetMapper.mapToEntity(model))
+        }
+        try context.save()
+        return true
+    }
+
+    /// Replace every stored preset with the factory presets.
+    func resetPresetsToDefaults() async throws {
+        try context.fetch(FetchDescriptor<MacroPreset>()).forEach { context.delete($0) }
+        for model in SeedData.macroPresets() {
+            context.insert(MacroPresetMapper.mapToEntity(model))
+        }
+        try context.save()
+    }
+
     /// Save a preset (shared, no owner)
     func savePreset(_ preset: MacroPreset) async throws {
         let maxRetries = 3
@@ -79,7 +131,7 @@ import Foundation
 
         for attempt in 1...maxRetries {
             do {
-                context.insert(preset) // Insert new entity
+                try upsertPreset(preset)
                 try context.save()
                 return  // Success
             } catch {
