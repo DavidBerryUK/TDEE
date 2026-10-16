@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import SwiftUI
 
 /// Performs TDEE and macro calculations based on user profile data.
 ///

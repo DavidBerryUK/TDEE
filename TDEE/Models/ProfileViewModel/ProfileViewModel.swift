@@ -1,5 +1,4 @@
 import Foundation
-import SwiftUI
 import Observation
 
 /// State management for user profile metrics.
