@@ -33,59 +33,60 @@ final class MacroSplitOptionsModelCollection {
         // Caller must await loadPresets() before using items
     }
 
-    /// Load presets from SwiftData (presets are a shared catalog)
-    /// Call this after init(profileRepository:) to populate items
+    /// Load presets from SwiftData (presets are a shared catalog).
+    /// Seeds the factory presets when the store is empty.
     func loadPresets() async {
         guard let repository = profileRepository else { return }
         do {
-            var presets = try await repository.fetchPresets()
-            if presets.isEmpty {
-                // First launch: seed the store with the factory presets
-                for model in SeedData.macroPresets() {
-                    try await repository.savePreset(MacroPresetMapper.mapToEntity(model))
-                }
-                presets = try await repository.fetchPresets()
-            }
+            try await repository.seedPresetsIfEmpty()
+            let presets = try await repository.fetchPresets()
             self.items = presets.map { MacroPresetMapper.mapToModel($0) }
         } catch {
-            // Handle error - fallback to factory presets
-            self.items = FactoryMacroSplits.get().map { model in
-                MacroSplitOptionModel(
-                    id: model.id,
-                    name: model.name,
-                    protein: model.protein,
-                    carbs: model.carbs,
-                    fats: model.fats,
-                    ordinal: model.ordinal,
-                    isSelected: model.isSelected,
-                    isCustom: false  // Factory presets are system presets
-                )
+            print("Failed to load presets, using factory presets in memory: \(error)")
+            self.items = FactoryMacroSplits.get()
+        }
+    }
+
+    /// Replace all presets (edited, deleted and custom) with the factory presets.
+    func resetToDefaults() async {
+        await flush()
+        if let repository = profileRepository {
+            do {
+                try await repository.resetPresetsToDefaults()
+            } catch {
+                print("Failed to reset presets: \(error)")
+                return
             }
         }
+        items = FactoryMacroSplits.get()
     }
 
-    /// Save a preset to SwiftData (presets are shared, no owner)
-    func savePreset(_ preset: MacroSplitOptionModel) async {
-        guard let repository = profileRepository else { return }
-        do {
-            let entity = MacroPresetMapper.mapToEntity(preset)
-            try await repository.savePreset(entity)
-        } catch {
-            // Handle error - could surface to user
-            print("Failed to save preset: \(error)")
+    // MARK: - Persistence queue
+
+    private var pending: Task<Void, Never>?
+
+    /// Run persistence work in order, so saves never overtake each other.
+    private func enqueue(_ work: @escaping @MainActor () async -> Void) {
+        guard profileRepository != nil else { return }
+        let previous = pending
+        pending = Task { @MainActor in
+            await previous?.value
+            await work()
         }
     }
 
-    /// Batch save all presets
-    func saveAll(_ presets: [MacroSplitOptionModel]) async {
+    /// Wait for all queued saves and deletes to finish.
+    func flush() async {
+        await pending?.value
+    }
+
+    private func persist(_ presets: [MacroSplitOptionModel]) async {
         guard let repository = profileRepository else { return }
         do {
             for preset in presets {
-                let entity = MacroPresetMapper.mapToEntity(preset)
-                try await repository.savePreset(entity)
+                try await repository.savePreset(MacroPresetMapper.mapToEntity(preset))
             }
         } catch {
-            // Handle error - could surface to user
             print("Failed to save presets: \(error)")
         }
     }
@@ -96,10 +97,9 @@ final class MacroSplitOptionsModelCollection {
         item.ordinal = -1
         items.append(item)
         reindex()
-        // Save the new preset if we have a repository
-        Task {
-            await savePreset(item)
-        }
+        // Reindexing changes other ordinals, so persist everything
+        let all = items
+        enqueue { [weak self] in await self?.persist(all) }
     }
 
     private func reindex() {
@@ -111,33 +111,29 @@ final class MacroSplitOptionsModelCollection {
     }
 
     func update(_ item: MacroSplitOptionModel) {
-        guard items.contains(where: { $0.id == item.id }) else {
+        guard let existing = items.first(where: { $0.id == item.id }) else {
             // Not in the collection yet (new macro from the editor)
             item.isCustom = true
             add(item)
             return
         }
-        if let existing = items.first(where: { $0.id == item.id }) {
-            existing.name = item.name
-            existing.protein = item.protein
-            existing.carbs = item.carbs
-            existing.fats = item.fats
-            existing.ordinal = item.ordinal
-            existing.isSelected = item.isSelected
-        }
-        // Save the updated preset if we have a repository
-        Task {
-            await savePreset(item)
-        }
+        existing.name = item.name
+        existing.protein = item.protein
+        existing.carbs = item.carbs
+        existing.fats = item.fats
+        existing.ordinal = item.ordinal
+        existing.isSelected = item.isSelected
+        enqueue { [weak self] in await self?.persist([existing]) }
     }
 
+    /// Removes a macro. The last remaining macro cannot be removed.
     func remove(_ item: MacroSplitOptionModel) {
-        if let index = items.firstIndex(where: { $0.id == item.id }) {
-            items.remove(at: index)
-        }
-        guard let repository = profileRepository else { return }
+        guard items.count > 1,
+              let index = items.firstIndex(where: { $0.id == item.id }) else { return }
+        items.remove(at: index)
         let id = item.id
-        Task {
+        enqueue { [weak self] in
+            guard let repository = self?.profileRepository else { return }
             do { try await repository.deletePreset(id: id) }
             catch { print("Failed to delete preset: \(error)") }
         }
@@ -153,11 +149,7 @@ final class MacroSplitOptionsModelCollection {
         }
 
         items = updated
-
-        // Save reordered presets if we have a repository
-        Task {
-            await saveAll(updated)
-        }
+        enqueue { [weak self] in await self?.persist(updated) }
     }
 
     // MARK: - Selection

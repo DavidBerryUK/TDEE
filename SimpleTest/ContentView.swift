@@ -92,6 +92,12 @@ struct ContentView: View {
         // Inject the global macro collection for environment access
         .environment(macroCollection)
         .task { await macroCollection.loadPresets() }
+        // Keep the selection valid if the selected macro is deleted or reset away
+        .onChange(of: macroCollection.items) { _, items in
+            guard !items.isEmpty, !items.contains(where: { $0.id == profile.selectedMacroId }) else { return }
+            let fallback = items.first(where: { $0.id == FactoryMacroSplits.Id.balanced }) ?? macroCollection.sortedItems.first
+            if let fallback { profile.selectedMacroId = fallback.id }
+        }
         .sheet(item: $shareContent) { content in
             ActivityView(items: content.activityItems)
                 .presentationDetents([.medium, .large])

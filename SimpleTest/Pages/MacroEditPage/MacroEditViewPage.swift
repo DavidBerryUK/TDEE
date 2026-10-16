@@ -74,6 +74,7 @@ struct MacroEditViewPage: View {
                             }
                             .padding(.vertical, 10)
                         }
+                        .disabled(collection.items.count <= 1)
                         .listRowBackground(
                             RoundedRectangle(cornerRadius: 10)
                                 .fill(Color.red.opacity(0.1))

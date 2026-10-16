@@ -4,12 +4,15 @@ import Foundation
 /// ProfileRepository manages all profile and preset persistence.
 /// Uses @MainActor because ModelContext is not thread-safe.
 @MainActor class ProfileRepository {
+    /// Keeps the container alive for as long as the repository: a ModelContext traps if its container is gone.
+    private let container: ModelContainer
     private let context: ModelContext
 
     static let activeProfileId = UUID(uuidString: "11111111-1111-1111-1111-111111111111")!
 
-    init(context: ModelContext) {
-        self.context = context
+    init(container: ModelContainer) {
+        self.container = container
+        self.context = container.mainContext
     }
 
     func fetchActiveProfile() async throws -> Profile? {
@@ -26,7 +29,7 @@ import Foundation
 
     /// Fetch all shared presets (presets are a shared catalog, no owner filter needed)
     func fetchPresets() async throws -> [MacroPreset] {
-        let request = FetchDescriptor<MacroPreset>()
+        let request = FetchDescriptor<MacroPreset>(sortBy: [SortDescriptor(\.ordinal)])
         return try context.fetch(request)
     }
 
@@ -66,6 +69,7 @@ import Foundation
             weight: defaults.weight,
             bodyFatPercentage: defaults.bodyFatPercentage,
             activityLevel: defaults.activityLevel,
+            selectedMacroId: FactoryMacroSplits.Id.balanced,
             id: ProfileRepository.activeProfileId,
             createdAt: Date(),
             updatedAt: Date()
@@ -85,10 +89,9 @@ import Foundation
         }
         if existing === preset { return }
         existing.name = preset.name
-        existing.primaryCalories = preset.primaryCalories
-        existing.primaryCarbs = preset.primaryCarbs
-        existing.primaryFat = preset.primaryFat
-        existing.primaryProtein = preset.primaryProtein
+        existing.protein = preset.protein
+        existing.carbs = preset.carbs
+        existing.fats = preset.fats
         existing.ordinal = preset.ordinal
         existing.isCustom = preset.isCustom
         existing.updatedAt = Date()
@@ -98,6 +101,26 @@ import Foundation
     func deletePreset(id: UUID) async throws {
         let matches = try context.fetch(FetchDescriptor<MacroPreset>(predicate: #Predicate { $0.id == id }))
         matches.forEach { context.delete($0) }
+        try context.save()
+    }
+
+    /// Insert the factory presets when the store holds no presets. Returns true if seeded.
+    @discardableResult
+    func seedPresetsIfEmpty() async throws -> Bool {
+        guard try context.fetchCount(FetchDescriptor<MacroPreset>()) == 0 else { return false }
+        for model in SeedData.macroPresets() {
+            context.insert(MacroPresetMapper.mapToEntity(model))
+        }
+        try context.save()
+        return true
+    }
+
+    /// Replace every stored preset with the factory presets.
+    func resetPresetsToDefaults() async throws {
+        try context.fetch(FetchDescriptor<MacroPreset>()).forEach { context.delete($0) }
+        for model in SeedData.macroPresets() {
+            context.insert(MacroPresetMapper.mapToEntity(model))
+        }
         try context.save()
     }
 

@@ -65,7 +65,12 @@ Unit tests use an in-memory `SwiftDataContainer(isInMemory: true)`, with a secon
 
 ## Status
 
-Draft fixes for causes 1–6 are in the working tree on `develop` (uncommitted, builds, untested). Causes 7–8 are open. Move the draft onto a feature branch (`features/story-017-swiftdata-persistence-fixes`) when planning, and add the tests.
+Implemented on `features/story-017-swiftdata-persistence-fixes` (plan phases 1-5b). All unit tests pass, including the new `SwiftDataPersistenceTests`. Manual simulator walkthrough (S1-S10, S13) is still pending.
+
+Defects found while testing, all fixed:
+- `ProfileMapper.mapToViewModel` created a new `ProfileViewModel`, whose init starts another load, so once a profile was stored loading recursed forever. It is replaced by `ProfileMapper.apply(_:to:)`.
+- `ProfileRepository` now owns its `ModelContainer`: a context traps if its container is deallocated (this crashed the test host).
+- In-memory containers get unique names so test containers stay isolated, and `SwiftDataContainer.shared` is in-memory under XCTest.
 
 ## Open Questions
 

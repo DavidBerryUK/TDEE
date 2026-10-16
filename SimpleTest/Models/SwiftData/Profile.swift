@@ -27,6 +27,18 @@ public class Profile {
         set { activityLevelRaw = newValue.rawValue }
     }
 
+    /// Body fat method (BodyFatOption raw value)
+    public var bodyFatMethodRaw: Int
+
+    /// Calorie adjustment method (CalorieAdjustmentMethod raw value)
+    public var calorieAdjustmentMethodRaw: Int
+
+    /// Calorie adjustment amount per day
+    public var calorieAdjustment: Double
+
+    /// The selected macro split preset
+    public var selectedMacroId: UUID
+
     /// Unique identifier for this profile
     public var id: UUID
 
@@ -44,6 +56,10 @@ public class Profile {
         weight: Double,
         bodyFatPercentage: Double = 0.0,
         activityLevel: ActivityLevel = .sedentary,
+        bodyFatMethod: BodyFatOption = .omit,
+        calorieAdjustmentMethod: CalorieAdjustmentMethod = .maintain,
+        calorieAdjustment: Double = 0,
+        selectedMacroId: UUID,
         id: UUID = UUID(),
         createdAt: Date = Date(),
         updatedAt: Date = Date()
@@ -54,6 +70,10 @@ public class Profile {
         self.weight = weight
         self.bodyFatPercentage = bodyFatPercentage
         self.activityLevelRaw = activityLevel.rawValue
+        self.bodyFatMethodRaw = bodyFatMethod.rawValue
+        self.calorieAdjustmentMethodRaw = calorieAdjustmentMethod.rawValue
+        self.calorieAdjustment = calorieAdjustment
+        self.selectedMacroId = selectedMacroId
         self.id = id
         self.createdAt = createdAt
         self.updatedAt = updatedAt

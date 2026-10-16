@@ -8,9 +8,9 @@ enum MacroPresetMapper {
         MacroSplitOptionModel(
             id: entity.id,
             name: entity.name,
-            protein: Int(entity.primaryProtein),
-            carbs: Int(entity.primaryCarbs),
-            fats: Int(entity.primaryFat),
+            protein: Int(entity.protein),
+            carbs: Int(entity.carbs),
+            fats: Int(entity.fats),
             ordinal: Int(entity.ordinal),
             isSelected: false,  // Selection managed separately
             isCustom: entity.isCustom
@@ -20,41 +20,14 @@ enum MacroPresetMapper {
     /// Convert model to entity for saving to SwiftData
     /// Note: Presets are shared, so no owner is set
     static func mapToEntity(_ model: MacroSplitOptionModel) -> MacroPreset {
-        let breakdown = MacroBreakdown(
-            calories: 2000,  // Placeholder - calories not stored in model
-            carbs: model.carbs,
-            fat: model.fats,
-            protein: model.protein
-        )
-        let preset = MacroPreset(
+        MacroPreset(
             id: model.id,
             name: model.name,
-            primaryBreakdown: breakdown,
-            ordinal: Int16(model.ordinal),
+            protein: model.protein,
+            carbs: model.carbs,
+            fats: model.fats,
+            ordinal: model.ordinal,
             isCustom: model.isCustom
         )
-        preset.updatedAt = Date()
-        return preset
-    }
-
-    /// Create a system preset entity from seed data
-    static func mapSystemPresetToEntity(id: UUID, name: String, protein: Int, carbs: Int, fats: Int, ordinal: Int) -> MacroPreset {
-        let breakdown = MacroBreakdown(
-            calories: 2000,  // Placeholder
-            carbs: carbs,
-            fat: fats,
-            protein: protein
-        )
-        let preset = MacroPreset(
-            id: id,
-            name: name,
-            primaryBreakdown: breakdown,
-            ordinal: Int16(ordinal),
-            isCustom: false
-        )
-        preset.systemId = name.lowercased().replacingOccurrences(of: " ", with: "_")
-        preset.createdAt = Date()
-        preset.updatedAt = Date()
-        return preset
     }
 }
