@@ -81,3 +81,19 @@ Work file by file and build after each group:
 - **Static `UIStyle` colours used widely:** migrating call sites is the bulk of the effort. Do it per file with builds in between.
 - **Palette drift:** the contrast unit test stops a later edit from breaking accessibility.
 - **Tinted backgrounds vs system list styling:** `List`/`Form` need `.scrollContentBackground(.hidden)` plus a palette background to show the theme tint.
+
+## Phase 4 notes (as implemented)
+- `ColorPalette` gained `editText`, `highlight` and `selection` roles. They default to `primary`; Default overrides them with the original red (edit text), teal (calorie card outline) and green (selected preset), so Default looks unchanged.
+- `UITextStyleResolver` takes the palette. The macro and colour constants were removed from `UIStyle`, and `ColorStyles.swift` was deleted (unused).
+- Grouped lists (System, Macro edit) use `themedGroupedList(palette)` plus `.listRowBackground(palette.surface)` per section.
+- Intentional exceptions left as literals:
+  - Validation and delete reds (semantic colours).
+  - Card shadows (`Color.black.opacity`).
+  - System grey fills on the Macro edit Cancel buttons.
+  - Preview-only code.
+  - Section icon hues (content colours). The unused protein/carbs/fats icons were not themed, so Default's green carbs leaf is unchanged.
+  - The macro presets page keeps the plain-list system background, because theming it would change Default.
+- Small Default differences:
+  - The protein macro cards use the shared red at 85% opacity, instead of the full red they used before.
+  - The share card's fat colour is now mint, matching the rest of the app, instead of teal.
+

@@ -9,6 +9,8 @@ import SwiftUI
 import Observation
 
 struct UIMainView: View {
+    @Environment(\.palette) private var palette
+    @Environment(ThemeManager.self) private var themeManager
     @Binding var profile: ProfileViewModel
     @Binding var path: [AppRoute]
     @State private var calculationResult = CalculatorResultViewModel()
@@ -41,7 +43,7 @@ struct UIMainView: View {
         Task {
             await recalculate()
             let shareModel = profile.createShareResultsModel(result: calculationResult)
-            presentationHandler?(ShareContent.make(format, model: shareModel, result: calculationResult))
+            presentationHandler?(ShareContent.make(format, model: shareModel, result: calculationResult, theme: themeManager.theme))
         }
     }
 
@@ -93,7 +95,7 @@ struct UIMainView: View {
     var body: some View {
         VStack {
             ZStack {
-                Color(.systemGroupedBackground)
+                palette.background
                     .ignoresSafeArea()
 
                 mainContent

@@ -14,6 +14,7 @@
 import SwiftUI
 
 struct UIWheelPickerAgeView: View {
+    @Environment(\.palette) private var palette
 
     @Binding var value: Int
     var optionsAge: [Int] = Array(16...99)
@@ -31,7 +32,7 @@ struct UIWheelPickerAgeView: View {
             Spacer()
 
             Text("age in years")
-                .foregroundStyle(.secondary)
+                .foregroundStyle(palette.textSecondary)
         }
     }
 }

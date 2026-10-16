@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct MacroInformationBarView: View {
+    @Environment(\.palette) private var palette
     
     @Bindable var item: MacroSplitOptionModel
     
@@ -19,27 +20,27 @@ struct MacroInformationBarView: View {
                 ZStack {
                     // Subtle background track
                     RoundedRectangle(cornerRadius: 8)
-                        .fill(Color(.systemGray5))
+                        .fill(palette.border)
                     
                     // Bar segments
                     HStack(spacing: 0) {
                         segment(
                             label: "P",
-                            color: UIStyle.Text.macroProtein,
+                            color: palette.macroProtein,
                             width: pWidth,
                             value: item.protein
                         )
                         
                         segment(
                             label: "C",
-                            color: UIStyle.Text.macroCarbs,
+                            color: palette.macroCarbs,
                             width: cWidth,
                             value: item.carbs
                         )
                         
                         segment(
                             label: "F",
-                            color: UIStyle.Text.macroFats,
+                            color: palette.macroFat,
                             width: fWidth,
                             value: item.fats
                         )

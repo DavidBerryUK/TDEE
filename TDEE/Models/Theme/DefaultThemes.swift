@@ -53,7 +53,10 @@ enum DefaultThemes {
             border: Color(.separator),
             macroProtein: .red.opacity(0.85),
             macroCarbs: .blue,
-            macroFat: .mint
+            macroFat: .mint,
+            editText: .red,
+            highlight: Color(red: 0.25, green: 0.75, blue: 0.75),
+            selection: .green
         )
         return Theme(id: .standard, name: "Default", description: "The app's original iOS system colours", light: system, dark: system)
     }()

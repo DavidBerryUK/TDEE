@@ -9,6 +9,7 @@ import SwiftUI
 
 /// A view section displaying macro targets (protein, carbs, fats) in grams.
 struct SectionMacroMixResults: View {
+    @Environment(\.palette) private var palette
 
     @Bindable var calculationResults: CalculatorResultViewModel
 
@@ -19,20 +20,20 @@ struct SectionMacroMixResults: View {
                     title: "protein \(calculationResults.proteinPercent)%",
                     value:  calculationResults.proteinGrams,
                     suffix:"g",
-                    color: .red
+                    color: palette.macroProtein
                 )
 
                 UICardNumericResult(
                     title: "carbs \(calculationResults.carbsPercent)%",
                     value: calculationResults.carbsGrams,
                     suffix:"g",
-                    color: .blue
+                    color: palette.macroCarbs
                 )
                 UICardNumericResult(
                     title: "fats \(calculationResults.fatsPercent)%",
                     value: calculationResults.fatsGrams,
                     suffix:"g",
-                    color: .mint
+                    color: palette.macroFat
                 )
             }
         }.padding(Spacing.large) // <-- Using central constant

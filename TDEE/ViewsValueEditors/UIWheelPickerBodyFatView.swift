@@ -14,6 +14,7 @@
 import SwiftUI
 
 struct UIWheelPickerBodyFatView: View {
+    @Environment(\.palette) private var palette
 
     @Binding var value: Double
 
@@ -36,7 +37,7 @@ struct UIWheelPickerBodyFatView: View {
             .accessibilityIdentifier("bodyFatPicker")
 
             Text(".")
-                .foregroundStyle(.secondary)
+                .foregroundStyle(palette.textSecondary)
                 .fontWeight(.black)
 
             Picker("Body fat decimal", selection: $valueDecimal) {
@@ -49,7 +50,7 @@ struct UIWheelPickerBodyFatView: View {
             .accessibilityIdentifier("bodyFatDecimalPicker")
 
             Text("%")
-                .foregroundStyle(.secondary)
+                .foregroundStyle(palette.textSecondary)
                 .padding(.leading, 2) // keeps it tight to it
         }
         .padding(.horizontal, 16) // page padding

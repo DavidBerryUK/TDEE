@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct UISectionSummaryValueCalorieAdjustment: View {
+    @Environment(\.palette) private var palette
 
     @Bindable var model: ProfileViewModel
     @Bindable var sectionManager: SectionManagerViewModel
@@ -26,14 +27,14 @@ struct UISectionSummaryValueCalorieAdjustment: View {
                     Text("\(model.calorieAdjustmentMethod.adjustmentPrefix)")
                         .contentTransition(.interpolate)
                         .animation(.easeInOut, value: model.age)
-                        .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded))
+                        .foregroundColor(UITextStyleResolver.fontColor(palette, isExpanded: isExpanded))
                         .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
                         .accessibilityLabel("Calorie adjustment method")
 
                     Text("\(Int(model.calorieAdjustment))")
                         .contentTransition(.numericText())
                         .animation(.easeInOut, value: model.age)
-                        .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded))
+                        .foregroundColor(UITextStyleResolver.fontColor(palette, isExpanded: isExpanded))
                         .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
                         .accessibilityLabel("Calorie adjustment value")
                 }

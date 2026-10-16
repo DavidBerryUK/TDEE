@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct UISectionSummaryValueAge: View {
+    @Environment(\.palette) private var palette
 
     @Bindable var model: ProfileViewModel
     @Bindable var sectionManager: SectionManagerViewModel
@@ -20,7 +21,7 @@ struct UISectionSummaryValueAge: View {
             Text("\(model.age)")
                 .contentTransition(.numericText())
                 .animation(.easeInOut, value: model.age)
-                .foregroundColor(UITextStyleResolver.fontColor(isExpanded: isExpanded))
+                .foregroundColor(UITextStyleResolver.fontColor(palette, isExpanded: isExpanded))
                 .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
                 .accessibilityLabel("Age value")
                 .accessibilityValue("\(model.age)")

@@ -37,3 +37,13 @@ private struct PaletteResolver<Content: View>: View {
             .tint(palette.primary)
     }
 }
+
+extension View {
+    /// Replaces a grouped `List`/`Form`'s system background with the palette's.
+    /// Sections set `.listRowBackground(palette.surface)` for their rows.
+    func themedGroupedList(_ palette: ColorPalette) -> some View {
+        self
+            .scrollContentBackground(.hidden)
+            .background(palette.background)
+    }
+}

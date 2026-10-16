@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct MainSectionMacroMix: View {
+    @Environment(\.palette) private var palette
 
     let profile: ProfileViewModel
     let sectionManager: SectionManagerViewModel
@@ -15,7 +16,7 @@ struct MainSectionMacroMix: View {
                 .id("MacroSplit")
             Divider()
         }
-        .background(Color.white)
+        .background(palette.surface)
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
         .clipped()

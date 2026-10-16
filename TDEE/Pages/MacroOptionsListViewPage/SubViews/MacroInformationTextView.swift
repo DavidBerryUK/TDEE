@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct MacroInformationTextView: View {
+    @Environment(\.palette) private var palette
     
     @Bindable var item: MacroSplitOptionModel
     
@@ -16,26 +17,26 @@ struct MacroInformationTextView: View {
             
             HStack(spacing: 4) {
                 Image(systemName: "bolt.fill")
-                    .foregroundStyle(UIStyle.Text.macroProtein)
+                    .foregroundStyle(palette.macroProtein)
                 Text("protein \(item.protein)%")
             }
             
             HStack(spacing: 4) {
                 Image(systemName: "leaf.fill")
-                    .foregroundStyle(UIStyle.Text.macroCarbs)
+                    .foregroundStyle(palette.macroCarbs)
                 Text("carbs \(item.carbs)%")
             }
             
             HStack(spacing: 4) {
                 Image(systemName: "drop.fill")
-                    .foregroundStyle(UIStyle.Text.macroFats)
+                    .foregroundStyle(palette.macroFat)
                 Text("fats \(item.fats)%")
             }
             
             Spacer()
         }
         .font(.caption2)
-        .foregroundStyle(.secondary)
+        .foregroundStyle(palette.textSecondary)
     }
 }
 

@@ -24,6 +24,7 @@ private let iconCatalog: [Icon: IconModel] = [
 struct UIIcon: View {
     let icon: Icon
     let style: IconStyle
+    @Environment(\.palette) private var palette
     
     var body: some View {
         if let iconInfo = iconCatalog[icon] {
@@ -39,9 +40,9 @@ struct UIIcon: View {
                 case .coloredSolid:
                     return (iconInfo.symbolSolid, iconInfo.color, nil, nil)
                 case .plainSolid:
-                    return (iconInfo.symbolSolid, .primary, nil, nil)
+                    return (iconInfo.symbolSolid, palette.text, nil, nil)
                 case .plainOutline:
-                    return (iconInfo.symbolOutlined, .primary, nil, nil)
+                    return (iconInfo.symbolOutlined, palette.text, nil, nil)
                 }
             }()
             
@@ -57,7 +58,7 @@ struct UIIcon: View {
             Image(systemName: "questionmark")
                 .font(.system(size: 24, weight: .bold))
                 .frame(width: 38, height: 38)
-                .foregroundStyle(.gray)
+                .foregroundStyle(palette.textSecondary)
         }
     }
 }

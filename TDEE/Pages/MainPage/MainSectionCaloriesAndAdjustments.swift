@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct MainSectionCaloriesAndAdjustments: View {
+    @Environment(\.palette) private var palette
     let profile: ProfileViewModel
     let calculationResult: CalculatorResultViewModel
     let sectionManager: SectionManagerViewModel
@@ -14,7 +15,7 @@ struct MainSectionCaloriesAndAdjustments: View {
                 SectionCalorieAdjustment(profile: profile, sectionManager: sectionManager, proxy: outerScrollViewProxy)
                     .id("CalorieAdjustment")
             }
-            .background(Color.white)
+            .background(palette.surface)
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
             .frame(maxHeight: profile.isValid ? .infinity : 0, alignment: .top)
