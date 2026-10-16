@@ -9,6 +9,7 @@ import SwiftUI
 struct WatchMainView: View {
 
     let profile: ProfileViewModel
+    let macroCollection: MacroSplitOptionsModelCollection
     @State private var result = CalculatorResultViewModel()
 
     /// Everything the result depends on. `.task(id:)` re-runs the calculation when it changes.
@@ -58,6 +59,7 @@ struct WatchMainView: View {
                 row("Activity", value: profile.activityLevel.displayName) { WatchActivityLevelView(profile: profile) }
                 row("Body Fat", value: bodyFatSummary) { WatchBodyFatView(profile: profile) }
                 row("Adjust", value: adjustmentSummary) { WatchCalorieAdjustmentView(profile: profile) }
+                row("Macros", value: macroName) { WatchMacroPresetsView(profile: profile, macroCollection: macroCollection) }
             }
         }
         .navigationTitle("TDEE")
@@ -70,6 +72,10 @@ struct WatchMainView: View {
         profile.bodyFatPercentageMethod == .manualEntry
             ? String(format: "%.1f%%", profile.bodyFatPercentage)
             : profile.bodyFatPercentageMethod.displayName
+    }
+
+    private var macroName: String {
+        macroCollection.items.first { $0.id == profile.selectedMacroId }?.name ?? "Custom"
     }
 
     private var adjustmentSummary: String {
@@ -85,18 +91,18 @@ struct WatchMainView: View {
             if let message = result.message {
                 Text(message)
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(WatchPalette.textSecondary)
             } else {
                 Text("\(result.caloriesAdjustedPerDay)")
                     .font(.system(.largeTitle, design: .rounded, weight: .bold))
                 Text("calories per day")
                     .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(WatchPalette.textSecondary)
 
                 HStack {
-                    macro("Protein", grams: result.proteinGrams, colour: .red)
-                    macro("Carbs", grams: result.carbsGrams, colour: .blue)
-                    macro("Fats", grams: result.fatsGrams, colour: .yellow)
+                    macro("Protein", grams: result.proteinGrams, colour: WatchPalette.macroProtein)
+                    macro("Carbs", grams: result.carbsGrams, colour: WatchPalette.macroCarbs)
+                    macro("Fats", grams: result.fatsGrams, colour: WatchPalette.macroFat)
                 }
                 .padding(.top, 4)
             }
@@ -112,7 +118,7 @@ struct WatchMainView: View {
                 Text(title)
                 Spacer()
                 Text(value)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(WatchPalette.textSecondary)
             }
         }
     }
@@ -124,7 +130,7 @@ struct WatchMainView: View {
                 .foregroundStyle(colour)
             Text(name)
                 .font(.caption2)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(WatchPalette.textSecondary)
         }
         .frame(maxWidth: .infinity)
     }
