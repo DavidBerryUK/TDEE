@@ -34,6 +34,7 @@ struct UIWheelPickerAgeView: View {
             Text("age in years")
                 .foregroundStyle(palette.textSecondary)
         }
+        .padding(.horizontal, Spacing.large)
     }
 }
 
