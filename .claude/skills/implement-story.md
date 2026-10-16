@@ -1,5 +1,5 @@
 # implement-story
-Guide for implementing a story in the SimpleTest iOS project.
+Guide for implementing a story in the TDEE iOS project.
 
 # Steps to Implement a Story
 
@@ -16,7 +16,7 @@ git checkout -b features/story-<NNN>-<short-slug>
 
 ## 3. Verify baseline tests pass
 ```bash
-xcodebuild -project SimpleTest.xcodeproj -scheme SimpleTest -configuration Debug test
+xcodebuild -project TDEE.xcodeproj -scheme TDEE -configuration Debug test
 ```
 
 ## 4. Read story and resolve open questions
@@ -30,7 +30,7 @@ Write code and tests together.
 
 ## 7. Run full test suite
 ```bash
-xcodebuild -project SimpleTest.xcodeproj -scheme SimpleTest -configuration Debug test
+xcodebuild -project TDEE.xcodeproj -scheme TDEE -configuration Debug test
 ```
 
 ## 8. Update documentation
