@@ -23,6 +23,7 @@ This directory contains user stories for the SimpleTest iOS project.
 | 015 | Share Results | In Planning |
 | 016 | Test Macro Editor Update | In Planning |
 | 017 | SwiftData Persistence Fixes | Done |
+| 019 | Dynamic Type Section Rows | Done |
 
 ## Story 015: Share Results
 
