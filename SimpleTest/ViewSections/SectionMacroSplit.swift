@@ -38,25 +38,30 @@ struct SectionMacroSplit: View {
                         .padding(.top, Spacing.medium)
                         .padding(.bottom, Spacing.small)
 
-                    // Menu with dual navigation options
-                    Menu {
-                        Button("Edit Current Macro") {
+                    HStack {
+                        // Customise button - Edit Current Macro
+                        Button("Customise") {
                             // Navigate directly to edit the currently selected macro
                             if let currentMacro = macroCollection.items.first(where: { $0.id == profile.selectedMacroId }) {
                                 path.append(.macroEditorEdit(currentMacro))
                             }
                         }
-                        Button("Manage Presets") {
+                        .foregroundColor(.accentColor)
+                        .font(.body.weight(.semibold))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .padding(.horizontal)
+
+                        // Edit Presets button - Manage Presets
+                        Button("Edit Presets") {
                             // Navigate to full list
                             path.append(.maintainMacroConfig)
                         }
-                    } label: {
-                        Text("Customise")
-                            .foregroundColor(.accentColor)
-                            .font(.body.weight(.semibold))
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
-                            .padding(.horizontal)
+                        .foregroundColor(.accentColor)
+                        .font(.body.weight(.semibold))
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .padding(.horizontal)
                     }
                 }
             },

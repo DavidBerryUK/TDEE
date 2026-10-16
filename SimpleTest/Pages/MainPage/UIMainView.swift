@@ -14,7 +14,7 @@ struct UIMainView: View {
     @State private var calculationResult = CalculatorResultViewModel()
     @State private var isCalculating = true
     @State var sectionManager = SectionManagerViewModel()
-    var presentationHandler: ((String) -> Void)?
+    var presentationHandler: ((ShareContent) -> Void)?
 
     @Environment(MacroSplitOptionsModelCollection.self) private var globalMacroCollection
 
@@ -33,6 +33,16 @@ struct UIMainView: View {
     private func syncEditedMacro() {
         guard let selected = globalMacroCollection.items.first(where: { $0.id == profile.selectedMacroId }) else { return }
         profile.syncMacros(from: selected)
+    }
+
+    private func share(_ format: ShareContent.Format) {
+        guard profile.isValid else { return }
+        // Trigger a fresh recalculation before sharing
+        Task {
+            await recalculate()
+            let shareModel = profile.createShareResultsModel(result: calculationResult)
+            presentationHandler?(ShareContent.make(format, model: shareModel, result: calculationResult))
+        }
     }
 
     private func recalculate() async {
@@ -90,16 +100,12 @@ struct UIMainView: View {
             }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        guard profile.isValid else { return }
-                        // Trigger a fresh recalculation before sharing
-                        Task {
-                            await recalculate()
-                            // Wait a moment for the state to update
-                            await MainActor.run {
-                                let shareModel = profile.createShareResultsModel(result: calculationResult)
-                                presentationHandler?(shareModel.shareText)
-                            }
+                    Menu {
+                        Button("Share Image", systemImage: "photo") {
+                            share(.image)
+                        }
+                        Button("Share Text", systemImage: "text.alignleft") {
+                            share(.text)
                         }
                     } label: {
                         Image(systemName: "square.and.arrow.up")
