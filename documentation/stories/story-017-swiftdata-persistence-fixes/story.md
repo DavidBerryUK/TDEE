@@ -65,7 +65,7 @@ Unit tests use an in-memory `SwiftDataContainer(isInMemory: true)`, with a secon
 
 ## Status
 
-Implemented on `features/story-017-swiftdata-persistence-fixes` (plan phases 1-5b). All unit tests pass, including the new `SwiftDataPersistenceTests`. Manual simulator walkthrough (S1-S10, S13) is still pending.
+Implemented on `features/story-017-swiftdata-persistence-fixes` (plan phases 1-5b). All unit tests pass, including the new `SwiftDataPersistenceTests`. Manual simulator walkthrough (S1-S10, S13) completed by Dave: working.
 
 Defects found while testing, all fixed:
 - `ProfileMapper.mapToViewModel` created a new `ProfileViewModel`, whose init starts another load, so once a profile was stored loading recursed forever. It is replaced by `ProfileMapper.apply(_:to:)`.
