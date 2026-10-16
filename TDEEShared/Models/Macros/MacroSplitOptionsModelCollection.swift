@@ -1,6 +1,5 @@
 import Observation
 import Foundation
-import SwiftUI
 
 /// Collection of all the Macro Split Options
 @Observable
@@ -141,7 +140,11 @@ final class MacroSplitOptionsModelCollection {
 
     func move(from source: IndexSet, to destination: Int) {
         var updated = sortedItems
-        updated.move(fromOffsets: source, toOffset: destination)
+        // Same result as SwiftUI's move(fromOffsets:toOffset:), without importing SwiftUI
+        let moving = source.sorted().map { updated[$0] }
+        let removedBeforeDestination = source.filter { $0 < destination }.count
+        source.sorted(by: >).forEach { updated.remove(at: $0) }
+        updated.insert(contentsOf: moving, at: destination - removedBeforeDestination)
 
         // Reassign ordinals
         for (index, item) in updated.enumerated() {
