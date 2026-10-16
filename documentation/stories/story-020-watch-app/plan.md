@@ -7,7 +7,7 @@
 5. **Input screens (done; weight in kg and height in cm only, see Out of Scope).** One view per property with a wheel `Picker` and `NavigationLink`. Reuse the ranges and unit options from the phone.
 6. **Presets screen (done).** Choose from the stored presets.
 7. **Fixed palette (done: `WatchPalette`).** One dark palette in the watch target. No `ThemeManager`.
-8. **Tests.** Run the existing tests. Add a check that a fixed input gives the same TDEE and macros on both targets.
+8. **Tests (done: `CalculationParityTests`).** Run the existing tests. Add a check that a fixed input gives the same TDEE and macros on both targets.
 9. **Manual check** in a watch simulator, paired with an iPhone simulator if needed.
 
 ## Risks
