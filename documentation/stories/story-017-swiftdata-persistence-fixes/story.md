@@ -47,7 +47,7 @@
 - One shared `MacroSplitOptionsModelCollection` instance, backed by the repository, injected via the environment and loaded at launch.
 - Repository operations: upsert preset by `id`, delete preset, fetch ordered presets, seed-if-empty, upsert single active profile.
 - Add vs edit handled explicitly by the editor and collection.
-- Persist `selectedMacroId` and the remaining profile fields (schema change: confirm lightweight migration with existing installs).
+- Persist `selectedMacroId` and the remaining profile fields (schema changes are free: the app is not distributed, so no migration is required; delete the app to clear old stores).
 - Calories are derived from the TDEE calculation and are not stored. Remove the placeholder 2000 and the calories fields from `MacroPreset`/`MacroBreakdown`.
 - System menu has a "Reset Macro Presets to Defaults" action with a confirmation, backed by a repository/collection `resetToDefaults()`.
 - No duplicate rows for the same preset or profile id, verified by tests.

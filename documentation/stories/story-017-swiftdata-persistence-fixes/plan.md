@@ -32,15 +32,15 @@ Make the collection's persistence awaitable for tests (currently `Task {}` fire 
 - Guard against deleting the last remaining macro (disable delete, or reseed)
 
 ## Phase 4: Persist selection and missing profile fields (cause 7)
-- Add to `Profile`: `selectedMacroId: UUID?`, `bodyFatMethodRaw`, `calorieAdjustmentMethodRaw`, `calorieAdjustment`. Use optional or defaulted properties so SwiftData lightweight migration works with existing installs
+- Add to `Profile`: `selectedMacroId: UUID?`, `bodyFatMethodRaw`, `calorieAdjustmentMethodRaw`, `calorieAdjustment`. No migration or defaults are needed because the app is not distributed, so change the schema freely
 - Update `ProfileMapper` and `ProfileViewModel.loadFromSwiftData`
-- Tests: round trip of each field; the migration case is checked manually (install the old build, then the new one)
+- Tests: round trip of each field
 
 ## Phase 5: Remove stored calories (cause 8)
 Calories are derived from the TDEE calculation, so they are not persisted.
 - Remove `calories` from `MacroBreakdown` and `primaryCalories`/`secondaryCalories` from `MacroPreset`; drop the 2000 placeholder in `MacroPresetMapper`
 - Remove the unused secondary breakdown fields too, and the unused `OptionMacroSplit` enum if nothing references it
-- Schema change: removing stored properties is a lightweight migration in SwiftData. Verify by upgrading an install from the previous build (manual)
+- Schema change: the app is not distributed, so no migration is needed. Delete the app from the simulator/devices to clear the old store
 - Check nothing else reads preset calories (grep `primaryCalories`, `.calories`)
 
 ## Phase 5b: Reset to defaults (S13)
@@ -58,6 +58,6 @@ Walk S1–S10 and S13 with a force-quit between steps; record results in `story.
 - Merge into `develop` (see the implement-story skill)
 
 ## Risks
-- Schema change breaks existing installs: mitigate with defaulted properties and a manual upgrade test
+- Schema changes invalidate local stores on dev installs: delete the app from the simulator/device after schema changes (no migration needed, not distributed)
 - Fire-and-forget saves racing with relaunch: mitigate by awaiting saves in tests, and saving immediately (not throttled) for presets
 - Deleting the selected macro leaves a dangling `selectedMacroId`: Phase 3
