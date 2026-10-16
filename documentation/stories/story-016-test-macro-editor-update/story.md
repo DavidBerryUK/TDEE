@@ -266,13 +266,56 @@ Scenario 2: Edit from List / Manage Presets
 
 1. The `@Observable` macro on `ProfileViewModel` and `MacroSplitOptionsModelCollection` should automatically propagate changes, but we need to verify the main screen is observing the right values.
 
-2. The `syncSelectedMacro()` method in `ProfileViewModel` reads from a NEW `MacroSplitOptionsModelCollection` instance rather than the environment one. This should be reviewed:
+2. **CRITICAL BUG DISCOVERED:** The `syncSelectedMacro()` and `createShareResultsModel()` methods in `ProfileViewModel` create a NEW `MacroSplitOptionsModelCollection(items: FactoryMacroSplits.get())` instead of using the environment-injected collection.
+
+### Bug Details
+
+**Location:** `ProfileViewModel.swift`
+- **Line 272:** `syncSelectedMacro()`
+- **Line 288:** `createShareResultsModel()`
+
+**Current (buggy) code:**
 ```swift
 private func syncSelectedMacro() {
     if let selected = MacroSplitOptionsModelCollection(items: FactoryMacroSplits.get()).items.first(where: { $0.id == selectedMacroId }) {
         syncMacros(from: selected)
     }
 }
+
+func createShareResultsModel(result: CalculatorResultViewModel) -> ShareResultsModel {
+    let macroCollection = MacroSplitOptionsModelCollection(items: FactoryMacroSplits.get())
+    let selectedMacro = macroCollection.items.first(where: { $0.id == selectedMacroId })
+    // ...
+}
 ```
 
-This could be a bug - it's not using the environment collection, so updates to presets might not sync properly.
+**Why this is a bug:**
+1. When a user edits a macro preset via `MacroEditViewPage`, it updates the collection in the environment
+2. But `ProfileViewModel` creates a NEW collection instance with only factory presets
+3. This causes the UI to not update after editing
+4. The share results won't show any custom presets the user created
+
+**How to fix:**
+Add a property to `ProfileViewModel` that holds the macro collection:
+
+```swift
+@Environment(MacroSplitOptionsModelCollection.self) private var macroCollection
+```
+
+Then update both methods to use it:
+
+```swift
+private func syncSelectedMacro() {
+    if let selected = macroCollection.items.first(where: { $0.id == selectedMacroId }) {
+        syncMacros(from: selected)
+    }
+}
+
+func createShareResultsModel(result: CalculatorResultViewModel) -> ShareResultsModel {
+    let selectedMacro = macroCollection.items.first(where: { $0.id == selectedMacroId })
+    // ...
+}
+```
+
+**Why this happened:**
+The file uses both `@Environment` for dependencies AND creates new instances locally. The `@Environment` property wrapper exists (line 19 in UIMainView) but isn't passed down to ProfileViewModel - it should be injected via the initializer or as a property.
