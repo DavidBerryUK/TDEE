@@ -1,6 +1,6 @@
 # compile
 
-Compile the SimpleTest iOS app using Xcode.
+Compile the TDEE iOS app using Xcode.
 
 ## Usage
 
@@ -8,7 +8,7 @@ When the user asks to compile, build, or run the app, use this skill to execute 
 
 ## Parameters
 
-- **scheme**: The Xcode scheme to build (default: `SimpleTest`)
+- **scheme**: The Xcode scheme to build (default: `TDEE`)
 - **configuration**: The build configuration (default: `Debug`)
 - **sdk**: The SDK to use (default: `iphonesimulator`)
 - **destination**: The simulator destination (default: `platform=iOS Simulator,name=iPhone 17 Pro Max`)
@@ -17,7 +17,7 @@ When the user asks to compile, build, or run the app, use this skill to execute 
 
 ```
 /Applications/Xcode-27.2.0-Beta.3.app/Contents/Developer/usr/bin/xcodebuild \
-  -project SimpleTest.xcodeproj \
+  -project TDEE.xcodeproj \
   -scheme <scheme> \
   -configuration <configuration> \
   -sdk <sdk> \

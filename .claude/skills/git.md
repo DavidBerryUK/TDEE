@@ -1,6 +1,6 @@
 # git
 
-Perform git operations for the SimpleTest iOS project.
+Perform git operations for the TDEE iOS project.
 
 ## Usage
 
