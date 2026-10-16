@@ -13,6 +13,14 @@ internal enum WatchRanges {
     static let age = Array(16...99)
     static let weightKg = Array(0...250)
     static let heightCm = Array(0...272)
+
+    // Non-metric wheel options, matching the iPhone pickers (UIWheelPickerWeight/HeightView).
+    static let weightPounds = Array(0...550)
+    static let weightStones = Array(0...40)
+    static let weightStonePounds = Array(0...13)
+    static let heightInches = Array(0...107)
+    static let heightFeet = Array(0...8)
+    static let heightFeetInches = Array(0...11)
     /// Whole percent. The calculation only accepts 5-50% (`validateForCalculation`).
     static let bodyFatInteger = Array(5...50)
     static let bodyFatDecimal = Array(0...9)
