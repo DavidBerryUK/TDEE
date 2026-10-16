@@ -14,10 +14,8 @@ struct MacroOptionsListCardView: View {
     }
 
     func handleOnSelect(item: MacroSplitOptionModel) {
-        // Mark this item as selected, update profile's selection, and return to previous screen
-        collection.selectItem(byId: item.id)
-        selectedMacroId = item.id
-        path.removeLast()
+        // Navigate to edit screen (same as swipe-left edit action)
+        path.append(.macroEditorEdit(item))
     }
 
     func handleOnEdit(item: MacroSplitOptionModel) {

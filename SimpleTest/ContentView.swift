@@ -81,10 +81,9 @@ struct ContentView: View {
                     case .about:
                         AboutPage()
                     case .macroEditorCreate:
-                        MacroEditViewPage(item: nil, onDismissAll: nil)
+                        MacroEditViewPage(path: $path, item: nil)
                     case .macroEditorEdit(let item):
-                        // For editing, clear the path to go back to main screen
-                        MacroEditViewPage(item: item, onDismissAll: { path.removeAll() })
+                        MacroEditViewPage(path: $path, item: item)
                     }
                 }
         }

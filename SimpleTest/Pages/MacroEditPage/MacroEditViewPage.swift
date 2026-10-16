@@ -13,27 +13,20 @@ struct MacroEditViewPage: View {
 
     var isNew: Bool
 
-    // Callback to dismiss all the way back to main screen
-    var onDismissAll: (() -> Void)?
-
     init(
         path: Binding<[AppRoute]> = .constant([]),
-        item: MacroSplitOptionModel? = nil,
-        onDismissAll: (() -> Void)? = nil
+        item: MacroSplitOptionModel? = nil
     ) {
         self._path = path
         self.isNew = (item == nil)
         self._editMacro = State(initialValue: (item == nil) ? MacroSplitOptionModel() : item!.clone())
-        self.onDismissAll = onDismissAll
     }
     
     // MARK: - Actions
-    
+
     private func handleOnDelete() {
-        
-            collection.remove(editMacro)
-            dismiss()
-        
+        collection.remove(editMacro)
+        dismiss()
     }
     
     // MARK: - View
@@ -97,12 +90,10 @@ struct MacroEditViewPage: View {
                 }
             }
             ToolbarItem(placement: .topBarTrailing) {
-                Button("Done") {
+                Button("Save") {
                     collection.update(editMacro)
-                    // Dismiss this editor view
+                    // Dismiss this editor view and return to list
                     dismiss()
-                    // If we have a callback to dismiss all the way, use it
-                    onDismissAll?()
                 }
                 .disabled(
                     editMacro.name.isEmpty ||
@@ -115,6 +106,7 @@ struct MacroEditViewPage: View {
                 onConfirm: {
                     showDeleteSheet = false
                     collection.remove(editMacro)
+                    dismiss()
                 },
                 onCancel: {
                     showDeleteSheet = false
