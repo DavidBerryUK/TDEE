@@ -19,6 +19,10 @@ struct WatchWeightView: View {
                 ForEach(WatchRanges.weightKg, id: \.self) { Text("\($0) kg").tag($0) }
             }
         }
+        // A new profile has no weight: start the wheel near a typical value
+        .onAppear {
+            if profile.weight == 0 { profile.weight = WatchRanges.startingWeightKg }
+        }
     }
 }
 

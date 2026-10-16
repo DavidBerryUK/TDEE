@@ -14,7 +14,8 @@ internal struct WheelScreen<Content: View>: View {
     var body: some View {
         content
             .pickerStyle(.wheel)
+            // The screen title already names the value; VoiceOver still reads each picker's own label
+            .labelsHidden()
             .navigationTitle(title)
-            .accessibilityLabel(title)
     }
 }

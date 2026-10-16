@@ -14,4 +14,6 @@ enum WatchPalette {
     /// Marks the selected macro preset.
     static let selection = Color.green
     static let textSecondary = Color.secondary
+    /// Marks inputs a new profile still needs.
+    static let attention = Color.orange
 }

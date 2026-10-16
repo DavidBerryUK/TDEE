@@ -13,7 +13,11 @@ struct WatchBodyFatView: View {
     private var bodyFatTenths: Binding<Int> {
         Binding(
             get: { Int((profile.bodyFatPercentage * 10).rounded()) },
-            set: { profile.bodyFatPercentage = Double($0) / 10 }
+            set: {
+                // 50.x is over the limit, so clamp to the accepted range
+                let percent = Double($0) / 10
+                profile.bodyFatPercentage = min(max(percent, WatchRanges.bodyFatPercent.lowerBound), WatchRanges.bodyFatPercent.upperBound)
+            }
         )
     }
 
@@ -56,6 +60,12 @@ struct WatchBodyFatView: View {
             }
         }
         .navigationTitle("Body Fat")
+        // Manual entry needs a value the calculation accepts; a new profile has 0%
+        .onChange(of: profile.bodyFatPercentageMethod, initial: true) { _, method in
+            if method == .manualEntry, !WatchRanges.bodyFatPercent.contains(profile.bodyFatPercentage) {
+                profile.bodyFatPercentage = WatchRanges.startingBodyFatPercent
+            }
+        }
     }
 }
 

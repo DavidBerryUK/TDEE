@@ -13,8 +13,17 @@ internal enum WatchRanges {
     static let age = Array(16...99)
     static let weightKg = Array(0...250)
     static let heightCm = Array(0...272)
-    static let bodyFatInteger = Array(0...99)
+    /// Whole percent. The calculation only accepts 5-50% (`validateForCalculation`).
+    static let bodyFatInteger = Array(5...50)
     static let bodyFatDecimal = Array(0...9)
     /// Same limits as `CalorieAdjustmentConstants` on the iPhone (that file is iPhone-only).
+    /// Accepted body fat percentage, matching `validateForCalculation`.
+    static let bodyFatPercent = 5.0...50.0
+
+    // Where an empty (0) value starts when its screen opens, so the user scrolls a little, not from 0.
+    static let startingWeightKg = 70.0
+    static let startingHeightCm = 170.0
+    static let startingBodyFatPercent = 20.0
+
     static let adjustment = Array(stride(from: 0, through: 1000, by: 25))
 }
