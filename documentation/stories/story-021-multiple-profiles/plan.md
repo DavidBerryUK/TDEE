@@ -5,16 +5,24 @@ and the storage foundation Story 014 left behind. The active profile re-points t
 `ProfileViewModel` rather than swapping the bound instance, keeping the architecture the whole view tree
 is built on.
 
+## Decisions
+
+1. **Main profile identified by name** — The Main profile is the one with `name == "Main"`, not a fixed
+   UUID. This allows flexibility and clearer semantics.
+2. **Delete protection** — The Main profile cannot be deleted; also, the last remaining profile cannot
+   be deleted (always keep at least one).
+3. **No migration** — The app hasn't released yet; device wipe on upgrade is acceptable.
+
 ## Phase 1 — Data model & persistence (TDEEShared)
 
-- **`Profile.swift`** — add `var name: String` (with a default, e.g. `"Main"`). Story 014's *plan*
-  carried `name: String?`; the implemented schema dropped it, so add it now.
-- **`ProfileRepository.swift`** — keep `activeProfileId` (`:11`) as the **Main** profile's id (the
-  migration anchor and the launch default). Add:
-  - `fetchAllProfiles() -> [Profile]` (sorted; Main first)
+- **`Profile.swift`** — add `var name: String` (no default; required field). Story 014's *plan* carried
+  `name: String?`; the implemented schema dropped it, so add it now.
+- **`ProfileRepository.swift`** — remove the fixed `activeProfileId` (`:11`). Add:
+  - `fetchMainProfile() -> Profile?` — fetch profile where `name == "Main"`
+  - `fetchAllProfiles() -> [Profile]` (sorted: Main first, then by name)
   - `fetchProfile(byId: UUID) -> Profile?`
   - `createProfile(name: String) -> Profile` (new `UUID`, `SeedData.profileDefaults()`, `name`)
-  - `deleteProfile(byId:)`
+  - `deleteProfile(byId:)` — **guarded: refuses if profile is Main OR if it's the last profile**
 - **`ProfileMapper.swift`** — thread `name` through both `apply(_:to:)` (`:9-21`) and
   `mapToEntity(_:existing:)` (`:26-59`).
 
@@ -22,24 +30,21 @@ is built on.
 
 - **New `ProfileStore.swift`** — a small `@Observable @MainActor` object mirroring
   `MacroSplitOptionsModelCollection` (`TDEEShared/Models/Macros/MacroSplitOptionsModelCollection.swift`):
-  holds the list of profile summaries (`id`, `name`, active flag), the in-session active id (defaulting
-  to the Main id — no cross-launch persistence, per the decision), and CRUD (`add(name:)`, `delete`,
-  `switch(to:)`). It does **not** own the `ProfileViewModel`; `switch(to:)` calls
-  `activeVM.switchProfile(to:)`.
+  holds the list of profile summaries (`id`, `name`, active flag), the in-session active profile id
+  (defaulting to Main by fetching profile where `name == "Main"`), and CRUD (`add(name:)`, `delete`,
+  `switch(to:)`). Delete is guarded: refuses Main profile or if it's the last profile.
 
 ## Phase 3 — View model (TDEEShared)
 
-- **`ProfileViewModel.swift`** — add `var name: String` and `var profileId: UUID` (defaulting to the
-  Main id).
-  - `load()` (`:180-191`) fetches **by `profileId`** (via `fetchProfile(byId:)`) instead of
-    `fetchActiveProfile()`.
-  - `saveToSwiftData()` (`:212-227`) fetches the existing entity **by `profileId`** and only creates
-    with `profileId` when none exists — drop the forced `activeProfileId` at `:216`.
+- **`ProfileViewModel.swift`** — add `var name: String` (from profile entity) and `var profileId: UUID`.
+  - `load(profileId:)` — fetch profile **by `profileId`** (via `fetchProfile(byId:)`).
+  - `saveToSwiftData()` — fetch existing entity **by `profileId`** and only create with `profileId`
+    when none exists — drop the forced `activeProfileId` at `:216`.
   - Add `func switchProfile(to id: UUID)` — set `profileId`, cancel any pending save, reload that entity
     under the `isLoading` guard (so the re-pointed fields don't save into the wrong row), then
     `refreshResults()`.
-  - **Keep `init(profileRepository:macroCollection:)` (`:151-161`) unchanged** so the ~30 existing
-    `ProfileViewModel()` construction call sites/tests keep compiling.
+  - **Keep `init(profileRepository:macroCollection:)` unchanged** so the ~30 existing construction
+    call sites/tests keep compiling (uses a default profileId which gets overridden by load).
 
 ## Phase 4 — App wiring (TDEE)
 
@@ -71,20 +76,12 @@ is built on.
   `.onChange` handlers (`:119-162`) don't fire across an instance re-point, so the switch must trigger the
   recompute here. (The switch *control* itself lives in `ContentView`'s toolbar — see Phase 4.)
 
-## Phase 6 — Migration
+## Phase 6 — Tests (TDEETests)
 
-- Adding `name` with a default is an automatic SwiftData migration; existing installs gain it cleanly.
-- On first launch after upgrade, the legacy single row (the fixed `activeProfileId`) becomes the **Main**
-  profile with `name = "Main"`; if no profile row exists, create the Main profile from
-  `SeedData.profileDefaults()`. No data is lost — the existing profile just gains a name.
-
-## Phase 7 — Tests (TDEETests)
-
-- **`SwiftDataPersistenceTests.swift`** — `singleProfile()` (`:150-164`) hard-codes the one-profile
-  invariant (`id == activeProfileId`, `age == 42`); update it to assert the **Main** profile persists and
-  add cases: `createProfile` + `fetchAllProfiles`, `deleteProfile` (Main protected), and a name
-  round-trip. `profileRoundTrip()` (`:166-191`) keeps passing because the convenience `init()` still
-  loads the active/Main profile.
+- **`SwiftDataPersistenceTests.swift`** — update `singleProfile()` to assert the **Main** profile
+  persists (by `name == "Main"`); add cases: `createProfile` + `fetchAllProfiles`, `deleteProfile`
+  (Main protected, last-profile protected), and a name round-trip. `profileRoundTrip()` keeps passing
+  because the convenience `init()` still loads the active/Main profile.
 - The ~30 `ProfileViewModel()` construction tests (`TDEETests.swift`, `CalculationParityTests.swift`,
   `ShareResultsModelTests.swift`, `ThemeTests.swift`) are **unaffected** because the existing `init`
   signature is unchanged.
@@ -104,7 +101,7 @@ TDEE/Pages/ProfileEditPage/ProfileEditViewPage.swift   (+ DeleteConfirmationShee
 | File | Change |
 |------|--------|
 | `TDEEShared/Models/SwiftData/Profile.swift` | Add `name: String` |
-| `TDEEShared/Models/SwiftData/ProfileRepository.swift` | `fetchAllProfiles` / `fetchProfile(byId:)` / `createProfile(name:)` / `deleteProfile(byId:)`; `activeProfileId` = Main id |
+| `TDEEShared/Models/SwiftData/ProfileRepository.swift` | `fetchMainProfile` / `fetchAllProfiles` / `fetchProfile(byId:)` / `createProfile(name:)` / `deleteProfile(byId:)` |
 | `TDEEShared/Models/SwiftData/ProfileMapper.swift` | Thread `name` both directions |
 | `TDEEShared/Models/ProfileViewModel/ProfileViewModel.swift` | `name`, `profileId`, `switchProfile(to:)`; load/save by id; keep old `init` |
 | `TDEE/TDEEApp.swift` | Create + inject `ProfileStore` |
@@ -126,8 +123,6 @@ TDEE/Pages/ProfileEditPage/ProfileEditViewPage.swift   (+ DeleteConfirmationShee
 
 ## Risks
 
-- **Migration of the legacy row** — the fixed `activeProfileId` must map to the Main profile with a name;
-  a bad migration loses the user's existing profile. Test the "existing install" path.
 - **Re-pointing the single instance** — `switchProfile` must run under the `isLoading` guard so a
   re-pointed field's `didSet` doesn't save into the wrong row; and the main screen must recompute
   explicitly (its `.onChange` handlers won't fire on a new instance).

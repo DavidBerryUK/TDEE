@@ -20,6 +20,7 @@ That is this story. Today the "single profile" assumption is hard-wired in a few
 - `ProfileViewModel` is a single long-lived `@Observable` instance created once in `TDEEApp`, threaded
   by binding through the whole UI tree; its load/save are hard-coded to that id.
 - The `Profile` entity has **no name/identity field** — its only identity is `id: UUID`.
+- The Main profile is identified by `name == "Main"` rather than a fixed UUID.
 
 ## Scope
 
@@ -41,10 +42,11 @@ Confirmed with the owner:
 2. **Launch opens the Main profile.** Switching to another person is a per-session action; relaunch
    returns to Main. No "remember last used" persistence is needed.
 3. **Identity is name-only.** Each profile gets a `name` (e.g. "Me", "Partner"). No avatar/emoji.
-4. **The Main profile cannot be deleted** (mirrors the macro "last preset protected" rule,
-   `MacroEditViewPage.swift:81`), so there is always at least one profile.
+4. **The Main profile cannot be deleted** (also the last remaining profile cannot be deleted), so there
+   is always at least one profile.
 5. **iPhone only.** No watch changes; phone↔watch sync of the selected profile is a separate, later
    concern.
+6. **No migration needed.** The app has not been released yet; device wipe on upgrade is acceptable.
 
 ## Screens
 
