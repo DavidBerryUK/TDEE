@@ -56,9 +56,9 @@ struct WatchMainView: View {
             Section {
                 row("Gender", value: profile.gender.displayName) { WatchGenderView(profile: profile) }
                 row("Age", value: "\(profile.age)") { WatchAgeView(profile: profile) }
-                row("Weight", value: profile.weight == 0 ? "Not set" : "\(Int(profile.weight.rounded())) kg",
+                row("Weight", value: profile.weight == 0 ? "Not set" : weightSummary,
                     isMissing: missingFields.contains(.weight)) { WatchWeightView(profile: profile) }
-                row("Height", value: profile.height == 0 ? "Not set" : "\(Int(profile.height.rounded())) cm",
+                row("Height", value: profile.height == 0 ? "Not set" : heightSummary,
                     isMissing: missingFields.contains(.height)) { WatchHeightView(profile: profile) }
                 row("Activity", value: profile.activityLevel.watchLevel.displayName) { WatchActivityLevelView(profile: profile) }
                 row("Body Fat", value: bodyFatSummary, isMissing: missingFields.contains(.bodyFat)) { WatchBodyFatView(profile: profile) }
@@ -112,6 +112,34 @@ struct WatchMainView: View {
         return method == .maintain
             ? method.goalName
             : "\(method == .cut ? "−" : "+")\(Int(profile.calorieAdjustment)) kcal"
+    }
+
+    /// Weight in the user's selected unit (source of truth is kilograms): "70 kg", "154 lb", "11 st 3 lb".
+    private var weightSummary: String {
+        let unit = profile.weightUom
+        switch unit {
+        case .kilograms:
+            return "\(DisplayWeight.asMajorValue(weight: profile.weight, unit: unit)) kg"
+        case .pounds:
+            return "\(DisplayWeight.asMajorValue(weight: profile.weight, unit: unit)) lb"
+        case .stonesAndPounds:
+            return "\(DisplayWeight.asMajorValue(weight: profile.weight, unit: unit)) st "
+                + "\(DisplayWeight.asMinorValue(weight: profile.weight, unit: unit)) lb"
+        }
+    }
+
+    /// Height in the user's selected unit (source of truth is centimetres): "173 cm", "68 in", "5 ft 8 in".
+    private var heightSummary: String {
+        let unit = profile.heightUom
+        switch unit {
+        case .centimeters:
+            return "\(DisplayLength.asMajorValue(length: profile.height, unit: unit)) cm"
+        case .inches:
+            return "\(DisplayLength.asMajorValue(length: profile.height, unit: unit)) in"
+        case .feetAndInches:
+            return "\(DisplayLength.asMajorValue(length: profile.height, unit: unit)) ft "
+                + "\(DisplayLength.asMinorValue(length: profile.height, unit: unit)) in"
+        }
     }
 
     @ViewBuilder
