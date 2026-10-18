@@ -94,4 +94,6 @@ Confirmed with the owner:
 
 ## Status
 
-In Planning — awaiting approval to proceed with implementation (see `plan.md`).
+Done — merged into `develop`. The Main profile is identified by name, the in-session quick switch and
+CRUD (with Main / last-profile delete protection) are in place, and the Profile List and Profile Editor
+pages are wired in. See `plan.md` for the implementation.
