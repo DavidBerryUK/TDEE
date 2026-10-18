@@ -27,6 +27,7 @@ This directory contains user stories for the SimpleTest iOS project.
 | 019 | Dynamic Type Section Rows | Done |
 | 020 | Apple Watch App | Done |
 | 021 | Multiple Profiles | Done |
+| 022 | iPad Adaptation | In Planning |
 
 ## Story 015: Share Results
 
