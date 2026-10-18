@@ -113,13 +113,13 @@ TDEE/Pages/ProfileEditPage/ProfileEditViewPage.swift   (+ DeleteConfirmationShee
 
 ## Testing checklist
 
-- [ ] App opens to the **Main** profile
-- [ ] Add a named profile, switch to it; main screen shows that person's data and recomputed TDEE/macros
-- [ ] Switch back; first person's data returns
-- [ ] Names + fields persist across relaunch; relaunch opens **Main**
-- [ ] Main / only profile cannot be deleted; a non-Main profile can
-- [ ] Existing single-profile + calculation tests pass; `singleProfile` updated
-- [ ] Watch app unchanged; full test suite passes
+- [x] App opens to the **Main** profile
+- [x] Add a named profile, switch to it; main screen shows that person's data and recomputed TDEE/macros
+- [x] Switch back; first person's data returns
+- [x] Names + fields persist across relaunch; relaunch opens **Main**
+- [x] Main / only profile cannot be deleted; a non-Main profile can
+- [x] Existing single-profile + calculation tests pass; `singleProfile` updated
+- [x] Watch app unchanged; full test suite passes
 
 ## Risks
 
