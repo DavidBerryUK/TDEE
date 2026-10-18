@@ -35,12 +35,14 @@ struct ContentView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
     @State private var shareContent: ShareContent?
     @State private var macroCollection: MacroSplitOptionsModelCollection
+    @State private var profileStore: ProfileStore
 
     /// Takes models created once by the owner. This initializer runs on every parent body update,
     /// so creating them here would build (and load, and save) a new ProfileViewModel each time.
-    init(profile: ProfileViewModel, macroCollection: MacroSplitOptionsModelCollection) {
+    init(profile: ProfileViewModel, macroCollection: MacroSplitOptionsModelCollection, profileStore: ProfileStore) {
         self._profile = State(initialValue: profile)
         self._macroCollection = State(initialValue: macroCollection)
+        self._profileStore = State(initialValue: profileStore)
     }
 
     var body: some View {
@@ -58,6 +60,26 @@ struct ContentView: View {
                 )
 
                 .toolbar {
+                    // Quick-switch: choose the active profile for this session (leading, beside the system menu).
+                    ToolbarItem(placement: .topBarLeading) {
+                        Menu {
+                            ForEach(profileStore.profiles) { summary in
+                                Button {
+                                    profileStore.activate(to: summary.id)
+                                } label: {
+                                    if summary.isActive {
+                                        Label(summary.name, systemImage: "checkmark")
+                                    } else {
+                                        Text(summary.name)
+                                    }
+                                }
+                            }
+                        } label: {
+                            Label(profileStore.activeProfile?.name ?? "Profile", systemImage: "person.crop.circle")
+                        }
+                        .accessibilityLabel("Switch profile")
+                        .disabled(profileStore.profiles.isEmpty)
+                    }
                     ToolbarItem(placement: .topBarLeading) {
                         Button {
                             path.append(.system)
@@ -94,12 +116,20 @@ struct ContentView: View {
                         MacroEditViewPage(path: $path, item: nil)
                     case .macroEditorEdit(let item):
                         MacroEditViewPage(path: $path, item: item)
+                    case .profiles:
+                        ProfileListViewPage(path: $path)
+                    case .profileEditor(let item):
+                        ProfileEditViewPage(path: $path, item: item)
                     }
                 }
         }
-        // Inject the global macro collection for environment access
+        // Inject the global macro collection and profile store for environment access
         .environment(macroCollection)
-        .task { await macroCollection.loadPresets() }
+        .environment(profileStore)
+        .task {
+            await macroCollection.loadPresets()
+            await profileStore.load()
+        }
         // Keep the selection valid if the selected macro is deleted or reset away
         .onChange(of: macroCollection.items) { _, items in
             guard !items.isEmpty, !items.contains(where: { $0.id == profile.selectedMacroId }) else { return }
@@ -117,6 +147,7 @@ struct ContentView: View {
     ThemedRoot(themeManager: ThemeManager(defaults: UserDefaults(suiteName: "ContentViewPreview")!)) {
         ContentView(
             profile: ProfileViewModel(profileRepository: SwiftDataContainer.shared.profileRepository),
-            macroCollection: MacroSplitOptionsModelCollection(profileRepository: SwiftDataContainer.shared.profileRepository))
+            macroCollection: MacroSplitOptionsModelCollection(profileRepository: SwiftDataContainer.shared.profileRepository),
+            profileStore: ProfileStore(profileRepository: SwiftDataContainer.shared.profileRepository))
     }
 }

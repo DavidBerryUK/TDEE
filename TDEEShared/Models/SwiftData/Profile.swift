@@ -3,6 +3,10 @@ import Foundation
 
 @Model
 public class Profile {
+    /// Human-readable name identifying this profile (e.g. "Main", "Me", "Partner").
+    /// The Main profile is the one named "Main" — see ProfileRepository.mainProfileName.
+    public var name: String
+
     /// User's gender (0 = male, 1 = female)
     public var gender: Int16
 
@@ -50,6 +54,7 @@ public class Profile {
 
     /// Create a new profile instance
     public init(
+        name: String = "Main",  // Default to the Main profile; matches ProfileRepository.mainProfileName.
         gender: Int16,
         age: Int,
         height: Double,
@@ -64,6 +69,7 @@ public class Profile {
         createdAt: Date = Date(),
         updatedAt: Date = Date()
     ) {
+        self.name = name
         self.gender = gender
         self.age = age
         self.height = height

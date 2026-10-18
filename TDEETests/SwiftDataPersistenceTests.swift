@@ -147,7 +147,7 @@ struct SwiftDataPersistenceTests {
 
     // MARK: - Profile
 
-    @Test("Saving the profile repeatedly keeps a single active profile")
+    @Test("Saving the profile repeatedly keeps a single Main profile")
     func singleProfile() async throws {
         let container = makeContainer()
         let profile = ProfileViewModel(profileRepository: container.profileRepository)
@@ -159,7 +159,7 @@ struct SwiftDataPersistenceTests {
 
         let stored = try container.modelContext.fetch(FetchDescriptor<Profile>())
         #expect(stored.count == 1)
-        #expect(stored.first?.id == ProfileRepository.activeProfileId)
+        #expect(stored.first?.name == ProfileRepository.mainProfileName)
         #expect(stored.first?.age == 42)
     }
 
@@ -188,5 +188,117 @@ struct SwiftDataPersistenceTests {
         #expect(reloaded.calorieAdjustmentMethod == .cut)
         #expect(reloaded.calorieAdjustment == 300)
         #expect(reloaded.selectedMacroId == FactoryMacroSplits.Id.ketogenic)
+    }
+
+    // MARK: - Multiple profiles
+
+    private func makeStore(_ container: SwiftDataContainer) async -> ProfileStore {
+        let store = ProfileStore(profileRepository: container.profileRepository)
+        await store.load()
+        return store
+    }
+
+    private func storedProfileCount(_ container: SwiftDataContainer) throws -> Int {
+        try container.modelContext.fetchCount(FetchDescriptor<Profile>())
+    }
+
+    @Test("The app opens to a single Main profile, identified by name")
+    func mainProfileByName() async throws {
+        let container = makeContainer()
+        let store = await makeStore(container)
+
+        #expect(store.profiles.count == 1)
+        #expect(store.profiles.first?.isMain == true)
+        #expect(store.activeProfile?.name == ProfileRepository.mainProfileName)
+        #expect(try storedProfileCount(container) == 1)
+    }
+
+    @Test("Creating a named profile adds it to the list and persists it")
+    func createProfilePersists() async throws {
+        let container = makeContainer()
+        let store = await makeStore(container)
+
+        let id = try #require(await store.add(name: "Partner"))
+        #expect(store.profiles.count == 2)
+        #expect(store.profiles.contains { $0.id == id && $0.name == "Partner" })
+        #expect(try storedProfileCount(container) == 2)
+
+        // Relaunch: a fresh store over the same container sees both.
+        let relaunched = await makeStore(container)
+        #expect(relaunched.profiles.count == 2)
+        #expect(relaunched.profiles.contains { $0.name == "Partner" })
+        #expect(try storedProfileCount(container) == 2)
+    }
+
+    @Test("The Main profile cannot be deleted")
+    func mainProfileProtected() async throws {
+        let container = makeContainer()
+        let store = await makeStore(container)
+        let mainId = try #require(store.mainProfile?.id)
+
+        await store.delete(id: mainId)
+        #expect(store.profiles.count == 1)
+        #expect(store.profiles.first?.isMain == true)
+        #expect(try storedProfileCount(container) == 1)
+    }
+
+    @Test("The last remaining profile cannot be deleted")
+    func lastProfileProtected() async throws {
+        let container = makeContainer()
+        let store = await makeStore(container)
+        let only = try #require(store.profiles.first?.id)
+
+        await store.delete(id: only)
+        #expect(store.profiles.count == 1)
+        #expect(try storedProfileCount(container) == 1)
+    }
+
+    @Test("A non-Main profile can be deleted")
+    func nonMainProfileDeleted() async throws {
+        let container = makeContainer()
+        let store = await makeStore(container)
+        let guestId = try #require(await store.add(name: "Guest"))
+
+        await store.delete(id: guestId)
+        #expect(!store.profiles.contains { $0.id == guestId })
+        #expect(store.profiles.count == 1)
+        #expect(try storedProfileCount(container) == 1)
+    }
+
+    @Test("A profile's name round-trips through SwiftData")
+    func nameRoundTrip() async throws {
+        let container = makeContainer()
+        let store = await makeStore(container)
+        let id = try #require(await store.add(name: "Me"))
+
+        let relaunched = await makeStore(container)
+        let reloaded = try #require(relaunched.profiles.first { $0.id == id })
+        #expect(reloaded.name == "Me")
+    }
+
+    @Test("Renaming a profile persists")
+    func renamePersists() async throws {
+        let container = makeContainer()
+        let store = await makeStore(container)
+        let id = try #require(await store.add(name: "Temp"))
+
+        await store.rename(id: id, to: "Renamed")
+        #expect(store.profiles.contains { $0.id == id && $0.name == "Renamed" })
+
+        let relaunched = await makeStore(container)
+        #expect(relaunched.profiles.contains { $0.name == "Renamed" })
+    }
+
+    @Test("Relaunching opens Main, not the last-used profile")
+    func relaunchOpensMain() async throws {
+        let container = makeContainer()
+        let store = await makeStore(container)
+        let partnerId = try #require(await store.add(name: "Partner"))
+        store.activate(to: partnerId)
+        #expect(store.activeProfile?.name == "Partner")
+
+        // A fresh store (simulating relaunch) defaults back to Main.
+        let relaunched = await makeStore(container)
+        #expect(relaunched.activeProfile?.name == ProfileRepository.mainProfileName)
     }
 }

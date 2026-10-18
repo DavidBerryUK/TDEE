@@ -13,5 +13,7 @@ public enum AppRoute: Hashable {
     case about
     case macroEditorCreate
     case macroEditorEdit(MacroSplitOptionModel)
+    case profiles
+    case profileEditor(item: ProfileSummary?)
 }
 

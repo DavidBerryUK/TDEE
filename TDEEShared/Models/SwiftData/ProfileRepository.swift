@@ -8,23 +8,37 @@ import Foundation
     private let container: ModelContainer
     private let context: ModelContext
 
-    static let activeProfileId = UUID(uuidString: "11111111-1111-1111-1111-111111111111")!
+    /// The name that identifies the Main (quick daily default) profile.
+    nonisolated static let mainProfileName = "Main"
 
     init(container: ModelContainer) {
         self.container = container
         self.context = container.mainContext
     }
 
-    func fetchActiveProfile() async throws -> Profile? {
-        // Simple fetch and filter approach to avoid predicate syntax issues
+    /// Fetch the Main profile (the one named "Main"), if any.
+    /// Simple fetch-and-filter to avoid string-predicate syntax issues (matches the old fetchActiveProfile style).
+    func fetchMainProfile() async throws -> Profile? {
         let request = FetchDescriptor<Profile>()
         let profiles = try context.fetch(request)
-        for profile in profiles {
-            if profile.id == ProfileRepository.activeProfileId {
-                return profile
-            }
+        return profiles.first { $0.name == Self.mainProfileName }
+    }
+
+    /// Fetch every stored profile, ordered Main first then alphabetically by name.
+    func fetchAllProfiles() async throws -> [Profile] {
+        let all = try context.fetch(FetchDescriptor<Profile>())
+        return all.sorted { lhs, rhs in
+            let lhsMain = lhs.name == Self.mainProfileName
+            let rhsMain = rhs.name == Self.mainProfileName
+            if lhsMain != rhsMain { return lhsMain }
+            return lhs.name.localizedCaseInsensitiveCompare(rhs.name) == .orderedAscending
         }
-        return nil
+    }
+
+    /// Fetch a single profile by its id, if any.
+    func fetchProfile(byId id: UUID) async throws -> Profile? {
+        let request = FetchDescriptor<Profile>(predicate: #Predicate { $0.id == id })
+        return try context.fetch(request).first
     }
 
     /// Fetch all shared presets (presets are a shared catalog, no owner filter needed)
@@ -60,9 +74,11 @@ import Foundation
         throw lastError ?? SwiftDataError.failedToSave
     }
 
-    func createDefaultProfile() async throws -> Profile {
+    /// Create a new, named profile from the current environment's defaults.
+    func createProfile(name: String) async throws -> Profile {
         let defaults = SeedData.profileDefaults()
         let profile = Profile(
+            name: name,
             gender: Int16(defaults.gender.rawValue),
             age: defaults.age,
             height: defaults.height,
@@ -70,13 +86,43 @@ import Foundation
             bodyFatPercentage: defaults.bodyFatPercentage,
             activityLevel: defaults.activityLevel,
             selectedMacroId: FactoryMacroSplits.Id.balanced,
-            id: ProfileRepository.activeProfileId,
+            id: UUID(),
             createdAt: Date(),
             updatedAt: Date()
         )
         context.insert(profile)  // New entity - safe to insert
         try context.save()
         return profile
+    }
+
+    /// Ensure a Main profile exists (first launch / empty store). Creates one if missing.
+    @discardableResult
+    func ensureMainProfile() async throws -> Profile {
+        if let main = try await fetchMainProfile() { return main }
+        return try await createProfile(name: Self.mainProfileName)
+    }
+
+    /// Rename the profile with the given id.
+    func renameProfile(id: UUID, to name: String) async throws {
+        let matches = try context.fetch(FetchDescriptor<Profile>(predicate: #Predicate { $0.id == id }))
+        for profile in matches {
+            profile.name = name
+            profile.updatedAt = Date()
+        }
+        try context.save()
+    }
+
+    /// Delete the profile with the given id.
+    /// Guarded: the Main profile and the last remaining profile cannot be deleted.
+    func deleteProfile(byId id: UUID) async throws {
+        let all = try await fetchAllProfiles()
+        guard all.count > 1 else { throw SwiftDataError.cannotDeleteLastProfile }
+        guard let target = all.first(where: { $0.id == id }), target.name != Self.mainProfileName
+        else { throw SwiftDataError.cannotDeleteMainProfile }
+
+        let matches = try context.fetch(FetchDescriptor<Profile>(predicate: #Predicate { $0.id == id }))
+        matches.forEach { context.delete($0) }
+        try context.save()
     }
 
     /// Insert the preset, or copy its values onto the stored preset with the same id.
@@ -151,4 +197,6 @@ import Foundation
 // Custom error for SwiftData operations
 enum SwiftDataError: Error {
     case failedToSave
+    case cannotDeleteMainProfile
+    case cannotDeleteLastProfile
 }

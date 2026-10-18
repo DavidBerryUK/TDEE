@@ -7,6 +7,7 @@ enum ProfileMapper {
     /// Copy stored values onto an existing ViewModel.
     /// Never creates a ViewModel: its initializer loads from SwiftData, which would recurse.
     static func apply(_ entity: Profile, to viewModel: ProfileViewModel) {
+        viewModel.name = entity.name
         viewModel.gender = entity.gender == 1 ? .female : .male
         viewModel.age = entity.age
         viewModel.height = entity.height
@@ -22,11 +23,12 @@ enum ProfileMapper {
 
     /// Convert ViewModel to entity for saving to SwiftData
     /// When updating an existing profile, pass the existing entity.
-    /// When creating a new profile, pass nil and use the repository's createDefaultProfile or insert a new entity.
+    /// When creating a new profile, pass nil and let the repository's createProfile(name:) assign an id.
     static func mapToEntity(_ viewModel: ProfileViewModel, existing: Profile?) -> Profile {
         guard let existingProfile = existing else {
             // Create a new profile with a new UUID
             let profile = Profile(
+                name: viewModel.name,
                 gender: Int16(viewModel.gender.rawValue),
                 age: viewModel.age,
                 height: viewModel.height,
@@ -44,6 +46,7 @@ enum ProfileMapper {
             return profile
         }
         // Update existing profile
+        existingProfile.name = viewModel.name
         existingProfile.gender = Int16(viewModel.gender.rawValue)
         existingProfile.age = viewModel.age
         existingProfile.height = viewModel.height

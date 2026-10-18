@@ -18,6 +18,9 @@ struct UISystemPageView: View {
                 Button("Maintain Macro Config") { path.append(.maintainMacroConfig) }
                     .accessibilityLabel("Open macro configuration settings")
                     .accessibilityValue("Navigate to macro configuration")
+                Button("Profiles") { path.append(.profiles) }
+                    .accessibilityLabel("Manage profiles")
+                    .accessibilityValue("Navigate to profiles")
                 Button("Theme") { path.append(.theme) }
                     .accessibilityLabel("Change application theme")
                     .accessibilityValue("Navigate to theme settings")

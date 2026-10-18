@@ -24,6 +24,12 @@ class ProfileViewModel {
     private var swiftDataId: UUID?  // Track the SwiftData entity ID
     private var isLoading = false  // Suppress saves while restoring stored values
 
+    /// The id of the SwiftData profile this view model is currently bound to.
+    /// Defaults to a throwaway value; `load()` / `switchProfile(to:)` re-point it.
+    var profileId: UUID = UUID()
+    /// The human-readable name of the current profile (e.g. "Main").
+    var name: String = ProfileRepository.mainProfileName
+
     // MARK: - Macro Collection (Injected via Environment)
     /// The global macro options collection - injected via environment
     var macroCollection: MacroSplitOptionsModelCollection?
@@ -176,18 +182,44 @@ class ProfileViewModel {
         Task { await load() }
     }
 
-    /// Restore the stored profile, if any. Does not trigger a save.
+    /// Restore the Main profile, if any. Does not trigger a save.
     func load() async {
         isLoading = true
         defer { isLoading = false }
         do {
-            if let profile = try await profileRepository.fetchActiveProfile() {
+            if let profile = try await profileRepository.fetchMainProfile() {
                 ProfileMapper.apply(profile, to: self)
+                self.profileId = profile.id
                 self.swiftDataId = profile.id
             }
         } catch {
             print("Failed to load profile from SwiftData: \(error)")
         }
+    }
+
+    /// Restore a specific profile by id. Does not trigger a save.
+    func load(byId id: UUID) async {
+        isLoading = true
+        defer { isLoading = false }
+        do {
+            if let profile = try await profileRepository.fetchProfile(byId: id) {
+                ProfileMapper.apply(profile, to: self)
+                self.profileId = profile.id
+                self.swiftDataId = profile.id
+            }
+        } catch {
+            print("Failed to load profile by id from SwiftData: \(error)")
+        }
+    }
+
+    /// Re-point this view model to a different stored profile: cancel any pending save, then
+    /// load that entity under the `isLoading` guard (so a re-pointed field's `didSet` can't save
+    /// into the old row), and finally recompute.
+    func switchProfile(to id: UUID) async {
+        saveTask?.cancel()  // Don't let a pending save race the re-point
+        profileId = id
+        await load(byId: id)
+        refreshResults()
     }
 
     /// Throttle saves by cancelling previous task and starting new one
@@ -210,10 +242,10 @@ class ProfileViewModel {
 
     /// Save profile data to SwiftData
     func saveToSwiftData() async {
-        // Convert ProfileViewModel to Profile entity
-        let existing = try? await profileRepository.fetchActiveProfile()
+        // Convert ProfileViewModel to Profile entity, keyed on this view model's profile id.
+        let existing = try? await profileRepository.fetchProfile(byId: profileId)
         let profile = ProfileMapper.mapToEntity(self, existing: existing)
-        if existing == nil { profile.id = ProfileRepository.activeProfileId }
+        if existing == nil { profile.id = profileId }
 
         // Save via repository with retry logic (background thread via actor)
         do {

@@ -8,7 +8,7 @@ Use this skill for common git operations like status, commit, push, and pull.
 
 ## Important Notes
 
-- **No remote repository**: There is currently no origin configured for this project. Remote operations (push/pull) will fail until a remote is added.
+- **Remote is configured**: `origin` is `git@github.com:DavidBerryUK/TDEE.git`. Remote operations (push/pull/fetch) work over SSH; ensure your SSH key is set up before pushing or pulling.
 
 ## Commands
 

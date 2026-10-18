@@ -19,6 +19,7 @@ struct UIMainView: View {
     var presentationHandler: ((ShareContent) -> Void)?
 
     @Environment(MacroSplitOptionsModelCollection.self) private var globalMacroCollection
+    @Environment(ProfileStore.self) private var profileStore
 
     // Update profile's macro collection to use the environment-injected one
     private func updateProfileMacroCollection() {
@@ -159,6 +160,14 @@ struct UIMainView: View {
             .onChange(of: selectedMacroSplit) { _, _ in
                 syncEditedMacro()
                 Task { await recalculate() }
+            }
+            // Switching profiles re-points the shared view model; its per-field onChange handlers
+            // won't fire on a re-point, so drive the recompute (and re-load) explicitly here.
+            .onChange(of: profileStore.activeProfileId) { _, id in
+                Task {
+                    await profile.switchProfile(to: id)
+                    await recalculate()
+                }
             }
         }
     }
