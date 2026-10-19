@@ -179,6 +179,8 @@ struct ContentView: View {
             ThemeView()
         case .about:
             AboutPage()
+        case .inputMethod:
+            InputMethodView()
         case .macroEditorCreate:
             MacroEditViewPage(path: $path, item: nil)
         case .macroEditorEdit(let item):

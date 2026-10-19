@@ -12,6 +12,7 @@ enum MasterDestination: Hashable {
     case profiles
     case macros
     case theme
+    case inputMethod
     case about
 }
 
@@ -41,6 +42,8 @@ struct SidebarView: View {
                         MacroOptionsListViewPage(path: $path, selectedMacroId: $selectedMacroId)
                     case .theme:
                         ThemeView()
+                    case .inputMethod:
+                        InputMethodView()
                     case .about:
                         AboutPage()
                     }
@@ -69,6 +72,9 @@ struct SidebarView: View {
                 }
                 NavigationLink(value: MasterDestination.theme) {
                     Label("Theme", systemImage: "paintpalette")
+                }
+                NavigationLink(value: MasterDestination.inputMethod) {
+                    Label("Input Method", systemImage: "keyboard")
                 }
                 NavigationLink(value: MasterDestination.about) {
                     Label("About", systemImage: "info.circle")

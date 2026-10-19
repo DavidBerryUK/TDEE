@@ -11,6 +11,7 @@ public enum AppRoute: Hashable {
     case maintainMacroConfig
     case theme
     case about
+    case inputMethod
     case macroEditorCreate
     case macroEditorEdit(MacroSplitOptionModel)
     case profiles

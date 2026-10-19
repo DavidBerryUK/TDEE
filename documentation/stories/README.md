@@ -28,6 +28,7 @@ This directory contains user stories for the SimpleTest iOS project.
 | 020 | Apple Watch App | Done |
 | 021 | Multiple Profiles | Done |
 | 022 | iPad Adaptation | Done |
+| 023 | Input Method | In Progress |
 
 ## Story 015: Share Results
 

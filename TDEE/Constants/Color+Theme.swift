@@ -16,11 +16,19 @@ extension EnvironmentValues {
 /// the effective scheme (including the system one in Auto mode).
 struct ThemedRoot<Content: View>: View {
     let themeManager: ThemeManager
+    let inputStyleManager: InputStyleManager
     @ViewBuilder let content: Content
+
+    init(themeManager: ThemeManager, inputStyleManager: InputStyleManager = InputStyleManager(), @ViewBuilder content: () -> Content) {
+        self.themeManager = themeManager
+        self.inputStyleManager = inputStyleManager
+        self.content = content()
+    }
 
     var body: some View {
         PaletteResolver(theme: themeManager.theme) { content }
             .environment(themeManager)
+            .environment(inputStyleManager)
             .preferredColorScheme(themeManager.appearance.colorScheme)
     }
 }

@@ -24,6 +24,9 @@ struct UISystemPageView: View {
                 Button("Theme") { path.append(.theme) }
                     .accessibilityLabel("Change application theme")
                     .accessibilityValue("Navigate to theme settings")
+                Button("Input Method") { path.append(.inputMethod) }
+                    .accessibilityLabel("Change input method settings")
+                    .accessibilityValue("Navigate to input method settings")
                 Button("About") { path.append(.about) }
                     .accessibilityLabel("View about information")
                     .accessibilityValue("Navigate to about page")
