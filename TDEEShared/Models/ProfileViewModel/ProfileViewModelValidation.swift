@@ -11,12 +11,12 @@ extension ProfileViewModel {
     //*******************************
     /// Whether any required field is missing or invalid
     var hasError: Bool {
-        age == 0 || weight == 0 || height == 0
+        !isAgeValid || !isWeightValid || !isHeightValid
     }
 
     /// Whether all required fields are valid
     var isValid: Bool {
-        age != 0 && weight != 0 && height != 0
+        isAgeValid && isWeightValid && isHeightValid
     }
 
     /// Whether weight is valid (non-zero)
@@ -29,8 +29,10 @@ extension ProfileViewModel {
         height != 0
     }
 
-    /// Whether age is valid (non-zero)
+    /// Whether age is within the accepted range (story 023, input #2). An empty or out-of-range age
+    /// hides the results, not just a zero — the New text input only commits in-range values, so this
+    /// mainly guards a profile loaded with a bad age.
     var isAgeValid: Bool {
-        age != 0
+        MetricRanges.age.contains(age)
     }
 }

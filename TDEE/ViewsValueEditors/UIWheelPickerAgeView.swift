@@ -17,7 +17,9 @@ struct UIWheelPickerAgeView: View {
     @Environment(\.palette) private var palette
 
     @Binding var value: Int
-    var optionsAge: [Int] = Array(16...99)
+    // Story 023, input #2: the accepted range now lives in one place (MetricRanges.age) so the New
+    // text input and this wheel agree on it. This is the only change to the array's data source.
+    var optionsAge: [Int] = Array(MetricRanges.age)
 
     var body: some View {
         HStack {

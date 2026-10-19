@@ -52,8 +52,8 @@ struct MainSectionProfileInput: View {
         case .classic:
             AgeClassicSectionView(model: profile, sectionManager: sectionManager, proxy: proxy)
         case .new:
-            // Story 023, input #2 — AgeNewSectionView (not built yet); falls back to Classic.
-            AgeClassicSectionView(model: profile, sectionManager: sectionManager, proxy: proxy)
+            // Story 023, input #2 — inline numeric text field, no expand panel.
+            AgeNewSectionView(model: profile)
         }
     }
 

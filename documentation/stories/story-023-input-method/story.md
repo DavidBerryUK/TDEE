@@ -73,7 +73,7 @@ redesign, defined when its turn comes.
 | # | Input | Model field(s) | Classic control (today) | New control | Status |
 |---|-------|----------------|-------------------------|-------------|--------|
 | 1 | Gender | `gender` | `UISegmentGenderView` (segmented) | Inline in the section header (no expand panel); reuses `UISegmentGenderView` | Done |
-| 2 | Age | `age` | `UIWheelPickerAgeView` (wheel) | TBD | Not started |
+| 2 | Age | `age` | `UIWheelPickerAgeView` (wheel) | Inline numeric text field in the section header (no expand panel); 16–99 via `MetricRanges.age`; error via `UILabelValidationMessage`, out-of-range shows the error and does not commit | Done |
 | 3 | Weight UOM | `weightUom` | `UISegmentUomWeightView` (segmented) | TBD | Not started |
 | 4 | Weight | `weight` | `UIWheelPickerWeightView` (wheel) | TBD | Not started |
 | 5 | Height UOM | `heightUom` | `UISegmentUomLengthView` (segmented) | TBD | Not started |
@@ -98,7 +98,8 @@ Notes:
    surface the user drives. Prerequisite for all per-input work. **Done (2026-10-19):**
    `InputMethodView` + `InputStyleManager`, tested — see Testing.
 2. **Per-input conversions.** One control at a time, in the order the owner directs; tick the
-   Status column as each goes Classic→New. **In progress — input #1 (Gender) Done (2026-10-19).**
+   Status column as each goes Classic→New. **In progress — input #1 (Gender) and input #2 (Age) Done
+   (2026-10-19).**
 
 ## Not shared / Out of Scope
 
@@ -189,5 +190,19 @@ All 9 pass; `TDEE` builds and the full `TDEETests` suite passes.
   placement changed), and `UISectionSummaryValueGender` is now Classic-only. The factory's `.new` case
   (`MainSectionProfileInput.genderSection`) points at it and takes only `model` (a no-expand section
   needs neither `sectionManager` nor `proxy`). `TDEE` builds for the iOS simulator.
-- Open Questions 1–4 remain (input #1's "New" design is now defined — inline header). **Next: Task 2 —
-  the next per-input Classic→New conversion** (rollout order per the owner).
+- **Done (2026-10-19) — input #2 (Age) converted Classic→New.** `AgeNewSectionView`
+  (`TDEE/ViewSections/AgeNewSectionView.swift`) — the app's first text/keyboard entry: no expand
+  panel; a numeric `TextField` sits inline in the section header and drops to its own full-width line
+  at accessibility sizes. It keeps a local text buffer and commits to `model.age` only when the entry
+  parses **and** falls inside the accepted range; an out-of-range or empty entry shows a
+  `UILabelValidationMessage` and leaves the model's last valid value untouched. The accepted range
+  (16–99) was extracted to **`MetricRanges.age`** (`TDEEShared/Config/MetricRanges.swift`) and the
+  wheel picker (`UIWheelPickerAgeView`) now sources `Array(MetricRanges.age)` — the bounds live in one
+  place (the array literal was the only edit to that DO NOT MODIFY file, with the owner's approval).
+  The factory's `.new` case (`MainSectionProfileInput.ageSection`) points at it and takes only
+  `model`. The results gate now reflects age validity: `ProfileViewModel.isAgeValid` is range-based
+  (`MetricRanges.age.contains`) and `isValid`/`hasError` compose the per-field checks, so an
+  out-of-range or empty age hides the results — not just a zero. `TDEE` builds for the iOS simulator.
+- Open Questions 1–4 remain (inputs #1–#2's "New" designs are now defined — inline header / inline
+  numeric field). **Next: Task 2 — the next per-input Classic→New conversion** (rollout order per the
+  owner).
