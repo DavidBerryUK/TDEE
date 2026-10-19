@@ -1,5 +1,5 @@
 //
-//  SectionHeight.swift
+//  HeightClassicSectionView.swift
 //  TDEE
 //
 //  Created by David Berry on 05/04/2026.
@@ -8,8 +8,11 @@
 import SwiftUI
 import Observation
 
-/// A view section for displaying and editing the user's height.
-struct SectionHeight: View {
+/// The Classic height input section (story 023) — today's UOM toggle + wheel picker.
+///
+/// The main input's section factory (`MainSectionProfileInput`) picks this or the future
+/// `HeightNewSectionView` from `InputStyleManager`; every input currently resolves to Classic.
+struct HeightClassicSectionView: View {
 
     @Bindable var model: ProfileViewModel
     @Bindable var sectionManager: SectionManagerViewModel
@@ -39,5 +42,5 @@ struct SectionHeight: View {
 
 #Preview {
     @Previewable @State var sectionManager = SectionManagerViewModel()
-    SectionHeight(model: ProfileViewModel(), sectionManager: sectionManager, proxy: nil)
+    HeightClassicSectionView(model: ProfileViewModel(), sectionManager: sectionManager, proxy: nil)
 }

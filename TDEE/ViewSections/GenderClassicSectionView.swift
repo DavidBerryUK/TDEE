@@ -1,5 +1,5 @@
 //
-//  SectionGender.swift
+//  GenderClassicSectionView.swift
 //  TDEE
 //
 //  Created by David Berry on 05/04/2026.
@@ -8,8 +8,11 @@
 import SwiftUI
 import Observation
 
-/// A view section for displaying and editing the user's gender.
-struct SectionGender: View {
+/// The Classic gender input section (story 023) — today's segmented control.
+///
+/// The main input's section factory (`MainSectionProfileInput`) picks this or the future
+/// `GenderNewSectionView` from `InputStyleManager`; every input currently resolves to Classic.
+struct GenderClassicSectionView: View {
 
     @Bindable var model: ProfileViewModel
     @Bindable var sectionManager: SectionManagerViewModel
@@ -36,5 +39,5 @@ struct SectionGender: View {
 
 #Preview {
     @Previewable @State var sectionManager = SectionManagerViewModel()
-    SectionGender(model: ProfileViewModel(profileRepository: SwiftDataContainer.shared.profileRepository), sectionManager: sectionManager, proxy: nil)
+    GenderClassicSectionView(model: ProfileViewModel(profileRepository: SwiftDataContainer.shared.profileRepository), sectionManager: sectionManager, proxy: nil)
 }

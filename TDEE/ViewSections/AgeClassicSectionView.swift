@@ -1,5 +1,5 @@
 //
-//  SectionAge.swift
+//  AgeClassicSectionView.swift
 //  TDEE
 //
 //  Created by David Berry on 05/04/2026.
@@ -8,8 +8,11 @@
 import SwiftUI
 import Observation
 
-/// A view section for displaying and editing the user's age.
-struct SectionAge: View {
+/// The Classic age input section (story 023) — today's wheel picker.
+///
+/// The main input's section factory (`MainSectionProfileInput`) picks this or the future
+/// `AgeNewSectionView` from `InputStyleManager`; every input currently resolves to Classic.
+struct AgeClassicSectionView: View {
 
     @Bindable var model: ProfileViewModel
     @Bindable var sectionManager : SectionManagerViewModel
@@ -36,5 +39,5 @@ struct SectionAge: View {
 
 #Preview {
     @Previewable @State var sectionManager = SectionManagerViewModel()
-    SectionAge(model: ProfileViewModel(profileRepository: SwiftDataContainer.shared.profileRepository), sectionManager: sectionManager, proxy: nil)
+    AgeClassicSectionView(model: ProfileViewModel(profileRepository: SwiftDataContainer.shared.profileRepository), sectionManager: sectionManager, proxy: nil)
 }

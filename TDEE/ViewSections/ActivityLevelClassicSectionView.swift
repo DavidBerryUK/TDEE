@@ -1,5 +1,5 @@
 //
-//  SectionActivityLevel.swift
+//  ActivityLevelClassicSectionView.swift
 //  TDEE
 //
 //  Created by David Berry on 05/04/2026.
@@ -8,8 +8,11 @@
 import SwiftUI
 import Observation
 
-/// A view section for selecting the user's activity level.
-struct SectionActivityLevel: View {
+/// The Classic activity-level input section (story 023) — today's wheel picker.
+///
+/// The main input's section factory (`MainSectionProfileInput`) picks this or the future
+/// `ActivityLevelNewSectionView` from `InputStyleManager`; every input currently resolves to Classic.
+struct ActivityLevelClassicSectionView: View {
 
     @Bindable var model: ProfileViewModel
     @Bindable var sectionManager : SectionManagerViewModel
@@ -36,5 +39,5 @@ struct SectionActivityLevel: View {
 
 #Preview {
     @Previewable @State var sectionManager = SectionManagerViewModel()
-    SectionActivityLevel(model: ProfileViewModel(), sectionManager: sectionManager, proxy: nil)
+    ActivityLevelClassicSectionView(model: ProfileViewModel(), sectionManager: sectionManager, proxy: nil)
 }

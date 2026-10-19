@@ -1,19 +1,21 @@
 import SwiftUI
 
+/// The main input screen's "section factory" (story 023).
+///
+/// One section per input, chosen by that input's Classic/New preference in `InputStyleManager`.
+/// Each section view carries a style suffix (`AgeClassicSectionView` / `AgeNewSectionView`);
+/// every input currently resolves to its Classic control, and each New control drops into its
+/// input's `.new` case as it's designed — one input at a time.
 struct MainSectionProfileInput: View {
     @Environment(\.palette) private var palette
+    @Environment(InputStyleManager.self) private var inputStyle
     @Bindable var profile: ProfileViewModel
     @Bindable var sectionManager: SectionManagerViewModel
     let proxy: ScrollViewProxy?
 
     var body: some View {
         VStack(spacing: 12) {
-            SectionGender(model: profile, sectionManager: sectionManager, proxy: proxy)
-            SectionAge(model: profile, sectionManager: sectionManager, proxy: proxy)
-            SectionHeight(model: profile, sectionManager: sectionManager, proxy: proxy)
-            SectionWeight(model: profile, sectionManager: sectionManager, proxy: proxy)
-            SectionActivityLevel(model: profile, sectionManager: sectionManager, proxy: proxy)
-            SectionBodyFatPercentage(model: profile, sectionManager: sectionManager, proxy: proxy)
+            sections
         }
         .background(palette.surface)
         .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -21,8 +23,86 @@ struct MainSectionProfileInput: View {
         .animation(.easeInOut(duration: 0.3), value: profile.isWeightValid)
         .animation(.easeInOut(duration: 0.3), value: profile.isHeightValid)
     }
+
+    /// The sections, in display order — the surface the factory feeds to the main view.
+    @ViewBuilder
+    private var sections: some View {
+        genderSection
+        ageSection
+        heightSection
+        weightSection
+        activityLevelSection
+        bodyFatPercentageSection
+    }
+
+    @ViewBuilder
+    private var genderSection: some View {
+        switch inputStyle.style(for: .gender) {
+        case .classic:
+            GenderClassicSectionView(model: profile, sectionManager: sectionManager, proxy: proxy)
+        case .new:
+            // Story 023, input #1 — GenderNewSectionView (not built yet); falls back to Classic.
+            GenderClassicSectionView(model: profile, sectionManager: sectionManager, proxy: proxy)
+        }
+    }
+
+    @ViewBuilder
+    private var ageSection: some View {
+        switch inputStyle.style(for: .age) {
+        case .classic:
+            AgeClassicSectionView(model: profile, sectionManager: sectionManager, proxy: proxy)
+        case .new:
+            // Story 023, input #2 — AgeNewSectionView (not built yet); falls back to Classic.
+            AgeClassicSectionView(model: profile, sectionManager: sectionManager, proxy: proxy)
+        }
+    }
+
+    @ViewBuilder
+    private var heightSection: some View {
+        switch inputStyle.style(for: .height) {
+        case .classic:
+            HeightClassicSectionView(model: profile, sectionManager: sectionManager, proxy: proxy)
+        case .new:
+            // Story 023, inputs #5/#6 — HeightNewSectionView (not built yet); falls back to Classic.
+            HeightClassicSectionView(model: profile, sectionManager: sectionManager, proxy: proxy)
+        }
+    }
+
+    @ViewBuilder
+    private var weightSection: some View {
+        switch inputStyle.style(for: .weight) {
+        case .classic:
+            WeightClassicSectionView(model: profile, sectionManager: sectionManager, proxy: proxy)
+        case .new:
+            // Story 023, inputs #3/#4 — WeightNewSectionView (not built yet); falls back to Classic.
+            WeightClassicSectionView(model: profile, sectionManager: sectionManager, proxy: proxy)
+        }
+    }
+
+    @ViewBuilder
+    private var activityLevelSection: some View {
+        switch inputStyle.style(for: .activityLevel) {
+        case .classic:
+            ActivityLevelClassicSectionView(model: profile, sectionManager: sectionManager, proxy: proxy)
+        case .new:
+            // Story 023, input #9 — ActivityLevelNewSectionView (not built yet); falls back to Classic.
+            ActivityLevelClassicSectionView(model: profile, sectionManager: sectionManager, proxy: proxy)
+        }
+    }
+
+    @ViewBuilder
+    private var bodyFatPercentageSection: some View {
+        switch inputStyle.style(for: .bodyFatPercentage) {
+        case .classic:
+            BodyFatPercentageClassicSectionView(model: profile, sectionManager: sectionManager, proxy: proxy)
+        case .new:
+            // Story 023, input #7 — BodyFatPercentageNewSectionView (not built yet); falls back to Classic.
+            BodyFatPercentageClassicSectionView(model: profile, sectionManager: sectionManager, proxy: proxy)
+        }
+    }
 }
 
 #Preview {
     MainSectionProfileInput(profile: ProfileViewModel(), sectionManager: SectionManagerViewModel(), proxy: nil)
+        .environment(InputStyleManager())
 }

@@ -1,5 +1,5 @@
 //
-//  SectionBodyFatPercentage.swift
+//  BodyFatPercentageClassicSectionView.swift
 //  TDEE
 //
 //  Created by David Berry on 05/04/2026.
@@ -8,8 +8,11 @@
 import SwiftUI
 import Observation
 
-/// A view section for managing the user's body fat percentage measurement.
-struct SectionBodyFatPercentage: View {
+/// The Classic body-fat-percentage input section (story 023) — today's wheel picker.
+///
+/// The main input's section factory (`MainSectionProfileInput`) picks this or the future
+/// `BodyFatPercentageNewSectionView` from `InputStyleManager`; every input currently resolves to Classic.
+struct BodyFatPercentageClassicSectionView: View {
 
     @Bindable var model: ProfileViewModel
     @Bindable var sectionManager : SectionManagerViewModel
@@ -35,5 +38,5 @@ struct SectionBodyFatPercentage: View {
 }
 
 #Preview {
-    SectionBodyFatPercentage(model: ProfileViewModel(), sectionManager: SectionManagerViewModel(), proxy: nil)
+    BodyFatPercentageClassicSectionView(model: ProfileViewModel(), sectionManager: SectionManagerViewModel(), proxy: nil)
 }

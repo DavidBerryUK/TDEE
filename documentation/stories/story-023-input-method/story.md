@@ -55,6 +55,14 @@ Confirmed with the owner:
 7. **Task 1 is a presenter view.** Before any per-input "New" control is designed, build a new view
    that presents the per-input Classic/New options to the user — the prerequisite for all per-input
    work.
+8. **Classic/New is a suffix on the section view; the main input is a factory.** Each main-input
+   section view is named for its style — `AgeClassicSectionView` / `AgeNewSectionView` — and the main
+   input's "section factory" (`MainSectionProfileInput`) picks the variant per input from
+   `InputStyleManager`. The factory is the single composition point for the main input view's
+   sections: adding an input is a line in the factory, and an input's New control drops into its
+   `.new` case when it's built. The Classic sections carry no style logic of their own; the branch
+   lives in the factory. Scope is the main input view's six sections (Gender, Age, Height, Weight,
+   Activity Level, Body Fat %); the results-side sections (calories, macros) adopt the pattern later.
 
 ## Inputs (worked one at a time)
 
@@ -167,5 +175,12 @@ All 9 pass; `TDEE` builds and the full `TDEETests` suite passes.
     `persistedPlistIsStringKeyed`.
   - **Tests:** 9 passing — see Testing.
   - **No input converted yet:** every Inputs-table row is still "Not started" (Task 2 is the rollout).
+- **In Progress (2026-10-19) — section factory wired (Decision 8).** The main input view is now a
+  "section factory": `MainSectionProfileInput` composes its six main-input sections from
+  `InputStyleManager`, choosing each input's `XxClassicSectionView` (its `.new` case falls back to
+  Classic until a New control is built, so all inputs currently render Classic). The six sections
+  were renamed `Section<X>` → `XxClassicSectionView` (Gender, Age, Height, Weight, ActivityLevel,
+  BodyFatPercentage) — type *and* file — and are referenced only by the factory. `TDEE` builds for
+  the iOS simulator.
 - Open Questions 1–4 remain. **Next: Task 2 — the first per-input Classic→New conversion**
   (rollout order per the owner).

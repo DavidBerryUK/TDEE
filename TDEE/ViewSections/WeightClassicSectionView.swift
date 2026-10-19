@@ -1,5 +1,5 @@
 //
-//  SectionWeight.swift
+//  WeightClassicSectionView.swift
 //  TDEE
 //
 //  Created by David Berry on 05/04/2026.
@@ -8,8 +8,11 @@
 import SwiftUI
 import Observation
 
-/// A view section for displaying and editing the user's weight.
-struct SectionWeight: View {
+/// The Classic weight input section (story 023) — today's UOM toggle + wheel picker.
+///
+/// The main input's section factory (`MainSectionProfileInput`) picks this or the future
+/// `WeightNewSectionView` from `InputStyleManager`; every input currently resolves to Classic.
+struct WeightClassicSectionView: View {
 
     @Bindable var model: ProfileViewModel
     @Bindable var sectionManager: SectionManagerViewModel
@@ -39,5 +42,5 @@ struct SectionWeight: View {
 
 #Preview {
     @Previewable @State var sectionManager = SectionManagerViewModel()
-    SectionWeight(model: ProfileViewModel(), sectionManager: sectionManager, proxy: nil)
+    WeightClassicSectionView(model: ProfileViewModel(), sectionManager: SectionManagerViewModel(), proxy: nil)
 }
