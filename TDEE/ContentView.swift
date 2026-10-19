@@ -47,12 +47,41 @@ struct ContentView: View {
 
     var body: some View {
 
+        // iPhone / compact keeps the original single-column stack; iPad / regular gets a split.
+        Group {
+            if horizontalSizeClass == .compact {
+                compactLayout
+            } else {
+                regularLayout
+            }
+        }
+        // Inject the global macro collection and profile store for environment access
+        .environment(macroCollection)
+        .environment(profileStore)
+        .task {
+            await macroCollection.loadPresets()
+            await profileStore.load()
+        }
+        // Keep the selection valid if the selected macro is deleted or reset away
+        .onChange(of: macroCollection.items) { _, items in
+            guard !items.isEmpty, !items.contains(where: { $0.id == profile.selectedMacroId }) else { return }
+            let fallback = items.first(where: { $0.id == FactoryMacroSplits.Id.balanced }) ?? macroCollection.sortedItems.first
+            if let fallback { profile.selectedMacroId = fallback.id }
+        }
+        .sheet(item: $shareContent) { content in
+            ActivityView(items: content.activityItems)
+                .presentationDetents([.medium, .large])
+        }
+    }
+
+    // MARK: - Compact layout (iPhone / narrow)
+
+    /// The original single-column navigation stack, unchanged on compact.
+    @ViewBuilder
+    private var compactLayout: some View {
         NavigationStack(path: $path) {
 
-            UIMainView(profile: $profile, path: $path) { content in
-                shareContent = content
-            }
-
+            mainDetail
                 .navigationTitle(
                     horizontalSizeClass == .compact
                         ? "TDEE"
@@ -60,25 +89,9 @@ struct ContentView: View {
                 )
 
                 .toolbar {
-                    // Quick-switch: choose the active profile for this session (leading, beside the system menu).
+                    // Quick-switch: choose the active profile for this session (leading).
                     ToolbarItem(placement: .topBarLeading) {
-                        Menu {
-                            ForEach(profileStore.profiles) { summary in
-                                Button {
-                                    profileStore.activate(to: summary.id)
-                                } label: {
-                                    if summary.isActive {
-                                        Label(summary.name, systemImage: "checkmark")
-                                    } else {
-                                        Text(summary.name)
-                                    }
-                                }
-                            }
-                        } label: {
-                            Label(profileStore.activeProfile?.name ?? "Profile", systemImage: "person.crop.circle")
-                        }
-                        .accessibilityLabel("Switch profile")
-                        .disabled(profileStore.profiles.isEmpty)
+                        quickSwitchMenu
                     }
                     ToolbarItem(placement: .topBarLeading) {
                         Button {
@@ -103,43 +116,102 @@ struct ContentView: View {
                 .navigationBarTitleDisplayMode(.inline)
 
                 .navigationDestination(for: AppRoute.self) { route in
-                    switch route {
-                    case .system:
-                        UISystemPageView(path: $path)
-                    case .maintainMacroConfig:
-                        MacroOptionsListViewPage(path: $path, selectedMacroId: $profile.selectedMacroId)
-                    case .theme:
-                        ThemeView()
-                    case .about:
-                        AboutPage()
-                    case .macroEditorCreate:
-                        MacroEditViewPage(path: $path, item: nil)
-                    case .macroEditorEdit(let item):
-                        MacroEditViewPage(path: $path, item: item)
-                    case .profiles:
-                        ProfileListViewPage(path: $path)
-                    case .profileEditor(let item):
-                        ProfileEditViewPage(path: $path, item: item)
-                    }
+                    routeDestination(for: route)
                 }
         }
-        // Inject the global macro collection and profile store for environment access
-        .environment(macroCollection)
-        .environment(profileStore)
-        .task {
-            await macroCollection.loadPresets()
-            await profileStore.load()
+    }
+
+    // MARK: - Regular layout (iPad / wide)
+
+    /// A two-column split: the master (a drill-down navigation menu) on the left, and the main
+    /// screen as detail on the right, with editors pushed on top of it. The macro / profile lists
+    /// live in the master; their add/edit slides into the detail via the shared `path`.
+    @ViewBuilder
+    private var regularLayout: some View {
+        NavigationSplitView {
+            SidebarView(path: $path, selectedMacroId: $profile.selectedMacroId)
+        } detail: {
+            NavigationStack(path: $path) {
+                mainDetail
+                    .navigationTitle("TDEE")
+                    .toolbar {
+                        // The sidebar replaces the hamburger; quick-switch + theme stay on the detail.
+                        ToolbarItem(placement: .topBarLeading) {
+                            quickSwitchMenu
+                        }
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button {
+                                path.append(.theme)
+                            } label: {
+                                Image(systemName: "paintpalette")
+                            }
+                            .accessibilityLabel("Change theme")
+                        }
+                    }
+                    .navigationDestination(for: AppRoute.self) { route in
+                        routeDestination(for: route)
+                    }
+            }
         }
-        // Keep the selection valid if the selected macro is deleted or reset away
-        .onChange(of: macroCollection.items) { _, items in
-            guard !items.isEmpty, !items.contains(where: { $0.id == profile.selectedMacroId }) else { return }
-            let fallback = items.first(where: { $0.id == FactoryMacroSplits.Id.balanced }) ?? macroCollection.sortedItems.first
-            if let fallback { profile.selectedMacroId = fallback.id }
+    }
+
+    // MARK: - Detail / content
+
+    /// The main screen, shared by both layouts as the detail home.
+    @ViewBuilder
+    private var mainDetail: some View {
+        UIMainView(profile: $profile, path: $path) { content in
+            shareContent = content
         }
-        .sheet(item: $shareContent) { content in
-            ActivityView(items: content.activityItems)
-                .presentationDetents([.medium, .large])
+    }
+
+    // MARK: - Shared routes
+
+    /// The pushed routes, shared by both layouts so `AppRoute` and every route keep working.
+    @ViewBuilder
+    private func routeDestination(for route: AppRoute) -> some View {
+        switch route {
+        case .system:
+            UISystemPageView(path: $path)
+        case .maintainMacroConfig:
+            MacroOptionsListViewPage(path: $path, selectedMacroId: $profile.selectedMacroId)
+        case .theme:
+            ThemeView()
+        case .about:
+            AboutPage()
+        case .macroEditorCreate:
+            MacroEditViewPage(path: $path, item: nil)
+        case .macroEditorEdit(let item):
+            MacroEditViewPage(path: $path, item: item)
+        case .profiles:
+            ProfileListViewPage(path: $path)
+        case .profileEditor(let item):
+            ProfileEditViewPage(path: $path, item: item)
         }
+    }
+
+    // MARK: - Toolbar controls
+
+    /// The profile quick-switch menu (leading), shared by both layouts.
+    @ViewBuilder
+    private var quickSwitchMenu: some View {
+        Menu {
+            ForEach(profileStore.profiles) { summary in
+                Button {
+                    profileStore.activate(to: summary.id)
+                } label: {
+                    if summary.isActive {
+                        Label(summary.name, systemImage: "checkmark")
+                    } else {
+                        Text(summary.name)
+                    }
+                }
+            }
+        } label: {
+            Label(profileStore.activeProfile?.name ?? "Profile", systemImage: "person.crop.circle")
+        }
+        .accessibilityLabel("Switch profile")
+        .disabled(profileStore.profiles.isEmpty)
     }
 }
 

@@ -59,6 +59,8 @@ struct UIMainView: View {
             ScrollViewReader { outerProxy in
                 ScrollView {
                     mainSections(proxy: outerProxy)
+                        .frame(maxWidth: 560)   // cap the column on wide screens (iPad)
+                        .frame(maxWidth: .infinity)  // centre the capped column
                         .animation(.easeInOut(duration: 0.25), value: profile.isValid)
                         .padding(.horizontal, geometry.size.width <= 375 ? 0 : 16)
                 }
