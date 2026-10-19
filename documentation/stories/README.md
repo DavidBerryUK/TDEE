@@ -19,15 +19,15 @@ This directory contains user stories for the SimpleTest iOS project.
 | 011 | Focus Management | Done |
 | 012 | Calculation System Consolidation | Done |
 | 013 | Align Macro Model With Profile View | Done |
-| 014 | SwiftData Persistence | In Planning |
-| 015 | Share Results | In Planning |
-| 016 | Test Macro Editor Update | In Planning |
+| 014 | SwiftData Persistence | Done |
+| 015 | Share Results | Done |
+| 016 | Test Macro Editor Update | Done |
 | 017 | SwiftData Persistence Fixes | Done |
 | 018 | Themes | Done |
 | 019 | Dynamic Type Section Rows | Done |
 | 020 | Apple Watch App | Done |
 | 021 | Multiple Profiles | Done |
-| 022 | iPad Adaptation | In Planning |
+| 022 | iPad Adaptation | Done |
 
 ## Story 015: Share Results
 

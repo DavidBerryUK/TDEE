@@ -178,7 +178,7 @@ class MacroPreset {
 9. **Seed on first launch** - Uses existing `ProfileDefaults` and `FactoryMacroSplits` as single source of truth
 
 ## Status
-In Planning - Awaiting user approval to proceed with implementation.
+Done - SwiftData persistence is implemented (see story 017 for the follow-up fixes).
 
 ## Future: Multi-Profile Support
 
