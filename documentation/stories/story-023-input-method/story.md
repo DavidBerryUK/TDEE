@@ -116,8 +116,8 @@ redesign, defined when its turn comes.
 |---|-------|----------------|-------------------------|-------------|--------|
 | 1 | Gender | `gender` | `UISegmentGenderView` (segmented) | Inline in the section header (no expand panel); reuses `UISegmentGenderView` | Done |
 | 2 | Age | `age` | `UIWheelPickerAgeView` (wheel) | Inline numeric text field in the section header (no expand panel); 16–99 via `MetricRanges.age`; error via `UILabelValidationMessage`, out-of-range shows the error and does not commit | Done |
-| 3 | Weight UOM | `weightUom` | `UISegmentUomWeightView` (segmented) | Neutral menu button (compact/regular); `UISegmentUomWeightView` reused at accessibility sizes — see Decisions 10–11 | New designed |
-| 4 | Weight | `weight` | `UIWheelPickerWeightView` (wheel) | Inline numeric field(s): 1 for kg/lb, 2 for stones & pounds, in-field UoM suffix; `MetricRanges.weight` gate, reject-and-nag remainder — see Decisions 9, 12–14 | New designed |
+| 3 | Weight UOM | `weightUom` | `UISegmentUomWeightView` (segmented) | Neutral menu button (compact/regular); `UISegmentUomWeightView` reused at accessibility sizes — see Decisions 10–11 | Done |
+| 4 | Weight | `weight` | `UIWheelPickerWeightView` (wheel) | Inline numeric field(s): 1 for kg/lb, 2 for stones & pounds, in-field UoM suffix; `MetricRanges.weight` gate, reject-and-nag remainder — see Decisions 9, 12–14 | Done |
 | 5 | Height UOM | `heightUom` | `UISegmentUomLengthView` (segmented) | TBD | Not started |
 | 6 | Height | `height` | `UIWheelPickerHeightView` (wheel) | TBD | Not started |
 | 7 | Body Fat % | `bodyFatPercentage` | `UIWheelPickerBodyFatView` (wheel) | TBD | Not started |
@@ -142,8 +142,8 @@ Notes:
    surface the user drives. Prerequisite for all per-input work. **Done (2026-10-19):**
    `InputMethodView` + `InputStyleManager`, tested — see Testing.
 2. **Per-input conversions.** One control at a time, in the order the owner directs; tick the
-   Status column as each goes Classic→New. **In progress — input #1 (Gender) and input #2 (Age) Done
-   (2026-10-19); inputs #3/#4 (Weight) New-designed (2026-10-19, Decisions 9–14) and next to build.**
+   Status column as each goes Classic→New. **Inputs #1 (Gender), #2 (Age), and #3/#4 (Weight) are Done
+   (all 2026-10-19); inputs #5+ remain Not started.**
 
 ## Not shared / Out of Scope
 
@@ -169,11 +169,11 @@ Notes:
 ## Open Questions
 
 1. **Each input's "New" control** — what does the redesign look like per input (e.g. numeric keypad,
-   a different layout)? Defined as each input's turn comes, not up front. **Weight's is now defined
-   (Decisions 9–14, `plan.md`); the rest remain per-input.**
+   a different layout)? Defined as each input's turn comes, not up front. **Weight's is now defined and
+   built (Decisions 9–14, `plan.md`); the rest remain per-input.**
 2. **Rollout order** — which input converts first (a wheel like Age, or a segmented like Gender)?
-   The owner directs; the table order is a placeholder. **In practice: Gender, then Age, now Weight
-   (#3/#4) — all 2026-10-19; Weight is next to build.**
+   The owner directs; the table order is a placeholder. **In practice: Gender, then Age, then Weight
+   (#3/#4) — all 2026-10-19, all Done. Height (#5/#6) is next.**
 3. **Persistence home + scoping** — extend `ThemeManager`, a new per-input store (e.g.
    `InputStylePreferences`), or a field on an existing holder; and are the preferences **global**
    (like the theme) or **per-profile** (given story 021's multiple profiles)?
@@ -258,9 +258,26 @@ All 9 pass; `TDEE` builds and the full `TDEETests` suite passes.
   (full-width segmented `UISegmentUomWeightView` reused at accessibility sizes), the **two toggles
   kept independent** (the one section composes both pieces over the shared kg model), **reject-and-nag**
   on the stones remainder, and a **three-layer validation** over a new `MetricRanges.weight` gate that
-  must move **both** `isWeightValid` and `validateForCalculation()`. Not yet built; the implementation
-  plan is `plan.md` in this folder.
+  must move **both** `isWeightValid` and `validateForCalculation()`. Now built — see the **Done** entry
+  below; the implementation plan is `plan.md` in this folder.
 - **Resolved (2026-10-19) — weight open choices.** Decisions 15–17 close the design's loose ends:
   range `20...300` kg (15), **integer entry this pass** so the "complex" corner shrinks to the stones
   0–13 reject (16), and two deferred niceties — no `Done` key and no `WeightConvertor`/`displayWeight`
-  touch (17). Design is fully locked; no code written.
+  touch (17). Design fully locked; now built — see the **Done** entry below.
+- **Done (2026-10-19) — inputs #3/#4 (Weight) converted Classic→New.** `WeightNewSectionView`
+  (`TDEE/ViewSections/WeightNewSectionView.swift`) — an inline no-panel section, like
+  `AgeNewSectionView`, that composes two pieces each honoring its own Classic/New toggle over the
+  shared kg model (Decision 11): a **unit switcher** (`UIWeightUomMenuButtonView`, a neutral "Units"
+  menu in compact/regular, with the segmented `UISegmentUomWeightView` reused at accessibility sizes)
+  and a **value entry** (`UIWeightTextFieldEntry`, one field for kg/lb, two for stones & pounds, each
+  with an in-field UoM suffix). Entry is integer this pass (`.numberPad`, Decision 16); the stones
+  pounds-remainder is 0–13 and rejects-and-nags on 14+ (Decision 12); a unit switch re-derives the
+  display from the stored kg and never mutates the model. A pure `WeightEntry`
+  (`TDEEShared/Models/ProfileViewModel/WeightEntry.swift`) maps `(unit, fields) → .ok / .empty /
+  .outOfRange / .unparseable` and commits kg only on a complete, in-range entry; the accepted range
+  lives in one place as **`MetricRanges.weight` = `20...300` kg**, and both gates move together —
+  `isWeightValid` and `validateForCalculation()` now key on it (Decision 14), so an out-of-range or
+  zero weight hides the results *and* blocks the calc pre-check. `WeightEntryTests` (Swift Testing)
+  cover the validator, the range, and that the two gates agree. The factory's `weightSection`
+  (`MainSectionProfileInput`) routes any "New" toggle to `WeightNewSectionView`; all-Classic keeps the
+  expand/collapse wheel. The three Classic weight controls stay untouched.

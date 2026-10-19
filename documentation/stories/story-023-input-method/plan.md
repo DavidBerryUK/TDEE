@@ -7,9 +7,9 @@ but adds a stones-and-pounds two-field case, a neutral unit switcher, and a `Met
 gate. The three Classic weight controls (`UISegmentUomWeightView`, `UIWheelPickerWeightView`,
 `SectionEditorWeight`) stay **untouched** — the New section composes them where a toggle is Classic.
 
-> **Cadence.** Story 023 rolls out one input at a time. This `plan.md` covers the **weight pass**
-> (#3/#4); future passes (height, body fat, …) extend or follow this file. **Status: designed, not
-> built** — Decisions 9–14 in `story.md` are locked; no code written yet.
+> **Cadence.** Story 023 rolls out one input at a time. This `plan.md` covered the **weight pass**
+> (#3/#4); future passes (height, body fat, …) extend or follow this file. **Status: built (Done,
+> 2026-10-19)** — Decisions 9–17 in `story.md` are locked and implemented; `WeightEntryTests` pass.
 
 ## Decisions (from story.md, Decisions 9–14)
 
@@ -133,12 +133,13 @@ we don't nag mid-entry — is what keeps the "complex" feeling from reaching the
 
 ## Testing checklist
 
-- [ ] `WeightEntry.validate` — valid kg, valid lb, valid stones (0–40 + 0–13), reject lb ≥ 14,
+- [x] `WeightEntry.validate` — valid kg, valid lb, valid stones (0–40 + 0–13), reject lb ≥ 14,
       out-of-range, empty, unparseable (all units; integer entry, so no decimal case).
-- [ ] `MetricRanges.weight` contains / not-contains.
-- [ ] **Both gates** (`isWeightValid` *and* `validateForCalculation()`) reflect the range — an
+- [x] `MetricRanges.weight` contains / not-contains.
+- [x] **Both gates** (`isWeightValid` *and* `validateForCalculation()`) reflect the range — an
       out-of-range or zero weight hides results **and** blocks calc.
-- [ ] Unit switch re-derives the display without mutating `weight`; the round-trip is display-only.
+- [ ] Unit switch re-derives the display without mutating `weight`; the round-trip is display-only
+      (view-layer — no unit test; manual).
 - [ ] `TDEE` + `TDEEWatch` build; full `TDEETests` suite passes (run:
       `xcodebuild -project TDEE.xcodeproj -scheme TDEE -configuration Debug test`).
 - [ ] Manual (iPhone compact): menu switcher, 1-field kg/lb, 2-field stones, error messages —
