@@ -19,6 +19,7 @@ class ProfileViewModel {
     // MARK: - Persistence Properties
 
     private let profileRepository: ProfileRepository
+    @ObservationIgnored
     nonisolated(unsafe) private var saveTask: Task<Void, Never>?  // For throttled saves
     private let saveDelay: TimeInterval = 1.0  // Wait 1 second after last change
     private var swiftDataId: UUID?  // Track the SwiftData entity ID

@@ -138,7 +138,7 @@ extension MacroSplitOptionModel {
         let snapshotFats = originalFats
         let overflow = 100 - (snapshotProtein + snapshotCarbs + snapshotFats)
 
-        var protein = snapToStep(newValue)
+        let protein = snapToStep(newValue)
         var carbs = clampValueTo100(snapshotCarbs + overflow)
         var fats = clampValueTo100(snapshotFats + overflow)
 
@@ -173,7 +173,7 @@ extension MacroSplitOptionModel {
         let overflow = 100 - (snapshotProtein + snapshotCarbs + snapshotFats)
 
         var protein = clampValueTo100(snapshotProtein + overflow)
-        var carbs = snapToStep(newValue)
+        let carbs = snapToStep(newValue)
         var fats = clampValueTo100(snapshotFats + overflow)
 
         // Snap protein and fats to step
@@ -208,7 +208,7 @@ extension MacroSplitOptionModel {
 
         var protein = clampValueTo100(snapshotProtein + overflow)
         var carbs = clampValueTo100(snapshotCarbs + overflow)
-        var fats = snapToStep(newValue)
+        let fats = snapToStep(newValue)
 
         // Snap protein and carbs to step
         protein = snapToStep(Double(protein))

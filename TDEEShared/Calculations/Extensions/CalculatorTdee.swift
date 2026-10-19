@@ -8,7 +8,7 @@
 import Foundation
 
 extension Calculator {
-    @MainActor static func calculateTdee(result: CalculatorResultViewModel, person: ProfileViewModel, createAudit: Bool = false) async -> Double {
+    @discardableResult @MainActor static func calculateTdee(result: CalculatorResultViewModel, person: ProfileViewModel, createAudit: Bool = false) async -> Double {
 
         var logger = AuditLogger(enabled: createAudit)
 
