@@ -72,7 +72,7 @@ redesign, defined when its turn comes.
 
 | # | Input | Model field(s) | Classic control (today) | New control | Status |
 |---|-------|----------------|-------------------------|-------------|--------|
-| 1 | Gender | `gender` | `UISegmentGenderView` (segmented) | TBD | Not started |
+| 1 | Gender | `gender` | `UISegmentGenderView` (segmented) | Inline in the section header (no expand panel); reuses `UISegmentGenderView` | Done |
 | 2 | Age | `age` | `UIWheelPickerAgeView` (wheel) | TBD | Not started |
 | 3 | Weight UOM | `weightUom` | `UISegmentUomWeightView` (segmented) | TBD | Not started |
 | 4 | Weight | `weight` | `UIWheelPickerWeightView` (wheel) | TBD | Not started |
@@ -98,7 +98,7 @@ Notes:
    surface the user drives. Prerequisite for all per-input work. **Done (2026-10-19):**
    `InputMethodView` + `InputStyleManager`, tested — see Testing.
 2. **Per-input conversions.** One control at a time, in the order the owner directs; tick the
-   Status column as each goes Classic→New. Not started.
+   Status column as each goes Classic→New. **In progress — input #1 (Gender) Done (2026-10-19).**
 
 ## Not shared / Out of Scope
 
@@ -182,5 +182,12 @@ All 9 pass; `TDEE` builds and the full `TDEETests` suite passes.
   were renamed `Section<X>` → `XxClassicSectionView` (Gender, Age, Height, Weight, ActivityLevel,
   BodyFatPercentage) — type *and* file — and are referenced only by the factory. `TDEE` builds for
   the iOS simulator.
-- Open Questions 1–4 remain. **Next: Task 2 — the first per-input Classic→New conversion**
-  (rollout order per the owner).
+- **Done (2026-10-19) — input #1 (Gender) converted Classic→New.** `GenderNewSectionView`
+  (`TDEE/ViewSections/GenderNewSectionView.swift`) — a layout redesign: no expand/collapse panel; the
+  segmented control sits inline in the section header with a comfortable trailing gap. The control is
+  **reused unchanged** from `UISegmentGenderView` (its *DO NOT MODIFY* file header holds — only the
+  placement changed), and `UISectionSummaryValueGender` is now Classic-only. The factory's `.new` case
+  (`MainSectionProfileInput.genderSection`) points at it and takes only `model` (a no-expand section
+  needs neither `sectionManager` nor `proxy`). `TDEE` builds for the iOS simulator.
+- Open Questions 1–4 remain (input #1's "New" design is now defined — inline header). **Next: Task 2 —
+  the next per-input Classic→New conversion** (rollout order per the owner).

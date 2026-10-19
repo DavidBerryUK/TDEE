@@ -41,8 +41,8 @@ struct MainSectionProfileInput: View {
         case .classic:
             GenderClassicSectionView(model: profile, sectionManager: sectionManager, proxy: proxy)
         case .new:
-            // Story 023, input #1 — GenderNewSectionView (not built yet); falls back to Classic.
-            GenderClassicSectionView(model: profile, sectionManager: sectionManager, proxy: proxy)
+            // Story 023, input #1 — inline segmented control, no expand panel.
+            GenderNewSectionView(model: profile)
         }
     }
 
