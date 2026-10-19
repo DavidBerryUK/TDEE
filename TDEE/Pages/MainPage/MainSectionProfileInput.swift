@@ -70,12 +70,17 @@ struct MainSectionProfileInput: View {
 
     @ViewBuilder
     private var weightSection: some View {
-        switch inputStyle.style(for: .weight) {
-        case .classic:
+        // Story 023, inputs #3/#4 — the single weight section composes two pieces that each honor
+        // their own Classic/New toggle over the shared kg model (Decision 11). Any "New" toggle routes
+        // to the composing section; all-Classic keeps today's expand/collapse wheel.
+        let uomStyle = inputStyle.style(for: .weightUom)
+        let valueStyle = inputStyle.style(for: .weight)
+        switch (uomStyle, valueStyle) {
+        case (.classic, .classic):
             WeightClassicSectionView(model: profile, sectionManager: sectionManager, proxy: proxy)
-        case .new:
-            // Story 023, inputs #3/#4 — WeightNewSectionView (not built yet); falls back to Classic.
-            WeightClassicSectionView(model: profile, sectionManager: sectionManager, proxy: proxy)
+        default:
+            // The section reads both toggles itself to compose the switcher + value slots.
+            WeightNewSectionView(model: profile)
         }
     }
 

@@ -63,6 +63,48 @@ Confirmed with the owner:
    `.new` case when it's built. The Classic sections carry no style logic of their own; the branch
    lives in the factory. Scope is the main input view's six sections (Gender, Age, Height, Weight,
    Activity Level, Body Fat %); the results-side sections (calories, macros) adopt the pattern later.
+9. **Weight New shape (inputs #3/#4).** No expand/collapse panel — the control lives inline in the
+   section header, like `AgeNewSectionView`. Each field carries its **UoM as an in-field trailing
+   suffix** (`| 70 kg |`, not a caption outside the border). **kg / pounds → one field;
+   stones & pounds → two fields** (stones 0–40, pounds-remainder 0–13). At accessibility sizes the
+   two stones fields stack full-width.
+10. **Unit switcher.** A neutral **menu button** in compact/regular (`Units ⌄` / a swap glyph, left
+    of the value — the value already shows the current unit); at **accessibility sizes** it becomes the
+    full-width segmented `UISegmentUomWeightView` **reused verbatim** (the `GenderNewSectionView`
+    move). One control, two presentations; the segmented look is deliberately *not* used in compact —
+    it's the aesthetic this redesign leaves.
+11. **The two toggles stay independent.** `weightUom` (#3) and `weight` (#4) keep their own
+    Classic/New toggles; the single weight section **composes two pieces that each honor their own
+    toggle, sharing `model.weightUom` / `model.weight`** as the one source of truth. The shipped path
+    converts both together; mixed combinations (New menu + Classic wheel, etc.) render but aren't the
+    primary target.
+12. **Stones remainder: reject and nag.** The pounds field in stones mode is **0–13**; entering 14+
+    shows a `UILabelValidationMessage` (e.g. *"Pounds must be 0–13"*) and leaves the last valid value
+    — no silent carry into the stones box.
+13. **Validation structure.** One authority in kg: add `MetricRanges.weight` (a
+    `ClosedRange<Double>`) and gate on it. Per-field **local buffers commit only on a complete,
+    in-range entry** (the `AgeNewSectionView` contract, extended to a range); a small pure
+    `WeightEntry` validator maps `(unit, fields) → .ok / .empty / .outOfRange / .unparseable`, the
+    view shows one section-level message, and the model gate reads only the committed kg. Keyboard:
+    `.numberPad` (integer) for all fields this pass — see Decision 16. A unit switch **re-derives the
+    display from the stored kg and never mutates the model** (mirrors the wheel's
+    `syncStateFromPreviousUnit`).
+14. **Two gates move together.** The range check must land in **both** `isWeightValid` *and*
+    `validateForCalculation()` (`CalculationValidatePerson.swift`) — they both key on `weight == 0`
+    today and must move together or the results view and the calc pre-check disagree.
+15. **Weight range.** `MetricRanges.weight = 20...300` kg. Per-unit *input* caps derive from it:
+    lb 44–661, stones 0–40 (≈260 kg — weights above the stones ceiling are entered in kg/lb). 20 kg
+    (≈44 lb) rejects accidental low entries without excluding any 16–99 adult; 300 kg sits just above
+    the Classic's ~260 kg stones cap, so no reachable Classic value becomes invalid.
+16. **Integer entry this pass (decimals deferred).** kg/lb/stones all use `.numberPad` (integer),
+    matching the Classic's integer wheels — the single biggest simplification: it removes the 1-dp cap,
+    the decimal-in-integer-field edge, and the round-trip-drift concern, so the "complex" corner
+    collapses to just the stones 0–13 reject (Decision 12). Sub-kilogram precision is a focused future
+    enhancement. *(Revises the `.decimalPad` note in Decision 13.)*
+17. **Defer two niceties.** (a) No keyboard `Done`/accessory — match Age's bare keyboard; revisit as a
+    shared concern when height's two-field (feet+inches) entry is built. (b) Because entry is integer
+    (Decision 16) there is no round-vs-floor display concern, so `WeightConvertor` / `displayWeight`
+    are **not touched** this pass — no approval needed; the New control displays like the Classic.
 
 ## Inputs (worked one at a time)
 
@@ -74,8 +116,8 @@ redesign, defined when its turn comes.
 |---|-------|----------------|-------------------------|-------------|--------|
 | 1 | Gender | `gender` | `UISegmentGenderView` (segmented) | Inline in the section header (no expand panel); reuses `UISegmentGenderView` | Done |
 | 2 | Age | `age` | `UIWheelPickerAgeView` (wheel) | Inline numeric text field in the section header (no expand panel); 16–99 via `MetricRanges.age`; error via `UILabelValidationMessage`, out-of-range shows the error and does not commit | Done |
-| 3 | Weight UOM | `weightUom` | `UISegmentUomWeightView` (segmented) | TBD | Not started |
-| 4 | Weight | `weight` | `UIWheelPickerWeightView` (wheel) | TBD | Not started |
+| 3 | Weight UOM | `weightUom` | `UISegmentUomWeightView` (segmented) | Neutral menu button (compact/regular); `UISegmentUomWeightView` reused at accessibility sizes — see Decisions 10–11 | New designed |
+| 4 | Weight | `weight` | `UIWheelPickerWeightView` (wheel) | Inline numeric field(s): 1 for kg/lb, 2 for stones & pounds, in-field UoM suffix; `MetricRanges.weight` gate, reject-and-nag remainder — see Decisions 9, 12–14 | New designed |
 | 5 | Height UOM | `heightUom` | `UISegmentUomLengthView` (segmented) | TBD | Not started |
 | 6 | Height | `height` | `UIWheelPickerHeightView` (wheel) | TBD | Not started |
 | 7 | Body Fat % | `bodyFatPercentage` | `UIWheelPickerBodyFatView` (wheel) | TBD | Not started |
@@ -88,7 +130,9 @@ redesign, defined when its turn comes.
 
 Notes:
 - Rows 3/4 and 5/6 are the UOM toggle + the value that uses it; the UOM toggle and its value share
-  one "New" design, but each still gets its own Classic/New toggle.
+  one "New" design, but each still gets its own Classic/New toggle. **For weight this is confirmed
+  (Decision 11): the two toggles stay independent and the one section composes both pieces over the
+  shared kg model.**
 - **Profile name** (a free-text field, story 021) is a possible 14th input but is *not* in this pass
   — see Open Questions.
 
@@ -99,7 +143,7 @@ Notes:
    `InputMethodView` + `InputStyleManager`, tested — see Testing.
 2. **Per-input conversions.** One control at a time, in the order the owner directs; tick the
    Status column as each goes Classic→New. **In progress — input #1 (Gender) and input #2 (Age) Done
-   (2026-10-19).**
+   (2026-10-19); inputs #3/#4 (Weight) New-designed (2026-10-19, Decisions 9–14) and next to build.**
 
 ## Not shared / Out of Scope
 
@@ -125,9 +169,11 @@ Notes:
 ## Open Questions
 
 1. **Each input's "New" control** — what does the redesign look like per input (e.g. numeric keypad,
-   a different layout)? Defined as each input's turn comes, not up front.
+   a different layout)? Defined as each input's turn comes, not up front. **Weight's is now defined
+   (Decisions 9–14, `plan.md`); the rest remain per-input.**
 2. **Rollout order** — which input converts first (a wheel like Age, or a segmented like Gender)?
-   The owner directs; the table order is a placeholder.
+   The owner directs; the table order is a placeholder. **In practice: Gender, then Age, now Weight
+   (#3/#4) — all 2026-10-19; Weight is next to build.**
 3. **Persistence home + scoping** — extend `ThemeManager`, a new per-input store (e.g.
    `InputStylePreferences`), or a field on an existing holder; and are the preferences **global**
    (like the theme) or **per-profile** (given story 021's multiple profiles)?
@@ -206,3 +252,15 @@ All 9 pass; `TDEE` builds and the full `TDEETests` suite passes.
 - Open Questions 1–4 remain (inputs #1–#2's "New" designs are now defined — inline header / inline
   numeric field). **Next: Task 2 — the next per-input Classic→New conversion** (rollout order per the
   owner).
+- **New (2026-10-19) — inputs #3/#4 (Weight) New control designed.** Decisions 9–14 lock the design:
+  an inline no-panel section (like Age), an in-field UoM suffix, **1 field for kg/lb vs 2 for
+  stones & pounds** (stones 0–40 / pounds-remainder 0–13), a neutral **menu-button unit switcher**
+  (full-width segmented `UISegmentUomWeightView` reused at accessibility sizes), the **two toggles
+  kept independent** (the one section composes both pieces over the shared kg model), **reject-and-nag**
+  on the stones remainder, and a **three-layer validation** over a new `MetricRanges.weight` gate that
+  must move **both** `isWeightValid` and `validateForCalculation()`. Not yet built; the implementation
+  plan is `plan.md` in this folder.
+- **Resolved (2026-10-19) — weight open choices.** Decisions 15–17 close the design's loose ends:
+  range `20...300` kg (15), **integer entry this pass** so the "complex" corner shrinks to the stones
+  0–13 reject (16), and two deferred niceties — no `Done` key and no `WeightConvertor`/`displayWeight`
+  touch (17). Design is fully locked; no code written.

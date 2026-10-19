@@ -19,9 +19,12 @@ extension ProfileViewModel {
         isAgeValid && isWeightValid && isHeightValid
     }
 
-    /// Whether weight is valid (non-zero)
+    /// Whether weight is within the accepted range (story 023, input #4, Decision 15). An out-of-range
+    /// or zero weight hides the results, not just a zero — the New text entry only commits in-range
+    /// values, so this mainly guards a profile loaded with a bad weight. Mirrors `isAgeValid` and is
+    /// kept in sync with `validateForCalculation()` (Decision 14).
     var isWeightValid: Bool {
-        weight != 0
+        MetricRanges.weight.contains(weight)
     }
 
     /// Whether height is valid (non-zero)
