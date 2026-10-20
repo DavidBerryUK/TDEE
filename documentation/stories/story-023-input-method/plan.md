@@ -222,3 +222,41 @@ stones & pounds**. Three owner decisions close the height design; everything els
 - [ ] `Done` key dismisses the keyboard — **manual**.
 - [ ] Manual (iPhone compact): menu switcher, 1-field cm/in, 2-field feet&inches, error messages.
 - [ ] Manual (iPad regular + accessibility): full-width segmented switcher; feet fields stack.
+
+---
+
+## Activity Level pass (input #9) — built (Done, 2026-10-20)
+
+Activity level is the lightest pass: a single categorical input over one model field — no UoM switcher,
+no two-field case, and no range / zero gate (an activity level is always valid). So it needs none of the
+weight / height machinery: no `MetricRanges` entry, no pure validator, no two-gate move, no converter.
+
+### Decisions (this pass)
+
+- **Neutral menu button** (owner-chosen): a `Menu` labelled "Activity Level", compact / regular; lists
+  all 9 `ActivityLevel` cases and rebinds `model.activityLevel`. Mirrors the neutral UoM menu button
+  (Decision 10). At accessibility sizes it drops to its own full-width line (the house a11y pattern).
+- **No validation / no gates:** activity level is categorical — no `MetricRanges`, no validator, no
+  `validateForCalculation()` change. The closed label is neutral ("Activity Level"); the current pick
+  shows inside the open menu. (Surfacing the current pick in the *closed* label is a possible future
+  tweak — not done this pass.)
+
+### Files
+
+| File | Change |
+|------|--------|
+| `TDEE/ViewsValueEditors/UIActivityLevelMenuButtonView.swift` | **New** — neutral `Menu` over `ActivityLevel.allCases`, rebinds `model.activityLevel` (mirrors the UoM menu buttons). |
+| `TDEE/ViewSections/ActivityLevelNewSectionView.swift` | **New** — inline no-panel shell (copy `GenderNewSectionView`); the menu in the header, a11y line-drop. |
+| `TDEE/Pages/MainPage/MainSectionProfileInput.swift` | **Change** — `activityLevelSection` `.new` case routes to `ActivityLevelNewSectionView`. |
+
+**Reused as-is:** `GenderNewSectionView` (shell / a11y pattern), the neutral UoM menu button shape,
+`InputID.activityLevel` / `InputMethodView` (the toggle already existed — no presenter change).
+**Do NOT modify without approval:** `UIWheelPickerActivityLevelView`, `SectionEditorActivityLevel`,
+`ActivityLevelClassicSectionView` (the Classic path).
+
+### Testing checklist
+
+- [x] `TDEE` builds for the iOS simulator (`** BUILD SUCCEEDED **`, no compile errors).
+- [x] Full `TDEETests` suite passes unchanged — there is no validator type to test (categorical input).
+- [ ] Manual (iPhone compact): the menu lists all 9 levels; a selection rebinds `model.activityLevel`.
+- [ ] Manual (iPad regular + accessibility): the menu drops to a full-width line.

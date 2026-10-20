@@ -95,8 +95,8 @@ struct MainSectionProfileInput: View {
         case .classic:
             ActivityLevelClassicSectionView(model: profile, sectionManager: sectionManager, proxy: proxy)
         case .new:
-            // Story 023, input #9 — ActivityLevelNewSectionView (not built yet); falls back to Classic.
-            ActivityLevelClassicSectionView(model: profile, sectionManager: sectionManager, proxy: proxy)
+            // Story 023, input #9 — neutral menu button in the header, no expand panel.
+            ActivityLevelNewSectionView(model: profile)
         }
     }
 

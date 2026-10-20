@@ -122,7 +122,7 @@ redesign, defined when its turn comes.
 | 6 | Height | `height` | `UIWheelPickerHeightView` (wheel) | Inline numeric field(s): 1 for cm/in, 2 for feet & inches, in-field UoM suffix; `MetricRanges.height` gate, reject-and-nag remainder, keyboard Done key — see the height pass | Done |
 | 7 | Body Fat % | `bodyFatPercentage` | `UIWheelPickerBodyFatView` (wheel) | TBD | Not started |
 | 8 | Body Fat Calc Method | `bodyFatPercentageMethod` | `UISegmentBodyFatCalcMethodView` (segmented) | TBD | Not started |
-| 9 | Activity Level | `activityLevel` | `UIWheelPickerActivityLevelView` (wheel) | TBD | Not started |
+| 9 | Activity Level | `activityLevel` | `UIWheelPickerActivityLevelView` (wheel) | Neutral menu button in the section header (compact/regular), lists all 9 `ActivityLevel` cases, drops to a full-width line at accessibility sizes; no expand panel, no range/zero gate — see the Activity Level pass | Done |
 | 10 | Calorie Adjustment Method | `calorieAdjustmentMethod` | `UISegmentCalorieAdjustmentMethodView` (segmented) | TBD | Not started |
 | 11 | Calorie Adjustment Value | (slider value) | `UISliderCalorieAdjustmentValue` (slider) | TBD | Not started |
 | 12 | Macro Split Method | (macro split) | `UISegmentMacroSplitMethodView` (segmented) | TBD | Not started |
@@ -143,8 +143,9 @@ Notes:
    surface the user drives. Prerequisite for all per-input work. **Done (2026-10-19):**
    `InputMethodView` + `InputStyleManager`, tested — see Testing.
 2. **Per-input conversions.** One control at a time, in the order the owner directs; tick the
-   Status column as each goes Classic→New. **Inputs #1 (Gender), #2 (Age), #3/#4 (Weight), and #5/#6
-   (Height) are Done (Gender/Age/Weight 2026-10-19; Height 2026-10-20); inputs #7+ remain Not started.**
+   Status column as each goes Classic→New. **Inputs #1 (Gender), #2 (Age), #3/#4 (Weight), #5/#6
+   (Height), and #9 (Activity Level) are Done (Gender/Age/Weight 2026-10-19; Height and Activity Level
+   2026-10-20); inputs #7, #8 and #10–#13 remain Not started.**
 
 ## Not shared / Out of Scope
 
@@ -175,8 +176,8 @@ Notes:
    per-input.**
 2. **Rollout order** — which input converts first (a wheel like Age, or a segmented like Gender)?
    The owner directs; the table order is a placeholder. **In practice: Gender, then Age, then Weight
-   (#3/#4) — all 2026-10-19, all Done; then Height (#5/#6) on 2026-10-20, also Done. The next input
-   is body fat (#7/#8).**
+   (#3/#4) — all 2026-10-19, all Done; then Height (#5/#6) and Activity Level (#9) on 2026-10-20,
+   also Done. The next inputs are body fat (#7/#8), then the calorie / macro block (#10–#13).**
 3. **Persistence home + scoping** — extend `ThemeManager`, a new per-input store (e.g.
    `InputStylePreferences`), or a field on an existing holder; and are the preferences **global**
    (like the theme) or **per-profile** (given story 021's multiple profiles)?
@@ -310,3 +311,15 @@ All 9 pass; `TDEE` builds and the full `TDEETests` suite passes.
   concern). The factory's `heightSection` (`MainSectionProfileInput`) routes any "New" toggle to
   `HeightNewSectionView`; all-Classic keeps the expand/collapse wheel. The three Classic height
   controls (`UISegmentUomLengthView`, `UIWheelPickerHeightView`, `SectionEditorHeight`) stay untouched.
+- **Done (2026-10-20) — input #9 (Activity Level) converted Classic→New.** `ActivityLevelNewSectionView`
+  (`TDEE/ViewSections/ActivityLevelNewSectionView.swift`) — an inline no-panel section, like
+  `GenderNewSectionView`: a neutral `Menu` labelled "Activity Level" sits in the section header
+  (compact / regular) and drops to its own full-width line at accessibility sizes. It lists every
+  `ActivityLevel` case (9) and rebinds `model.activityLevel`, so the Classic wheel picker is replaced
+  without touching it — `UIWheelPickerActivityLevelView` and `SectionEditorActivityLevel` stay
+  untouched. The control is `UIActivityLevelMenuButtonView`
+  (`TDEE/ViewsValueEditors/UIActivityLevelMenuButtonView.swift`), mirroring the neutral UoM menu button
+  (`UIWeightUomMenuButtonView` / `UIHeightUomMenuButtonView`). Activity level is a categorical pick with
+  no range / zero gate, so — unlike the weight and height passes — this needed no `MetricRanges` entry,
+  no validator, and no `validateForCalculation()` change; the full `TDEETests` suite passes unchanged.
+  `TDEE` builds for the iOS simulator.
