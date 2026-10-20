@@ -118,8 +118,8 @@ redesign, defined when its turn comes.
 | 2 | Age | `age` | `UIWheelPickerAgeView` (wheel) | Inline numeric text field in the section header (no expand panel); 16–99 via `MetricRanges.age`; error via `UILabelValidationMessage`, out-of-range shows the error and does not commit | Done |
 | 3 | Weight UOM | `weightUom` | `UISegmentUomWeightView` (segmented) | Neutral menu button (compact/regular); `UISegmentUomWeightView` reused at accessibility sizes — see Decisions 10–11 | Done |
 | 4 | Weight | `weight` | `UIWheelPickerWeightView` (wheel) | Inline numeric field(s): 1 for kg/lb, 2 for stones & pounds, in-field UoM suffix; `MetricRanges.weight` gate, reject-and-nag remainder — see Decisions 9, 12–14 | Done |
-| 5 | Height UOM | `heightUom` | `UISegmentUomLengthView` (segmented) | TBD | Not started |
-| 6 | Height | `height` | `UIWheelPickerHeightView` (wheel) | TBD | Not started |
+| 5 | Height UOM | `heightUom` | `UISegmentUomLengthView` (segmented) | Neutral menu button (compact/regular); `UISegmentUomLengthView` reused at accessibility sizes — see Decisions 10–11 | Done |
+| 6 | Height | `height` | `UIWheelPickerHeightView` (wheel) | Inline numeric field(s): 1 for cm/in, 2 for feet & inches, in-field UoM suffix; `MetricRanges.height` gate, reject-and-nag remainder, keyboard Done key — see the height pass | Done |
 | 7 | Body Fat % | `bodyFatPercentage` | `UIWheelPickerBodyFatView` (wheel) | TBD | Not started |
 | 8 | Body Fat Calc Method | `bodyFatPercentageMethod` | `UISegmentBodyFatCalcMethodView` (segmented) | TBD | Not started |
 | 9 | Activity Level | `activityLevel` | `UIWheelPickerActivityLevelView` (wheel) | TBD | Not started |
@@ -132,7 +132,8 @@ Notes:
 - Rows 3/4 and 5/6 are the UOM toggle + the value that uses it; the UOM toggle and its value share
   one "New" design, but each still gets its own Classic/New toggle. **For weight this is confirmed
   (Decision 11): the two toggles stay independent and the one section composes both pieces over the
-  shared kg model.**
+  shared kg model.** **Height (#5/#6) follows the same shape over the shared cm model — the two
+  toggles stay independent and the one section composes both pieces.**
 - **Profile name** (a free-text field, story 021) is a possible 14th input but is *not* in this pass
   — see Open Questions.
 
@@ -142,8 +143,8 @@ Notes:
    surface the user drives. Prerequisite for all per-input work. **Done (2026-10-19):**
    `InputMethodView` + `InputStyleManager`, tested — see Testing.
 2. **Per-input conversions.** One control at a time, in the order the owner directs; tick the
-   Status column as each goes Classic→New. **Inputs #1 (Gender), #2 (Age), and #3/#4 (Weight) are Done
-   (all 2026-10-19); inputs #5+ remain Not started.**
+   Status column as each goes Classic→New. **Inputs #1 (Gender), #2 (Age), #3/#4 (Weight), and #5/#6
+   (Height) are Done (Gender/Age/Weight 2026-10-19; Height 2026-10-20); inputs #7+ remain Not started.**
 
 ## Not shared / Out of Scope
 
@@ -169,11 +170,13 @@ Notes:
 ## Open Questions
 
 1. **Each input's "New" control** — what does the redesign look like per input (e.g. numeric keypad,
-   a different layout)? Defined as each input's turn comes, not up front. **Weight's is now defined and
-   built (Decisions 9–14, `plan.md`); the rest remain per-input.**
+   a different layout)? Defined as each input's turn comes, not up front. **Weight's (Decisions 9–14,
+   `plan.md`) and height's (the height pass, mirroring weight) are defined and built; the rest remain
+   per-input.**
 2. **Rollout order** — which input converts first (a wheel like Age, or a segmented like Gender)?
    The owner directs; the table order is a placeholder. **In practice: Gender, then Age, then Weight
-   (#3/#4) — all 2026-10-19, all Done. Height (#5/#6) is next.**
+   (#3/#4) — all 2026-10-19, all Done; then Height (#5/#6) on 2026-10-20, also Done. The next input
+   is body fat (#7/#8).**
 3. **Persistence home + scoping** — extend `ThemeManager`, a new per-input store (e.g.
    `InputStylePreferences`), or a field on an existing holder; and are the preferences **global**
    (like the theme) or **per-profile** (given story 021's multiple profiles)?
@@ -281,3 +284,29 @@ All 9 pass; `TDEE` builds and the full `TDEETests` suite passes.
   cover the validator, the range, and that the two gates agree. The factory's `weightSection`
   (`MainSectionProfileInput`) routes any "New" toggle to `WeightNewSectionView`; all-Classic keeps the
   expand/collapse wheel. The three Classic weight controls stay untouched.
+- **Done (2026-10-20) — inputs #5/#6 (Height) converted Classic→New.** Mirrors the weight pass almost
+  1:1 — height is `OptionLength { centimeters, inches, feetAndInches }` over a cm model, so the same
+  shell, switcher, and validator shape carry over, with feet & inches standing in for stones & pounds.
+  Three owner decisions close the height design: **both gates move to the range** (the weight
+  Decision 14 analog), **`MetricRanges.height = 100...272` cm**, and the **keyboard `Done` key is
+  added now** (weight's Decision 17a had deferred it to "when height's two-field entry is built" —
+  this pass). `HeightNewSectionView` (`TDEE/ViewSections/HeightNewSectionView.swift`) — an inline
+  no-panel section, like `WeightNewSectionView`, composing two pieces each honoring its own toggle over
+  the shared cm model (Decision 11): a **unit switcher** (`UIHeightUomMenuButtonView`, a neutral
+  "Units" menu in compact/regular, with the segmented `UISegmentUomLengthView` reused at accessibility
+  sizes) and a **value entry** (`UIHeightTextFieldEntry`, one field for cm/inches, two for feet &
+  inches, each with an in-field UoM suffix `cm` / `in` / `ft`). Entry is integer (`.numberPad`); the
+  feet **inches-remainder is 0–11** and rejects-and-nags on 12+ (Decision 12 analog); a unit switch
+  re-derives the display from the stored cm and never mutates the model (Decision 13). The first field
+  to carry a keyboard **`Done`** accessory key (`ToolbarItem(placement: .keyboard)`, a `@FocusState`
+  dismiss) — intended as the shared pattern to back-port to age / weight later. A pure `HeightEntry`
+  (`TDEEShared/Models/ProfileViewModel/HeightEntry.swift`) maps `(unit, fields) → .ok / .empty /
+  .outOfRange / .unparseable` and commits cm only on a complete, in-range entry; the accepted range
+  lives in one place as **`MetricRanges.height` = `100...272` cm**, and both gates move together —
+  `isHeightValid` and `validateForCalculation()` now key on it (Decision 14 analog), so an out-of-range
+  or zero height hides the results *and* blocks the calc pre-check. `HeightEntryTests` (Swift Testing)
+  cover the validator, the range, and that the two gates agree; the full `TDEETests` suite passes with
+  no regression. `LengthConverter` / `displayLength` stay untouched (integer entry → no round-vs-floor
+  concern). The factory's `heightSection` (`MainSectionProfileInput`) routes any "New" toggle to
+  `HeightNewSectionView`; all-Classic keeps the expand/collapse wheel. The three Classic height
+  controls (`UISegmentUomLengthView`, `UIWheelPickerHeightView`, `SectionEditorHeight`) stay untouched.

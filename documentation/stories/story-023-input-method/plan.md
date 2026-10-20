@@ -157,3 +157,68 @@ we don't nag mid-entry — is what keeps the "complex" feeling from reaching the
 - **Resolved (Decisions 15–17):** range is `20...300` kg; integer entry removes the `floor`/`round`
   display concern and leaves `WeightConvertor` / `displayWeight` untouched; no `Done` key this pass.
   No approval-gated file is in the change set.
+
+---
+
+## Height pass (inputs #5/#6) — built (Done, 2026-10-20)
+
+Height mirrors the weight pass almost 1:1: `OptionLength { centimeters, inches, feetAndInches }` over a
+**cm** model, so the shell, switcher, and validator carry over with **feet & inches standing in for
+stones & pounds**. Three owner decisions close the height design; everything else follows Decisions 9–17.
+
+### Decisions (this pass)
+
+- **Both gates move to the range** (Decision 14 analog): `isHeightValid` *and*
+  `validateForCalculation()` key on `MetricRanges.height`, so the results view and the calc pre-check
+  can't drift — the same move weight made.
+- **Range:** `MetricRanges.height = 100...272` cm. 100 cm (≈3 ft 3 in) rejects accidental low entries
+  without excluding any 16–99 adult; 272 cm matches the Classic wheels' reach (~8 ft 11 in), so no
+  reachable Classic value becomes invalid. (Tradeoff, same as weight: a sub-100 cm Classic-wheel spin
+  now reads as invalid.)
+- **Keyboard `Done` key added now** (Decision 17a, revisited at this two-field entry): a
+  `ToolbarItem(placement: .keyboard)` "Done" over a `@FocusState` dismiss. The first field to carry
+  one; intended as the shared pattern to back-port to the age / weight entries later.
+- **Feet & inches remainder = 0–11** (Decision 12 analog): a 12+ inches entry rejects-and-nags rather
+  than carrying into the feet box. No separate feet cap — the cm range catches any feet value beyond
+  the ceiling (unlike weight's stones-40 cap, which sat below the ceiling).
+
+### Deltas from the weight plan
+
+- Two-field case is **feet & inches** (feet + an inches-remainder 0–11), not stones & pounds (0–13).
+- Converter is `LengthConverter` (`toCentimeters(feet:inches:)`, `toFeet`, `toRemainingInches`), not
+  `WeightConvertor`.
+- In-field suffixes are short: `cm` / `in` (single field), `ft` + `in` (feet & inches).
+- `LengthConverter` / `displayLength` **untouched** — integer entry means no round-vs-floor concern,
+  exactly as Decision 17b kept weight's converter alone.
+
+### Files
+
+| File | Change |
+|------|--------|
+| `TDEE/ViewSections/HeightNewSectionView.swift` | **New** — inline no-panel shell (copy `WeightNewSectionView`); composes the switcher + value slots; a11y line-drop; `UILabelValidationMessage`. |
+| `TDEE/ViewsValueEditors/UIHeightUomMenuButtonView.swift` | **New** — neutral "Units" menu binding `$model.heightUom` (copy `UIWeightUomMenuButtonView`); full-width `UISegmentUomLengthView` reused at a11y sizes. |
+| `TDEE/ViewsValueEditors/UIHeightTextFieldEntry.swift` | **New** — 1 field for cm/inches, 2 for feet & inches, in-field UoM suffix, per-field buffers, `.numberPad`, a `@FocusState` **Done** key; drives `HeightEntry`. |
+| `TDEEShared/Models/ProfileViewModel/HeightEntry.swift` | **New** — pure `(OptionLength, fields) → .ok / .empty / .outOfRange / .unparseable`; commits cm only on a complete in-range entry (copy `WeightEntry`). |
+| `TDEEShared/Config/MetricRanges.swift` | **Change** — add `height: ClosedRange<Double>` = `100...272` cm. |
+| `TDEEShared/Models/ProfileViewModel/ProfileViewModelValidation.swift` | **Change** — `isHeightValid` → `MetricRanges.height.contains(height)`. |
+| `TDEEShared/Calculations/Extensions/CalculationValidatePerson.swift` | **Change** — the `height == 0` check → range-based, kept in sync with `isHeightValid`. |
+| `TDEEShared/Utilities/LengthConverter.swift` + `displayLength.swift` | **Not touched** — integer entry means the New control displays like the Classic. |
+| `TDEE/Pages/MainPage/MainSectionProfileInput.swift` | **Change** — `heightSection` reads **both** `.heightUom` and `.height`; any-"New" routes to `HeightNewSectionView`, all-Classic keeps the expand/collapse wheel (mirror `weightSection`). |
+| `TDEETests/…/HeightEntryTests.swift` | **New** — validator + `MetricRanges.height` + two-gates-agree tests (copy `WeightEntryTests`). |
+
+**Reused as-is:** `WeightNewSectionView` / `AgeNewSectionView` (shell), `UISegmentUomLengthView`
+(a11y segmented), `UIWheelPickerHeightView` (Classic value), `UITextPickerLabel` (UoM voice),
+`UILabelValidationMessage` (error), `LengthConverter.toCentimeters(feet:inches:)` (exact commit).
+**Do NOT modify without approval:** `UISegmentUomLengthView`, `UIWheelPickerHeightView`,
+`SectionEditorHeight` (the Classic path).
+
+### Testing checklist
+
+- [x] `HeightEntry.validate` — valid cm / inches / feet&inches, empty, out-of-range, unparseable,
+      decimal-unparseable, remainder 12+ reject, feet beyond range.
+- [x] `MetricRanges.height` contains / not-contains.
+- [x] **Both gates** (`isHeightValid` *and* `validateForCalculation()`) reflect the range — an
+      out-of-range or zero height hides results **and** blocks calc; `WeightEntryTests` still green.
+- [ ] `Done` key dismisses the keyboard — **manual**.
+- [ ] Manual (iPhone compact): menu switcher, 1-field cm/in, 2-field feet&inches, error messages.
+- [ ] Manual (iPad regular + accessibility): full-width segmented switcher; feet fields stack.

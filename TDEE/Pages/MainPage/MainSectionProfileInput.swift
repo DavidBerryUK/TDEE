@@ -59,12 +59,17 @@ struct MainSectionProfileInput: View {
 
     @ViewBuilder
     private var heightSection: some View {
-        switch inputStyle.style(for: .height) {
-        case .classic:
+        // Story 023, inputs #5/#6 — the single height section composes two pieces that each honor
+        // their own Classic/New toggle over the shared cm model (Decision 11). Any "New" toggle routes
+        // to the composing section; all-Classic keeps today's expand/collapse wheel.
+        let uomStyle = inputStyle.style(for: .heightUom)
+        let valueStyle = inputStyle.style(for: .height)
+        switch (uomStyle, valueStyle) {
+        case (.classic, .classic):
             HeightClassicSectionView(model: profile, sectionManager: sectionManager, proxy: proxy)
-        case .new:
-            // Story 023, inputs #5/#6 — HeightNewSectionView (not built yet); falls back to Classic.
-            HeightClassicSectionView(model: profile, sectionManager: sectionManager, proxy: proxy)
+        default:
+            // The section reads both toggles itself to compose the switcher + value slots.
+            HeightNewSectionView(model: profile)
         }
     }
 

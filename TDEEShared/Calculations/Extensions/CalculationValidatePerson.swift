@@ -11,12 +11,13 @@ extension ProfileViewModel {
     /// Validates required fields for calculation.
     /// - Returns: An error message listing invalid/missing fields, or `nil` if all fields are valid.
     /// Fields are invalid if:
-    /// - Age or Height is 0, or Weight is outside the accepted range (story 023, input #4)
+    /// - Age is 0, or Height or Weight is outside its accepted range (story 023, inputs #4 / #6)
     /// - Body Fat Percentage is outside the valid range (5-50%) when using manual entry method
     func validateForCalculation() -> String? {
         var fields: [String] = []
         if self.age == 0 { fields.append("Age") }
-        if self.height == 0 { fields.append("Height") }
+        // Kept in sync with isHeightValid (Decision 14 analog): both gate on the shared MetricRanges.height.
+        if !MetricRanges.height.contains(self.height) { fields.append("Height") }
         // Kept in sync with isWeightValid (Decision 14): both gate on the shared MetricRanges.weight.
         if !MetricRanges.weight.contains(self.weight) { fields.append("Weight") }
         // Only validate body fat percentage when manual entry method is selected
