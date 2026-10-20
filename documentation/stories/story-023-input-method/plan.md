@@ -238,8 +238,8 @@ weight / height machinery: no `MetricRanges` entry, no pure validator, no two-ga
   (Decision 10). At accessibility sizes it drops to its own full-width line (the house a11y pattern).
 - **No validation / no gates:** activity level is categorical — no `MetricRanges`, no validator, no
   `validateForCalculation()` change. The closed label is neutral ("Activity Level"); the current pick
-  shows inside the open menu. (Surfacing the current pick in the *closed* label is a possible future
-  tweak — not done this pass.)
+  shows inside the open menu. Owner-verified and happy with the neutral closed label as the final form
+  (2026-10-20) — surfacing the current pick in the *closed* label was considered and deferred.
 
 ### Files
 
@@ -258,5 +258,7 @@ weight / height machinery: no `MetricRanges` entry, no pure validator, no two-ga
 
 - [x] `TDEE` builds for the iOS simulator (`** BUILD SUCCEEDED **`, no compile errors).
 - [x] Full `TDEETests` suite passes unchanged — there is no validator type to test (categorical input).
-- [ ] Manual (iPhone compact): the menu lists all 9 levels; a selection rebinds `model.activityLevel`.
-- [ ] Manual (iPad regular + accessibility): the menu drops to a full-width line.
+- [x] Manual (iPhone compact): the menu lists all 9 levels; a selection rebinds `model.activityLevel` —
+      owner-verified 2026-10-20.
+- [x] Manual (iPad regular + accessibility): the menu drops to a full-width line — owner-verified
+      2026-10-20.
