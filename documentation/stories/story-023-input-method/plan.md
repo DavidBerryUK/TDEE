@@ -262,3 +262,112 @@ weight / height machinery: no `MetricRanges` entry, no pure validator, no two-ga
       owner-verified 2026-10-20.
 - [x] Manual (iPad regular + accessibility): the menu drops to a full-width line — owner-verified
       2026-10-20.
+
+---
+
+## Body Fat pass (inputs #7 / #8) — built (Done, 2026-10-20)
+
+Body fat is the story's most involved pass: two inputs over one section, the first **decimal** entry,
+a **show/hide gate** between them, and an **asymmetric** range gate. It is one composing section like
+weight / height (Decision 11), but the two pieces relate by *gate* (Omit/Estimate → no % field), not
+unit re-derivation, and the range is new to the results gate. Three owner decisions (2026-10-20) close
+the design: a **single 1-dp `%` field** (the first decimal entry), a **method-gated** addition to the
+results gate, and the range extracted to **`MetricRanges`**. The three Classic controls
+(`UISegmentBodyFatCalcMethodView`, `UIWheelPickerBodyFatView`, `SectionEditorBodyFatPercentage`) stay
+**untouched**.
+
+> **Status: built (Done, 2026-10-20)** — decisions 18–21 are locked and implemented. `BodyFatPercentageEntryTests`
+> pass and the full `TDEETests` suite is green on iPhone 17 Pro Max / iOS 27 (`** TEST SUCCEEDED **`);
+> the pre-existing `ProfileViewModelValidationTests` body-fat cases stay green.
+
+### Decisions (this pass)
+
+- **Composition — gated two-slot section** (#18, Decision 11 analog): `BodyFatPercentageNewSectionView`
+  is an inline no-panel shell (copy `WeightNewSectionView`) composing two slots that each honor their
+  own Classic/New toggle over the shared model:
+  - **Method slot** (#8, `.bodyFatMethod`): `.new` → a neutral menu button; `.classic` → the segmented
+    `UISegmentBodyFatCalcMethodView` reused verbatim (and at accessibility sizes).
+  - **Value slot** (#7, `.bodyFatPercentage`): `.new` → a new `%` text entry; `.classic` → the wheel
+    `UIWheelPickerBodyFatView` reused. **Shown only when `bodyFatPercentageMethod == .manualEntry`** —
+    the gate, the one element with no precedent in the prior passes.
+  - The New section gates the % field on `bodyFatPercentageMethod == .manualEntry` **directly**, not via
+    `bodyFatPercentageShowManualEntry` — that flag is the Classic expanding-panel's open-state and the
+    New section uses no `UILayoutExpandingPanel`, so the flag (Classic-only) is left alone. No model
+    change.
+- **Method control** (#19, Decision 10 analog): a neutral `UIBodyFatMethodMenuButtonView` (copy
+  `UIActivityLevelMenuButtonView`) in compact / regular — closed label **"Method"**, listing
+  `BodyFatOption.allCases` and rebinding `model.bodyFatPercentageMethod`, with the a11y line-drop; the
+  segmented `UISegmentBodyFatCalcMethodView` is reused verbatim at accessibility sizes and for the
+  Classic toggle. One control, two presentations.
+- **Decimal entry** (#20, first decimal in the story): a **single `.decimalPad` field** with an in-field
+  `%` suffix (`| 15.7 % |`, reusing `UITextPickerLabel`'s voice), one `@State` buffer, a `@FocusState`
+  **`Done`** key (the height pattern), and **round-to-1-dp on commit** to match the Classic's integer+
+  decimal wheels (`value = integer + decimal/10`). The integer `.numberPad` simplification (Decision 16)
+  does **not** apply here. A pure `BodyFatPercentageEntry` maps `(text) → .ok(Double) / .empty /
+  .outOfRange / .unparseable`, committing the rounded value only on a complete, in-range entry.
+- **Range — single authority, method-gated in the results gate** (#21, Decision 14 analog with a twist):
+  extract `MetricRanges.bodyFatPercentage = 5...50` from the hard-coded `5`/`50` in
+  `CalculationValidatePerson.swift:25`; both `validateForCalculation()` and the entry read it. Unlike
+  weight / height, the results gate `isValid`/`hasError` **starts composing body fat**, but **gated on
+  the method**: a new `isBodyFatValid` is `MetricRanges.bodyFatPercentage.contains(bodyFatPercentage)`
+  when `bodyFatPercentageMethod == .manualEntry`, else `true`. An out-of-range manual-entry body fat
+  hides the results *and* blocks the calc pre-check; Omit/Estimate are never tripped — their default
+  `bodyFatPercentage` (`0.0`) is out of 5–50, so an *ungated* check would flag every Omit/Estimate
+  profile. The range thus moves to both gates, but the results-gate composition is conditioned on the
+  method.
+
+### Deltas from the weight / height passes
+
+- **Gate, not unit switch** — the two slots relate by *show/hide* (method → % field visible), so the
+  value slot is gated on the method rather than re-derived from a shared unit model.
+- **Decimal** — the first `.decimalPad` entry; round-to-1-dp replaces the integer `.numberPad` commit.
+- **Asymmetric gate** — the results `isValid`/`hasError` composes body fat, **conditioned on
+  `.manualEntry`**, whereas weight / height's gates compose unconditionally.
+
+### Files
+
+| File | Change |
+|------|--------|
+| `TDEE/ViewSections/BodyFatPercentageNewSectionView.swift` | **New** — inline no-panel section (copy `WeightNewSectionView`); composes the method slot + a method-gated % value slot; a11y line-drop; one `UILabelValidationMessage`. Gates the % field on `bodyFatPercentageMethod == .manualEntry`. |
+| `TDEE/ViewsValueEditors/UIBodyFatMethodMenuButtonView.swift` | **New** — neutral "Method" menu over `BodyFatOption.allCases`, rebinds `model.bodyFatPercentageMethod` (copy `UIActivityLevelMenuButtonView`); the segmented `UISegmentBodyFatCalcMethodView` reused at a11y sizes / for the Classic toggle. |
+| `TDEE/ViewsValueEditors/UIBodyFatPercentageTextFieldEntry.swift` | **New** — single `.decimalPad` field, in-field `%` suffix, per-field buffer, **round-to-1-dp** commit, a `@FocusState` **`Done`** key; drives `BodyFatPercentageEntry`. Rendered by the section only for `.manualEntry`. |
+| `TDEEShared/Models/ProfileViewModel/BodyFatPercentageEntry.swift` | **New** — pure `(text) → .ok(Double) / .empty / .outOfRange / .unparseable`; parses a decimal, rounds to 1 dp, commits only a complete in-range value (copy `WeightEntry` / `HeightEntry`). |
+| `TDEEShared/Config/MetricRanges.swift` | **Change** — add `bodyFatPercentage: ClosedRange<Double>` = `5...50`. |
+| `TDEEShared/Models/ProfileViewModel/ProfileViewModelValidation.swift` | **Change** — add method-gated `isBodyFatValid` and compose it into `isValid` / `hasError`. |
+| `TDEEShared/Calculations/Extensions/CalculationValidatePerson.swift` | **Change** — the `.manualEntry` range check reads `MetricRanges.bodyFatPercentage` (replacing the hard-coded `5`/`50`). |
+| `TDEE/Pages/MainPage/MainSectionProfileInput.swift` | **Change** — `bodyFatPercentageSection` reads **both** `.bodyFatMethod` and `.bodyFatPercentage`; any "New" routes to `BodyFatPercentageNewSectionView`, all-Classic keeps the expand/collapse wheel (mirror `weightSection` / `heightSection`). |
+| `TDEETests/…/BodyFatPercentageEntryTests.swift` | **New** — validator + `MetricRanges.bodyFatPercentage` + both-gates-agree tests, incl. the method-gated results gate (copy `WeightEntryTests` / `HeightEntryTests`). |
+
+**Reused as-is:** `WeightNewSectionView` / `ActivityLevelNewSectionView` (shell + menu pattern),
+`UISegmentBodyFatCalcMethodView` (a11y segmented / Classic method), `UIWheelPickerBodyFatView`
+(Classic value), `UILabelValidationMessage` (error), `UITextPickerLabel` (the `%` suffix voice).
+**Do NOT modify without approval:** `UISegmentBodyFatCalcMethodView`, `UIWheelPickerBodyFatView`,
+`SectionEditorBodyFatPercentage` (the Classic path).
+
+### Testing checklist
+
+- [x] `BodyFatPercentageEntry.validate` — valid `5.0` / `15.7` / `50.0`; round-to-1-dp (`15.75` →
+      `15.8`); a trailing dot reads as the whole number (`"15."` → `15.0`); empty; out-of-range
+      (`4.9`, `50.1`); unparseable (multiple dots `"15.7.2"`, a negative, non-numeric `"abc"`).
+- [x] `MetricRanges.bodyFatPercentage` contains / not-contains.
+- [x] **Both gates, method-gated** — `validateForCalculation()` *and* `isValid`/`hasError` reflect the
+      range; an out-of-range body fat with `.manualEntry` blocks calc **and** hides results;
+      `.omit` / `.estimate` are **never** tripped (default `0.0` stays valid).
+- [x] `TDEE` builds; full `TDEETests` suite passes on iPhone 17 Pro Max / iOS 27 (`** TEST SUCCEEDED **`).
+- [ ] Manual (iPhone compact): the "Method" menu; the % field appears only for Manual Entry; switching
+      away hides it and clears the buffer/error; error messages — **manual**.
+- [ ] Manual (iPad regular + accessibility): the segmented method selector full-width; the % field on
+      its own line — **manual**.
+
+### Risks
+
+- **Method-gating the results gate** — the new `isBodyFatValid` must be conditioned on `.manualEntry`,
+  or the default `0.0` (Omit/Estimate) trips `isValid` and hides results for every non-manual profile.
+- **Two gates drifting** — the range must land in `validateForCalculation()` *and* `isBodyFatValid` in
+  the same change, both reading `MetricRanges.bodyFatPercentage`, or the results view and the calc
+  pre-check disagree.
+- **Decimal edge** — the `.decimalPad` parse must reject malformed input (`"15."`, multiple dots) as
+  `.unparseable` and round to 1 dp so the committed value matches the Classic's integer+decimal wheels;
+  parse with a fixed decimal format, not the raw keyboard locale.
+- **Gated slot** — switching the method away from Manual Entry must hide the % field and clear its
+  buffer/error with no model change; the gate is read from `bodyFatPercentageMethod` directly.

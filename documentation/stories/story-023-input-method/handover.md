@@ -36,16 +36,16 @@ chosen order.
 | 4 | Weight | `weight` | **Done** |
 | 5 | Height UOM | `heightUom` | **Done** |
 | 6 | Height | `height` | **Done** |
-| 7 | Body Fat % | `bodyFatPercentage` | **Not started — NEXT** |
-| 8 | Body Fat Calc Method | `bodyFatPercentageMethod` | **Not started — NEXT** |
+| 7 | Body Fat % | `bodyFatPercentage` | **Done** |
+| 8 | Body Fat Calc Method | `bodyFatPercentageMethod` | **Done** |
 | 9 | Activity Level | `activityLevel` | **Done** |
 | 10 | Calorie Adjustment Method | `calorieAdjustmentMethod` | Not started |
 | 11 | Calorie Adjustment Value | (slider) | Not started |
 | 12 | Macro Split Method | (macro split) | Not started |
 | 13 | Macro Mix | `selectedMacroId` | Not started |
 
-**Next up: Body Fat (#7/#8).** See §6 — it is the most involved remaining pass (decimals, a
-method-gated value, and an asymmetric range gate).
+**Next up: the calorie / macro block (#10–#13)** — Calorie Adjustment Method/Value and Macro Split
+Method/Mix.
 
 ---
 
@@ -149,10 +149,13 @@ decision — §8); the pattern below is the implementation once the shape is cho
 
 ---
 
-## 6. Next up — Body Fat (#7 / #8). Read this before starting.
+## 6. Body Fat (#7 / #8) — built (Done, 2026-10-20)
 
-Two inputs, one section conceptually, more complex than anything done so far. **Get the owner's
-decision on the New shape first** — the table marks both "TBD."
+Two inputs over one section — the most involved pass: the first decimal entry, a show/hide gate
+(method → % field), and an asymmetric range gate. **Built** — see the **Body Fat pass** in `plan.md`
+and Decisions 18–21 in `story.md`. The three wrinkles below were the design rationale; all resolved:
+a single 1-dp `%` field (round on commit), a method-gated `isBodyFatValid` in the results gate, and
+`MetricRanges.bodyFatPercentage = 5...50` as the single authority.
 
 - **#8 Body Fat Calc Method** — `bodyFatPercentageMethod`, a 3-case enum
   (`BodyFatOption: omit / estimate / manualEntry`), Classic control `UISegmentBodyFatCalcMethodView`
@@ -210,7 +213,8 @@ xcrun xcodebuild -project TDEE.xcodeproj -scheme TDEE -configuration Debug \
 ## 8. Open threads (decisions the owner makes)
 
 1. **Per-input "New control shape" (Open Question 1)** — defined as each input's turn comes,
-   owner-directed. Body fat's (#7/#8) is the next undecided one.
+   owner-directed. Body fat's (#7/#8) is now defined (Decisions 18–21); the next undecided one is the
+   calorie / macro block (#10–#13).
 2. **Rollout order (Open Question 2)** — owner directs; the table order is a placeholder. Done so far:
    Gender, Age, Weight (#3/#4), Height (#5/#6), Activity Level (#9).
 3. **Persistence scoping (Open Question 3)** — currently **global** (like the theme), via

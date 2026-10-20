@@ -102,12 +102,17 @@ struct MainSectionProfileInput: View {
 
     @ViewBuilder
     private var bodyFatPercentageSection: some View {
-        switch inputStyle.style(for: .bodyFatPercentage) {
-        case .classic:
+        // Story 023, inputs #7/#8 — the single body-fat section composes two pieces that each honor
+        // their own Classic/New toggle over the shared model (Decision 11 analog). Any "New" toggle
+        // routes to the composing section; all-Classic keeps today's expand/collapse wheel.
+        let methodStyle = inputStyle.style(for: .bodyFatMethod)
+        let valueStyle = inputStyle.style(for: .bodyFatPercentage)
+        switch (methodStyle, valueStyle) {
+        case (.classic, .classic):
             BodyFatPercentageClassicSectionView(model: profile, sectionManager: sectionManager, proxy: proxy)
-        case .new:
-            // Story 023, input #7 — BodyFatPercentageNewSectionView (not built yet); falls back to Classic.
-            BodyFatPercentageClassicSectionView(model: profile, sectionManager: sectionManager, proxy: proxy)
+        default:
+            // The section reads both toggles itself to compose the method + gated value slots.
+            BodyFatPercentageNewSectionView(model: profile)
         }
     }
 }

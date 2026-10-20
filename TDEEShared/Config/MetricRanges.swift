@@ -31,4 +31,12 @@ enum MetricRanges {
     /// 20 kg (≈44 lb) rejects accidental low entries without excluding any 16–99 adult; 300 kg sits
     /// just above the Classic's ~260 kg stones cap, so no reachable Classic value becomes invalid.
     static let weight: ClosedRange<Double> = 20...300
+
+    /// Body fat percentage, inclusive (5 through 50). Shared by the Classic wheel picker and the New
+    /// decimal entry so the accepted range lives in one place — story 023, input #7 / Decision 21.
+    ///
+    /// 5% (≈ lean-athlete floor) and 50% (≈ upper realistic range) bound a physiologically realistic
+    /// adult range. Applied only under the `.manualEntry` method — Omit / Estimate carry no % value to
+    /// validate.
+    static let bodyFatPercentage: ClosedRange<Double> = 5...50
 }

@@ -20,9 +20,10 @@ extension ProfileViewModel {
         if !MetricRanges.height.contains(self.height) { fields.append("Height") }
         // Kept in sync with isWeightValid (Decision 14): both gate on the shared MetricRanges.weight.
         if !MetricRanges.weight.contains(self.weight) { fields.append("Weight") }
-        // Only validate body fat percentage when manual entry method is selected
-        // Valid range: 5-50% (physiologically realistic for adults)
-        if self.bodyFatPercentageMethod == .manualEntry, self.bodyFatPercentage < 5 || self.bodyFatPercentage > 50 {
+        // Only validate body fat percentage when manual entry method is selected (Decision 21).
+        // Kept in sync with isBodyFatValid: both gate on the shared MetricRanges.bodyFatPercentage
+        // (5–50%, physiologically realistic for adults), and only under Manual Entry.
+        if self.bodyFatPercentageMethod == .manualEntry, !MetricRanges.bodyFatPercentage.contains(self.bodyFatPercentage) {
             fields.append("Body Fat Percentage")
         }
 
