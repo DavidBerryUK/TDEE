@@ -371,3 +371,118 @@ results gate, and the range extracted to **`MetricRanges`**. The three Classic c
   parse with a fixed decimal format, not the raw keyboard locale.
 - **Gated slot** — switching the method away from Manual Entry must hide the % field and clear its
   buffer/error with no model change; the gate is read from `bodyFatPercentageMethod` directly.
+
+---
+
+## Calorie Adjustment pass (inputs #10 / #11) — built (Done, 2026-10-20)
+
+The calorie-adjustment block is the **first results-side pass** and the story's first pass with **no
+results gate**. It is one composing section like body fat (Decision 11 analog), but the two pieces
+relate by a **show/hide gate** (Cut/Bulk → value field, Maintain → none) rather than a unit switch, and
+the range drives **only the entry's reject-and-nag** — there is no `isValid` / `validateForCalculation()`
+move. Owner decision (2026-10-20): the value's "New" is a **numeric field** (not a re-skin of the
+slider, not a stepper). The three Classic controls
+(`UISegmentCalorieAdjustmentMethodView`, `UISliderCalorieAdjustmentValue`, `SectionEditorCalorieAdjustment`)
+stay **untouched** — `SectionCalorieAdjustment` (the Classic section) is also left untouched; the factory
+routes the two toggles and keeps the Classic section as its all-Classic branch.
+
+> **Status: built (Done, 2026-10-20)** — the design is locked and implemented. `CalorieAdjustmentEntryTests`
+> pass and the full `TDEETests` suite is green on the iOS simulator; no gate tests (calorie is not
+> gated). The pre-existing body-fat / weight / height gate tests stay green.
+
+### Decisions (this pass)
+
+- **Composition — gated two-slot section** (Decision 11 / 18 analog): `CalorieAdjustmentNewSectionView`
+  is an inline no-panel shell (copy `BodyFatPercentageNewSectionView`) composing two slots that each
+  honor their own Classic/New toggle over the shared `model.calorieAdjustmentMethod` /
+  `model.calorieAdjustment`:
+  - **Method slot** (#10, `.calorieAdjustmentMethod`): `.new` → a neutral menu button; `.classic` → the
+    segmented `UISegmentCalorieAdjustmentMethodView` reused verbatim (and at accessibility sizes).
+  - **Value slot** (#11, `.calorieAdjustment`): `.new` → a new `kCals` text entry; `.classic` → the
+    slider `UISliderCalorieAdjustmentValue` reused. **Shown only when `calorieAdjustmentMethod !=
+    .maintain`** — the gate (Maintain carries no adjustment), the analog of body fat's `== .manualEntry`.
+  - The New section gates the value field on `calorieAdjustmentMethod != .maintain` **directly**, not via
+    `calorieAdjustmentShowSliders` — that flag is the Classic expanding-panel's open-state and the New
+    section uses no `UILayoutExpandingPanel`, so the flag (Classic-only) is left alone. No model change.
+- **Method control** (Decision 10 / 19 analog): a neutral `UICalorieAdjustmentMethodMenuButtonView` (copy
+  `UIBodyFatMethodMenuButtonView`) in compact / regular — closed label **"Method"** (one of two slots, so
+  like body fat, not the input-name label Activity Level uses), listing `CalorieAdjustmentMethod.allCases`
+  and rebinding `model.calorieAdjustmentMethod`, with the a11y line-drop; the segmented
+  `UISegmentCalorieAdjustmentMethodView` is reused verbatim at accessibility sizes and for the Classic
+  toggle. One control, two presentations.
+- **Value entry — numeric field** (owner-chosen; the slider is replaced, not re-skinned): a **single
+  `.numberPad` field** with an in-field `kCals` suffix (`| 250 kCals |`, reusing `UITextPickerLabel`'s
+  voice), one `@State` buffer, a `@FocusState` **`Done`** key (the height / body-fat pattern), committing
+  only a complete, in-range integer value. Entry is **integer** (a free integer 0–1000 — the slider's
+  25-step was a slider affordance, not a value cap), matching the app's integer-entry convention
+  (Decision 16). A pure `CalorieAdjustmentEntry` maps `(text) → .ok(Double) / .empty / .outOfRange /
+  .unparseable`, committing kcal/day only on a complete, in-range entry.
+- **Range — single authority, no gate move** (Decision 14's *caveat*): `MetricRanges.calorieAdjustment =
+  0...1000` matches the Classic slider's `CalorieAdjustmentConstants` reach, so no reachable Classic value
+  becomes out-of-range. **Calorie adjustment is not in `isValid` / `hasError`** and `adjustCalories`
+  clamps to a non-negative result, so the range drives **only the entry's reject-and-nag** — unlike
+  weight / height / body fat, **neither gate changes** and there is no "two gates agree" test.
+- **Composition point** — the calorie section lives in `MainSectionCaloriesAndAdjustments` (the
+  results side), not the `MainSectionProfileInput` factory. That view now reads both `.calorieAdjustmentMethod`
+  and `.calorieAdjustment` from `InputStyleManager`: any "New" routes to `CalorieAdjustmentNewSectionView`,
+  all-Classic keeps `SectionCalorieAdjustment` (mirror `weightSection` / `bodyFatPercentageSection`).
+
+### Deltas from the body-fat pass
+
+- **Gate, not unit switch** — same as body fat: the value slot is gated on the method
+  (`!= .maintain` shows, Maintain hides), not re-derived from a shared unit model.
+- **No results gate** — the one meaningful difference: calorie is not a required/validated field, so the
+  range authority drives only the entry; no `isValid` / `validateForCalculation()` change and no
+  two-gates-agree test.
+- **Integer entry** — like weight / height / age, not body fat's `.decimalPad` (a kcal/day adjustment is
+  a whole number).
+- **Results-side composition point** — wired in `MainSectionCaloriesAndAdjustments`, the first pass to
+  touch the results side rather than `MainSectionProfileInput`.
+
+### Files
+
+| File | Change |
+|------|--------|
+| `TDEE/ViewSections/CalorieAdjustmentNewSectionView.swift` | **New** — inline no-panel section (copy `BodyFatPercentageNewSectionView`); composes the method slot + a Cut/Bulk-gated value slot; a11y line-drop; one `UILabelValidationMessage`. Gates the value field on `calorieAdjustmentMethod != .maintain`. |
+| `TDEE/ViewsValueEditors/UICalorieAdjustmentMethodMenuButtonView.swift` | **New** — neutral "Method" menu over `CalorieAdjustmentMethod.allCases`, rebinds `model.calorieAdjustmentMethod` (copy `UIBodyFatMethodMenuButtonView`); the segmented `UISegmentCalorieAdjustmentMethodView` reused at a11y sizes / for the Classic toggle. |
+| `TDEE/ViewsValueEditors/UICalorieAdjustmentTextFieldEntry.swift` | **New** — single `.numberPad` field, in-field `kCals` suffix, per-field buffer, a `@FocusState` **`Done`** key; drives `CalorieAdjustmentEntry`. Rendered by the section only under Cut / Bulk. |
+| `TDEEShared/Models/ProfileViewModel/CalorieAdjustmentEntry.swift` | **New** — pure `(text) → .ok(Double) / .empty / .outOfRange / .unparseable`; parses an integer, commits only a complete in-range value (copy `WeightEntry` / `BodyFatPercentageEntry`). |
+| `TDEEShared/Config/MetricRanges.swift` | **Change** — add `calorieAdjustment: ClosedRange<Double>` = `0...1000`. |
+| `TDEE/Pages/MainPage/MainSectionCaloriesAndAdjustments.swift` | **Change** — read **both** `.calorieAdjustmentMethod` and `.calorieAdjustment`; any "New" routes to `CalorieAdjustmentNewSectionView`, all-Classic keeps `SectionCalorieAdjustment` (mirror `bodyFatPercentageSection`). |
+| `TDEETests/…/CalorieAdjustmentEntryTests.swift` | **New** — validator + `MetricRanges.calorieAdjustment` tests (no gate suite — calorie is not gated). |
+
+**Not touched (deliberately):** `ProfileViewModelValidation.swift` / `CalculationValidatePerson.swift`
+(there is no gate to move); `CalorieAdjustmentConstants` (the Classic slider keeps its own 0–1000 range);
+`SectionCalorieAdjustment`, `UISegmentCalorieAdjustmentMethodView`, `UISliderCalorieAdjustmentValue`,
+`SectionEditorCalorieAdjustment`, `calorieAdjustmentShowSliders` (the Classic path).
+
+**Reused as-is:** `BodyFatPercentageNewSectionView` (gated two-slot shell + gate pattern),
+`UIBodyFatMethodMenuButtonView` (neutral "Method" menu), `UISegmentCalorieAdjustmentMethodView`
+(a11y segmented / Classic method), `UISliderCalorieAdjustmentValue` (Classic value),
+`UILabelValidationMessage` (error), `UITextPickerLabel` (the `kCals` suffix voice).
+**Do NOT modify without approval:** `UISegmentCalorieAdjustmentMethodView`,
+`UISliderCalorieAdjustmentValue`, `SectionEditorCalorieAdjustment` (the Classic path).
+
+### Testing checklist
+
+- [x] `CalorieAdjustmentEntry.validate` — valid `250` / boundaries `0` & `1000`; empty; out-of-range
+      (`1001`, `5000`); unparseable (non-numeric `"abc"`, a decimal `"25.5"`, a negative `-1`).
+- [x] `MetricRanges.calorieAdjustment` contains / not-contains (`0…1000`).
+- [x] `TDEE` builds; full `TDEETests` suite passes on the iOS simulator (`** TEST SUCCEEDED **`) — no
+      gate tests, since calorie adjustment is not in `isValid` / `validateForCalculation()`.
+- [ ] Manual (iPhone compact): the "Method" menu; the `kCals` field appears only under Cut / Bulk;
+      switching to Maintain hides it and clears the error; out-of-range rejects-and-nags — **manual**.
+- [ ] Manual (iPad regular + accessibility): the segmented method selector full-width; the `kCals` field
+      on its own line — **manual**.
+
+### Risks
+
+- **No gate move is the point** — do **not** add `calorieAdjustment` to `isValid` / `hasError` /
+  `validateForCalculation()`; it is not a required field, and an ungated check would read the default
+  `0` adjustment as a missing value. The range drives only the entry's reject-and-nag.
+- **Gated slot** — switching to Maintain must hide the value field and clear its buffer/error with no
+  model change; the gate is read from `calorieAdjustmentMethod` directly, and
+  `calorieAdjustmentShowSliders` (the Classic panel's open-state) is left untouched.
+- **Mixed-toggle layout** — all four method/value combinations must each render; the a11y line-drop
+  absorbs any squeeze (the shipped path is New/New).
+

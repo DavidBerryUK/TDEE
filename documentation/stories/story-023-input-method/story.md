@@ -148,8 +148,8 @@ redesign, defined when its turn comes.
 | 7 | Body Fat % | `bodyFatPercentage` | `UIWheelPickerBodyFatView` (wheel) | Single `.decimalPad` field, in-field `%` suffix, round-to-1-dp commit; shown only under Manual Entry; `MetricRanges.bodyFatPercentage` gate — see Decisions 18–21 | Done |
 | 8 | Body Fat Calc Method | `bodyFatPercentageMethod` | `UISegmentBodyFatCalcMethodView` (segmented) | Neutral "Method" menu (compact/regular); segmented reused at accessibility sizes — see Decisions 18–19 | Done |
 | 9 | Activity Level | `activityLevel` | `UIWheelPickerActivityLevelView` (wheel) | Neutral menu button in the section header (compact/regular), lists all 9 `ActivityLevel` cases, drops to a full-width line at accessibility sizes; no expand panel, no range/zero gate — see the Activity Level pass | Done |
-| 10 | Calorie Adjustment Method | `calorieAdjustmentMethod` | `UISegmentCalorieAdjustmentMethodView` (segmented) | TBD | Not started |
-| 11 | Calorie Adjustment Value | (slider value) | `UISliderCalorieAdjustmentValue` (slider) | TBD | Not started |
+| 10 | Calorie Adjustment Method | `calorieAdjustmentMethod` | `UISegmentCalorieAdjustmentMethodView` (segmented) | Neutral "Method" menu (compact/regular); segmented reused at accessibility sizes — Decisions 10 / 19 analog | Done |
+| 11 | Calorie Adjustment Value | `calorieAdjustment` | `UISliderCalorieAdjustmentValue` (slider) | Single `.numberPad` field, in-field `kCals` suffix, 0–1000 reject-and-nag; shown only under Cut/Bulk (Maintain carries none) — Decision 18 analog | Done |
 | 12 | Macro Split Method | (macro split) | `UISegmentMacroSplitMethodView` (segmented) | TBD | Not started |
 | 13 | Macro Mix | `selectedMacroId` | `UIWheelPickerMacroMixView` (wheel) | TBD | Not started |
 
@@ -169,8 +169,9 @@ Notes:
    `InputMethodView` + `InputStyleManager`, tested — see Testing.
 2. **Per-input conversions.** One control at a time, in the order the owner directs; tick the
    Status column as each goes Classic→New. **Inputs #1 (Gender), #2 (Age), #3/#4 (Weight), #5/#6
-   (Height), #9 (Activity Level), and #7/#8 (Body Fat) are Done (Gender/Age/Weight 2026-10-19; Height,
-   Activity Level, and Body Fat 2026-10-20); inputs #10–#13 remain Not started.**
+   (Height), #9 (Activity Level), #7/#8 (Body Fat), and #10/#11 (Calorie Adjustment) are Done
+   (Gender/Age/Weight 2026-10-19; Height, Activity Level, Body Fat, and Calorie Adjustment 2026-10-20);
+   inputs #12/#13 (Macro Split Method, Macro Mix) remain Not started.**
 
 ## Not shared / Out of Scope
 
@@ -197,12 +198,14 @@ Notes:
 
 1. **Each input's "New" control** — what does the redesign look like per input (e.g. numeric keypad,
    a different layout)? Defined as each input's turn comes, not up front. **Weight's (Decisions 9–14,
-   `plan.md`), height's (the height pass, mirroring weight), and body fat's (Decisions 18–21, the body
-   fat pass in `plan.md`) are defined and built; the rest remain per-input.**
+   `plan.md`), height's (the height pass, mirroring weight), body fat's (Decisions 18–21, the body fat
+   pass in `plan.md`), and calorie adjustment's (the calorie pass, a gated two-slot section mirroring
+   body fat) are defined and built; the rest remain per-input.**
 2. **Rollout order** — which input converts first (a wheel like Age, or a segmented like Gender)?
    The owner directs; the table order is a placeholder. **In practice: Gender, then Age, then Weight
-   (#3/#4) — all 2026-10-19, all Done; then Height (#5/#6), Activity Level (#9), and Body Fat (#7/#8)
-   on 2026-10-20, also Done. The next inputs are the calorie / macro block (#10–#13).**
+   (#3/#4) — all 2026-10-19, all Done; then Height (#5/#6), Activity Level (#9), Body Fat (#7/#8), and
+   Calorie Adjustment (#10/#11) on 2026-10-20, also Done. The next inputs are the macro block
+   (#12/#13).**
 3. **Persistence home + scoping** — extend `ThemeManager`, a new per-input store (e.g.
    `InputStylePreferences`), or a field on an existing holder; and are the preferences **global**
    (like the theme) or **per-profile** (given story 021's multiple profiles)?
@@ -368,3 +371,22 @@ All 9 pass; `TDEE` builds and the full `TDEETests` suite passes.
   agree — incl. the method-gating; the pre-existing `ProfileViewModelValidationTests` body-fat cases stay
   green. The three Classic controls stay untouched. `TDEE` builds and the full `TDEETests` suite passes
   on iPhone 17 Pro Max / iOS 27.
+- **Done (2026-10-20) — inputs #10/#11 (Calorie Adjustment) converted Classic→New.** `CalorieAdjustmentNewSectionView`
+  (`TDEE/ViewSections/CalorieAdjustmentNewSectionView.swift`) — one composing section (Decision 11 analog,
+  like body fat) that relates its two pieces by a **gate** rather than a unit switch: a **method** slot
+  (`UICalorieAdjustmentMethodMenuButtonView`, a neutral "Method" menu over
+  `CalorieAdjustmentMethod.allCases` in compact / regular, with the segmented
+  `UISegmentCalorieAdjustmentMethodView` reused at accessibility sizes — Decision 19 analog) and a
+  **value** slot that is **shown only under Cut / Bulk** (Maintain carries no adjustment), gated on
+  `calorieAdjustmentMethod != .maintain` directly — the Classic-only `calorieAdjustmentShowSliders` flag
+  (the Classic expanding-panel's open-state; `SectionEditorCalorieAdjustment` is its only reader) is left
+  untouched. The value entry, `UICalorieAdjustmentTextFieldEntry`, is a single `.numberPad` field with an
+  in-field `kCals` suffix and a keyboard **`Done`** key, committing only a complete, in-range integer
+  value. The accepted range lives in one place as **`MetricRanges.calorieAdjustment` = `0...1000`**.
+  **Unlike the weight / height / body-fat passes, calorie adjustment carries no results gate** — it is not
+  in `isValid` / `hasError` and `adjustCalories` clamps to a non-negative result — so there is **no
+  two-gate move**: the range drives only the entry's reject-and-nag, and neither `isValid` nor
+  `validateForCalculation()` changes. The three Classic controls (`UISegmentCalorieAdjustmentMethodView`,
+  `UISliderCalorieAdjustmentValue`, `SectionEditorCalorieAdjustment`) stay untouched. `CalorieAdjustmentEntryTests`
+  (Swift Testing) cover the validator and the range; `TDEE` builds and the full `TDEETests` suite passes
+  on the iOS simulator.

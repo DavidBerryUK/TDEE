@@ -39,4 +39,13 @@ enum MetricRanges {
     /// adult range. Applied only under the `.manualEntry` method — Omit / Estimate carry no % value to
     /// validate.
     static let bodyFatPercentage: ClosedRange<Double> = 5...50
+
+    /// Calorie adjustment in kcal/day, inclusive (0 through 1000). Story 023, input #11.
+    ///
+    /// 0–1000 kcal/day matches the Classic slider's `CalorieAdjustmentConstants` reach, so no reachable
+    /// Classic value becomes out-of-range. Unlike the personal inputs, calorie adjustment carries **no
+    /// results gate** (it is not in `isValid` / `hasError`), so this authority drives only the New
+    /// entry's reject-and-nag — the entry commits in-range kcal/day to the model, which is the single
+    /// source of truth.
+    static let calorieAdjustment: ClosedRange<Double> = 0...1000
 }

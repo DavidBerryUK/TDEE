@@ -2,6 +2,7 @@ import SwiftUI
 
 struct MainSectionCaloriesAndAdjustments: View {
     @Environment(\.palette) private var palette
+    @Environment(InputStyleManager.self) private var inputStyle
     let profile: ProfileViewModel
     let calculationResult: CalculatorResultViewModel
     let sectionManager: SectionManagerViewModel
@@ -12,7 +13,7 @@ struct MainSectionCaloriesAndAdjustments: View {
             VStack(spacing: 0) {
                 SectionCaloriesAdjusted(profile: profile, calculationResult: calculationResult)
                 Divider()
-                SectionCalorieAdjustment(profile: profile, sectionManager: sectionManager, proxy: outerScrollViewProxy)
+                calorieAdjustmentSection
                     .id("CalorieAdjustment")
             }
             .background(palette.surface)
@@ -33,6 +34,19 @@ struct MainSectionCaloriesAndAdjustments: View {
             .onChange(of: sectionManager.calorieAdjustmentExpanded) { _, _ in
                 scrollIfNecessary()
             }
+        }
+    }
+
+    // Story 023, inputs #10 / #11 — the single calorie-adjustment section, routed by its two Classic/New
+    // toggles over the shared model (Decision 11 analog). Any "New" toggle composes the new section;
+    // all-Classic keeps today's expand/collapse wheel-free slider panel.
+    @ViewBuilder
+    private var calorieAdjustmentSection: some View {
+        switch (inputStyle.style(for: .calorieAdjustmentMethod), inputStyle.style(for: .calorieAdjustment)) {
+        case (.classic, .classic):
+            SectionCalorieAdjustment(profile: profile, sectionManager: sectionManager, proxy: outerScrollViewProxy)
+        default:
+            CalorieAdjustmentNewSectionView(model: profile)
         }
     }
 
