@@ -16,7 +16,7 @@ When the user asks to compile, build, or run the app, use this skill to execute 
 ## Command
 
 ```
-/Applications/Xcode-27.2.0-Beta.3.app/Contents/Developer/usr/bin/xcodebuild \
+xcrun xcodebuild \
   -project TDEE.xcodeproj \
   -scheme <scheme> \
   -configuration <configuration> \
@@ -27,6 +27,12 @@ When the user asks to compile, build, or run the app, use this skill to execute 
 
 ## Notes
 
-- Uses Xcode-27.2.0-Beta.3 located at `/Applications/Xcode-27.2.0-Beta.3.app`
+- Resolves Xcode **dynamically** via `xcrun` (the active toolchain from `xcode-select -p`), so it
+  tracks whatever Xcode is installed — **no hardcoded path**. Xcode 27 ships as a *versioned* app
+  (e.g. `/Applications/Xcode-27.2.0-Release.Candidate.app`), and there is **no plain
+  `/Applications/Xcode.app`**, so never hardcode a versioned path here — it breaks on every release.
+- To **pin a specific Xcode** instead of the active one, prefix with
+  `DEVELOPER_DIR=<path>/Contents/Developer`, e.g.
+  `DEVELOPER_DIR="$(xcode-select -p)" xcrun xcodebuild ...`.
 - Default destination is iPhone 17 Pro Max simulator
 - For testing, append `test` instead of `build`
