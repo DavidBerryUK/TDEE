@@ -151,7 +151,7 @@ redesign, defined when its turn comes.
 | 10 | Calorie Adjustment Method | `calorieAdjustmentMethod` | `UISegmentCalorieAdjustmentMethodView` (segmented) | Neutral "Method" menu (compact/regular); segmented reused at accessibility sizes — Decisions 10 / 19 analog | Done |
 | 11 | Calorie Adjustment Value | `calorieAdjustment` | `UISliderCalorieAdjustmentValue` (slider) | Single `.numberPad` field, in-field `kCals` suffix, 0–1000 reject-and-nag; shown only under Cut/Bulk (Maintain carries none) — Decision 18 analog | Done |
 | 12 | Macro Split Method | `macroSplitMethod` | `UISegmentMacroSplitMethodView` (segmented) | **Dropped** — dead code (see note below) | **Dropped** |
-| 13 | Macro Mix | `selectedMacroId` | `UIWheelPickerMacroMixView` (wheel) | TBD | Not started |
+| 13 | Macro Mix | `selectedMacroId` | `UIWheelPickerMacroMixView` (wheel) | Picker-style neutral "Macro Mix" menu over the preset catalog in the expand panel; Classic wheel reused at all sizes — the Macro Mix pass | Done |
 
 Notes:
 - Rows 3/4 and 5/6 are the UOM toggle + the value that uses it; the UOM toggle and its value share
@@ -176,10 +176,11 @@ Notes:
    `InputMethodView` + `InputStyleManager`, tested — see Testing.
 2. **Per-input conversions.** One control at a time, in the order the owner directs; tick the
    Status column as each goes Classic→New. **Inputs #1 (Gender), #2 (Age), #3/#4 (Weight), #5/#6
-   (Height), #9 (Activity Level), #7/#8 (Body Fat), and #10/#11 (Calorie Adjustment) are Done
-   (Gender/Age/Weight 2026-10-19; Height, Activity Level, Body Fat, and Calorie Adjustment 2026-10-20);
-   input #12 (Macro Split Method) was dropped as dead code (2026-10-21 — functionally covered by Macro
-   Mix), leaving input #13 (Macro Mix) as the final input.**
+   (Height), #9 (Activity Level), #7/#8 (Body Fat), #10/#11 (Calorie Adjustment), and #13 (Macro Mix)
+   are Done (Gender/Age/Weight 2026-10-19; Height, Activity Level, Body Fat, and Calorie Adjustment
+   2026-10-20; Macro Mix 2026-10-21); input #12 (Macro Split Method) was dropped as dead code
+   (2026-10-21 — functionally covered by Macro Mix). Every in-scope input is converted Classic→New; the
+   rollout is complete.**
 
 ## Not shared / Out of Scope
 
@@ -208,14 +209,19 @@ Notes:
    a different layout)? Defined as each input's turn comes, not up front. **Weight's (Decisions 9–14,
    `plan.md`), height's (the height pass, mirroring weight), body fat's (Decisions 18–21, the body fat
    pass in `plan.md`), and calorie adjustment's (the calorie pass, a gated two-slot section mirroring
-   body fat) are defined and built; the only remaining input is Macro Mix (#13 — #12 was dropped as
-   dead code, 2026-10-21).**
+   body fat) are defined and built; Macro Mix (#13) is Done — see the Macro Mix pass. Input #12
+   (Macro Split Method) was dropped as dead code on 2026-10-21.**
+
+   Macro Mix's (#13) shape is **defined and built** (2026-10-21) — a **selector-only swap** inside
+   `SectionMacroSplit` (the expand panel, the `SectionMacroMixResults` cards, and the Customise / Edit
+   Presets buttons stay unchanged; only the wheel is replaced) with a **Picker-style neutral `Menu`**
+   (`UIMacroMixMenuButtonView`) over the dynamic preset catalog. See the Macro Mix pass in `plan.md`.
 2. **Rollout order** — which input converts first (a wheel like Age, or a segmented like Gender)?
    The owner directs; the table order is a placeholder. **In practice: Gender, then Age, then Weight
    (#3/#4) — all 2026-10-19, all Done; then Height (#5/#6), Activity Level (#9), Body Fat (#7/#8), and
    Calorie Adjustment (#10/#11) on 2026-10-20, also Done. Input #12 (Macro Split Method) was dropped
    as dead code on 2026-10-21 (the dietary "method" is expressed by preset selection / mix editing, not
-   a separate input), leaving Macro Mix (#13) as the final input.**
+   a separate input); Macro Mix (#13) was converted on 2026-10-21, so every in-scope input is Done.**
 3. **Persistence home + scoping** — extend `ThemeManager`, a new per-input store (e.g.
    `InputStylePreferences`), or a field on an existing holder; and are the preferences **global**
    (like the theme) or **per-profile** (given story 021's multiple profiles)?
@@ -400,3 +406,24 @@ All 9 pass; `TDEE` builds and the full `TDEETests` suite passes.
   `UISliderCalorieAdjustmentValue`, `SectionEditorCalorieAdjustment`) stay untouched. `CalorieAdjustmentEntryTests`
   (Swift Testing) cover the validator and the range; `TDEE` builds and the full `TDEETests` suite passes
   on the iOS simulator.
+- **Planned (2026-10-21) — input #13 (Macro Mix) shape decided.** The last input. Owner-confirmed: a
+  **selector-only swap** inside `SectionMacroSplit` — the expand panel, the `SectionMacroMixResults`
+  cards, and the Customise / Edit Presets buttons stay unchanged, and only the wheel is replaced — with a
+  **Picker-style neutral `Menu`** over the dynamic preset catalog (`Menu { Picker(…selection:
+  $profile.selectedMacroId) }`, a checkmark on the current preset, a neutral "Macro Mix" closed label).
+  No `MetricRanges` / validator / gate move (like calorie — not in `isValid` / `hasError`). New:
+  `UIMacroMixMenuButtonView`; wiring: `SectionMacroSplit` routes on `style(for: .macroMix)`. See the
+  Macro Mix pass in `plan.md`. Built and Done the same day — see the entry below.
+- **Done (2026-10-21) — input #13 (Macro Mix) converted Classic→New; story rollout complete.** The last
+  in-scope input. `UIMacroMixMenuButtonView` (`TDEE/ViewsValueEditors/UIMacroMixMenuButtonView.swift`)
+  is a Picker-style neutral `Menu` labelled "Macro Mix" that lists the dynamic preset catalog
+  (`MacroSplitOptionsModelCollection.items`) and rebinds `profile.selectedMacroId` — a checkmark on the
+  current preset, the Classic wheel `UIWheelPickerMacroMixView` surfaced as a dropdown. `SectionMacroSplit`
+  gains `@Environment(InputStyleManager.self)` and routes its selector on `style(for: .macroMix)` —
+  `.new` shows the menu, `.classic` keeps `SectionEditorMacroMix` (the wheel) untouched — a
+  **selector-only swap** (the expand panel, the `SectionMacroMixResults` cards, and the Customise / Edit
+  Presets buttons are unchanged in both branches). **No results gate / no `MetricRanges` / no two-gate
+  move** (like calorie — it is not in `isValid` / `hasError`). The Classic path is untouched; no new
+  `TDEETests` (there is no pure validator to test — like Activity Level). `TDEE` builds and the full
+  `TDEETests` suite passes on the iOS simulator. **This completes the per-input rollout — every in-scope
+  input (#1–#11, #13; #12 dropped) is converted Classic→New.**

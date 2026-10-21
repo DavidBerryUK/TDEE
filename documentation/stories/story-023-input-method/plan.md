@@ -486,3 +486,99 @@ routes the two toggles and keeps the Classic section as its all-Classic branch.
 - **Mixed-toggle layout** — all four method/value combinations must each render; the a11y line-drop
   absorbs any squeeze (the shipped path is New/New).
 
+---
+
+## Macro Mix pass (input #13) — Done (2026-10-21)
+
+Macro mix is the story's last input and structurally the closest to **Activity Level (#9)**: a single
+categorical pick over the wheel `UIWheelPickerMacroMixView`, with **no range / zero gate** — so no
+`MetricRanges` entry, no pure validator, and no `isValid` / `validateForCalculation()` move (like
+calorie — it is not in `isValid` / `hasError`). Two deltas from Activity Level:
+
+- **Dynamic catalog, not a fixed enum.** The wheel lists `MacroSplitOptionsModelCollection.items` — a
+  SwiftData-backed, user-editable preset catalog (`MacroSplitOptionModel`: name + P/C/F + ordinal +
+  `isCustom`). So the New control reads `@Environment(MacroSplitOptionsModelCollection.self)` and rebinds
+  `profile.selectedMacroId` (a `UUID`), not just `model`.
+- **No segmented control to reuse at a11y.** The UoM / body-fat / calorie menus reuse their *segmented*
+  Classic at accessibility sizes; there is **no** segmented macro control, so a11y falls back to the
+  house pattern — the menu on its own full-width line.
+
+**Composition point:** #13 lives in `MainSectionMacroMix → SectionMacroSplit` (an expand/collapse
+`UILayoutSectionView` on the **results side**), **not** the `MainSectionProfileInput` factory. And —
+unlike body fat / calorie (a two-slot *gate*) — #13 is a **single** `.macroMix` toggle: the section
+just switches on `style(for: .macroMix)`. The toggle and its `InputMethodView` row already exist
+(`InputID.macroMix`, under "Macros") — **no presenter change** (the "row already exists" pattern).
+`UIMainView` already recomputes on both `selectedMacroId` and `globalMacroCollection.items`, so the
+results stay live when a pick lands or a preset is edited.
+
+> **Status: Done (2026-10-21).** Owner-confirmed shape, built and verified: `TDEE` builds and the full
+> `TDEETests` suite passes on the iOS simulator. Inputs-table row #13 is Done — the per-input rollout is
+> complete (all in-scope inputs #1–#11 and #13 are converted; #12 was dropped as dead code).
+
+### Decisions (owner-confirmed, 2026-10-21)
+
+- **Selector-only swap** (scope): keep `SectionMacroSplit`'s expand panel, the `SectionMacroMixResults`
+  cards, and the Customise / Edit Presets buttons **exactly as today**; when `.new`, replace **only the
+  wheel** with the neutral menu, inside the panel. The New input is just the selector — the results and
+  navigation are not part of input #13 and stay in place.
+- **Picker-style menu** (presentation): the New control is `Menu { Picker("Macro Split",
+  selection: $profile.selectedMacroId) { ForEach(collection.items) { Text($0.name).tag($0.id) } } }` —
+  a checkmark on the current preset (the owner's choice, diverging from the plain-button shape of the
+  other neutral menus, since this is a selection over a *dynamic* list). The closed label is the neutral
+  string **"Macro Mix"** — the selected name already shows in the header summary
+  (`UISectionSummaryValueMacroMix`), so the menu need not repeat it.
+- **a11y:** inside the panel's `VStack` the menu is already a full-width block, so no header line-drop is
+  needed; the menu renders block-level at all sizes. (There is no segmented control to reuse.)
+- **No results gate / no validator / no two-gate move** — like calorie: `MetricRanges`, `isValid` /
+  `hasError`, and `validateForCalculation()` are all untouched.
+- **Classic path untouched** — `UIWheelPickerMacroMixView` and `SectionEditorMacroMix` (both carry
+  `// AI AGENT WARNING: DO NOT MODIFY` headers) are the `.classic` branch and are not modified.
+
+### Deltas from the Activity Level pass
+
+- **Dynamic catalog** — the menu iterates `collection.items` (a `@MainActor`-isolated
+  `MacroSplitOptionsModelCollection`), so the control takes the environment collection, not just
+  `model`. Ordering mirrors the wheel: `collection.items` (not `sortedItems`).
+- **Results-side, single toggle** — wired in `SectionMacroSplit`, not the profile factory; one toggle,
+  no gate.
+- **Picker-style, not plain-button** — a checkmark on the current preset (owner's choice for a dynamic
+  selection).
+
+### Files
+
+| File | Change |
+|------|--------|
+| `TDEE/ViewsValueEditors/UIMacroMixMenuButtonView.swift` | **New** — `Menu { Picker(...) }` over `collection.items` rebinds `profile.selectedMacroId`; neutral "Macro Mix" closed label; `.accessibilityIdentifier("macroMixMenu")`. Reads `@Environment(MacroSplitOptionsModelCollection.self)` (mirror `SectionEditorMacroMix`). |
+| `TDEE/ViewSections/SectionMacroSplit.swift` | **Change** — add `@Environment(InputStyleManager.self)`; route the selector slot: `.new` → `UIMacroMixMenuButtonView`, `.classic` → `SectionEditorMacroMix` unchanged. The result cards and Customise / Edit Presets stay in both branches. |
+| `TDEE/ViewsValueEditors/UIWheelPickerMacroMixView.swift`, `TDEE/ViewSectionEditors/SectionEditorMacroMix.swift` | **Not touched** — the Classic wheel path. |
+| `MetricRanges` / `*Entry` validators / `ProfileViewModelValidation` / `CalculationValidatePerson` | **Not touched** — no gate. |
+| `TDEETests/…` | **None new** — no pure validator to test (like Activity Level); the full suite passes unchanged. |
+
+**Reused as-is:** `SectionMacroSplit` / `UILayoutSectionView` (the panel + results + buttons),
+`UISectionSummaryValueMacroMix` (the header name), `MacroSplitOptionsModelCollection` (the catalog),
+`UIMainView`'s existing `selectedMacroId` / `items` recomputation.
+**Do NOT modify without approval:** `UIWheelPickerMacroMixView`, `SectionEditorMacroMix` (the Classic
+path).
+
+### Testing checklist
+
+- [ ] `UIMacroMixMenuButtonView` — the `Picker` lists `collection.items`; a selection rebinds
+      `profile.selectedMacroId`; a checkmark marks the current preset.
+- [ ] `SectionMacroSplit` routing — `.classic` shows the wheel; `.new` shows the menu; the result cards
+      and Customise / Edit Presets are unchanged in both branches.
+- [ ] `TDEE` builds; full `TDEETests` suite passes unchanged (no validator — like Activity Level).
+- [ ] Manual (iPhone compact): the menu lists the catalog, a pick rebinds and the results update,
+      checkmark on the current preset.
+- [ ] Manual (iPad regular + accessibility): the menu renders full-width / block-level.
+
+### Risks
+
+- **Results-side, single toggle** — unlike body fat / calorie (a two-slot gate), #13 is one toggle; keep
+  the routing a simple `style(for: .macroMix)` switch, not a two-tuple.
+- **Dynamic catalog** — the menu must read the environment collection and keep observing it (presets are
+  user-editable / SwiftData-backed); a control that captured a stale snapshot would not track edits.
+  `UIMainView` already recomputes on `globalMacroCollection.items`, so the results stay live.
+- **Picker vs plain menu** — the owner chose the checkmark `Picker` shape; confirm it dismisses on
+  selection (standard `Menu { Picker }` behaviour) and that the tag type matches `selectedMacroId`
+  (`UUID`).
+

@@ -19,6 +19,8 @@ struct SectionMacroSplit: View {
     let proxy: ScrollViewProxy?
 
     @Environment(MacroSplitOptionsModelCollection.self) private var macroCollection
+    // Story 023, input #13 — the per-input Classic/New toggle that routes the selector below.
+    @Environment(InputStyleManager.self) private var inputStyle
 
     var body: some View {
 
@@ -34,7 +36,15 @@ struct SectionMacroSplit: View {
             },
             editorView: {
                 VStack(spacing: 0) {
-                    SectionEditorMacroMix(profile: profile)
+                    // Story 023, input #13 — a single toggle (no gate): any "New" swaps only the wheel
+                    // for the neutral menu; the result cards and the Customise / Edit Presets buttons stay
+                    // unchanged. The Classic path (SectionEditorMacroMix / UIWheelPickerMacroMixView) is
+                    // left untouched.
+                    if inputStyle.style(for: .macroMix) == .new {
+                        UIMacroMixMenuButtonView(profile: profile)
+                    } else {
+                        SectionEditorMacroMix(profile: profile)
+                    }
                     SectionMacroMixResults(calculationResults: calculationResult)
                         .padding(.top, Spacing.medium)
                         .padding(.bottom, Spacing.small)
