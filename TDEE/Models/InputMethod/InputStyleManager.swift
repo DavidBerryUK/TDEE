@@ -51,7 +51,6 @@ enum InputID: String, CaseIterable, Hashable, Codable, Identifiable {
     case bodyFatPercentage
     case calorieAdjustmentMethod
     case calorieAdjustment
-    case macroSplitMethod
     case macroMix
 
     var id: String { rawValue }
@@ -69,7 +68,6 @@ enum InputID: String, CaseIterable, Hashable, Codable, Identifiable {
         case .bodyFatPercentage: "Body Fat %"
         case .calorieAdjustmentMethod: "Calorie Adjustment Method"
         case .calorieAdjustment: "Calorie Adjustment"
-        case .macroSplitMethod: "Macro Split Method"
         case .macroMix: "Macro Mix"
         }
     }
@@ -80,7 +78,7 @@ enum InputID: String, CaseIterable, Hashable, Codable, Identifiable {
         case .activityLevel: .activity
         case .bodyFatMethod, .bodyFatPercentage: .bodyFat
         case .calorieAdjustmentMethod, .calorieAdjustment: .calories
-        case .macroSplitMethod, .macroMix: .macros
+        case .macroMix: .macros
         }
     }
 }

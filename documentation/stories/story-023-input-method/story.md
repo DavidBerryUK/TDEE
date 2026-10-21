@@ -150,7 +150,7 @@ redesign, defined when its turn comes.
 | 9 | Activity Level | `activityLevel` | `UIWheelPickerActivityLevelView` (wheel) | Neutral menu button in the section header (compact/regular), lists all 9 `ActivityLevel` cases, drops to a full-width line at accessibility sizes; no expand panel, no range/zero gate — see the Activity Level pass | Done |
 | 10 | Calorie Adjustment Method | `calorieAdjustmentMethod` | `UISegmentCalorieAdjustmentMethodView` (segmented) | Neutral "Method" menu (compact/regular); segmented reused at accessibility sizes — Decisions 10 / 19 analog | Done |
 | 11 | Calorie Adjustment Value | `calorieAdjustment` | `UISliderCalorieAdjustmentValue` (slider) | Single `.numberPad` field, in-field `kCals` suffix, 0–1000 reject-and-nag; shown only under Cut/Bulk (Maintain carries none) — Decision 18 analog | Done |
-| 12 | Macro Split Method | (macro split) | `UISegmentMacroSplitMethodView` (segmented) | TBD | Not started |
+| 12 | Macro Split Method | `macroSplitMethod` | `UISegmentMacroSplitMethodView` (segmented) | **Dropped** — dead code (see note below) | **Dropped** |
 | 13 | Macro Mix | `selectedMacroId` | `UIWheelPickerMacroMixView` (wheel) | TBD | Not started |
 
 Notes:
@@ -159,6 +159,13 @@ Notes:
   (Decision 11): the two toggles stay independent and the one section composes both pieces over the
   shared kg model.** **Height (#5/#6) follows the same shape over the shared cm model — the two
   toggles stay independent and the one section composes both pieces.**
+- **Input #12 (Macro Split Method) is dropped as dead code (2026-10-21).** `MacroSplitMethod` and its
+  segmented control `UISegmentMacroSplitMethodView` were unreferenced outside their own `#Preview` — no
+  model field, no composition. The user's "which method" is expressed by **which macro preset is
+  selected** (`selectedMacroId`, #13) and by **editing the mix** (Customise / Edit Presets), so a
+  separate macro-split-method input is redundant. Both files were deleted and the `macroSplitMethod`
+  toggle removed from `InputID`; the live `SectionMacroSplit`, the #13 wheel, and the `macroSplit`
+  icon are untouched.
 - **Profile name** (a free-text field, story 021) is a possible 14th input but is *not* in this pass
   — see Open Questions.
 
@@ -171,7 +178,8 @@ Notes:
    Status column as each goes Classic→New. **Inputs #1 (Gender), #2 (Age), #3/#4 (Weight), #5/#6
    (Height), #9 (Activity Level), #7/#8 (Body Fat), and #10/#11 (Calorie Adjustment) are Done
    (Gender/Age/Weight 2026-10-19; Height, Activity Level, Body Fat, and Calorie Adjustment 2026-10-20);
-   inputs #12/#13 (Macro Split Method, Macro Mix) remain Not started.**
+   input #12 (Macro Split Method) was dropped as dead code (2026-10-21 — functionally covered by Macro
+   Mix), leaving input #13 (Macro Mix) as the final input.**
 
 ## Not shared / Out of Scope
 
@@ -200,12 +208,14 @@ Notes:
    a different layout)? Defined as each input's turn comes, not up front. **Weight's (Decisions 9–14,
    `plan.md`), height's (the height pass, mirroring weight), body fat's (Decisions 18–21, the body fat
    pass in `plan.md`), and calorie adjustment's (the calorie pass, a gated two-slot section mirroring
-   body fat) are defined and built; the rest remain per-input.**
+   body fat) are defined and built; the only remaining input is Macro Mix (#13 — #12 was dropped as
+   dead code, 2026-10-21).**
 2. **Rollout order** — which input converts first (a wheel like Age, or a segmented like Gender)?
    The owner directs; the table order is a placeholder. **In practice: Gender, then Age, then Weight
    (#3/#4) — all 2026-10-19, all Done; then Height (#5/#6), Activity Level (#9), Body Fat (#7/#8), and
-   Calorie Adjustment (#10/#11) on 2026-10-20, also Done. The next inputs are the macro block
-   (#12/#13).**
+   Calorie Adjustment (#10/#11) on 2026-10-20, also Done. Input #12 (Macro Split Method) was dropped
+   as dead code on 2026-10-21 (the dietary "method" is expressed by preset selection / mix editing, not
+   a separate input), leaving Macro Mix (#13) as the final input.**
 3. **Persistence home + scoping** — extend `ThemeManager`, a new per-input store (e.g.
    `InputStylePreferences`), or a field on an existing holder; and are the preferences **global**
    (like the theme) or **per-profile** (given story 021's multiple profiles)?

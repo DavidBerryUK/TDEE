@@ -41,10 +41,14 @@ chosen order.
 | 9 | Activity Level | `activityLevel` | **Done** |
 | 10 | Calorie Adjustment Method | `calorieAdjustmentMethod` | **Done** |
 | 11 | Calorie Adjustment Value | (slider) | **Done** |
-| 12 | Macro Split Method | (macro split) | Not started |
+| 12 | Macro Split Method | (macro split) | **Dropped** — dead code (2026-10-21) |
 | 13 | Macro Mix | `selectedMacroId` | Not started |
 
-**Next up: the macro block (#12–#13)** — Macro Split Method and Macro Mix, the last two inputs.
+**Next up: Macro Mix (#13)** — the last remaining input. Input #12 (Macro Split Method) was dropped
+as dead code: `MacroSplitMethod` + `UISegmentMacroSplitMethodView` were unreferenced outside their
+own `#Preview` (no model field, no composition), and the dietary "method" is expressed by preset
+selection (`selectedMacroId`, #13) and mix editing — so a separate input was redundant. Both files
+were deleted and the `macroSplitMethod` toggle removed from `InputID`.
 
 ---
 
@@ -199,12 +203,24 @@ The same gated two-slot shape as body fat, simpler in one respect.
 - The three Classic controls (`UISegmentCalorieAdjustmentMethodView`,
   `UISliderCalorieAdjustmentValue`, `SectionEditorCalorieAdjustment`) stay untouched.
 
-### What's next: the macro block (#12 / #13)
+### What's next: Macro Mix (#13) — the last input
 
-The last two inputs — **Macro Split Method** (`UISegmentMacroSplitMethodView`, segmented → neutral
-menu, a Decision 10/19 analog like the other method menus) and **Macro Mix** (`selectedMacroId`,
-`UIWheelPickerMacroMixView`, the last wheel picker). See §8, open thread 1 — the New-control shape
-is an owner decision, define it before building.
+Input #12 (Macro Split Method) was **dropped as dead code** (2026-10-21): `MacroSplitMethod` +
+`UISegmentMacroSplitMethodView` were unreferenced outside their own `#Preview` (no model field, no
+composition), so the dietary "method" is expressed by preset selection (`selectedMacroId`, #13) and by
+editing the mix — not a separate input. Both files were deleted and the `macroSplitMethod` case removed
+from `InputID`.
+
+**#13 Macro Mix** is the final input, and the hardest remaining shape: it is **not** a fixed enum or a
+numeric entry — `UIWheelPickerMacroMixView` (the last wheel) is a selection over
+**`MacroSplitOptionsModelCollection.items`**, a dynamic, SwiftData-backed, user-editable preset catalog
+(name + protein/carbs/fats + ordinal + `isCustom`). Composed in `UIMainView → MainSectionMacroMix →
+SectionMacroSplit` (not the `MainSectionProfileInput` factory), the wheel sits *inside* that section's
+editor alongside `SectionMacroMixResults` and the "Customise" / "Edit Presets" buttons, and the control
+reads `@Environment(MacroSplitOptionsModelCollection.self)` (so a New control must take the collection,
+not just `model`). **No results gate** (like calorie — `isValid`/`hasError` = age+weight+height+bodyFat
+only), so no two-gate move. See §8, open thread 1 — the New-control shape is an owner decision (a
+neutral `Menu` over the dynamic catalog is the leading candidate), define it before building.
 
 ---
 
@@ -238,12 +254,12 @@ xcrun xcodebuild -project TDEE.xcodeproj -scheme TDEE -configuration Debug \
 
 1. **Per-input "New control shape" (Open Question 1)** — defined as each input's turn comes,
    owner-directed. Body fat's (#7/#8, Decisions 18–21) and calorie adjustment's (#10/#11, a Decision
-   18/19 analog) are now defined and built; the next — and last — undecided one is the **macro block
-   (#12/#13)**.
+   18/19 analog) are now defined and built; the last undecided one is **Macro Mix (#13)** — a neutral
+   `Menu` over the dynamic preset catalog is the leading candidate. Input #12 (Macro Split Method) was
+   **dropped as dead code** (2026-10-21).
 2. **Rollout order (Open Question 2)** — owner directs; the table order is a placeholder. Done so far:
    Gender, Age, Weight (#3/#4), Height (#5/#6), Activity Level (#9), Body Fat (#7/#8), and
-   Calorie Adjustment (#10/#11). The last inputs are the macro block (#12 Macro Split Method, #13
-   Macro Mix).
+   Calorie Adjustment (#10/#11). #12 was dropped; the last input is Macro Mix (#13).
 3. **Persistence scoping (Open Question 3)** — currently **global** (like the theme), via
    `InputStyleManager` in `UserDefaults`. Whether the per-input preferences should instead be
    **per-profile** (given story 021's multiple profiles) is open — not implemented.
