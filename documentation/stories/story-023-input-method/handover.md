@@ -3,9 +3,9 @@
 **For a fresh agent.** This document is self-contained: read it, then the canonical docs it points
 to, and you can continue the rollout. Do **not** rely on any conversation history.
 
-- **Date:** 2026-10-20
-- **Branch:** `feat/height-new-section` (name is now stale — it carries Gender/Age/Weight/Height/Activity
-  Level; rename before a PR)
+- **Date:** 2026-10-21
+- **Branch:** `feat/story-023-input-method` (already renamed; carries Gender/Age/Weight/Height/Activity
+  Level/Body Fat/Calorie Adjustment)
 - **Project:** TDEE (iOS). Watch target (`TDEEWatch`) is **out of scope**.
 
 ---
@@ -15,7 +15,7 @@ to, and you can continue the rollout. Do **not** rely on any conversation histor
 | File | What it is |
 |------|-----------|
 | `story.md` (this folder) | **Source of truth.** The Inputs table (the rollout tracker + per-input status), the Decisions, Tasks, Open Questions, Status log. |
-| `plan.md` (this folder) | Per-pass implementation plans. Each input's pass has a section (Weight, Height, Activity Level) with Decisions / Files / Testing checklist. |
+| `plan.md` (this folder) | Per-pass implementation plans. Each input's pass has a section (Weight, Height, Activity Level, Body Fat, Calorie Adjustment) with Decisions / Files / Testing checklist. |
 | `handover.md` (this file) | You are here — current state + how to do the next pass + gotchas. |
 
 When you finish a pass, **update `story.md` and `plan.md`** (see §5) and commit.
@@ -39,13 +39,12 @@ chosen order.
 | 7 | Body Fat % | `bodyFatPercentage` | **Done** |
 | 8 | Body Fat Calc Method | `bodyFatPercentageMethod` | **Done** |
 | 9 | Activity Level | `activityLevel` | **Done** |
-| 10 | Calorie Adjustment Method | `calorieAdjustmentMethod` | Not started |
-| 11 | Calorie Adjustment Value | (slider) | Not started |
+| 10 | Calorie Adjustment Method | `calorieAdjustmentMethod` | **Done** |
+| 11 | Calorie Adjustment Value | (slider) | **Done** |
 | 12 | Macro Split Method | (macro split) | Not started |
 | 13 | Macro Mix | `selectedMacroId` | Not started |
 
-**Next up: the calorie / macro block (#10–#13)** — Calorie Adjustment Method/Value and Macro Split
-Method/Mix.
+**Next up: the macro block (#12–#13)** — Macro Split Method and Macro Mix, the last two inputs.
 
 ---
 
@@ -72,10 +71,13 @@ Method/Mix.
   and `Models/ProfileViewModel/XxxEntry.swift` (pure `(unit, fields) → status` validators).
 
 Existing New sections: `GenderNewSectionView`, `AgeNewSectionView`, `WeightNewSectionView`,
-`HeightNewSectionView`, `ActivityLevelNewSectionView`.
+`HeightNewSectionView`, `ActivityLevelNewSectionView`, `BodyFatPercentageNewSectionView`,
+`CalorieAdjustmentNewSectionView`.
 Existing controls: `UIActivityLevelMenuButtonView`, `UIHeightUomMenuButtonView`,
-`UIWeightUomMenuButtonView`, `UIHeightTextFieldEntry`, `UIWeightTextFieldEntry`.
-Existing validators: `WeightEntry`, `HeightEntry`.
+`UIWeightUomMenuButtonView`, `UIBodyFatMethodMenuButtonView`, `UICalorieAdjustmentMethodMenuButtonView`,
+`UIBodyFatPercentageTextFieldEntry`, `UICalorieAdjustmentTextFieldEntry`, `UIHeightTextFieldEntry`,
+`UIWeightTextFieldEntry`.
+Existing validators: `WeightEntry`, `HeightEntry`, `BodyFatPercentageEntry`, `CalorieAdjustmentEntry`.
 
 **Two shapes of input, two patterns to copy:**
 - **Single categorical / single numeric** (Gender, Activity Level, Age): copy `GenderNewSectionView` /
@@ -149,38 +151,60 @@ decision — §8); the pattern below is the implementation once the shape is cho
 
 ---
 
-## 6. Body Fat (#7 / #8) — built (Done, 2026-10-20)
+## 6. The gated two-slot sections — Body Fat (#7 / #8) & Calorie Adjustment (#10 / #11), both Done
 
-Two inputs over one section — the most involved pass: the first decimal entry, a show/hide gate
-(method → % field), and an asymmetric range gate. **Built** — see the **Body Fat pass** in `plan.md`
-and Decisions 18–21 in `story.md`. The three wrinkles below were the design rationale; all resolved:
-a single 1-dp `%` field (round on commit), a method-gated `isBodyFatValid` in the results gate, and
-`MetricRanges.bodyFatPercentage = 5...50` as the single authority.
+The two most involved passes share one shape (Decision 11 analog): **one composing section that
+relates its two pieces by a *gate* rather than a unit switch** — a **method** slot (a neutral menu
+that, unlike weight/height, decides whether the **value** slot appears at all) and a **value** slot
+shown only under certain methods. Both are built; see the passes in `plan.md` and Decisions 18–21
+(body fat) plus the calorie entry in `story.md`'s Status log.
+
+### 6.1 Body Fat (#7 / #8) — Done (2026-10-20)
 
 - **#8 Body Fat Calc Method** — `bodyFatPercentageMethod`, a 3-case enum
-  (`BodyFatOption: omit / estimate / manualEntry`), Classic control `UISegmentBodyFatCalcMethodView`
-  (segmented, DO NOT MODIFY). Small — likely an inline segmented or a neutral menu, like Gender.
-- **#7 Body Fat %** — `bodyFatPercentage`, a **Double** (e.g. `15.7`), Classic control
-  `UIWheelPickerBodyFatView` (two wheels: integer 0–99 + decimal 0–9, DO NOT MODIFY).
+  (`BodyFatOption: omit / estimate / manualEntry`). New control `UIBodyFatMethodMenuButtonView`
+  (neutral "Method" menu in compact/regular; segmented `UISegmentBodyFatCalcMethodView` reused at
+  accessibility sizes).
+- **#7 Body Fat %** — `bodyFatPercentage`, a **Double** (e.g. `15.7`). New control
+  `UIBodyFatPercentageTextFieldEntry`: the story's first **decimal** field (Decision 20) — a single
+  `.decimalPad` field with an in-field `%` suffix, committing a value **rounded to 1 dp** to match the
+  Classic's integer + decimal wheels; shown **only under `.manualEntry`**, gated on
+  `bodyFatPercentageMethod` **directly** (the Classic-only `bodyFatPercentageShowManualEntry`
+  expanding-panel flag is left untouched — `SectionEditorBodyFatPercentage` is its only reader).
+- **Range — asymmetric two-gate move (Decision 21).** `MetricRanges.bodyFatPercentage = 5...50` is the
+  single authority. Both gates move: `validateForCalculation()` reads the range under `.manualEntry`,
+  **and** the results `isValid`/`hasError` now compose a **method-gated** `isBodyFatValid` (in range
+  only under `.manualEntry`, else `true`) — so an out-of-range manual entry hides the results *and*
+  blocks the calc pre-check, while Omit / Estimate (default `0.0`) never trip. This is the *asymmetric*
+  variant of Decision 14.
+- **Decimals are a permanent exception** to the integer-entry simplification (Decision 17): body fat
+  stays `.decimalPad` with 1-dp rounding.
 
-**Wrinkles to design around (none of these exist in the prior passes):**
-1. **Decimals.** Body fat % is a `Double`; every prior numeric pass was integer. This is the first
-   decimal entry — the `.numberPad`/integer simplification (Decision 17) does **not** apply. Decide the
-   decimal UI and whether to revise the "integer this pass" decision.
-2. **Method gates the value (show/hide, not a unit switch).** `SectionEditorBodyFatPercentage`
-   (`ViewSectionEditors/`, DO NOT MODIFY) uses `UILayoutExpandingPanel` on
-   `model.bodyFatPercentageShowManualEntry`: when method is **Omit/Estimate the % picker is hidden**;
-   when **Manual Entry** it's shown. So the New section must compose the **method toggle + a
-   conditional % entry** — analogous to weight/height's two-piece composition (Decision 11), but the
-   relationship is a *gate* (Omit/Estimate → no % field) rather than a unit re-derivation.
-3. **Asymmetric range gate.** The body-fat range is **5–50%** and lives **only** in
-   `validateForCalculation()` (`CalculationValidatePerson.swift:25`, the `.manualEntry` branch),
-   **not** in the results gate — `isValid`/`hasError` (`ProfileViewModelValidation.swift`) compose only
-   `isAgeValid`/`isWeightValid`/`isHeightValid`. So the "two gates move together" rule (Decision 14)
-   applies differently: moving the range touches `validateForCalculation()` but the results `isValid`
-   gate does **not** include body fat. Decide whether to extract the 5–50 to `MetricRanges` (single
-   authority, like the others) and whether the results gate should start composing it.
-4. **No `MetricRanges` entry yet** for body fat.
+### 6.2 Calorie Adjustment (#10 / #11) — Done (2026-10-20)
+
+The same gated two-slot shape as body fat, simpler in one respect.
+
+- **#10 Calorie Adjustment Method** — `calorieAdjustmentMethod` (`CalorieAdjustmentMethod.allCases`:
+  Maintain / Cut / Bulk). New control `UICalorieAdjustmentMethodMenuButtonView` (neutral "Method"
+  menu; segmented `UISegmentCalorieAdjustmentMethodView` reused at accessibility sizes).
+- **#11 Calorie Adjustment Value** — the Classic is `UISliderCalorieAdjustmentValue` (a `Slider`).
+  New control `UICalorieAdjustmentTextFieldEntry`: a single `.numberPad` field with an in-field
+  `kCals` suffix + keyboard **`Done`**, shown **only under Cut / Bulk** (Maintain carries none), gated
+  on `calorieAdjustmentMethod != .maintain` **directly** — the Classic-only
+  `calorieAdjustmentShowSliders` flag (`SectionEditorCalorieAdjustment`'s only reader) is left
+  untouched. `MetricRanges.calorieAdjustment = 0...1000`.
+- **No results gate (unlike body fat).** Calorie adjustment is **not** in `isValid`/`hasError`, and
+  `adjustCalories` clamps to a non-negative result — so there is **no two-gate move**: the range
+  drives only the entry's reject-and-nag, and neither `isValid` nor `validateForCalculation()` changes.
+- The three Classic controls (`UISegmentCalorieAdjustmentMethodView`,
+  `UISliderCalorieAdjustmentValue`, `SectionEditorCalorieAdjustment`) stay untouched.
+
+### What's next: the macro block (#12 / #13)
+
+The last two inputs — **Macro Split Method** (`UISegmentMacroSplitMethodView`, segmented → neutral
+menu, a Decision 10/19 analog like the other method menus) and **Macro Mix** (`selectedMacroId`,
+`UIWheelPickerMacroMixView`, the last wheel picker). See §8, open thread 1 — the New-control shape
+is an owner decision, define it before building.
 
 ---
 
@@ -213,10 +237,13 @@ xcrun xcodebuild -project TDEE.xcodeproj -scheme TDEE -configuration Debug \
 ## 8. Open threads (decisions the owner makes)
 
 1. **Per-input "New control shape" (Open Question 1)** — defined as each input's turn comes,
-   owner-directed. Body fat's (#7/#8) is now defined (Decisions 18–21); the next undecided one is the
-   calorie / macro block (#10–#13).
+   owner-directed. Body fat's (#7/#8, Decisions 18–21) and calorie adjustment's (#10/#11, a Decision
+   18/19 analog) are now defined and built; the next — and last — undecided one is the **macro block
+   (#12/#13)**.
 2. **Rollout order (Open Question 2)** — owner directs; the table order is a placeholder. Done so far:
-   Gender, Age, Weight (#3/#4), Height (#5/#6), Activity Level (#9).
+   Gender, Age, Weight (#3/#4), Height (#5/#6), Activity Level (#9), Body Fat (#7/#8), and
+   Calorie Adjustment (#10/#11). The last inputs are the macro block (#12 Macro Split Method, #13
+   Macro Mix).
 3. **Persistence scoping (Open Question 3)** — currently **global** (like the theme), via
    `InputStyleManager` in `UserDefaults`. Whether the per-input preferences should instead be
    **per-profile** (given story 021's multiple profiles) is open — not implemented.
@@ -234,10 +261,10 @@ xcrun xcodebuild -project TDEE.xcodeproj -scheme TDEE -configuration Debug \
 | Toggle store | `TDEE/Models/InputMethod/InputStyleManager.swift` |
 | Presenter (all toggles) | `TDEE/Pages/InputMethodPage/InputMethodView.swift` |
 | **Section factory (wire here)** | `TDEE/Pages/MainPage/MainSectionProfileInput.swift` |
-| New sections (copy these) | `TDEE/ViewSections/{Gender,Age,Weight,Height,ActivityLevel}NewSectionView.swift` |
-| Neutral menu buttons (copy) | `TDEE/ViewsValueEditors/{UIActivityLevel,UIHeightUom,UIWeightUom}MenuButtonView.swift` |
-| Text-field entries (copy) | `TDEE/ViewsValueEditors/{UIHeight,UIWeight}TextFieldEntry.swift` |
-| Pure validators (copy) | `TDEEShared/Models/ProfileViewModel/{WeightEntry,HeightEntry}.swift` |
+| New sections (copy these) | `TDEE/ViewSections/{Gender,Age,Weight,Height,ActivityLevel,BodyFatPercentage,CalorieAdjustment}NewSectionView.swift` |
+| Neutral menu buttons (copy) | `TDEE/ViewsValueEditors/{UIActivityLevel,UIHeightUom,UIWeightUom,UIBodyFatMethod,UICalorieAdjustmentMethod}MenuButtonView.swift` |
+| Text-field entries (copy) | `TDEE/ViewsValueEditors/{UIHeight,UIWeight,UIBodyFatPercentage,UICalorieAdjustment}TextFieldEntry.swift` |
+| Pure validators (copy) | `TDEEShared/Models/ProfileViewModel/{WeightEntry,HeightEntry,BodyFatPercentageEntry,CalorieAdjustmentEntry}.swift` |
 | Range authority | `TDEEShared/Config/MetricRanges.swift` |
 | Results gate | `TDEEShared/Models/ProfileViewModel/ProfileViewModelValidation.swift` |
 | Calc pre-check gate | `TDEEShared/Calculations/Extensions/CalculationValidatePerson.swift` |
@@ -249,6 +276,8 @@ xcrun xcodebuild -project TDEE.xcodeproj -scheme TDEE -configuration Debug \
 ## 10. Recent commits (context)
 
 ```
+c857199 feat: Calorie Adjustment New section — gated method menu + kCals entry (story 023, inputs #10/#11)
+094a006 feat: Body Fat New section — gated method + 1-dp % entry (story 023, inputs #7/#8)
 a3c172c docs: mark Activity Level input #9 closed (owner-verified) in story 023
 f6724c5 fix(compile skill): default destination → generic/platform=iOS Simulator
 59a624a feat: Activity Level New section — neutral menu button in the header (story 023, input #9)
