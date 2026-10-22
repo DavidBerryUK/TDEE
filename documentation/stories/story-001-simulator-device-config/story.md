@@ -18,15 +18,11 @@ When developing iOS apps, it's common to want different default values in the si
 
 ## Open Questions
 
-- **Configuration format**: Should we use a plist, JSON, or Swift struct with compiler directives?
-  - Options discussed:
-    - `.plist` file (human-readable, Xcode-integrated)
-    - JSON file (lightweight, easy to edit)
-    - Swift struct with `#if targetEnvironment(simulator)` (compile-time optimized)
+All resolved (2026-10-10):
 
-- **Configuration location**: Should the config be bundled with the app, or loadable from a remote source?
-
-- **Gender default**: Since Gender is an enum (`.male`, `.female`), what should the default be for each environment?
+- **Configuration format**: a Swift struct selected at compile time with `#if targetEnvironment(simulator)` (see Decisions). `.plist` and JSON were rejected — they add bundle files and parsing for no benefit.
+- **Configuration location**: hardcoded in source, not bundled as data and not loadable from a remote source — simplest and type-safe. A remote source would be a future concern, out of scope here.
+- **Gender default**: `.male` in both environments (see Configuration Keys).
 
 ## Configuration Keys
 
@@ -41,8 +37,15 @@ When developing iOS apps, it's common to want different default values in the si
 
 ## Decisions
 
-TBD - to be completed during planning phase.
+- **Format**: a Swift struct selected at compile time with `#if targetEnvironment(simulator)` — `ConfigLoader.loadProfileDefaults()` returns `ProfileDefaults.simulator()` or `.device()`, with no external files. Chosen for type safety and zero parsing/loading overhead; `.plist` and JSON were rejected for adding bundle files and parsing for no benefit.
+- **Location**: hardcoded in source (`TDEEShared/Config/`); not bundled as data, not remotely loadable.
+- **Entry point**: `AppConfig.shared.profileDefaults`, consumed by `ProfileViewModel` for its field defaults, keeping the defaults out of the calculation logic.
+- **Gender default**: `.male` in both environments.
 
 ## Implementation Notes
 
-The configuration should be accessed through a single entry point (e.g., `AppConfig` struct) to keep the separation clean and testable.
+The configuration is accessed through a single entry point, `AppConfig`, to keep the separation clean and testable. `ConfigLoader` picks the defaults at compile time and `ProfileViewModel` reads them from `AppConfig.shared.profileDefaults`.
+
+## Status
+
+Done (2026-10-10). `AppConfig`, `ConfigLoader` and `ProfileDefaults` live in `TDEEShared/Config/` and `ProfileViewModel` reads its field defaults from `AppConfig.shared`. Merged into `develop`.

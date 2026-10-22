@@ -70,8 +70,10 @@ This separation is fragile because:
 
 ## Open Questions
 
-1. Should changing profile values (age, weight, etc.) automatically reset or recalculate macros?
-2. Should there be a way to "reset to preset" values (revert edited values back to the selected preset's defaults)?
+Resolved at implementation (2026-10-14):
+
+1. **Changing profile values and macros** — No. Changing a profile input (age, weight, …) recalculates BMR/TDEE/calories but leaves the macro mix untouched. The mix is preset-driven: `selectedMacroId` selects a preset and `syncMacros(from:)` copies its percentages into the profile (`UIMainView.swift:37-38`); editing a value changes the percentages but not the selection.
+2. **Reset to preset** — Yes, by selection: choosing a preset in the Macro Split editor (the Classic wheel, or the New menu from story 023) re-syncs the mix to that preset's values, so "reset to preset" is just picking that preset.
 
 ## Decisions
 
@@ -101,3 +103,7 @@ The implementation now correctly aligns macro model with profile view by:
 - Selection persists across profile save/restore operations
 - UI components can reference the same source of truth for both selection and values
 - The change maintains backward compatibility with existing UI components
+
+## Status
+
+Done (2026-10-14). `selectedMacroId` lives on `ProfileViewModel`; changing it syncs the macro percentages from the selected preset, and the selection now persists with the profile (see Status Update above). Merged into `develop`.

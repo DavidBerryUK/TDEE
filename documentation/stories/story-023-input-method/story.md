@@ -21,7 +21,7 @@ the theme is, and each editor reads its own input's choice.
   `UserDefaults`, injected via `.environment` and consumed in `ThemedRoot` (`TDEEApp.swift`).
   The per-input Classic/New preferences follow this same shape — one entry per input.
 - **Multiple profiles exist (story 021).** A per-input preference is **global** (like the theme), not
-  per-profile — decided on 2026-10-21 (Decision 22; see Open Questions).
+  per-profile — decided on 2026-10-21 (Decision 22).
 
 ## Scope
 
@@ -130,13 +130,13 @@ Confirmed with the owner:
     `.manualEntry`, else `true`. An out-of-range manual entry hides the results *and* blocks the calc
     pre-check; Omit / Estimate (default `0.0`, out of range) never trip. Without the method guard every
     Omit / Estimate profile would read as invalid.
-22. **Preferences are global, not per-profile (closes Open Question 3).** The per-input Classic/New
+22. **Preferences are global, not per-profile.** The per-input Classic/New
     preferences live on the single global `InputStyleManager` (a global `@Observable`,
     environment-injected, persisted to `UserDefaults` under `input.style.preferences`) — mirroring the
     theme, **not** a field on any profile. This is the already-shipped shape, so the decision needs no
     code change: a user's Classic/New choice for an input applies to every profile they switch
     (story 021) to. A per-profile variant was considered and set aside.
-23. **Profile name is excluded from the Classic/New rollout (closes Open Question 4).** The profile
+23. **Profile name is excluded from the Classic/New rollout.** The profile
     name is a free-text field (`ProfileEditViewPage`, a plain `TextField`), reached only when adding or
     renaming a profile (story 021). It is **not** a 14th input: the Classic/New toggle exists to pick
     *which control* enters an existing typed *value*, and the name has no such axis — it is already a
@@ -180,7 +180,7 @@ Notes:
   toggle removed from `InputID`; the live `SectionMacroSplit`, the #13 wheel, and the `macroSplit`
   icon are untouched.
 - **Profile name** (a free-text field, story 021) is **excluded** — not a 14th input (Decision 23,
-  closes Open Question 4, 2026-10-21): it has no Classic/New axis, and free-text / IME is a separate
+  2026-10-21): it has no Classic/New axis, and free-text / IME is a separate
   concern. It stays a plain `TextField` in `ProfileEditViewPage`.
 
 ## Tasks
@@ -216,38 +216,6 @@ Notes:
 - Both **compact and regular** layouts honor the preferences with no phone regression.
 - **Watch target unchanged** unless a decision brings it in scope.
 - The full test suite passes with no regressions in the shared/model layer.
-
-## Open Questions
-
-> **All open questions are closed (2026-10-21).** Q1/Q2 — every in-scope input is Done (#12 dropped);
-> Q3 — preferences are global (Decision 22); Q4 — profile name excluded (Decision 23). Retained below
-> for context.
-
-1. **Each input's "New" control** — what does the redesign look like per input (e.g. numeric keypad,
-   a different layout)? Defined as each input's turn comes, not up front. **Weight's (Decisions 9–14,
-   `plan.md`), height's (the height pass, mirroring weight), body fat's (Decisions 18–21, the body fat
-   pass in `plan.md`), and calorie adjustment's (the calorie pass, a gated two-slot section mirroring
-   body fat) are defined and built; Macro Mix (#13) is Done — see the Macro Mix pass. Input #12
-   (Macro Split Method) was dropped as dead code on 2026-10-21.**
-
-   Macro Mix's (#13) shape is **defined and built** (2026-10-21) — a **selector-only swap** inside
-   `SectionMacroSplit` (the expand panel, the `SectionMacroMixResults` cards, and the Customise / Edit
-   Presets buttons stay unchanged; only the wheel is replaced) with a **Picker-style neutral `Menu`**
-   (`UIMacroMixMenuButtonView`) over the dynamic preset catalog. See the Macro Mix pass in `plan.md`.
-2. **Rollout order** — which input converts first (a wheel like Age, or a segmented like Gender)?
-   The owner directs; the table order is a placeholder. **In practice: Gender, then Age, then Weight
-   (#3/#4) — all 2026-10-19, all Done; then Height (#5/#6), Activity Level (#9), Body Fat (#7/#8), and
-   Calorie Adjustment (#10/#11) on 2026-10-20, also Done. Input #12 (Macro Split Method) was dropped
-   as dead code on 2026-10-21 (the dietary "method" is expressed by preset selection / mix editing, not
-   a separate input); Macro Mix (#13) was converted on 2026-10-21, so every in-scope input is Done.**
-3. **Persistence home + scoping — RESOLVED (2026-10-21, Decision 22).** A new per-input store
-   (`InputStyleManager`, the `ThemeManager` shape), and the preferences are **global** — like the
-   theme, not per-profile (given story 021's multiple profiles). This matches the already-shipped
-   code, so no change was needed; a per-profile variant was set aside.
-4. **Profile name — RESOLVED (2026-10-21, Decision 23).** Excluded, not a 14th input. The name is a
-   free-text field (`ProfileEditViewPage`, a plain `TextField`), not a typed-value control — it has no
-   Classic/New axis to switch on, and free-text / IME handling is a separate concern. It stays exactly
-   as it is today; no code change.
 
 ## Testing
 

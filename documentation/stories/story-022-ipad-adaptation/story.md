@@ -71,7 +71,7 @@ Confirmed with the owner:
 11. **Detail navigation preserves `AppRoute`.** Pushed pages live in a `NavigationStack` inside the
     detail column, so `AppRoute` and all existing routes keep working.
 12. **Let the layout float (for now).** No rotation/resize/Slide Over handling in this story; the
-    layout floats to the window. To be revisited after seeing it work in practice.
+    layout floats to the window.
 13. **Theme sub-screen keeps its card grid.** The master's *Theme* screen reuses `ThemeView` (the
     existing wide card grid) rather than a compact row layout; accepted as-is for the narrow master
     column.
@@ -90,22 +90,18 @@ Confirmed with the owner:
   column so the existing `AppRoute` navigation keeps working.
 - **Editor flow:** tapping a macro/profile row or "Add" in the master's list slides the editor into
   the detail (the list pages take the detail's `path`); the list stays in the master.
-- **Main column width (open):** capping + centering the main screen's content on regular (the
-  `GeometryReader` padding in `UIMainView.swift:57-67`) was *not* part of this pass; it remains a
-  separate follow-up.
+- **Main column width:** capping + centering the main screen's content on regular is done —
+  `UIMainView.mainContent` caps the column at 560pt and centres it on wide screens
+  (`.frame(maxWidth: 560)` + `.frame(maxWidth: .infinity)`, `UIMainView.swift:62-63`).
 - **Compact:** unchanged — hamburger + pushed pages, identical to today.
 
 ## Not shared / Out of Scope
 
 - **The watch target** — `TDEEWatch` keeps its own layout; unchanged.
 - **Mac / visionOS** — only the iPhone + iPad device families.
-- **Orientation / rotation / landscape-specific layouts** — open question, not decided here.
-- **Window resizing / Slide Over** behaviour at narrow regular widths — open question.
 - **iCloud / CloudKit sync** — none.
 - **Model-layer changes** — no new entities or persisted layout.
 - **Profile↔watch sync** — still parked (story-021); a separate concern.
-- **Main-column width capping** — `UIMainView` content is not yet capped/centered on regular
-  (see Screens / Layout); a separate follow-up.
 
 ## Acceptance Criteria
 
@@ -120,13 +116,13 @@ Confirmed with the owner:
 - The full test suite passes with no regressions in the shared/model layer.
 - The **watch app is unchanged** in look and behaviour.
 
-## Open Questions
-
-All resolved (see Decisions 1–14).
-
 ## Status
 
-Implemented (2026-10-18) — two-column drill-down master + detail, per Decisions 1–14. `TDEE` and
-`TDEEWatch` build and the full test suite passes. **Open:** manual visual verification in the
-iPad/iPhone simulators, and the main-column width capping (see Screens / Layout). Feature branch
-`features/story-022-ipad-adaptation`.
+Done. The two-column drill-down master + detail is implemented per Decisions 1–14 (merged 2026-10-19,
+`features/story-022-ipad-adaptation`); `TDEE` and `TDEEWatch` build and the full test suite passes.
+
+- **Main-column capping** — done in code: `UIMainView.mainContent` caps the column at 560pt and
+  centres it on wide screens (`.frame(maxWidth: 560)` + `.frame(maxWidth: .infinity)`,
+  `UIMainView.swift:62-63`), closing the previously-open follow-up.
+- **Remaining manual gate** — visual confirmation in the iPad and iPhone simulators is the owner's
+  check; layout is not unit-tested, so the automated suite guards the model layer only.
