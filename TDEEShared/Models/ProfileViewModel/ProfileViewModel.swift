@@ -4,11 +4,11 @@ import Observation
 /// State management for user profile metrics.
 ///
 /// This ViewModel serves as the single source of truth for all user profile data and derived calculations.
-/// It manages both raw input values and calculated results (TDEE, macro targets) while ensuring
-/// automatic recalculation when any input changes.
+/// It manages the raw input values and persists them automatically; results are derived on demand
+/// by the live Calculator path.
 ///
 /// ## Key Features
-/// - Automatic calculation updates via property observers
+/// - Automatic persistence via throttled saves when inputs change
 /// - Clean separation between input data and derived calculations
 /// - Comprehensive validation and error handling
 /// - Environment-specific defaults via AppConfig (simulator vs. device)
@@ -40,14 +40,12 @@ class ProfileViewModel {
     /// User's gender, used in BMR calculation formulas
     var gender: Gender = AppConfig.shared.profileDefaults.gender {
         didSet {
-            refreshResults()
             triggerSave()  // Throttled save
         }
     }
     /// User's age in years
     var age: Int = AppConfig.shared.profileDefaults.age {
         didSet {
-            refreshResults()
             triggerSave()  // Throttled save
         }
     }
@@ -56,7 +54,6 @@ class ProfileViewModel {
     /// User's weight in the current unit of measure
     var weight: Double = AppConfig.shared.profileDefaults.weight {
         didSet {
-            refreshResults()
             triggerSave()  // Throttled save
         }
     }
@@ -65,14 +62,12 @@ class ProfileViewModel {
     /// User's height in the current unit of measure
     var height: Double = AppConfig.shared.profileDefaults.height {
         didSet {
-            refreshResults()
             triggerSave()  // Throttled save
         }
     }
     /// User's activity level for TDEE calculation
     var activityLevel: ActivityLevel = AppConfig.shared.profileDefaults.activityLevel {
         didSet {
-            refreshResults()
             triggerSave()  // Throttled save
         }
     }
@@ -82,14 +77,12 @@ class ProfileViewModel {
     var bodyFatPercentageMethod: BodyFatOption = AppConfig.shared.profileDefaults.bodyFatPercentageMethod {
         didSet {
             bodyFatPercentageShowManualEntry = bodyFatPercentageMethod == .manualEntry
-            refreshResults()
             triggerSave()  // Throttled save
         }
     }
     /// User's body fat percentage
     var bodyFatPercentage: Double = AppConfig.shared.profileDefaults.bodyFatPercentage {
         didSet {
-            refreshResults()
             triggerSave()  // Throttled save
         }
     }
@@ -101,14 +94,12 @@ class ProfileViewModel {
     var calorieAdjustmentMethod: CalorieAdjustmentMethod = AppConfig.shared.profileDefaults.calorieAdjustmentMethod {
         didSet {
             calorieAdjustmentShowSliders = calorieAdjustmentMethod != .maintain
-            refreshResults()
             triggerSave()  // Throttled save
         }
     }
     /// Amount of calories to adjust up or down
     var calorieAdjustment : Double {
         didSet {
-            refreshResults()
             triggerSave()  // Throttled save
         }
     }
@@ -119,21 +110,18 @@ class ProfileViewModel {
     /// Protein percentage target
     var protein: Int = 40 {
         didSet {
-            refreshResults()
             triggerSave()  // Throttled save
         }
     }
     /// Carbs percentage target
     var carbs: Int = 30 {
         didSet {
-            refreshResults()
             triggerSave()  // Throttled save
         }
     }
     /// Fats percentage target
     var fats: Int = 30 {
         didSet {
-            refreshResults()
             triggerSave()  // Throttled save
         }
     }
@@ -166,12 +154,6 @@ class ProfileViewModel {
         // Load from SwiftData on init (if profile exists)
         loadFromSwiftData()
     }
-
-    // MARK: - Derived/Calculated State (The single source of truth for calculations)
-    /// The TDEE calculated value
-    var tdee: Double = 1800.0
-    /// The macro targets derived from the latest TDEE calculation
-    var macroTargets: (protein: Int, carbs: Int, fats: Int) = (40, 30, 30)
 
     /// Creates a new ProfileViewModel with default values (for backward compatibility)
     convenience init() {
@@ -215,12 +197,11 @@ class ProfileViewModel {
 
     /// Re-point this view model to a different stored profile: cancel any pending save, then
     /// load that entity under the `isLoading` guard (so a re-pointed field's `didSet` can't save
-    /// into the old row), and finally recompute.
+    /// into the old row).
     func switchProfile(to id: UUID) async {
         saveTask?.cancel()  // Don't let a pending save race the re-point
         profileId = id
         await load(byId: id)
-        refreshResults()
     }
 
     /// Throttle saves by cancelling previous task and starting new one
@@ -257,37 +238,6 @@ class ProfileViewModel {
             // For now, log the error
             print("Failed to save profile: \(error)")
         }
-    }
-
-    /// Public method to trigger a recalculation cycle.
-    func refreshResults() {
-        // Use the correct calculation with body fat support
-        let bmr: Double
-        if self.bodyFatPercentageMethod != .omit {
-            bmr = self.calculateKatchMcArdle(logger: AuditLogger(enabled: false))
-        } else {
-            bmr = self.calculateMifflinStJeor(logger: AuditLogger(enabled: false))
-        }
-
-        let tdee = Calculator.adjustForActivityLevel(bmr: bmr, activityLevel: self.activityLevel, logger: AuditLogger(enabled: false))
-        self.tdee = tdee
-        self.macroTargets = self.calculateMacros(tdee: tdee)
-    }
-
-    /// Calculates macro targets from TDEE.
-    /// - Parameter tdee: Total Daily Energy Expenditure in calories
-    /// - Returns: Tuple of (protein, carbs, fats) in grams
-    func calculateMacros(tdee: Double) -> (protein: Int, carbs: Int, fats: Int) {
-        let totalCalories = Int(tdee)
-        let proteinCal = Double(totalCalories) * 00.4
-        let carbCal = Double(totalCalories) * 0.3
-        let fatCal = Double(totalCalories) - proteinCal - carbCal
-
-        return (
-            protein: Int(proteinCal / 4),
-            carbs: Int(carbCal / 4),
-            fats: Int(fatCal / 9)
-        )
     }
 
     /// Copy protein/carbs/fats from a macro preset option into this profile.

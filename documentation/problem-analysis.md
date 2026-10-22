@@ -11,7 +11,7 @@
 
 Ref | Title | Category | Severity | Status | Location
 --- | --- | --- | --- | --- | ---
-**PA-04** | Dead second calculation pipeline (`refreshResults` / `tdee` / `macroTargets`) | Calc / dead code | **High** | Outstanding | `ProfileViewModel.swift:263-275`
+**PA-04** | Dead second calculation pipeline (`refreshResults` / `tdee` / `macroTargets`) | Calc / dead code | **High** | **Done (2026-10-22)** | `ProfileViewModel.swift`
 **PA-06** | Three divergent macro-normalization algorithms | Calc / dead code | **High** | Outstanding | `MacroSplitOptionModel.swift:103-172`, `MacroSplitOptionsNormalization.swift`
 **PA-01** | First-launch **device** profile seeds height/weight = 0 → validation error, no TDEE | Config | **Medium** | Outstanding | `ProfileDefaults.swift:35-46`, `ProfileRepository.swift:78-96`
 **PA-05** | Dead hardcoded 40/30/30 `calculateMacros(tdee:)` with `00.4` literals | Calc / dead code | Medium | Outstanding | `ProfileViewModel.swift:280-291`
@@ -42,7 +42,7 @@ Ref | Title | Category | Severity | Status | Location
 **PA-24** | Watch uses a standalone store; phone↔watch data never syncs | Watch | Info | By Design | `TDEEWatchApp.swift:16`
 **PA-30** | `File.swift` is an empty test stub | Tests | Info | Outstanding | `TDEETests/File.swift`
 
-**Severity tally:** High 2 · Medium 11 · Low 14 · Info 3 — **30 findings** (plus the "Confirmed correct" section below).
+**Severity tally:** High 2 · Medium 11 · Low 14 · Info 3 — **30 findings** (1 resolved: PA-04; plus the "Confirmed correct" section below).
 
 ---
 
@@ -52,8 +52,9 @@ Ref | Title | Category | Severity | Status | Location
 
 #### PA-04 — Dead second calculation pipeline
 **Location:** `TDEEShared/Models/ProfileViewModel/ProfileViewModel.swift:263-275`
-`refreshResults()` runs on every input change (all 12 property `didSet`s + `switchProfile`), computing a full BMR → TDEE → macro cycle and writing it into `tdee` and `macroTargets`. Grep confirms **no production code reads `profile.tdee` / `profile.macroTargets`** — the live UI path is `UIMainView`/`WatchMainView` → `Calculator.calculate(person:)` → `CalculatorResultViewModel`. A whole second pipeline runs on every edit and its output is discarded. Because `refreshResults` ignores `calorieAdjustment` and hardcodes 40/30/30 (see PA-05), the two paths can silently drift.
+`refreshResults()` ran on every input change (all 12 property `didSet`s + `switchProfile`), computing a full BMR → TDEE → macro cycle and writing it into `tdee` and `macroTargets`. Grep confirmed **no production code read `profile.tdee` / `profile.macroTargets`** — the live UI path is `UIMainView`/`WatchMainView` → `Calculator.calculate(person:)` → `CalculatorResultViewModel`. A whole second pipeline ran on every edit and its output was discarded. Because `refreshResults` ignored `calorieAdjustment` and hardcoded 40/30/30 (see PA-05), the two paths could silently drift.
 **Recommendation:** Delete `refreshResults()`, `tdee`, `macroTargets` and their `didSet` calls; keep only `Calculator.calculate`.
+**Status: Done (2026-10-22).** `refreshResults()`, the `tdee` / `macroTargets` state, and every `didSet` / `switchProfile` call into them were deleted from `ProfileViewModel`; the live path is now solely `Calculator.calculate(person:)`. The dead-path tests that asserted `profile.tdee` / `macroTargets` (`testRefreshResults`, `testAutomaticRecalculation`, `testCalculateMacrosFromTDEE`, `testMacroCalorieValues`) were removed in the same changeset, and `CalculationParityTests` now pins the live path (cut / bulk / recalc-on-change / zero-guard). Grep confirms **zero remaining references** to `refreshResults` / `ProfileViewModel.tdee` / `ProfileViewModel.macroTargets` — the only surviving `.tdee` / `macroTargetsText` are on `CalculatorResultViewModel` / `ShareResultsModel`, which is the live path.
 
 #### PA-06 — Three divergent macro-normalization algorithms
 **Location:** `TDEEShared/Models/Macros/MacroSplitOptionModel.swift:103-172`; `TDEEShared/Models/Macros/MacroSplitOptionsNormalization.swift`
@@ -226,7 +227,7 @@ These areas were audited and found sound — included so the scope is explicit:
 2. **PA-14** — UOM not persisted (affects phone + watch display; add entity fields + test).
 3. **PA-01** — first-launch device profile yields no result until height/weight entered.
 4. **PA-19** — watch silently mis-reports 4 activity levels.
-5. **PA-04 / PA-06 / PA-07 / PA-08 / PA-12** — collapse the dead calc pipeline and the duplicate normalization/clamping into a single source of truth (flag `MacroSplitOptionsNormalization.swift` for review; do not edit it without approval).
+5. **~~PA-04~~ (done 2026-10-22) / PA-06 / PA-07 / PA-08 / PA-12** — collapse the dead calc pipeline and the duplicate normalization/clamping into a single source of truth (flag `MacroSplitOptionsNormalization.swift` for review; do not edit it without approval).
 
 **Then (Medium):** PA-05, PA-10, PA-11, PA-13, PA-15, PA-26, PA-28.
 **Low / hygiene:** PA-02, PA-03, PA-09, PA-16, PA-18, PA-20, PA-21, PA-22, PA-23, PA-25, PA-29, PA-30.

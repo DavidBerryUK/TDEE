@@ -222,84 +222,11 @@ struct ProfileViewModelTDEETests {
 
 // MARK: - ProfileViewModel Macro Tests
 
-@Suite("ProfileViewModel Macro Calculation Tests")
-@MainActor
-struct ProfileViewModelMacroTests {
-
-    @Test("Calculate macros from TDEE")
-    func testCalculateMacrosFromTDEE() throws {
-        let profile = ProfileViewModel()
-
-        // With TDEE of 2000 calories:
-        // Protein: 40% = 800 cal = 200g
-        // Carbs: 30% = 600 cal = 150g
-        // Fats: 30% = 600 cal = 66g (Int(600/9) = 66 due to truncation)
-        let macros = profile.calculateMacros(tdee: 2000.0)
-
-        #expect(macros.protein == 200, "Protein should be 200g for 800 calories")
-        #expect(macros.carbs == 150, "Carbs should be 150g for 600 calories")
-        #expect(macros.fats == 66, "Fats should be 66g for 600 calories (Int truncates)")
-    }
-
-    @Test("Macro calculation uses correct calorie values")
-    func testMacroCalorieValues() throws {
-        let profile = ProfileViewModel()
-
-        // Test with exact numbers
-        let macros = profile.calculateMacros(tdee: 2400.0)
-
-        // Protein: 40% of 2400 = 960 cal = 240g
-        // Carbs: 30% of 2400 = 720 cal = 180g
-        // Fats: 30% of 2400 = 720 cal = 80g
-        #expect(macros.protein == 240, "Protein should be 240g")
-        #expect(macros.carbs == 180, "Carbs should be 180g")
-        #expect(macros.fats == 80, "Fats should be 80g")
-    }
-}
-
 // MARK: - ProfileViewModel Integration Tests
 
 @Suite("ProfileViewModel Integration Tests")
 @MainActor
 struct ProfileViewModelIntegrationTests {
-
-    @Test("refreshResults updates tdee and macroTargets")
-    func testRefreshResults() throws {
-        let profile = ProfileViewModel()
-        profile.gender = .male
-        profile.age = 30
-        profile.height = 170
-        profile.weight = 70
-        profile.activityLevel = .moderateExercise
-
-        // Call refreshResults
-        profile.refreshResults()
-
-        #expect(profile.tdee > 0, "TDEE should be positive")
-        #expect(profile.macroTargets.protein > 0, "Protein target should be positive")
-        #expect(profile.macroTargets.carbs > 0, "Carbs target should be positive")
-        #expect(profile.macroTargets.fats > 0, "Fats target should be positive")
-    }
-
-    @Test("Automatic recalculation on property changes")
-    func testAutomaticRecalculation() throws {
-        let profile = ProfileViewModel()
-        profile.gender = .male
-        profile.age = 30
-        profile.height = 170
-        profile.weight = 60
-        profile.activityLevel = .moderateExercise
-
-        // Trigger initial calculation
-        profile.refreshResults()
-        let initialTDEE = profile.tdee
-
-        // Change weight to trigger recalculation
-        profile.weight = 65
-
-        // Verify the change was applied and recalculation happened
-        #expect(profile.tdee != initialTDEE, "TDEE should change when weight changes")
-    }
 
     @Test("Body fat method affects BMR calculation")
     func testBodyFatMethodAffectsCalculation() throws {

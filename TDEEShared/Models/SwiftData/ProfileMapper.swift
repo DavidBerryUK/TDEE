@@ -18,7 +18,6 @@ enum ProfileMapper {
         viewModel.calorieAdjustmentMethod = CalorieAdjustmentMethod(rawValue: entity.calorieAdjustmentMethodRaw) ?? .maintain
         viewModel.calorieAdjustment = entity.calorieAdjustment
         viewModel.selectedMacroId = entity.selectedMacroId
-        // Derived values (tdee, macroTargets) are recalculated automatically by ProfileViewModel
     }
 
     /// Convert ViewModel to entity for saving to SwiftData

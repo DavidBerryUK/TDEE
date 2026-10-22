@@ -141,6 +141,9 @@ struct UIMainView: View {
             .onChange(of: profile.height) { _, _ in
                 Task { await recalculate() }
             }
+            .onChange(of: profile.activityLevel) { _, _ in
+                Task { await recalculate() }
+            }
             .onChange(of: profile.bodyFatPercentageMethod) { _, _ in
                 Task { await recalculate() }
             }
