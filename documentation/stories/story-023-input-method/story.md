@@ -20,8 +20,8 @@ the theme is, and each editor reads its own input's choice.
   (`TDEE/Models/Theme/ThemeManager.swift`) holds a selected theme + appearance mode, persisted to
   `UserDefaults`, injected via `.environment` and consumed in `ThemedRoot` (`TDEEApp.swift`).
   The per-input Classic/New preferences follow this same shape — one entry per input.
-- **Multiple profiles exist (story 021).** Whether a per-input preference is *global* (like the theme)
-  or *per-profile* is open — see Open Questions.
+- **Multiple profiles exist (story 021).** A per-input preference is **global** (like the theme), not
+  per-profile — decided on 2026-10-21 (Decision 22; see Open Questions).
 
 ## Scope
 
@@ -33,7 +33,7 @@ the theme is, and each editor reads its own input's choice.
   control is designed and built in its own pass, starting from Classic.
 - **Both compact and regular layouts honor the preferences** (iPhone and iPad).
 - **Minimal persistence.** A new persisted store (UserDefaults, like the theme); **no new SwiftData
-  entities** (see Open Questions on the store's home and per-profile vs global).
+  entities**. The store is the global `InputStyleManager` (Decision 22).
 
 ## Decisions
 
@@ -130,6 +130,19 @@ Confirmed with the owner:
     `.manualEntry`, else `true`. An out-of-range manual entry hides the results *and* blocks the calc
     pre-check; Omit / Estimate (default `0.0`, out of range) never trip. Without the method guard every
     Omit / Estimate profile would read as invalid.
+22. **Preferences are global, not per-profile (closes Open Question 3).** The per-input Classic/New
+    preferences live on the single global `InputStyleManager` (a global `@Observable`,
+    environment-injected, persisted to `UserDefaults` under `input.style.preferences`) — mirroring the
+    theme, **not** a field on any profile. This is the already-shipped shape, so the decision needs no
+    code change: a user's Classic/New choice for an input applies to every profile they switch
+    (story 021) to. A per-profile variant was considered and set aside.
+23. **Profile name is excluded from the Classic/New rollout (closes Open Question 4).** The profile
+    name is a free-text field (`ProfileEditViewPage`, a plain `TextField`), reached only when adding or
+    renaming a profile (story 021). It is **not** a 14th input: the Classic/New toggle exists to pick
+    *which control* enters an existing typed *value*, and the name has no such axis — it is already a
+    plain free-text box with no "Classic" control to switch away from. Free-text / IME handling is a
+    separate concern (already listed under Not shared / Out of Scope). No code change; the name stays
+    exactly as it is today.
 
 ## Inputs (worked one at a time)
 
@@ -166,8 +179,9 @@ Notes:
   separate macro-split-method input is redundant. Both files were deleted and the `macroSplitMethod`
   toggle removed from `InputID`; the live `SectionMacroSplit`, the #13 wheel, and the `macroSplit`
   icon are untouched.
-- **Profile name** (a free-text field, story 021) is a possible 14th input but is *not* in this pass
-  — see Open Questions.
+- **Profile name** (a free-text field, story 021) is **excluded** — not a 14th input (Decision 23,
+  closes Open Question 4, 2026-10-21): it has no Classic/New axis, and free-text / IME is a separate
+  concern. It stays a plain `TextField` in `ProfileEditViewPage`.
 
 ## Tasks
 
@@ -190,8 +204,8 @@ Notes:
 - **Free-text / name entry and IME** — international input methods and the profile-name field are
   separate concerns; this story is about *which control* enters the app's existing typed values.
 - **Profile model layer** — no change to `ProfileViewModel`, `ProfileStore`, or
-  `MacroSplitOptionsModelCollection`; the per-input store is a *settings* concern, not a profile
-  entity (though it may be *scoped per profile* — see Open Questions).
+  `MacroSplitOptionsModelCollection`; the per-input store is a global *settings* concern, not a profile
+  entity (Decision 22 — global, like the theme; not per-profile).
 
 ## Acceptance Criteria
 
@@ -204,6 +218,10 @@ Notes:
 - The full test suite passes with no regressions in the shared/model layer.
 
 ## Open Questions
+
+> **All open questions are closed (2026-10-21).** Q1/Q2 — every in-scope input is Done (#12 dropped);
+> Q3 — preferences are global (Decision 22); Q4 — profile name excluded (Decision 23). Retained below
+> for context.
 
 1. **Each input's "New" control** — what does the redesign look like per input (e.g. numeric keypad,
    a different layout)? Defined as each input's turn comes, not up front. **Weight's (Decisions 9–14,
@@ -222,10 +240,14 @@ Notes:
    Calorie Adjustment (#10/#11) on 2026-10-20, also Done. Input #12 (Macro Split Method) was dropped
    as dead code on 2026-10-21 (the dietary "method" is expressed by preset selection / mix editing, not
    a separate input); Macro Mix (#13) was converted on 2026-10-21, so every in-scope input is Done.**
-3. **Persistence home + scoping** — extend `ThemeManager`, a new per-input store (e.g.
-   `InputStylePreferences`), or a field on an existing holder; and are the preferences **global**
-   (like the theme) or **per-profile** (given story 021's multiple profiles)?
-4. **Profile name** as a 14th input — in or out for this pass?
+3. **Persistence home + scoping — RESOLVED (2026-10-21, Decision 22).** A new per-input store
+   (`InputStyleManager`, the `ThemeManager` shape), and the preferences are **global** — like the
+   theme, not per-profile (given story 021's multiple profiles). This matches the already-shipped
+   code, so no change was needed; a per-profile variant was set aside.
+4. **Profile name — RESOLVED (2026-10-21, Decision 23).** Excluded, not a 14th input. The name is a
+   free-text field (`ProfileEditViewPage`, a plain `TextField`), not a typed-value control — it has no
+   Classic/New axis to switch on, and free-text / IME handling is a separate concern. It stays exactly
+   as it is today; no code change.
 
 ## Testing
 
@@ -427,3 +449,12 @@ All 9 pass; `TDEE` builds and the full `TDEETests` suite passes.
   `TDEETests` (there is no pure validator to test — like Activity Level). `TDEE` builds and the full
   `TDEETests` suite passes on the iOS simulator. **This completes the per-input rollout — every in-scope
   input (#1–#11, #13; #12 dropped) is converted Classic→New.**
+- **Resolved (2026-10-21) — Open Question 3 (persistence scoping).** The owner confirmed the per-input
+  Classic/New preferences are **global** — like the theme, not per-profile (story 021's multiple
+  profiles). Recorded as **Decision 22**. This is the already-shipped shape (`InputStyleManager`, a
+  global `@Observable` in `UserDefaults`), so no code changed; a per-profile variant was set aside.
+- **Resolved (2026-10-21) — Open Question 4 (profile name as a 14th input).** The owner confirmed the
+  profile name is **excluded** — it is not a 14th input. Recorded as **Decision 23**. The name is a
+  free-text `TextField` in `ProfileEditViewPage` with no Classic/New axis (free-text / IME is a
+  separate concern), so it stays exactly as it is; no code change. **This closes the last open question;
+  story 023 has no open threads remaining.**

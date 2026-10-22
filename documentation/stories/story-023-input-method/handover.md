@@ -253,7 +253,12 @@ xcrun xcodebuild -project TDEE.xcodeproj -scheme TDEE -configuration Debug \
 
 ---
 
-## 8. Open threads (decisions the owner makes)
+## 8. Open threads
+
+> **All open questions are now closed (2026-10-21).** Q1/Q2 are complete (every in-scope input is
+> Done; #12 dropped), Q3 is global (Decision 22), Q4 is excluded (Decision 23). The notes below are
+> retained for context; the only remaining item is the Activity Level label (point 5), which the owner
+> has signed off.
 
 1. **Per-input "New control shape" (Open Question 1)** — defined as each input's turn comes,
    owner-directed. Body fat's (#7/#8, Decisions 18–21) and calorie adjustment's (#10/#11, a Decision
@@ -265,10 +270,13 @@ xcrun xcodebuild -project TDEE.xcodeproj -scheme TDEE -configuration Debug \
 2. **Rollout order (Open Question 2)** — owner directs; the table order is a placeholder. Done so far:
    Gender, Age, Weight (#3/#4), Height (#5/#6), Activity Level (#9), Body Fat (#7/#8), and
    Calorie Adjustment (#10/#11), and #13 (Macro Mix). #12 was dropped; every in-scope input is Done.
-3. **Persistence scoping (Open Question 3)** — currently **global** (like the theme), via
-   `InputStyleManager` in `UserDefaults`. Whether the per-input preferences should instead be
-   **per-profile** (given story 021's multiple profiles) is open — not implemented.
-4. **Profile name as a 14th input (Open Question 4)** — out of this pass.
+3. **Persistence scoping (Open Question 3) — RESOLVED (2026-10-21, Decision 22).** Global, like the
+   theme: `InputStyleManager` is a single global `@Observable` in `UserDefaults`
+   (`input.style.preferences`), so a Classic/New choice applies to every profile (story 021). This is
+   the shipped shape — no code change; a per-profile variant was set aside.
+4. **Profile name as a 14th input (Open Question 4) — RESOLVED (2026-10-21, Decision 23).** Excluded:
+   the name is a free-text `TextField` in `ProfileEditViewPage` with no Classic/New axis (free-text /
+   IME is a separate concern). It stays a plain field; no code change.
 5. **Activity Level neutral closed label** — the New menu's closed label is the neutral string
    "Activity Level" (current pick visible only when opened). The owner is **happy with it as the final
    form** (2026-10-20); surfacing the pick in the closed label was considered and deferred.
