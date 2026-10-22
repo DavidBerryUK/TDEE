@@ -458,3 +458,9 @@ All 9 pass; `TDEE` builds and the full `TDEETests` suite passes.
   free-text `TextField` in `ProfileEditViewPage` with no Classic/New axis (free-text / IME is a
   separate concern), so it stays exactly as it is; no code change. **This closes the last open question;
   story 023 has no open threads remaining.**
+- **Closed (2026-10-22) — story complete.** The per-input rollout is done (every in-scope input,
+  #1–#11 and #13, is converted Classic→New; #12 dropped as dead code), all four open questions are
+  closed (Q3 global / Decision 22, Q4 excluded / Decision 23), and the story is marked **Done** in the
+  stories README. Deferred niceties (Decision 17 — a `Done` key back-ported to Age/Weight, and
+  sub-kilogram decimal entry) are explicitly out of this pass and left for future work. `TDEE` builds
+  and the full `TDEETests` suite passes on iPhone 17 Pro Max / iOS 27.
