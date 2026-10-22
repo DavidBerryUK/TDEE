@@ -1,0 +1,240 @@
+# TDEE — Problem Analysis
+
+**Scope:** Static analysis of the `TDEE` (iPhone), `TDEEWatch` (watchOS) and `TDEEShared` (shared calc/persistence/models) targets.
+**Date:** 2026-10-22
+**Method:** Multi-pass audit across four slices — watch app, config/theme/dead-code, error-handling/concurrency, and UI + test-suite — plus independent verification of each load-bearing claim against source.
+**Disposition:** **Analysis only. No code was modified.** Every finding below is a candidate for review; the two items touching `MacroSplitOptionsNormalization.swift` are flagged for review only (that file carries an explicit DO-NOT-EDIT constraint).
+
+---
+
+## Summary table
+
+Ref | Title | Category | Severity | Status | Location
+--- | --- | --- | --- | --- | ---
+**PA-04** | Dead second calculation pipeline (`refreshResults` / `tdee` / `macroTargets`) | Calc / dead code | **High** | Outstanding | `ProfileViewModel.swift:263-275`
+**PA-06** | Three divergent macro-normalization algorithms | Calc / dead code | **High** | Outstanding | `MacroSplitOptionModel.swift:103-172`, `MacroSplitOptionsNormalization.swift`
+**PA-01** | First-launch **device** profile seeds height/weight = 0 → validation error, no TDEE | Config | **Medium** | Outstanding | `ProfileDefaults.swift:35-46`, `ProfileRepository.swift:78-96`
+**PA-05** | Dead hardcoded 40/30/30 `calculateMacros(tdee:)` with `00.4` literals | Calc / dead code | Medium | Outstanding | `ProfileViewModel.swift:280-291`
+**PA-07** | `updateProtein`/`updateCarbs`/`updateFats` are dead (zero callers) | Calc / dead code | Medium | Outstanding | `ProfileViewModel.swift:327-346`, `MacroSplitOptionsNormalization.swift:250-271`
+**PA-10** | Four `ActivityLevel` cases reuse base multipliers → duplicate iPhone options | Calc | Medium | Outstanding | `ActivityLevel.swift:11-16`
+**PA-11** | `.light` and `.moderate` both render "Moderate activity" in share card | Calc | Medium | Outstanding | `ActivityLevel.swift:23-24`, `ShareResultsModel.swift:122`
+**PA-13** | `ProfileStore.add`/`rename`/`load()` re-derive active profile to "Main" | State | Medium | Outstanding | `ProfileStore.swift:62-111`
+**PA-14** | `weightUom` / `heightUom` are not persisted → UOM resets on reload (phone + watch) | Persistence | Medium | Outstanding | `ProfileViewModel.swift:55,64`, `ProfileMapper.swift`, `Profile.swift`
+**PA-15** | `UIMainView` onChange storm (11 handlers / 10 Tasks) → redundant recalcs, racy `isCalculating` | UI / concurrency | Medium | Outstanding | `UIMainView.swift:132-173`
+**PA-19** | Watch offers 5 of 9 `ActivityLevel` cases; others fall back to `.lightExercise` | Watch | Medium | Outstanding | `WatchRanges.swift:40`, `WatchActivityLevelView.swift:23`
+**PA-26** | Share card hardcodes "cm"/"kg", ignoring the user's UOM | Share | Medium | Outstanding | `ShareResultsModel.swift:115-119`
+**PA-27** | Share card sign bug: a cut reads `+500 kcal` (identical to a 500 bulk) | Share | Medium | Outstanding | `ShareResultsModel.swift:138-144`
+**PA-28** | Core tests assert the dead calc path; live path covered by 2 parity cases only | Tests | Medium | Outstanding | `TDEETests.swift:229-302`
+**PA-02** | Two `ProfileDefaults` fields never consumed by `createProfile` | Config | Low | Outstanding | `ProfileRepository.swift:78-96`
+**PA-03** | `Profile.height` doc says "meters" but value is centimetres | Config | Low | Outstanding | `Profile.swift:16`
+**PA-08** | Duplicated `snapToStep` / `clampValueTo100` (5 definitions, 2 files) | Calc / dead code | Low | Outstanding | `MacroSplitOptionModel.swift:174-200`, `MacroSplitOptionsNormalization.swift`
+**PA-09** | `KatchMcArdleMultipliers` misnomer — factor is applied to Mifflin too | Calc | Low | Outstanding | `ActivityLevel.swift:64-78`, `CalculatorTdee.swift:50`
+**PA-12** | Audit trail / `AuditLogger` vestigial; test-only `calculateTDEE` shim | Calc / dead code | Low | Outstanding | `CalculatorTdee.swift:13-15`, `TDEETests.swift:636`
+**PA-16** | `print()` used for error logging (lost in release, not surfaced) | Error handling | Low | Outstanding | `ProfileStore.swift:78,108,126`, `ProfileViewModel.swift:197,212,258`
+**PA-18** | `regularLayout` shares one `NavigationStack` `path` across sidebar + detail | UI | Low | Outstanding | `ContentView.swift`
+**PA-20** | Watch weight/height ranges diverge from phone (`0…250` vs `20…300`, etc.) | Watch | Low | Outstanding | `WatchRanges.swift:14,18`, `WatchWeightView.swift`
+**PA-21** | Watch "missing / Not set" is zero-based and omits age; diverges from calculator | Watch | Low | Outstanding | `WatchMainView.swift:77-84`
+**PA-22** | Watch adjustment: default `500` vs `250`; wheel steps by 25 vs continuous slider | Watch | Low | Outstanding | `CalorieAdjustmentEntryView.swift:19`, `WatchRanges.swift:28`
+**PA-23** | Force-unwrap `WatchRanges.adjustment.first!/last!` — latent crash if stride emptied | Watch | Low | Outstanding | `WatchCalorieAdjustmentView.swift:17`
+**PA-25** | No UOM round-trip persistence test (gap that would catch PA-14) | Tests | Low | Outstanding | `SwiftDataPersistenceTests.swift:166-191`
+**PA-29** | No cut/bulk adjustment test on the production path | Tests | Low | Outstanding | `CalculationParityTests.swift`
+**PA-17** | `ProfileViewModel` convenience init spawns a load Task (non-idiomatic, safe) | Concurrency | Info | Accepted | `ProfileViewModel.swift:177-179`
+**PA-24** | Watch uses a standalone store; phone↔watch data never syncs | Watch | Info | By Design | `TDEEWatchApp.swift:16`
+**PA-30** | `File.swift` is an empty test stub | Tests | Info | Outstanding | `TDEETests/File.swift`
+
+**Severity tally:** High 2 · Medium 11 · Low 14 · Info 3 — **30 findings** (plus the "Confirmed correct" section below).
+
+---
+
+## Detailed findings
+
+### High severity
+
+#### PA-04 — Dead second calculation pipeline
+**Location:** `TDEEShared/Models/ProfileViewModel/ProfileViewModel.swift:263-275`
+`refreshResults()` runs on every input change (all 12 property `didSet`s + `switchProfile`), computing a full BMR → TDEE → macro cycle and writing it into `tdee` and `macroTargets`. Grep confirms **no production code reads `profile.tdee` / `profile.macroTargets`** — the live UI path is `UIMainView`/`WatchMainView` → `Calculator.calculate(person:)` → `CalculatorResultViewModel`. A whole second pipeline runs on every edit and its output is discarded. Because `refreshResults` ignores `calorieAdjustment` and hardcodes 40/30/30 (see PA-05), the two paths can silently drift.
+**Recommendation:** Delete `refreshResults()`, `tdee`, `macroTargets` and their `didSet` calls; keep only `Calculator.calculate`.
+
+#### PA-06 — Three divergent macro-normalization algorithms
+**Location:** `TDEEShared/Models/Macros/MacroSplitOptionModel.swift:103-172`; `TDEEShared/Models/Macros/MacroSplitOptionsNormalization.swift`
+Three different overflow-distribution strategies coexist: (a) the **live** instance `normalizeAfter{Protein,Carbs,Fats}Change(_:)` in `MacroSplitOptionModel.swift` (reached via `updateFromUi*`, used by `UISliderMacroMixView`); (b) the **static** `MacroSplitOptionModel.normalizeAfter*Change(newValue:original…:)` in the DO-NOT-EDIT file, which clamps both neighbours then distributes the remainder to the larger — reachable only through the dead `update*` methods (PA-07); and (c) `normalizeAll`/`adjustByDiff` used by the model's `init`. For the same input the live slider path and the static path can produce different 100%-balanced results.
+**Recommendation:** Flag for review — **do not edit** `MacroSplitOptionsNormalization.swift`. Consolidate on one distribution algorithm and delete the dead family (after approval).
+
+### Medium severity
+
+#### PA-01 — First-launch device profile seeds height/weight = 0
+**Location:** `TDEEShared/Config/ProfileDefaults.swift:35-46`; `TDEEShared/Models/SwiftData/ProfileRepository.swift:78-96`
+`ProfileDefaults.device()` returns height `0.0` and weight `0.0` (age 16 / male / sedentary are seeded, but height & weight are zeroed). On a real device, `ConfigLoader` compiles the `else` branch → `.device()`, and `createProfile(name:)` builds the launch "Main" profile from it. `0` falls outside `MetricRanges.height` (`100…272`) and `MetricRanges.weight` (`20…300`), so `validateForCalculation()` fails and `Calculator.calculate` returns "Following fields are mandatory: Height, Weight" with **no TDEE**. The simulator seeds a valid 175 cm / 70 kg / 25-yo profile, so the two environments diverge. Mixing seeded age/gender/activity with zeroed height/weight reads as an unfilled placeholder rather than a deliberate sentinel.
+**Recommendation:** Give `device()` valid in-range height/weight (or a documented "unset" sentinel the UI prompts for), and make age/gender/height/weight consistent.
+
+#### PA-05 — Dead hardcoded 40/30/30 macro path
+**Location:** `TDEEShared/Models/ProfileViewModel/ProfileViewModel.swift:280-291`
+`calculateMacros(tdee:)` computes macros from fixed splits `00.4` / `0.3` / implied `0.3`, ignoring the profile's real `protein`/`carbs`/`fats` and `calorieAdjustment`. Reachable only via the dead `refreshResults()` (PA-04) and TDEETests; the production path is `calculateMacros(result:)` in `CalculateMacros.swift`, which uses the actual percents. The `00.4` literal is non-idiomatic (leading-zero double, reads like a typo).
+**Recommendation:** Remove `calculateMacros(tdee:)` with `refreshResults`; if a helper is kept, source splits from the model and use named constants.
+
+#### PA-07 — `updateProtein`/`updateCarbs`/`updateFats` are dead
+**Location:** `TDEEShared/Models/ProfileViewModel/ProfileViewModel.swift:327-346`; `TDEEShared/Models/Macros/MacroSplitOptionsNormalization.swift:250-271`
+Grep returns no call sites for either the `ProfileViewModel` overloads or the `MacroSplitOptionModel` overloads. The only live macro-edit entry points are `updateFromUi*` (slider) and `syncMacros(from:)` (preset selection). These dead methods are also the sole reachability path for the static normalize family (PA-06).
+**Recommendation:** Delete the dead `update*` methods once normalization consolidation is approved.
+
+#### PA-10 — Four `ActivityLevel` cases reuse the base multipliers
+**Location:** `TDEEShared/Models/SwiftData/ActivityLevel.swift:11-16`
+`lightExercise` / `moderateExercise` / `heavyExercise` / `athlete` share multipliers with `light` / `moderate` / `active` / `veryActive` (1.375 / 1.55 / 1.725 / 1.9). The iPhone controls iterate `ActivityLevel.allCases` (all 9), so `UIActivityLevelMenuButtonView` and `UIWheelPickerActivityLevelView` present 9 options in which 4 pairs yield identical TDEE (e.g. "Light" and "Light Exercise (1-2 days/week)").
+**Recommendation:** Give each case a distinct multiplier, or split into a base enum + a watch-only set so the iPhone picker shows a non-redundant list.
+
+#### PA-11 — `.light` and `.moderate` both render "Moderate activity"
+**Location:** `TDEEShared/Models/SwiftData/ActivityLevel.swift:23-24`; `TDEEShared/Models/ShareResultsModel.swift:122`
+`description` maps both `.light` and `.moderate` to "Moderate activity". It is consumed by `ShareResultsModel` for the share card, so a user who picked "Light" sees "Moderate activity" in shared output.
+**Recommendation:** Give `.light` a distinct description (e.g. "Low-moderate activity").
+
+#### PA-13 — `ProfileStore` clobbers the active profile back to "Main"
+**Location:** `TDEEShared/Models/SwiftData/ProfileStore.swift:62-111`
+`load()` sets `activeProfileId = mainId ?? all.first?.id ?? activeProfileId` — always re-deriving to Main. `add(name:)` and `rename(id:to:)` both call `await load()`, so the active selection jumps back to "Main" after creating or renaming a profile. The in-session active choice is lost on any `load()`.
+**Recommendation:** Preserve the active id across `load()` (re-apply it only when it still exists), so add/rename don't reset selection.
+
+#### PA-14 — `weightUom` / `heightUom` are not persisted
+**Location:** `TDEEShared/Models/ProfileViewModel/ProfileViewModel.swift:55,64`; `TDEEShared/Models/SwiftData/ProfileMapper.swift`; `TDEEShared/Models/SwiftData/Profile.swift`
+The `Profile` entity has no UOM fields, and `ProfileMapper.apply`/`mapToEntity` never touch `weightUom`/`heightUom`. On reload both reset to `.kilograms` / `.centimeters` (the in-memory defaults). This affects the phone summary rows and the watch display (`WatchMainView.weightSummary`/`heightSummary`, `WatchWeightView`/`WatchHeightView` read `profile.weightUom`/`heightUom`). No data is lost (metric is the source of truth), only the display-unit preference — hence Medium. No test covers the round-trip (PA-25).
+**Recommendation:** Persist the two UOM fields (entity + mapper + a round-trip test), or document that UOM is session-only.
+
+#### PA-15 — `UIMainView` onChange storm
+**Location:** `TDEE/Pages/MainPage/UIMainView.swift:132-173`
+Eleven `.onChange` handlers (gender, age, weight, height, bodyFatMethod, bodyFatPercentage, calorieAdjustmentMethod, calorieAdjustment, selectedMacroId, globalMacroCollection.items, selectedMacroSplit, activeProfileId) each spawn `Task { await recalculate() }` (~10 of them). Rapid input fires many concurrent recalculations, and `recalculate()` toggles `isCalculating` non-atomically (`true → await → false`), so the "calculating" indicator can show a stale/incorrect state under overlap.
+**Recommendation:** Coalesce into a single reactive dependency (e.g. one `.task(id:)` over a computed inputs key, as `WatchMainView` already does) and gate `isCalculating` on completion.
+
+#### PA-19 — Watch omits 4 of 9 `ActivityLevel` cases
+**Location:** `TDEEWatch/enums/WatchRanges.swift:40`; `TDEEWatch/views/WatchActivityLevelView.swift:23`
+`WatchRanges.activityLevels` offers only 5 cases (`.sedentary`, `.lightExercise`, `.moderateExercise`, `.heavyExercise`, `.athlete`). A phone profile set to `.active`, `.extraLight`, `.extraHeavy`, or `.extraAthlete` is not in the picker, so the watch's `selectionBinding` falls back to `.lightExercise` — silently mis-reporting the activity level (and therefore TDEE) on the watch.
+**Recommendation:** Either map the omitted cases onto the watch's 5 offered ones explicitly, or offer the full set on the watch.
+
+#### PA-26 — Share card hardcodes cm / kg
+**Location:** `TDEEShared/Models/ShareResultsModel.swift:115-119`
+`heightText`/`weightText` are hardcoded `formatAsInteger(profile.height) + " cm"` / `+ " kg"`, ignoring the user's UOM (the inline comments admit "assuming cm from profile, could add UOM support"). A user who entered in pounds / feet-and-inches sees metric units on the share card. Related to PA-14.
+**Recommendation:** Format height/weight through the user's UOM (as `UISectionSummaryValue*` already does).
+
+#### PA-27 — Share card sign bug: a cut reads `+500 kcal`
+**Location:** `TDEEShared/Models/ShareResultsModel.swift:138-144`; `TDEEShared/Calculations/Extensions/CalculateAdjustCalories.swift:18-25`
+The calculator applies direction via the `.cut`/`.bulk` switch (`base ± calorieAdjustment`), so `calorieAdjustment` is a **non-negative magnitude** and direction lives in `calorieAdjustmentMethod`. But the share text derives its sign only from the value (`adjustment > 0 ? "+" : ""`), so a 500 kcal **cut** prints `+500 kcal` — identical to a 500 kcal bulk — even though the adjusted-calorie line correctly subtracts it. The card is internally inconsistent.
+**Recommendation:** Derive the sign from `calorieAdjustmentMethod` (`.cut` → "−", `.bulk` → "+").
+
+#### PA-28 — Core tests assert the dead calc path
+**Location:** `TDEETests/TDEETests.swift:229-302`
+`ProfileViewModelMacroTests` and `ProfileViewModelIntegrationTests` assert `profile.tdee` / `profile.macroTargets` and `calculateMacros(tdee:)` — the **dead** 40/30/30 pipeline (PA-04/PA-05) the UI never uses. The live `Calculator.calculate(person:)` path is covered by only 2 cases in `CalculationParityTests`. Green tests here give false confidence that the macro calc is correct.
+**Recommendation:** Point the core tests at `Calculator.calculate` (extend `CalculationParityTests`); remove assertions on the dead path once PA-04/PA-05 are resolved.
+
+### Low severity
+
+#### PA-02 — Two `ProfileDefaults` fields never consumed
+**Location:** `TDEEShared/Models/SwiftData/ProfileRepository.swift:78-96`
+`ProfileDefaults` advertises 8 fields, but `createProfile(name:)` maps only 6 onto `Profile.init` — `bodyFatPercentageMethod` and `calorieAdjustmentMethod` are inert (a new profile's methods come from `Profile.init` defaults `.omit` / `.maintain`). No bug today (defaults coincidentally match), but a latent desync trap.
+**Recommendation:** Pass both in `createProfile`, or drop the two fields from `ProfileDefaults`.
+
+#### PA-03 — `Profile.height` documented as "meters"
+**Location:** `TDEEShared/Models/SwiftData/Profile.swift:16`
+The doc comment says "in meters" but every consumer uses centimetres (defaults 175, `MetricRanges.height` = 100…272, Mifflin-St Jeor's `6.25` factor expects cm). A future dev trusting the comment could unit-convert and break BMR.
+**Recommendation:** Correct the comment to "centimetres".
+
+#### PA-08 — Duplicated `snapToStep` / `clampValueTo100`
+**Location:** `TDEEShared/Models/Macros/MacroSplitOptionModel.swift:174-200`; `MacroSplitOptionsNormalization.swift`
+Rounding/clamping logic is reimplemented 5× across two files (instance `snapToStep(Double)`/`snapToStep(Int)`, static "test helper" `snapToStep` overloads, and a private static `snapToStep(_:step:…)`/`clampValueTo100` in the DO-NOT-EDIT file).
+**Recommendation:** Keep one shared `snapToStep`/`clampValueTo100`; drop the test-only static overloads (flag the DO-NOT-EDIT file for review, don't edit it).
+
+#### PA-09 — `KatchMcArdleMultipliers` misnomer
+**Location:** `TDEEShared/Models/SwiftData/ActivityLevel.swift:64-78`; `TDEEShared/Calculations/Extensions/CalculatorTdee.swift:50`
+The property is the generic activity factor (1.2–1.9), applied to **both** BMR formulas (`bmr * activityLevel.KatchMcArdleMultipliers` where `bmr` may be Mifflin-St Jeor). The "Additional cases for Katch-McArdle calculations" comment is likewise misleading — the exercise cases are not Katch-specific (they're the ones the watch uses).
+**Recommendation:** Rename to `activityMultiplier` and fix the comment.
+
+#### PA-12 — Audit trail vestigial; test-only `calculateTDEE` shim
+**Location:** `TDEEShared/Calculations/Extensions/CalculatorTdee.swift:13-15`; `TDEETests/TDEETests.swift:636`
+`Calculator.calculate` always passes `createAudit: false`; BMR helpers accept a `logger:` they ignore; `CalculatorResultViewModel.audit` is only ever `[]` and never read. Separately, `calculateTDEE(bmr:activityLevel:)` is a shim defined inside `TDEETests.swift`, not part of the app.
+**Recommendation:** Remove the audit plumbing and ignored `logger:` params, or wire `createAudit: true` with a reader; delete the test-only shim.
+
+#### PA-16 — `print()` used for error logging
+**Location:** `ProfileStore.swift:78,108,126`; `ProfileViewModel.swift:197,212,258`
+Load/save failures are `print`ed rather than surfaced or logged. In a release build these are effectively lost and give no user feedback on a failed persist.
+**Recommendation:** Route through `os.log`/`os.Logger` and consider surfacing a failed-save state to the UI.
+
+#### PA-18 — `regularLayout` shares one `NavigationStack` path
+**Location:** `TDEE/ContentView.swift` (regular layout)
+The detail `NavigationStack(path: $path)` shares the same `path` as `SidebarView(path: $path)`. A latent navigation quirk: selecting a sidebar destination and pushing within detail can share/overwrite the same path state.
+**Recommendation:** Give detail its own path binding if the two navigation contexts should be independent.
+
+#### PA-20 — Watch weight/height ranges diverge from the phone
+**Location:** `TDEEWatch/enums/WatchRanges.swift:14,18`; `TDEEWatch/views/WatchWeightView.swift`
+`weightKg = 0…250` (phone `20…300`), `heightCm = 0…272` (phone `100…272`). A phone value outside the watch's caps would trap the watch's `Int(profile.weight)` display; within the watch's own store the value is always in-range, so this is a latent divergence rather than a live crash. The stones path (max ≈ 260 kg) also exceeds the kg/pounds wheel caps.
+**Recommendation:** Align the watch wheel bounds with `MetricRanges`, or clamp the derived `Int` values.
+
+#### PA-21 — Watch "missing / Not set" is zero-based and omits age
+**Location:** `TDEEWatch/views/WatchMainView.swift:77-84`
+`missingFields` flags weight/height only when the value is exactly `0` and never checks age, whereas `validateForCalculation()` flags weight/height whenever they fall outside `MetricRanges` and also checks `age == 0`. A sub-`20` kg weight reads as "set" on the row while the summary still reports "Weight mandatory" — row and result disagree.
+**Recommendation:** Derive `missingFields` from the same `MetricRanges` the calculator uses (and include age for parity).
+
+#### PA-22 — Watch adjustment defaults / granularity mismatch
+**Location:** `TDEEWatch/views/CalorieAdjustmentEntryView.swift:19`; `WatchRanges.swift:28`; `WatchCalorieAdjustmentView.swift:24`
+`CalorieAdjustmentEntryView` defaults to `500` while `WatchRanges.startingAdjustment = 250`; the wheel steps by 25 (`stride(from: 25, through: 1000, by: 25)`) while the slider is continuous `0…1000`. Two adjustment inputs with different defaults and granularity.
+**Recommendation:** Unify the default and the step semantics across the two inputs.
+
+#### PA-23 — Force-unwrap of `WatchRanges.adjustment` bounds
+**Location:** `TDEEWatch/views/WatchCalorieAdjustmentView.swift:17`
+The calories binding getter and `.onChange` clamp force-unwrap `WatchRanges.adjustment.first!` / `.last!`. Safe while the stride is non-empty, but a future edit that empties the stride (`from:` > `through:`) turns these into a crash on the Goal screen.
+**Recommendation:** Use a non-optional bounds API or a `?? default`.
+
+#### PA-25 — No UOM round-trip persistence test
+**Location:** `TDEETests/SwiftDataPersistenceTests.swift:166-191`
+`profileRoundTrip` asserts age / weight / activityLevel / bodyFat / calorieAdjustment / selectedMacroId but **not** `weightUom` / `heightUom` — the gap that would have caught PA-14.
+**Recommendation:** Add a UOM round-trip assertion (or document UOM as session-only).
+
+#### PA-29 — No cut/bulk adjustment test on the production path
+**Location:** `TDEETests/CalculationParityTests.swift`
+The parity tests exercise `Calculator.calculate` but only with `.maintain`. No case asserts that a cut/bulk adjustment produces the expected `adjustedCalories` (and, with PA-27 fixed, the share text).
+**Recommendation:** Add cut and bulk cases to `CalculationParityTests`.
+
+### Info
+
+#### PA-17 — `ProfileViewModel` convenience init spawns a load Task
+**Location:** `TDEEShared/Models/ProfileViewModel/ProfileViewModel.swift:177-179`
+`convenience init()` is `@MainActor`-isolated yet calls `loadFromSwiftData()` → `Task { await load() }`. Non-idiomatic but **safe** and consistent with the project's accepted `@Observable` + nonisolated-deinit handle pattern. **Status: Accepted — no action.**
+
+#### PA-24 — Watch uses a standalone store
+**Location:** `TDEEWatch/app/TDEEWatchApp.swift:16`
+The watch builds its own `ProfileViewModel` / `MacroSplitOptionsModelCollection` over `SwiftDataContainer.shared` (a separate on-disk store, by design) and never calls `ensureMainProfile()`. A profile or preset chosen on the phone is invisible to the watch and vice-versa; `macroName` falls back to "Custom" for a phone-picked preset. **Status: By Design** — a known cross-device limitation (app-group / CloudKit sync is a pending decision, not yet in scope).
+
+#### PA-30 — `File.swift` is an empty test stub
+**Location:** `TDEETests/File.swift`
+Contains only `@testable import TDEE` with no tests.
+**Recommendation:** Remove or populate it.
+
+---
+
+## Confirmed correct (no issues found)
+
+These areas were audited and found sound — included so the scope is explicit:
+
+- **No `fatalError` / `precondition` / `assert` / `TODO` in the codebase** — no crash-on-init traps.
+- **`MacroSplitOptionModel` mutation is correct** — it is a `final class`, so `items.forEach { $0.isSelected = … }` mutates in place; no copy/aliasing bug.
+- **Gender round-trip is consistent** — `Int16` 0/1 ↔ `.male`/`.female` maps cleanly through `ProfileMapper`.
+- **Preview `UserDefaults` suites do not leak into production** — `com.tdee.calorieAdjustmentPreview` and the other `*Preview` suites are created only inside `#Preview`; production `InputStyleManager`/`ThemeManager` default to `.standard`. (They do write debug state into the app's real UserDefaults domain, but it is never read back — clutter, not a correctness issue.)
+- **`CalculationParityTests` correctly test the live path** — Mifflin and Katch-McArdle cases assert exact `caloriesAdjustedPerDay` / week / macro-gram values via `Calculator.calculate(person:)`.
+- **BMR unit handling is correct** — the model stores metric (kg/cm) as the source of truth; UOM is display-only, so no BMR feeds wrong units. (The gaps are display-only: PA-14, PA-26.)
+
+---
+
+## Prioritisation
+
+**Fix first (High / user-visible):**
+1. **PA-27** — share card shows `+500 kcal` for a cut (user-facing, small fix).
+2. **PA-14** — UOM not persisted (affects phone + watch display; add entity fields + test).
+3. **PA-01** — first-launch device profile yields no result until height/weight entered.
+4. **PA-19** — watch silently mis-reports 4 activity levels.
+5. **PA-04 / PA-06 / PA-07 / PA-08 / PA-12** — collapse the dead calc pipeline and the duplicate normalization/clamping into a single source of truth (flag `MacroSplitOptionsNormalization.swift` for review; do not edit it without approval).
+
+**Then (Medium):** PA-05, PA-10, PA-11, PA-13, PA-15, PA-26, PA-28.
+**Low / hygiene:** PA-02, PA-03, PA-09, PA-16, PA-18, PA-20, PA-21, PA-22, PA-23, PA-25, PA-29, PA-30.
+**No action:** PA-17 (accepted), PA-24 (by design).
+
+---
+
+### Constraints honoured
+- **Analysis only** — no source was modified.
+- **`MacroSplitOptionsNormalization.swift` (PA-06, PA-08):** flagged for review; **no edits proposed** (DO-NOT-EDIT routine).
+- **`UI_RESTRICTIONS.md`:** no UI changes proposed (no `.pickerStyle`/option-case/`UILayoutExpandingPanel`/animation-parameter changes).
