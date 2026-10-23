@@ -12,10 +12,10 @@
 Ref | Title | Category | Severity | Status | Location
 --- | --- | --- | --- | --- | ---
 **PA-04** | Dead second calculation pipeline (`refreshResults` / `tdee` / `macroTargets`) | Calc / dead code | **High** | **Done (2026-10-22)** | `ProfileViewModel.swift`
-**PA-06** | Three divergent macro-normalization algorithms | Calc / dead code | **High** | Outstanding | `MacroSplitOptionModel.swift:103-172`, `MacroSplitOptionsNormalization.swift`
+**PA-06** | Three divergent macro-normalization algorithms | Calc / dead code | **High** | **Done (2026-10-24)** | `MacroSplitOptionModel.swift:103-172`, `MacroSplitOptionsNormalization.swift`
 **PA-01** | First-launch **device** profile seeds height/weight = 0 → validation error, no TDEE | Config | **Medium** | Outstanding | `ProfileDefaults.swift:35-46`, `ProfileRepository.swift:78-96`
 **PA-05** | Dead hardcoded 40/30/30 `calculateMacros(tdee:)` with `00.4` literals | Calc / dead code | Medium | Outstanding | `ProfileViewModel.swift:280-291`
-**PA-07** | `updateProtein`/`updateCarbs`/`updateFats` are dead (zero callers) | Calc / dead code | Medium | Outstanding | `ProfileViewModel.swift:327-346`, `MacroSplitOptionsNormalization.swift:250-271`
+**PA-07** | `updateProtein`/`updateCarbs`/`updateFats` are dead (zero callers) | Calc / dead code | Medium | **Done (2026-10-24)** | `ProfileViewModel.swift:327-346`, `MacroSplitOptionsNormalization.swift:250-271`
 **PA-10** | Four `ActivityLevel` cases reuse base multipliers → duplicate iPhone options | Calc | Medium | Outstanding | `ActivityLevel.swift:11-16`
 **PA-11** | `.light` and `.moderate` both render "Moderate activity" in share card | Calc | Medium | Outstanding | `ActivityLevel.swift:23-24`, `ShareResultsModel.swift:122`
 **PA-13** | `ProfileStore.add`/`rename`/`load()` re-derive active profile to "Main" | State | Medium | Outstanding | `ProfileStore.swift:62-111`
@@ -42,7 +42,7 @@ Ref | Title | Category | Severity | Status | Location
 **PA-24** | Watch uses a standalone store; phone↔watch data never syncs | Watch | Info | By Design | `TDEEWatchApp.swift:16`
 **PA-30** | `File.swift` is an empty test stub | Tests | Info | Outstanding | `TDEETests/File.swift`
 
-**Severity tally:** High 2 · Medium 11 · Low 14 · Info 3 — **30 findings** (1 resolved: PA-04; plus the "Confirmed correct" section below).
+**Severity tally:** High 2 · Medium 11 · Low 14 · Info 3 — **30 findings** (3 resolved: PA-04, PA-06, PA-07; plus the "Confirmed correct" section below).
 
 ---
 
@@ -60,6 +60,7 @@ Ref | Title | Category | Severity | Status | Location
 **Location:** `TDEEShared/Models/Macros/MacroSplitOptionModel.swift:103-172`; `TDEEShared/Models/Macros/MacroSplitOptionsNormalization.swift`
 Three different overflow-distribution strategies coexist: (a) the **live** instance `normalizeAfter{Protein,Carbs,Fats}Change(_:)` in `MacroSplitOptionModel.swift` (reached via `updateFromUi*`, used by `UISliderMacroMixView`); (b) the **static** `MacroSplitOptionModel.normalizeAfter*Change(newValue:original…:)` in the DO-NOT-EDIT file, which clamps both neighbours then distributes the remainder to the larger — reachable only through the dead `update*` methods (PA-07); and (c) `normalizeAll`/`adjustByDiff` used by the model's `init`. For the same input the live slider path and the static path can produce different 100%-balanced results.
 **Recommendation:** Flag for review — **do not edit** `MacroSplitOptionsNormalization.swift`. Consolidate on one distribution algorithm and delete the dead family (after approval).
+**Status: Done (2026-10-24) — dead family removed.** The dead static `normalizeAfter*Change(newValue:original…:)` family (b), reachable only through the `update*` wrappers (PA-07), was deleted from `MacroSplitOptionsNormalization.swift`, collapsing the count from three algorithms to two. The **live** instance path (a) — `updateFromUi*` → `normalizeAfter{Protein,Carbs,Fats}Change(_:)` in `MacroSplitOptionModel.swift` — is **retained unchanged**: it is the tuned slider UX and was deliberately not consolidated. `normalizeAll`/`adjustByDiff` (c) remain as the `init`/`clone` construction path. The two surviving algorithms serve different purposes (live editing vs. construction) and the divergence is accepted by design; grep confirms zero remaining references to the removed static family, and the app was verified in the simulator after the change.
 
 ### Medium severity
 
@@ -77,6 +78,7 @@ Three different overflow-distribution strategies coexist: (a) the **live** insta
 **Location:** `TDEEShared/Models/ProfileViewModel/ProfileViewModel.swift:327-346`; `TDEEShared/Models/Macros/MacroSplitOptionsNormalization.swift:250-271`
 Grep returns no call sites for either the `ProfileViewModel` overloads or the `MacroSplitOptionModel` overloads. The only live macro-edit entry points are `updateFromUi*` (slider) and `syncMacros(from:)` (preset selection). These dead methods are also the sole reachability path for the static normalize family (PA-06).
 **Recommendation:** Delete the dead `update*` methods once normalization consolidation is approved.
+**Status: Done (2026-10-24).** Both `update*` families were deleted: the `ProfileViewModel` overloads and the `MacroSplitOptionModel` wrappers in the second extension of `MacroSplitOptionsNormalization.swift` (along with the static `normalizeAfter*Change` family they were the sole callers of — PA-06). The live entry points `updateFromUi*` (slider) and `syncMacros(from:)` (preset) were untouched. Grep confirms **zero remaining references** to `updateProtein`/`updateCarbs`/`updateFats` or the static `normalizeAfter*Change` signatures.
 
 #### PA-10 — Four `ActivityLevel` cases reuse the base multipliers
 **Location:** `TDEEShared/Models/SwiftData/ActivityLevel.swift:11-16`
@@ -227,7 +229,7 @@ These areas were audited and found sound — included so the scope is explicit:
 2. **PA-14** — UOM not persisted (affects phone + watch display; add entity fields + test).
 3. **PA-01** — first-launch device profile yields no result until height/weight entered.
 4. **PA-19** — watch silently mis-reports 4 activity levels.
-5. **~~PA-04~~ (done 2026-10-22) / PA-06 / PA-07 / PA-08 / PA-12** — collapse the dead calc pipeline and the duplicate normalization/clamping into a single source of truth (flag `MacroSplitOptionsNormalization.swift` for review; do not edit it without approval).
+5. **~~PA-04~~ (done 2026-10-22) / ~~PA-06~~ / ~~PA-07~~ (both done 2026-10-24) / PA-08 / PA-12** — collapse the remaining dead calc pipeline and the duplicate clamping into a single source of truth. PA-06/PA-07 removed the dead static normalize family + `update*` wrappers under explicit approval; `MacroSplitOptionsNormalization.swift` is still flagged for PA-08 review (duplicate `snapToStep`/`clampValueTo100`).
 
 **Then (Medium):** PA-05, PA-10, PA-11, PA-13, PA-15, PA-26, PA-28.
 **Low / hygiene:** PA-02, PA-03, PA-09, PA-16, PA-18, PA-20, PA-21, PA-22, PA-23, PA-25, PA-29, PA-30.
@@ -237,5 +239,5 @@ These areas were audited and found sound — included so the scope is explicit:
 
 ### Constraints honoured
 - **Analysis only** — no source was modified.
-- **`MacroSplitOptionsNormalization.swift` (PA-06, PA-08):** flagged for review; **no edits proposed** (DO-NOT-EDIT routine).
+- **`MacroSplitOptionsNormalization.swift` (PA-06, PA-08):** originally flagged DO-NOT-EDIT; the dead static `normalizeAfter*Change` family and its `update*` wrappers were removed **under explicit approval on 2026-10-24** (PA-06/PA-07), retaining the live algorithm and `normalizeAll`/`adjustByDiff`. PA-08 (duplicate `snapToStep`/`clampValueTo100`) remains open.
 - **`UI_RESTRICTIONS.md`:** no UI changes proposed (no `.pickerStyle`/option-case/`UILayoutExpandingPanel`/animation-parameter changes).
