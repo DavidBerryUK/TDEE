@@ -11,12 +11,9 @@
 
 Ref | Title | Category | Severity | Status | Location
 --- | --- | --- | --- | --- | ---
-**PA-10** | Four `ActivityLevel` cases reuse base multipliers → duplicate iPhone options | Calc | Medium | Outstanding | `ActivityLevel.swift:11-16`
-**PA-11** | `.light` and `.moderate` both render "Moderate activity" in share card | Calc | Medium | Outstanding | `ActivityLevel.swift:23-24`, `ShareResultsModel.swift:122`
 **PA-13** | `ProfileStore.add`/`rename`/`load()` re-derive active profile to "Main" | State | Medium | Outstanding | `ProfileStore.swift:62-111`
 **PA-14** | `weightUom` / `heightUom` are not persisted → UOM resets on reload (phone + watch) | Persistence | Medium | Outstanding | `ProfileViewModel.swift:55,64`, `ProfileMapper.swift`, `Profile.swift`
 **PA-15** | `UIMainView` onChange storm (11 handlers / 10 Tasks) → redundant recalcs, racy `isCalculating` | UI / concurrency | Medium | Outstanding | `UIMainView.swift:132-173`
-**PA-19** | Watch offers 5 of 9 `ActivityLevel` cases; others fall back to `.lightExercise` | Watch | Medium | Outstanding | `WatchRanges.swift:40`, `WatchActivityLevelView.swift:23`
 **PA-26** | Share card hardcodes "cm"/"kg", ignoring the user's UOM | Share | Medium | Outstanding | `ShareResultsModel.swift:115-119`
 **PA-28** | Core tests assert the dead calc path; live path covered by 2 parity cases only | Tests | Medium | Outstanding | `TDEETests.swift:229-302`
 **PA-09** | `KatchMcArdleMultipliers` misnomer — factor is applied to Mifflin too | Calc | Low | Outstanding | `ActivityLevel.swift:64-78`, `CalculatorTdee.swift:50`
@@ -33,6 +30,9 @@ Ref | Title | Category | Severity | Status | Location
 **PA-06** | Three divergent macro-normalization algorithms | Calc / dead code | **High** | **Done (2026-10-24)** | `MacroSplitOptionModel.swift:103-172`, `MacroSplitOptionsNormalization.swift`
 **PA-05** | Dead hardcoded 40/30/30 `calculateMacros(tdee:)` with `00.4` literals | Calc / dead code | Medium | **Done (2026-10-24)** | `ProfileViewModel.swift` (removed with PA-04)
 **PA-07** | `updateProtein`/`updateCarbs`/`updateFats` are dead (zero callers) | Calc / dead code | Medium | **Done (2026-10-24)** | `ProfileViewModel.swift:327-346`, `MacroSplitOptionsNormalization.swift:250-271`
+**PA-10** | Four `ActivityLevel` cases reuse base multipliers → duplicate iPhone options | Calc | Medium | **Done (2026-10-24)** | `ActivityLevel.swift:11-16`
+**PA-11** | `.light` and `.moderate` both render "Moderate activity" in share card | Calc | Medium | **Done (2026-10-24)** | `ActivityLevel.swift:23-24`, `ShareResultsModel.swift:122`
+**PA-19** | Watch offers 5 of 9 `ActivityLevel` cases; others fall back to `.lightExercise` | Watch | Medium | **Done (2026-10-24)** | `WatchRanges.swift:40`, `WatchActivityLevelView.swift:23`
 **PA-27** | Share card sign bug: a cut reads `+500 kcal` (identical to a 500 bulk) | Share | Medium | **Done (2026-10-24)** | `ShareResultsModel.swift:138-144`
 **PA-02** | Two `ProfileDefaults` fields never consumed by `createProfile` | Config | Low | **Done (2026-10-24)** | `ProfileRepository.swift:78-96`
 **PA-03** | `Profile.height` doc says "meters" but value is centimetres | Config | Low | **Done (2026-10-24)** | `Profile.swift:16`
@@ -42,23 +42,13 @@ Ref | Title | Category | Severity | Status | Location
 **PA-17** | `ProfileViewModel` convenience init spawns a load Task (non-idiomatic, safe) | Concurrency | Info | Accepted | `ProfileViewModel.swift:177-179`
 **PA-24** | Watch uses a standalone store; phone↔watch data never syncs | Watch | Info | By Design | `TDEEWatchApp.swift:16`
 
-**Severity tally:** High 2 · Medium 11 · Low 14 · Info 3 — **30 findings** (9 resolved: PA-02, PA-03, PA-04, PA-05, PA-06, PA-07, PA-08, PA-12, PA-27; plus the "Confirmed correct" section below).
+**Severity tally:** High 2 · Medium 11 · Low 14 · Info 3 — **30 findings** (12 resolved: PA-02, PA-03, PA-04, PA-05, PA-06, PA-07, PA-08, PA-10, PA-11, PA-12, PA-19, PA-27; plus the "Confirmed correct" section below).
 
 ---
 
 ## Detailed findings
 
 ### Outstanding
-
-#### PA-10 — Four `ActivityLevel` cases reuse the base multipliers
-**Location:** `TDEEShared/Models/SwiftData/ActivityLevel.swift:11-16`
-`lightExercise` / `moderateExercise` / `heavyExercise` / `athlete` share multipliers with `light` / `moderate` / `active` / `veryActive` (1.375 / 1.55 / 1.725 / 1.9). The iPhone controls iterate `ActivityLevel.allCases` (all 9), so `UIActivityLevelMenuButtonView` and `UIWheelPickerActivityLevelView` present 9 options in which 4 pairs yield identical TDEE (e.g. "Light" and "Light Exercise (1-2 days/week)").
-**Recommendation:** Give each case a distinct multiplier, or split into a base enum + a watch-only set so the iPhone picker shows a non-redundant list.
-
-#### PA-11 — `.light` and `.moderate` both render "Moderate activity"
-**Location:** `TDEEShared/Models/SwiftData/ActivityLevel.swift:23-24`; `TDEEShared/Models/ShareResultsModel.swift:122`
-`description` maps both `.light` and `.moderate` to "Moderate activity". It is consumed by `ShareResultsModel` for the share card, so a user who picked "Light" sees "Moderate activity" in shared output.
-**Recommendation:** Give `.light` a distinct description (e.g. "Low-moderate activity").
 
 #### PA-13 — `ProfileStore` clobbers the active profile back to "Main"
 **Location:** `TDEEShared/Models/SwiftData/ProfileStore.swift:62-111`
@@ -74,11 +64,6 @@ The `Profile` entity has no UOM fields, and `ProfileMapper.apply`/`mapToEntity` 
 **Location:** `TDEE/Pages/MainPage/UIMainView.swift:132-173`
 Eleven `.onChange` handlers (gender, age, weight, height, bodyFatMethod, bodyFatPercentage, calorieAdjustmentMethod, calorieAdjustment, selectedMacroId, globalMacroCollection.items, selectedMacroSplit, activeProfileId) each spawn `Task { await recalculate() }` (~10 of them). Rapid input fires many concurrent recalculations, and `recalculate()` toggles `isCalculating` non-atomically (`true → await → false`), so the "calculating" indicator can show a stale/incorrect state under overlap.
 **Recommendation:** Coalesce into a single reactive dependency (e.g. one `.task(id:)` over a computed inputs key, as `WatchMainView` already does) and gate `isCalculating` on completion.
-
-#### PA-19 — Watch omits 4 of 9 `ActivityLevel` cases
-**Location:** `TDEEWatch/enums/WatchRanges.swift:40`; `TDEEWatch/views/WatchActivityLevelView.swift:23`
-`WatchRanges.activityLevels` offers only 5 cases (`.sedentary`, `.lightExercise`, `.moderateExercise`, `.heavyExercise`, `.athlete`). A phone profile set to `.active`, `.extraLight`, `.extraHeavy`, or `.extraAthlete` is not in the picker, so the watch's `selectionBinding` falls back to `.lightExercise` — silently mis-reporting the activity level (and therefore TDEE) on the watch.
-**Recommendation:** Either map the omitted cases onto the watch's 5 offered ones explicitly, or offer the full set on the watch.
 
 #### PA-26 — Share card hardcodes cm / kg
 **Location:** `TDEEShared/Models/ShareResultsModel.swift:115-119`
@@ -196,6 +181,24 @@ Rounding/clamping logic is reimplemented 5× across two files (instance `snapToS
 **Recommendation:** Remove the audit plumbing and ignored `logger:` params, or wire `createAudit: true` with a reader; delete the test-only shim.
 **Status: Done (2026-10-24) — audit plumbing removed.** Deleted `AuditLogger.swift` and `AuditItem.swift`; dropped the `audit` field from `CalculatorResultViewModel`; removed the `createAudit:` param from `Calculator.calculate` / `calculateTdee` and the ignored `logger:` param from `calculateMifflinStJeor` / `calculateKatchMcArdle` / `calculateLeanBodyMass` / `adjustCalories`. The test-only `calculateTDEE(bmr:activityLevel:)` shim was deleted and its callers redirected to the production `Calculator.adjustForActivityLevel(bmr:activityLevel:)`, so the TDEE-multiplier tests now exercise real code rather than a parallel copy. The "wire `createAudit: true`" alternative was **not** taken: surfacing an audit trail would need a UI surface, which is out of scope under `UI_RESTRICTIONS.md`. Grep confirms **zero residual** `AuditLogger` / `AuditItem` / `createAudit` / `calculateTDEE` / `logger:` references (the lone remaining `func calculateTDEE()` is a naming-convention doc example in `NamingConventions.swift`, not code). Full `TDEE` test suite passes on the iPhone 17e simulator (`** TEST SUCCEEDED **`), including `CalculationParityTests`.
 
+#### PA-10 — Four `ActivityLevel` cases reuse the base multipliers
+**Location:** `TDEEShared/Models/SwiftData/ActivityLevel.swift:11-16`
+`lightExercise` / `moderateExercise` / `heavyExercise` / `athlete` share multipliers with `light` / `moderate` / `active` / `veryActive` (1.375 / 1.55 / 1.725 / 1.9). The iPhone controls iterate `ActivityLevel.allCases` (all 9), so `UIActivityLevelMenuButtonView` and `UIWheelPickerActivityLevelView` present 9 options in which 4 pairs yield identical TDEE (e.g. "Light" and "Light Exercise (1-2 days/week)").
+**Recommendation:** Give each case a distinct multiplier, or split into a base enum + a watch-only set so the iPhone picker shows a non-redundant list.
+**Status: Done (2026-10-24).** Collapsed the 9-case enum to the 5 canonical levels (`sedentary` / `lightExercise` / `moderateExercise` / `heavyExercise` / `athlete`), deleting the four legacy base cases (`light` / `moderate` / `active` / `veryActive`) that reused the 1.375 / 1.55 / 1.725 / 1.9 multipliers — the standard TDEE set, so "give each a distinct multiplier" was not clinically viable. A new `ActivityLevel.from(storedRaw:)` remaps the legacy stored raws ("Light"→`.lightExercise`, "Moderate"→`.moderateExercise`, "Active"→`.heavyExercise`, "Very Active"→`.athlete`) and `Profile.activityLevel`'s getter now routes through it, so a profile saved on an older build still computes the same TDEE (no silent regression to `.sedentary`). Because both iPhone pickers iterate `ActivityLevel.allCases`, the collapse shrinks them from 9 options to 5 with no picker code change — the DO-NOT-MODIFY wheel picker is untouched. Also fixed an adjacent nit: `heavyExercise.description` now reads "6-7 days/week" (was "3-5 days/week"). A new regression test `testActivityLevelsAreDistinct` pins "exactly five levels, each a distinct TDEE". This dissolves PA-11 and PA-19. Verified: full `TDEE` suite green on the iPhone 17e simulator and `TDEEWatch` `** BUILD SUCCEEDED **` after the `watchLevel` removal.
+
+#### PA-11 — `.light` and `.moderate` both render "Moderate activity"
+**Location:** `TDEEShared/Models/SwiftData/ActivityLevel.swift:23-24`; `TDEEShared/Models/ShareResultsModel.swift:122`
+`description` maps both `.light` and `.moderate` to "Moderate activity". It is consumed by `ShareResultsModel` for the share card, so a user who picked "Light" sees "Moderate activity" in shared output.
+**Recommendation:** Give `.light` a distinct description (e.g. "Low-moderate activity").
+**Status: Done (2026-10-24) — subsumed by PA-10.** The two distinct cases that collided on "Moderate activity" (`.light` and `.moderate`) no longer exist; with the enum collapsed to 5 levels each case carries a unique `description`, so `ShareResultsModel` can no longer render the wrong label. No separate change needed.
+
+#### PA-19 — Watch omits 4 of 9 `ActivityLevel` cases
+**Location:** `TDEEWatch/enums/WatchRanges.swift:40`; `TDEEWatch/views/WatchActivityLevelView.swift:23`
+`WatchRanges.activityLevels` offers only 5 cases (`.sedentary`, `.lightExercise`, `.moderateExercise`, `.heavyExercise`, `.athlete`). A phone profile set to `.active`, `.extraLight`, `.extraHeavy`, or `.extraAthlete` is not in the picker, so the watch's `selectionBinding` falls back to `.lightExercise` — silently mis-reporting the activity level (and therefore TDEE) on the watch.
+**Recommendation:** Either map the omitted cases onto the watch's 5 offered ones explicitly, or offer the full set on the watch.
+**Status: Done (2026-10-24) — subsumed by PA-10.** The watch already offered exactly the 5 canonical levels (`WatchRanges.activityLevels`), and those 5 are now the whole enum, so there are no longer any omitted cases for `selectionBinding` to fall back on. The transient `watchLevel` bridge (which mapped a base case onto an exercise case) was deleted as dead code; `WatchActivityLevelView` now compares `level == profile.activityLevel` directly, and `WatchMainView` reads `activityLevel.displayName` instead of `activityLevel.watchLevel.displayName`.
+
 ### Accepted
 
 #### PA-01 — First-launch device profile seeds height/weight = 0
@@ -235,10 +238,10 @@ These areas were audited and found sound — included so the scope is explicit:
 1. **~~PA-27~~ (done 2026-10-24 — sign now derived from `calorieAdjustmentMethod.adjustmentPrefix`; `.maintain` guarded to "None")**
 2. **PA-14** — UOM not persisted (affects phone + watch display; add entity fields + test).
 3. **~~PA-01~~ (accepted 2026-10-24 — intentional sentinel; the first-launch prompt is a separate UI task, out of scope)**
-4. **PA-19** — watch silently mis-reports 4 activity levels.
+4. **~~PA-19~~ (done 2026-10-24 — subsumed by PA-10; the watch already offered exactly the 5 canonical levels, so the fallback is gone)**
 5. **~~PA-02~~ / ~~PA-03~~ / ~~PA-04~~ / ~~PA-05~~ / ~~PA-06~~ / ~~PA-07~~ / ~~PA-08~~ / ~~PA-12~~** — the whole "Calc / dead code" bundle is now closed: the dead calc pipeline (PA-04, 2026-10-22), the dead 40/30/30 `calculateMacros(tdee:)` (PA-05, gone with PA-04), the dead static normalize family + `update*` wrappers (PA-06/PA-07), the duplicate `snapToStep`/`clampValueTo100` helpers (PA-08), and the vestigial audit trail + test-only `calculateTDEE` shim (PA-12, 2026-10-24) are all removed; `MacroSplitOptionsNormalization.swift` now holds only the live `normalizeAll`/`adjustByDiff`; the two Config cleanups (PA-02 method passthrough in `createProfile`, PA-03 height-unit comment) are also done.
 
-**Then (Medium):** PA-10, PA-11, PA-13, PA-15, PA-26, PA-28.
+**Then (Medium):** PA-13, PA-15, PA-26, PA-28.
 **Low / hygiene:** PA-09, PA-16, PA-18, PA-20, PA-21, PA-22, PA-23, PA-25, PA-29, PA-30.
 **No action:** PA-01 (accepted — intentional sentinel; the first-launch prompt is a separate UI task, out of scope), PA-17 (accepted), PA-24 (by design).
 

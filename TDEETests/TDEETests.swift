@@ -218,6 +218,15 @@ struct ProfileViewModelTDEETests {
         #expect(moderateTdee < heavyTdee, "Moderate TDEE should be less than heavy")
         #expect(heavyTdee < athleteTdee, "Heavy TDEE should be less than athlete")
     }
+
+    @Test("Activity levels are five distinct levels with distinct TDEE outputs")
+    func testActivityLevelsAreDistinct() throws {
+        // PA-10: the legacy near-duplicates were removed, so every level yields a
+        // distinct TDEE.
+        let tdees = ActivityLevel.allCases.map { Calculator.adjustForActivityLevel(bmr: 1000, activityLevel: $0) }
+        #expect(ActivityLevel.allCases.count == 5, "Exactly five activity levels")
+        #expect(Set(tdees).count == tdees.count, "Every level yields a distinct TDEE")
+    }
 }
 
 // MARK: - ProfileViewModel Macro Tests

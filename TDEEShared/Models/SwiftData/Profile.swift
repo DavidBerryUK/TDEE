@@ -25,9 +25,13 @@ public class Profile {
     /// Activity level (stored as raw value string)
     public var activityLevelRaw: String
 
-    /// Transient property for ActivityLevel access
+    /// Transient property for ActivityLevel access.
+    ///
+    /// Decoded via `ActivityLevel.from(storedRaw:)`, which maps the legacy
+    /// near-duplicate raws removed in PA-10 to their equivalent level, so a
+    /// profile saved on an older build still computes the same TDEE.
     public var activityLevel: ActivityLevel {
-        get { ActivityLevel(rawValue: activityLevelRaw) ?? .sedentary }
+        get { ActivityLevel.from(storedRaw: activityLevelRaw) }
         set { activityLevelRaw = newValue.rawValue }
     }
 

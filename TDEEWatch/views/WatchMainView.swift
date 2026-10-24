@@ -60,7 +60,7 @@ struct WatchMainView: View {
                     isMissing: missingFields.contains(.weight)) { WatchWeightView(profile: profile) }
                 row("Height", value: profile.height == 0 ? "Not set" : heightSummary,
                     isMissing: missingFields.contains(.height)) { WatchHeightView(profile: profile) }
-                row("Activity", value: profile.activityLevel.watchLevel.displayName) { WatchActivityLevelView(profile: profile) }
+                row("Activity", value: profile.activityLevel.displayName) { WatchActivityLevelView(profile: profile) }
                 row("Body Fat", value: bodyFatSummary, isMissing: missingFields.contains(.bodyFat)) { WatchBodyFatView(profile: profile) }
                 row("Goal", value: adjustmentSummary) { WatchCalorieAdjustmentView(profile: profile) }
                 row("Macros", value: macroName) { WatchMacroPresetsView(profile: profile, macroCollection: macroCollection) }

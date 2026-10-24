@@ -170,7 +170,7 @@ struct SwiftDataPersistenceTests {
         await profile.load()
         profile.age = 37
         profile.weight = 81.5
-        profile.activityLevel = .active
+        profile.activityLevel = .heavyExercise
         profile.bodyFatPercentageMethod = .manualEntry
         profile.bodyFatPercentage = 18
         profile.calorieAdjustmentMethod = .cut
@@ -182,7 +182,7 @@ struct SwiftDataPersistenceTests {
         await reloaded.load()
         #expect(reloaded.age == 37)
         #expect(reloaded.weight == 81.5)
-        #expect(reloaded.activityLevel == .active)
+        #expect(reloaded.activityLevel == .heavyExercise)
         #expect(reloaded.bodyFatPercentageMethod == .manualEntry)
         #expect(reloaded.bodyFatPercentage == 18)
         #expect(reloaded.calorieAdjustmentMethod == .cut)

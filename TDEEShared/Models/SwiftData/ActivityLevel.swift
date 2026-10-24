@@ -1,18 +1,33 @@
 import Foundation
 
-/// Represents the user's activity level (sedentary, light, moderate, active, very active).
+/// Represents the user's activity level.
+///
+/// Five canonical levels, each with a distinct TDEE multiplier
+/// (`KatchMcArdleMultipliers`). The legacy near-duplicates — `Light`,
+/// `Moderate`, `Active`, `Very Active` — shared multipliers with
+/// `lightExercise` / `moderateExercise` / `heavyExercise` / `athlete` and were
+/// removed in PA-10; their stored raw values are mapped back to the equivalent
+/// level at decode time (see `from(storedRaw:)`).
 public enum ActivityLevel: String, Codable, CaseIterable, Sendable {
     case sedentary = "Sedentary"
-    case light = "Light"
-    case moderate = "Moderate"
-    case active = "Active"
-    case veryActive = "Very Active"
-
-    // Additional cases for Katch-McArdle calculations
     case lightExercise = "Light Exercise"
     case moderateExercise = "Moderate Exercise"
     case heavyExercise = "Heavy Exercise"
     case athlete = "Athlete"
+
+    /// Decodes a stored raw value, mapping the legacy near-duplicate raws removed
+    /// in PA-10 (`Light` / `Moderate` / `Active` / `Very Active`) onto their
+    /// multiplier-equivalent canonical level — lossless, since the multipliers
+    /// match. Current raws decode normally; unknown raws fall back to `.sedentary`.
+    static func from(storedRaw: String) -> ActivityLevel {
+        switch storedRaw {
+        case "Light": return .lightExercise
+        case "Moderate": return .moderateExercise
+        case "Active": return .heavyExercise
+        case "Very Active": return .athlete
+        default: return ActivityLevel(rawValue: storedRaw) ?? .sedentary
+        }
+    }
 }
 
 /// Human-readable description for each activity level.
@@ -20,13 +35,9 @@ public extension ActivityLevel {
     var description: String {
         switch self {
         case .sedentary: return "Low activity"
-        case .light: return "Moderate activity"
-        case .moderate: return "Moderate activity"
-        case .active: return "High activity"
-        case .veryActive: return "Very high activity"
         case .lightExercise: return "Light exercise (1-2 days/week)"
         case .moderateExercise: return "Moderate exercise (3-5 days/week)"
-        case .heavyExercise: return "Heavy exercise (3-5 days/week)"
+        case .heavyExercise: return "Heavy exercise (6-7 days/week)"
         case .athlete: return "Athlete (2x per day)"
         }
     }
@@ -35,10 +46,6 @@ public extension ActivityLevel {
     var displayName: String {
         switch self {
         case .sedentary: return "Sedentary"
-        case .light: return "Light"
-        case .moderate: return "Moderate"
-        case .active: return "Active"
-        case .veryActive: return "Very Active"
         case .lightExercise: return "Light Exercise"
         case .moderateExercise: return "Moderate Exercise"
         case .heavyExercise: return "Heavy Exercise"
@@ -50,10 +57,6 @@ public extension ActivityLevel {
     var displayShortName: String {
         switch self {
         case .sedentary: return "Sedentary"
-        case .light: return "Light"
-        case .moderate: return "Moderate"
-        case .active: return "Active"
-        case .veryActive: return "Very Active"
         case .lightExercise: return "Light Exercise"
         case .moderateExercise: return "Moderate Exercise"
         case .heavyExercise: return "Heavy Exercise"
@@ -66,13 +69,13 @@ public extension ActivityLevel {
         switch self {
         case .sedentary:
             return 1.2
-        case .light, .lightExercise:
+        case .lightExercise:
             return 1.375
-        case .moderate, .moderateExercise:
+        case .moderateExercise:
             return 1.55
-        case .active, .heavyExercise:
+        case .heavyExercise:
             return 1.725
-        case .veryActive, .athlete:
+        case .athlete:
             return 1.9
         }
     }
