@@ -13,7 +13,7 @@ Ref | Title | Category | Severity | Status | Location
 --- | --- | --- | --- | --- | ---
 **PA-04** | Dead second calculation pipeline (`refreshResults` / `tdee` / `macroTargets`) | Calc / dead code | **High** | **Done (2026-10-22)** | `ProfileViewModel.swift`
 **PA-06** | Three divergent macro-normalization algorithms | Calc / dead code | **High** | **Done (2026-10-24)** | `MacroSplitOptionModel.swift:103-172`, `MacroSplitOptionsNormalization.swift`
-**PA-01** | First-launch **device** profile seeds height/weight = 0 → validation error, no TDEE | Config | **Medium** | Outstanding | `ProfileDefaults.swift:35-46`, `ProfileRepository.swift:78-96`
+**PA-01** | First-launch **device** profile seeds height/weight = 0 → validation error, no TDEE | Config | **Medium** | Accepted | `ProfileDefaults.swift:35-46`, `ProfileRepository.swift:78-96`
 **PA-05** | Dead hardcoded 40/30/30 `calculateMacros(tdee:)` with `00.4` literals | Calc / dead code | Medium | Outstanding | `ProfileViewModel.swift:280-291`
 **PA-07** | `updateProtein`/`updateCarbs`/`updateFats` are dead (zero callers) | Calc / dead code | Medium | **Done (2026-10-24)** | `ProfileViewModel.swift:327-346`, `MacroSplitOptionsNormalization.swift:250-271`
 **PA-10** | Four `ActivityLevel` cases reuse base multipliers → duplicate iPhone options | Calc | Medium | Outstanding | `ActivityLevel.swift:11-16`
@@ -25,8 +25,8 @@ Ref | Title | Category | Severity | Status | Location
 **PA-26** | Share card hardcodes "cm"/"kg", ignoring the user's UOM | Share | Medium | Outstanding | `ShareResultsModel.swift:115-119`
 **PA-27** | Share card sign bug: a cut reads `+500 kcal` (identical to a 500 bulk) | Share | Medium | Outstanding | `ShareResultsModel.swift:138-144`
 **PA-28** | Core tests assert the dead calc path; live path covered by 2 parity cases only | Tests | Medium | Outstanding | `TDEETests.swift:229-302`
-**PA-02** | Two `ProfileDefaults` fields never consumed by `createProfile` | Config | Low | Outstanding | `ProfileRepository.swift:78-96`
-**PA-03** | `Profile.height` doc says "meters" but value is centimetres | Config | Low | Outstanding | `Profile.swift:16`
+**PA-02** | Two `ProfileDefaults` fields never consumed by `createProfile` | Config | Low | **Done (2026-10-24)** | `ProfileRepository.swift:78-96`
+**PA-03** | `Profile.height` doc says "meters" but value is centimetres | Config | Low | **Done (2026-10-24)** | `Profile.swift:16`
 **PA-08** | Duplicated `snapToStep` / `clampValueTo100` (5 definitions, 2 files) | Calc / dead code | Low | **Done (2026-10-24)** | `MacroSplitOptionModel.swift:174-200`, `MacroSplitOptionsNormalization.swift`
 **PA-09** | `KatchMcArdleMultipliers` misnomer — factor is applied to Mifflin too | Calc | Low | Outstanding | `ActivityLevel.swift:64-78`, `CalculatorTdee.swift:50`
 **PA-12** | Audit trail / `AuditLogger` vestigial; test-only `calculateTDEE` shim | Calc / dead code | Low | Outstanding | `CalculatorTdee.swift:13-15`, `TDEETests.swift:636`
@@ -42,7 +42,7 @@ Ref | Title | Category | Severity | Status | Location
 **PA-24** | Watch uses a standalone store; phone↔watch data never syncs | Watch | Info | By Design | `TDEEWatchApp.swift:16`
 **PA-30** | `File.swift` is an empty test stub | Tests | Info | Outstanding | `TDEETests/File.swift`
 
-**Severity tally:** High 2 · Medium 11 · Low 14 · Info 3 — **30 findings** (4 resolved: PA-04, PA-06, PA-07, PA-08; plus the "Confirmed correct" section below).
+**Severity tally:** High 2 · Medium 11 · Low 14 · Info 3 — **30 findings** (6 resolved: PA-02, PA-03, PA-04, PA-06, PA-07, PA-08; plus the "Confirmed correct" section below).
 
 ---
 
@@ -66,8 +66,9 @@ Three different overflow-distribution strategies coexist: (a) the **live** insta
 
 #### PA-01 — First-launch device profile seeds height/weight = 0
 **Location:** `TDEEShared/Config/ProfileDefaults.swift:35-46`; `TDEEShared/Models/SwiftData/ProfileRepository.swift:78-96`
-`ProfileDefaults.device()` returns height `0.0` and weight `0.0` (age 16 / male / sedentary are seeded, but height & weight are zeroed). On a real device, `ConfigLoader` compiles the `else` branch → `.device()`, and `createProfile(name:)` builds the launch "Main" profile from it. `0` falls outside `MetricRanges.height` (`100…272`) and `MetricRanges.weight` (`20…300`), so `validateForCalculation()` fails and `Calculator.calculate` returns "Following fields are mandatory: Height, Weight" with **no TDEE**. The simulator seeds a valid 175 cm / 70 kg / 25-yo profile, so the two environments diverge. Mixing seeded age/gender/activity with zeroed height/weight reads as an unfilled placeholder rather than a deliberate sentinel.
+`ProfileDefaults.device()` returns height `0.0` and weight `0.0` (age 16 / male / sedentary are seeded, but height & weight are zeroed). On a real device, `ConfigLoader` compiles the `else` branch → `.device()`, and `createProfile(name:)` builds the launch "Main" profile from it. `0` falls outside `MetricRanges.height` (`100…272`) and `MetricRanges.weight` (`20…300`), so `validateForCalculation()` fails and `Calculator.calculate` returns "Following fields are mandatory: Height, Weight" with **no TDEE**. The simulator seeds a valid 175 cm / 70 kg / 25-yo profile, so the two environments diverge. Mixing seeded age/gender/activity with zeroed height/weight reads as an unfilled placeholder unless the first-launch UI surfaces a prompt for it.
 **Recommendation:** Give `device()` valid in-range height/weight (or a documented "unset" sentinel the UI prompts for), and make age/gender/height/weight consistent.
+**Status: Accepted (2026-10-24) — intentional sentinel.** Decision: the zeroed height/weight on a real device is a deliberate "please enter your real height/weight" trigger, not a defect to fix by seeding placeholder numbers. The `0` values sit outside `MetricRanges.height` / `weight`, so `validateForCalculation()` surfaces a "mandatory: Height, Weight" prompt and no TDEE until the user enters real data — the intended first-launch behaviour. The companion UI prompt that would make the sentinel explicit is a separate first-launch UX task, out of scope under the no-UI-changes constraint. No code change; `ProfileDefaults.device()` is left as-is.
 
 #### PA-05 — Dead hardcoded 40/30/30 macro path
 **Location:** `TDEEShared/Models/ProfileViewModel/ProfileViewModel.swift:280-291`
@@ -129,13 +130,15 @@ The calculator applies direction via the `.cut`/`.bulk` switch (`base ± calorie
 
 #### PA-02 — Two `ProfileDefaults` fields never consumed
 **Location:** `TDEEShared/Models/SwiftData/ProfileRepository.swift:78-96`
-`ProfileDefaults` advertises 8 fields, but `createProfile(name:)` maps only 6 onto `Profile.init` — `bodyFatPercentageMethod` and `calorieAdjustmentMethod` are inert (a new profile's methods come from `Profile.init` defaults `.omit` / `.maintain`). No bug today (defaults coincidentally match), but a latent desync trap.
+`ProfileDefaults` advertises 8 fields, but `createProfile(name:)` mapped only 6 onto `Profile.init` — `bodyFatPercentageMethod` and `calorieAdjustmentMethod` were inert *in `createProfile`* (a new profile's methods came from `Profile.init` defaults `.omit` / `.maintain`). No bug today (defaults coincidentally match), but a latent desync trap.
 **Recommendation:** Pass both in `createProfile`, or drop the two fields from `ProfileDefaults`.
+**Status: Done (2026-10-24).** Chose the first option: `createProfile(name:)` now passes `bodyFatMethod: defaults.bodyFatPercentageMethod` and `calorieAdjustmentMethod: defaults.calorieAdjustmentMethod`, so a new profile honours `ProfileDefaults` instead of silently inheriting `Profile.init`'s `.omit` / `.maintain`. The "drop the two fields" option is not viable — `ProfileViewModel` reads both as property defaults (`ProfileViewModel.swift:77,94`), so the fields are not inert overall, only unused in `createProfile`. Behaviour is unchanged today (all three defaulting paths agree on `.omit` / `.maintain`); the fix closes the latent desync trap where the two paths could later diverge. Verified with a full `TDEE` test run on the iPhone 17e simulator (`** TEST SUCCEEDED **`, no new warnings).
 
 #### PA-03 — `Profile.height` documented as "meters"
 **Location:** `TDEEShared/Models/SwiftData/Profile.swift:16`
-The doc comment says "in meters" but every consumer uses centimetres (defaults 175, `MetricRanges.height` = 100…272, Mifflin-St Jeor's `6.25` factor expects cm). A future dev trusting the comment could unit-convert and break BMR.
+The doc comment said "in meters" but every consumer uses centimetres (defaults 175, `MetricRanges.height` = 100…272, Mifflin-St Jeor's `6.25` factor expects cm). A future dev trusting the comment could unit-convert and break BMR.
 **Recommendation:** Correct the comment to "centimetres".
+**Status: Done (2026-10-24).** `Profile.swift:16` now reads "User's height in centimetres" (was "in meters"). One-line doc fix; no behaviour change.
 
 #### PA-08 — Duplicated `snapToStep` / `clampValueTo100`
 **Location:** `TDEEShared/Models/Macros/MacroSplitOptionModel.swift:174-200`; `MacroSplitOptionsNormalization.swift`
@@ -228,13 +231,13 @@ These areas were audited and found sound — included so the scope is explicit:
 **Fix first (High / user-visible):**
 1. **PA-27** — share card shows `+500 kcal` for a cut (user-facing, small fix).
 2. **PA-14** — UOM not persisted (affects phone + watch display; add entity fields + test).
-3. **PA-01** — first-launch device profile yields no result until height/weight entered.
+3. **~~PA-01~~ (accepted 2026-10-24 — intentional sentinel; the first-launch prompt is a separate UI task, out of scope)**
 4. **PA-19** — watch silently mis-reports 4 activity levels.
-5. **~~PA-04~~ (done 2026-10-22) / ~~PA-06~~ / ~~PA-07~~ / ~~PA-08~~ (all done 2026-10-24) / PA-12** — the dead calc pipeline (PA-04), the dead static normalize family + `update*` wrappers (PA-06/PA-07), and the duplicate `snapToStep`/`clampValueTo100` helpers (PA-08) are all gone; `MacroSplitOptionsNormalization.swift` now holds only the live `normalizeAll`/`adjustByDiff`. Only PA-12 (vestigial audit trail) remains from this bundle.
+5. **~~PA-02~~ / ~~PA-03~~ / ~~PA-06~~ / ~~PA-07~~ / ~~PA-08~~ (all done 2026-10-24) / ~~PA-04~~ (done 2026-10-22) / PA-12** — the dead calc pipeline (PA-04), the dead static normalize family + `update*` wrappers (PA-06/PA-07), and the duplicate `snapToStep`/`clampValueTo100` helpers (PA-08) are all gone; `MacroSplitOptionsNormalization.swift` now holds only the live `normalizeAll`/`adjustByDiff`; the two Config cleanups (PA-02 method passthrough in `createProfile`, PA-03 height-unit comment) are also done. Only PA-12 (vestigial audit trail) remains from this bundle.
 
 **Then (Medium):** PA-05, PA-10, PA-11, PA-13, PA-15, PA-26, PA-28.
-**Low / hygiene:** PA-02, PA-03, PA-09, PA-16, PA-18, PA-20, PA-21, PA-22, PA-23, PA-25, PA-29, PA-30.
-**No action:** PA-17 (accepted), PA-24 (by design).
+**Low / hygiene:** PA-09, PA-16, PA-18, PA-20, PA-21, PA-22, PA-23, PA-25, PA-29, PA-30.
+**No action:** PA-01 (accepted — intentional sentinel; the first-launch prompt is a separate UI task, out of scope), PA-17 (accepted), PA-24 (by design).
 
 ---
 

@@ -85,6 +85,11 @@ import Foundation
             weight: defaults.weight,
             bodyFatPercentage: defaults.bodyFatPercentage,
             activityLevel: defaults.activityLevel,
+            // Pass the two method fields through so a new profile honours ProfileDefaults rather than
+            // silently falling back to Profile.init's .omit/.maintain — closing the latent desync
+            // trap where the two defaulting paths (createProfile vs. ProfileViewModel) could diverge.
+            bodyFatMethod: defaults.bodyFatPercentageMethod,
+            calorieAdjustmentMethod: defaults.calorieAdjustmentMethod,
             selectedMacroId: FactoryMacroSplits.Id.balanced,
             id: UUID(),
             createdAt: Date(),

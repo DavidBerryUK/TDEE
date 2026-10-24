@@ -13,7 +13,7 @@ public class Profile {
     /// User's age in years
     public var age: Int
 
-    /// User's height in meters
+    /// User's height in centimetres
     public var height: Double
 
     /// User's weight in kilograms
