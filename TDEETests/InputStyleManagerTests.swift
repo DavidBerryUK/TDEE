@@ -92,7 +92,7 @@ struct InputStyleManagerTests {
         // rejects with an NSException ("Attempt to insert non-property list object"). Both the
         // key and the value must be String.
         #expect(raw.count == 2)
-        #expect(raw.allSatisfy { $0.key is String && $0.value is String })
+        #expect(raw as? [String: String] != nil)
         #expect(raw["gender"] as? String == "new")
         #expect(raw["weight"] as? String == "classic")
     }
