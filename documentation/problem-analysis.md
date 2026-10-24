@@ -27,7 +27,7 @@ Ref | Title | Category | Severity | Status | Location
 **PA-28** | Core tests assert the dead calc path; live path covered by 2 parity cases only | Tests | Medium | Outstanding | `TDEETests.swift:229-302`
 **PA-02** | Two `ProfileDefaults` fields never consumed by `createProfile` | Config | Low | Outstanding | `ProfileRepository.swift:78-96`
 **PA-03** | `Profile.height` doc says "meters" but value is centimetres | Config | Low | Outstanding | `Profile.swift:16`
-**PA-08** | Duplicated `snapToStep` / `clampValueTo100` (5 definitions, 2 files) | Calc / dead code | Low | Outstanding | `MacroSplitOptionModel.swift:174-200`, `MacroSplitOptionsNormalization.swift`
+**PA-08** | Duplicated `snapToStep` / `clampValueTo100` (5 definitions, 2 files) | Calc / dead code | Low | **Done (2026-10-24)** | `MacroSplitOptionModel.swift:174-200`, `MacroSplitOptionsNormalization.swift`
 **PA-09** | `KatchMcArdleMultipliers` misnomer — factor is applied to Mifflin too | Calc | Low | Outstanding | `ActivityLevel.swift:64-78`, `CalculatorTdee.swift:50`
 **PA-12** | Audit trail / `AuditLogger` vestigial; test-only `calculateTDEE` shim | Calc / dead code | Low | Outstanding | `CalculatorTdee.swift:13-15`, `TDEETests.swift:636`
 **PA-16** | `print()` used for error logging (lost in release, not surfaced) | Error handling | Low | Outstanding | `ProfileStore.swift:78,108,126`, `ProfileViewModel.swift:197,212,258`
@@ -42,7 +42,7 @@ Ref | Title | Category | Severity | Status | Location
 **PA-24** | Watch uses a standalone store; phone↔watch data never syncs | Watch | Info | By Design | `TDEEWatchApp.swift:16`
 **PA-30** | `File.swift` is an empty test stub | Tests | Info | Outstanding | `TDEETests/File.swift`
 
-**Severity tally:** High 2 · Medium 11 · Low 14 · Info 3 — **30 findings** (3 resolved: PA-04, PA-06, PA-07; plus the "Confirmed correct" section below).
+**Severity tally:** High 2 · Medium 11 · Low 14 · Info 3 — **30 findings** (4 resolved: PA-04, PA-06, PA-07, PA-08; plus the "Confirmed correct" section below).
 
 ---
 
@@ -141,6 +141,7 @@ The doc comment says "in meters" but every consumer uses centimetres (defaults 1
 **Location:** `TDEEShared/Models/Macros/MacroSplitOptionModel.swift:174-200`; `MacroSplitOptionsNormalization.swift`
 Rounding/clamping logic is reimplemented 5× across two files (instance `snapToStep(Double)`/`snapToStep(Int)`, static "test helper" `snapToStep` overloads, and a private static `snapToStep(_:step:…)`/`clampValueTo100` in the DO-NOT-EDIT file).
 **Recommendation:** Keep one shared `snapToStep`/`clampValueTo100`; drop the test-only static overloads (flag the DO-NOT-EDIT file for review, don't edit it).
+**Status: Done (2026-10-24).** Collapsed to one canonical set of `static` helpers — `snapToStep(_:)` (Double + Int) and `clampValueTo100(_:)` — in `MacroSplitOptionModel.swift` (7 definitions → 3). The two instance overloads and the parameterized `snapToStep(_:step:min:max:)` / `clampValueTo100` in `MacroSplitOptionsNormalization.swift` were deleted; the live UI path (`updateFromUi*` / `normalizeAfter*Change`) now calls `Self.snapToStep(...)`, and the init/clone path (`normalizeAll` / `adjustByDiff`) plus the tests resolve to the same statics. Arithmetic is identical, so behaviour is unchanged; the `TDEE` scheme was recompiled (`generic/platform=iOS`, no signing) to confirm. Gotcha: a bare `snapToStep(...)` inside an **instance** method does not bind to a static-only member, so those 9 call sites needed `Self.` qualification (a first attempt failed the build on exactly this).
 
 #### PA-09 — `KatchMcArdleMultipliers` misnomer
 **Location:** `TDEEShared/Models/SwiftData/ActivityLevel.swift:64-78`; `TDEEShared/Calculations/Extensions/CalculatorTdee.swift:50`
@@ -229,7 +230,7 @@ These areas were audited and found sound — included so the scope is explicit:
 2. **PA-14** — UOM not persisted (affects phone + watch display; add entity fields + test).
 3. **PA-01** — first-launch device profile yields no result until height/weight entered.
 4. **PA-19** — watch silently mis-reports 4 activity levels.
-5. **~~PA-04~~ (done 2026-10-22) / ~~PA-06~~ / ~~PA-07~~ (both done 2026-10-24) / PA-08 / PA-12** — collapse the remaining dead calc pipeline and the duplicate clamping into a single source of truth. PA-06/PA-07 removed the dead static normalize family + `update*` wrappers under explicit approval; `MacroSplitOptionsNormalization.swift` is still flagged for PA-08 review (duplicate `snapToStep`/`clampValueTo100`).
+5. **~~PA-04~~ (done 2026-10-22) / ~~PA-06~~ / ~~PA-07~~ / ~~PA-08~~ (all done 2026-10-24) / PA-12** — the dead calc pipeline (PA-04), the dead static normalize family + `update*` wrappers (PA-06/PA-07), and the duplicate `snapToStep`/`clampValueTo100` helpers (PA-08) are all gone; `MacroSplitOptionsNormalization.swift` now holds only the live `normalizeAll`/`adjustByDiff`. Only PA-12 (vestigial audit trail) remains from this bundle.
 
 **Then (Medium):** PA-05, PA-10, PA-11, PA-13, PA-15, PA-26, PA-28.
 **Low / hygiene:** PA-02, PA-03, PA-09, PA-16, PA-18, PA-20, PA-21, PA-22, PA-23, PA-25, PA-29, PA-30.
@@ -239,5 +240,5 @@ These areas were audited and found sound — included so the scope is explicit:
 
 ### Constraints honoured
 - **Analysis only** — no source was modified.
-- **`MacroSplitOptionsNormalization.swift` (PA-06, PA-08):** originally flagged DO-NOT-EDIT; the dead static `normalizeAfter*Change` family and its `update*` wrappers were removed **under explicit approval on 2026-10-24** (PA-06/PA-07), retaining the live algorithm and `normalizeAll`/`adjustByDiff`. PA-08 (duplicate `snapToStep`/`clampValueTo100`) remains open.
+- **`MacroSplitOptionsNormalization.swift` (PA-06, PA-08):** originally flagged DO-NOT-EDIT; **under explicit approval on 2026-10-24** the dead static `normalizeAfter*Change` family + `update*` wrappers (PA-06/PA-07) were removed and the duplicate `snapToStep`/`clampValueTo100` helpers (PA-08) were collapsed into a single shared set in `MacroSplitOptionModel.swift`. The file now holds only the live `normalizeAll`/`adjustByDiff` (init/clone path).
 - **`UI_RESTRICTIONS.md`:** no UI changes proposed (no `.pickerStyle`/option-case/`UILayoutExpandingPanel`/animation-parameter changes).

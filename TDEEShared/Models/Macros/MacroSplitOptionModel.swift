@@ -62,7 +62,7 @@ public final class MacroSplitOptionModel : Identifiable, Hashable {
     }
 
     public func updateFromUiProtein(to newValue: Double) {
-        let snapValue = snapToStep(newValue)
+        let snapValue = Self.snapToStep(newValue)
         if snapValue == self.protein {
             return
         }
@@ -75,7 +75,7 @@ public final class MacroSplitOptionModel : Identifiable, Hashable {
     }
 
     public func updateFromUiCarbs(to newValue: Double) {
-        let snapValue = snapToStep(newValue)
+        let snapValue = Self.snapToStep(newValue)
         if snapValue == self.carbs {
             return
         }
@@ -88,7 +88,7 @@ public final class MacroSplitOptionModel : Identifiable, Hashable {
     }
 
     public func updateFromUiFats(to newValue: Double) {
-        let snapValue = snapToStep(newValue)
+        let snapValue = Self.snapToStep(newValue)
         if snapValue == self.fats {
             return
         }
@@ -108,13 +108,13 @@ public final class MacroSplitOptionModel : Identifiable, Hashable {
         overflow = 100 - (newValue + snapshotCarbs + snapshotFats)
 
         if overflow != 0 {
-            snapshotCarbs = snapToStep(snapshotCarbs + overflow)
+            snapshotCarbs = Self.snapToStep(snapshotCarbs + overflow)
         }
 
         overflow = 100 - (newValue + snapshotCarbs + snapshotFats)
 
         if overflow != 0 {
-            snapshotFats = snapToStep(snapshotFats + overflow)
+            snapshotFats = Self.snapToStep(snapshotFats + overflow)
         }
         return (
             newValue,
@@ -131,13 +131,13 @@ public final class MacroSplitOptionModel : Identifiable, Hashable {
         overflow = 100 - (snapshotProtein + newValue + snapshotFats)
 
         if overflow != 0 {
-            snapshotFats = snapToStep(snapshotFats + overflow)
+            snapshotFats = Self.snapToStep(snapshotFats + overflow)
         }
 
         overflow = 100 - (snapshotProtein + newValue + snapshotFats)
 
         if overflow != 0 {
-            snapshotProtein = snapToStep(snapshotProtein + overflow)
+            snapshotProtein = Self.snapToStep(snapshotProtein + overflow)
         }
 
         return (
@@ -155,13 +155,13 @@ public final class MacroSplitOptionModel : Identifiable, Hashable {
         overflow = 100 - (snapshotProtein + snapshotCarbs + newValue)
 
         if overflow != 0 {
-            snapshotCarbs = snapToStep(snapshotCarbs + overflow)
+            snapshotCarbs = Self.snapToStep(snapshotCarbs + overflow)
         }
 
         overflow = 100 - (snapshotProtein + snapshotCarbs + newValue)
 
         if overflow != 0 {
-            snapshotProtein = snapToStep(snapshotProtein + overflow)
+            snapshotProtein = Self.snapToStep(snapshotProtein + overflow)
         }
 
         return (
@@ -171,32 +171,23 @@ public final class MacroSplitOptionModel : Identifiable, Hashable {
         )
     }
 
-    private func snapToStep(_ value: Double) -> Int {
-        let snapped = Int(value / Double(MacroSplitOptionModel.stepSize)) * MacroSplitOptionModel.stepSize
-        return MacroSplitOptionModel.clampValueTo100(snapped)
-    }
+    // MARK: - Shared rounding/clamping helpers
 
-    private func snapToStep(_ value: Int) -> Int {
-        let snapped = (value / MacroSplitOptionModel.stepSize) * MacroSplitOptionModel.stepSize
-        return MacroSplitOptionModel.clampValueTo100(snapped)
-    }
-
-    private static func clampValueTo100(_ value: Int) -> Int {
-        min(max(value, 0), 100)
-    }
-
-    // MARK: - Test Helpers
-
-    /// Static snapToStep for testing
+    // Single source of truth for the 5% step + [0,100] clamp, used by the live UI path
+    // (updateFromUi* / normalizeAfter*Change), the init/clone normalization
+    // (normalizeAll / adjustByDiff, in MacroSplitOptionsNormalization.swift), and the tests.
     static func snapToStep(_ value: Double) -> Int {
         let snapped = Int(value / Double(stepSize)) * stepSize
         return clampValueTo100(snapped)
     }
 
-    /// Static snapToStep for testing
     static func snapToStep(_ value: Int) -> Int {
         let snapped = Int(value / stepSize) * stepSize
         return clampValueTo100(snapped)
+    }
+
+    static func clampValueTo100(_ value: Int) -> Int {
+        min(max(value, 0), 100)
     }
 
 }

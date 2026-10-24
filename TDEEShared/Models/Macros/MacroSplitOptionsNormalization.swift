@@ -128,13 +128,4 @@ extension MacroSplitOptionModel {
 
         return (protein, carbs, fats)
     }
-
-    private static func snapToStep(_ value: Double, step: Int = 5, min: Int = 0, max: Int = 100) -> Int {
-        let snapped = Int(value / Double(step)) * step
-        return Swift.max(min, Swift.min(max, snapped))
-    }
-
-    private static func clampValueTo100(_ value: Int) -> Int {
-        min(max(value, 0), 100)
-    }
 }
