@@ -10,12 +10,10 @@ import Foundation
 extension ProfileViewModel {
     /// Calculates Basal Metabolic Rate using the Katch-McArdle formula.
     ///
-    /// - Parameter logger: The audit logger for tracking calculation steps
     /// - Returns: The BMR in calories per day
-    func calculateKatchMcArdle( logger: AuditLogger) -> Double {
-        // Logger log removed for brevity
+    func calculateKatchMcArdle() -> Double {
 
-        let lbm = self.calculateLeanBodyMass(logger: logger)
+        let lbm = self.calculateLeanBodyMass()
         let bmr = 370 + (21.6 * lbm)
 
         return bmr

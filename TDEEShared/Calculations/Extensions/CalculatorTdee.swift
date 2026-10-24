@@ -8,12 +8,7 @@
 import Foundation
 
 extension Calculator {
-    @discardableResult @MainActor static func calculateTdee(result: CalculatorResultViewModel, person: ProfileViewModel, createAudit: Bool = false) async -> Double {
-
-        var logger = AuditLogger(enabled: createAudit)
-
-        logger.log(AuditItem(title: "Total Daily Energy Expenditure"))
-        logger.logInputs(person: person)
+    @discardableResult @MainActor static func calculateTdee(result: CalculatorResultViewModel, person: ProfileViewModel) async -> Double {
 
         // Calculate BMR.
         //
@@ -26,16 +21,16 @@ extension Calculator {
         let bmr: Double
         switch person.bodyFatPercentageMethod {
         case .omit:
-            bmr = person.calculateMifflinStJeor( logger: logger)
+            bmr = person.calculateMifflinStJeor()
         case .estimate, .manualEntry:
-            bmr = person.calculateKatchMcArdle( logger: logger)
+            bmr = person.calculateKatchMcArdle()
         }
 
         // Adjust for activity
-        let tdee = adjustForActivityLevel(bmr: bmr, activityLevel: person.activityLevel, logger: logger)
+        let tdee = adjustForActivityLevel(bmr: bmr, activityLevel: person.activityLevel)
 
         // Adjust calories
-        let adjustedCalories = person.adjustCalories(base: tdee,  logger: logger)
+        let adjustedCalories = person.adjustCalories(base: tdee)
 
         result.updateTdee(
             bmr: bmr,
@@ -46,17 +41,13 @@ extension Calculator {
         return tdee
     }
 
-
-
     public static func adjustForActivityLevel(
        bmr: Double,
-       activityLevel: ActivityLevel,
-       logger: AuditLogger
+       activityLevel: ActivityLevel
    ) -> Double {
 
        let result = bmr * activityLevel.KatchMcArdleMultipliers
        return result
    }
-
 
 }

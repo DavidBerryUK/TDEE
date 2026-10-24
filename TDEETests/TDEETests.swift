@@ -22,7 +22,7 @@ struct ProfileViewModelMifflinStJeorTests {
         profile.bodyFatPercentageMethod = .manualEntry
         profile.bodyFatPercentage = 20
 
-        let bmr = profile.calculateMifflinStJeor(logger: AuditLogger(enabled: false))
+        let bmr = profile.calculateMifflinStJeor()
 
         // Expected: 10 * 60 + 6.25 * 170 - 5 * 30 + 5 = 600 + 1062.5 - 150 + 5 = 1517.5
         #expect(bmr == 1517.5, "Male BMR should use Mifflin-St Jeor formula with +5 adjustment")
@@ -38,7 +38,7 @@ struct ProfileViewModelMifflinStJeorTests {
         profile.bodyFatPercentageMethod = .manualEntry
         profile.bodyFatPercentage = 25
 
-        let bmr = profile.calculateMifflinStJeor(logger: AuditLogger(enabled: false))
+        let bmr = profile.calculateMifflinStJeor()
 
         // Expected: 10 * 60 + 6.25 * 165 - 5 * 30 - 161 = 600 + 1031.25 - 150 - 161 = 1320.25
         #expect(bmr == 1320.25, "Female BMR should use Mifflin-St Jeor formula with -161 adjustment")
@@ -52,7 +52,7 @@ struct ProfileViewModelMifflinStJeorTests {
         profile.height = 175
         profile.weight = 70
 
-        let bmr = profile.calculateMifflinStJeor(logger: AuditLogger(enabled: false))
+        let bmr = profile.calculateMifflinStJeor()
 
         // Expected: 10 * 70 + 6.25 * 175 - 5 * 25 + 5 = 700 + 1093.75 - 125 + 5 = 1673.75
         #expect(bmr == 1673.75, "BMR calculation should match Mifflin-St Jeor formula")
@@ -66,7 +66,7 @@ struct ProfileViewModelMifflinStJeorTests {
         profile.height = 160
         profile.weight = 55
 
-        let bmr = profile.calculateMifflinStJeor(logger: AuditLogger(enabled: false))
+        let bmr = profile.calculateMifflinStJeor()
 
         // Expected: 10 * 55 + 6.25 * 160 - 5 * 25 - 161 = 550 + 1000 - 125 - 161 = 1264
         #expect(bmr == 1264.0, "BMR calculation should match Mifflin-St Jeor formula for females")
@@ -86,8 +86,8 @@ struct ProfileViewModelMifflinStJeorTests {
         femaleProfile.height = 180
         femaleProfile.weight = 75
 
-        let maleBmr = maleProfile.calculateMifflinStJeor(logger: AuditLogger(enabled: false))
-        let femaleBmr = femaleProfile.calculateMifflinStJeor(logger: AuditLogger(enabled: false))
+        let maleBmr = maleProfile.calculateMifflinStJeor()
+        let femaleBmr = femaleProfile.calculateMifflinStJeor()
 
         #expect(maleBmr > femaleBmr, "Male BMR should be higher than female BMR for same stats")
         #expect(maleBmr == 1730.0, "Male BMR should be 1730.0")
@@ -111,7 +111,7 @@ struct ProfileViewModelKatchMcArdleTests {
         profile.bodyFatPercentageMethod = .manualEntry
         profile.bodyFatPercentage = 20
 
-        let bmr = profile.calculateKatchMcArdle(logger: AuditLogger(enabled: false))
+        let bmr = profile.calculateKatchMcArdle()
 
         // LBM = 80 * (1 - 0.20) = 64
         // BMR = 370 + 21.6 * 64 = 370 + 1382.4 = 1752.4
@@ -127,7 +127,7 @@ struct ProfileViewModelKatchMcArdleTests {
         profile.weight = 80
         profile.bodyFatPercentageMethod = .estimate
 
-        let bmr = profile.calculateKatchMcArdle(logger: AuditLogger(enabled: false))
+        let bmr = profile.calculateKatchMcArdle()
 
         // For males: LBM = 0.407 * weight + 0.267 * height - 19.2
         // LBM = 0.407 * 80 + 0.267 * 180 - 19.2 = 32.56 + 48.06 - 19.2 = 61.42
@@ -144,7 +144,7 @@ struct ProfileViewModelKatchMcArdleTests {
         profile.weight = 65
         profile.bodyFatPercentageMethod = .estimate
 
-        let bmr = profile.calculateKatchMcArdle(logger: AuditLogger(enabled: false))
+        let bmr = profile.calculateKatchMcArdle()
 
         // For females: LBM = 0.252 * weight + 0.473 * height - 48.3
         // LBM = 0.252 * 65 + 0.473 * 165 - 48.3 = 16.38 + 78.045 - 48.3 = 46.125
@@ -161,7 +161,7 @@ struct ProfileViewModelKatchMcArdleTests {
         profile.weight = 80
         profile.bodyFatPercentageMethod = .omit
 
-        let bmr = profile.calculateKatchMcArdle(logger: AuditLogger(enabled: false))
+        let bmr = profile.calculateKatchMcArdle()
 
         // When omit, LBM returns 0, so BMR = 370 + 21.6 * 0 = 370
         #expect(bmr == 370.0, "Katch-McArdle with omit should return BMR based on 0 LBM")
@@ -184,8 +184,8 @@ struct ProfileViewModelTDEETests {
         profile.activityLevel = .sedentary
 
         // Use Mifflin-St Jeor since no body fat
-        let bmr = profile.calculateMifflinStJeor(logger: AuditLogger(enabled: false))
-        let tdee = profile.calculateTDEE(bmr: bmr, activityLevel: profile.activityLevel)
+        let bmr = profile.calculateMifflinStJeor()
+        let tdee = Calculator.adjustForActivityLevel(bmr: bmr, activityLevel: profile.activityLevel)
 
         // Sedentary multiplier is 1.2
         #expect(tdee == bmr * 1.2, "TDEE should be BMR * 1.2 for sedentary")
@@ -197,7 +197,7 @@ struct ProfileViewModelTDEETests {
         let bmr = 1500.0
         let activityLevel: ActivityLevel = .moderateExercise
 
-        let tdee = ProfileViewModel().calculateTDEE(bmr: bmr, activityLevel: activityLevel)
+        let tdee = Calculator.adjustForActivityLevel(bmr: bmr, activityLevel: activityLevel)
 
         // Moderate exercise multiplier is 1.55
         #expect(tdee == 2325.0, "TDEE should be 1500 * 1.55 = 2325 for moderate exercise")
@@ -207,11 +207,11 @@ struct ProfileViewModelTDEETests {
     func testTDEEIncreasesWithActivity() throws {
         let bmr = 1500.0
 
-        let sedentaryTdee = ProfileViewModel().calculateTDEE(bmr: bmr, activityLevel: .sedentary)
-        let lightTdee = ProfileViewModel().calculateTDEE(bmr: bmr, activityLevel: .lightExercise)
-        let moderateTdee = ProfileViewModel().calculateTDEE(bmr: bmr, activityLevel: .moderateExercise)
-        let heavyTdee = ProfileViewModel().calculateTDEE(bmr: bmr, activityLevel: .heavyExercise)
-        let athleteTdee = ProfileViewModel().calculateTDEE(bmr: bmr, activityLevel: .athlete)
+        let sedentaryTdee = Calculator.adjustForActivityLevel(bmr: bmr, activityLevel: .sedentary)
+        let lightTdee = Calculator.adjustForActivityLevel(bmr: bmr, activityLevel: .lightExercise)
+        let moderateTdee = Calculator.adjustForActivityLevel(bmr: bmr, activityLevel: .moderateExercise)
+        let heavyTdee = Calculator.adjustForActivityLevel(bmr: bmr, activityLevel: .heavyExercise)
+        let athleteTdee = Calculator.adjustForActivityLevel(bmr: bmr, activityLevel: .athlete)
 
         #expect(sedentaryTdee < lightTdee, "Sedentary TDEE should be less than light")
         #expect(lightTdee < moderateTdee, "Light TDEE should be less than moderate")
@@ -238,12 +238,12 @@ struct ProfileViewModelIntegrationTests {
 
         // Without body fat (Mifflin-St Jeor)
         profile.bodyFatPercentageMethod = .omit
-        let bmrWithoutFat = profile.calculateMifflinStJeor(logger: AuditLogger(enabled: false))
+        let bmrWithoutFat = profile.calculateMifflinStJeor()
 
         // With body fat (Katch-McArdle)
         profile.bodyFatPercentageMethod = .manualEntry
         profile.bodyFatPercentage = 20
-        let bmrWithFat = profile.calculateKatchMcArdle(logger: AuditLogger(enabled: false))
+        let bmrWithFat = profile.calculateKatchMcArdle()
 
         #expect(bmrWithFat != bmrWithoutFat, "BMR should differ with and without body fat")
     }
@@ -263,7 +263,7 @@ struct FormulaVerificationTests {
         profile.height = 175
         profile.weight = 75
 
-        let bmr = profile.calculateMifflinStJeor(logger: AuditLogger(enabled: false))
+        let bmr = profile.calculateMifflinStJeor()
 
         // Formula: 10 * weight + 6.25 * height - 5 * age + 5
         // = 10 * 75 + 6.25 * 175 - 5 * 30 + 5
@@ -280,7 +280,7 @@ struct FormulaVerificationTests {
         profile.height = 165
         profile.weight = 65
 
-        let bmr = profile.calculateMifflinStJeor(logger: AuditLogger(enabled: false))
+        let bmr = profile.calculateMifflinStJeor()
 
         // Formula: 10 * weight + 6.25 * height - 5 * age - 161
         // = 10 * 65 + 6.25 * 165 - 5 * 28 - 161
@@ -299,7 +299,7 @@ struct FormulaVerificationTests {
         profile.bodyFatPercentageMethod = .manualEntry
         profile.bodyFatPercentage = 25
 
-        let bmr = profile.calculateKatchMcArdle(logger: AuditLogger(enabled: false))
+        let bmr = profile.calculateKatchMcArdle()
 
         // LBM = weight * (1 - bodyFat/100) = 80 * 0.75 = 60
         // BMR = 370 + 21.6 * LBM = 370 + 1296 = 1666
@@ -311,19 +311,19 @@ struct FormulaVerificationTests {
         let bmr = 1500.0
 
         // Test each activity level multiplier
-        let sedentaryTdee = ProfileViewModel().calculateTDEE(bmr: bmr, activityLevel: .sedentary)
+        let sedentaryTdee = Calculator.adjustForActivityLevel(bmr: bmr, activityLevel: .sedentary)
         #expect(sedentaryTdee == 1800.0, "Sedentary multiplier (1.2) should give 1800")
 
-        let lightTdee = ProfileViewModel().calculateTDEE(bmr: bmr, activityLevel: .lightExercise)
+        let lightTdee = Calculator.adjustForActivityLevel(bmr: bmr, activityLevel: .lightExercise)
         #expect(lightTdee == 2062.5, "Light exercise multiplier (1.375) should give 2062.5")
 
-        let moderateTdee = ProfileViewModel().calculateTDEE(bmr: bmr, activityLevel: .moderateExercise)
+        let moderateTdee = Calculator.adjustForActivityLevel(bmr: bmr, activityLevel: .moderateExercise)
         #expect(moderateTdee == 2325.0, "Moderate exercise multiplier (1.55) should give 2325")
 
-        let heavyTdee = ProfileViewModel().calculateTDEE(bmr: bmr, activityLevel: .heavyExercise)
+        let heavyTdee = Calculator.adjustForActivityLevel(bmr: bmr, activityLevel: .heavyExercise)
         #expect(heavyTdee == 2587.5, "Heavy exercise multiplier (1.725) should give 2587.5")
 
-        let athleteTdee = ProfileViewModel().calculateTDEE(bmr: bmr, activityLevel: .athlete)
+        let athleteTdee = Calculator.adjustForActivityLevel(bmr: bmr, activityLevel: .athlete)
         #expect(athleteTdee == 2850.0, "Athlete multiplier (1.9) should give 2850")
     }
 
@@ -336,7 +336,7 @@ struct FormulaVerificationTests {
         profile.weight = 0
 
         // Should not crash, though values may be unusual
-        let bmr = profile.calculateMifflinStJeor(logger: AuditLogger(enabled: false))
+        let bmr = profile.calculateMifflinStJeor()
         // Formula: 10*0 + 6.25*0 - 5*0 + 5 = 5 for males
         #expect(bmr == 5.0, "BMR should be 5 for zero inputs with male gender")
     }
@@ -351,7 +351,7 @@ struct FormulaVerificationTests {
         profile.bodyFatPercentageMethod = .manualEntry
         profile.bodyFatPercentage = 40
 
-        let bmr = profile.calculateKatchMcArdle(logger: AuditLogger(enabled: false))
+        let bmr = profile.calculateKatchMcArdle()
 
         // LBM = 100 * 0.6 = 60
         // BMR = 370 + 21.6 * 60 = 1666
@@ -555,12 +555,5 @@ struct ProfileViewModelValidationTests {
         profile4.bodyFatPercentageMethod = .manualEntry
         profile4.bodyFatPercentage = 50.1
         #expect(profile4.validateForCalculation() != nil, "50.1% should be invalid")
-    }
-}
-
-extension ProfileViewModel {
-    /// Calculate TDEE from BMR and activity level
-    func calculateTDEE(bmr: Double, activityLevel: ActivityLevel) -> Double {
-        return bmr * activityLevel.KatchMcArdleMultipliers
     }
 }

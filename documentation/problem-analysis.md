@@ -14,7 +14,7 @@ Ref | Title | Category | Severity | Status | Location
 **PA-04** | Dead second calculation pipeline (`refreshResults` / `tdee` / `macroTargets`) | Calc / dead code | **High** | **Done (2026-10-22)** | `ProfileViewModel.swift`
 **PA-06** | Three divergent macro-normalization algorithms | Calc / dead code | **High** | **Done (2026-10-24)** | `MacroSplitOptionModel.swift:103-172`, `MacroSplitOptionsNormalization.swift`
 **PA-01** | First-launch **device** profile seeds height/weight = 0 → validation error, no TDEE | Config | **Medium** | Accepted | `ProfileDefaults.swift:35-46`, `ProfileRepository.swift:78-96`
-**PA-05** | Dead hardcoded 40/30/30 `calculateMacros(tdee:)` with `00.4` literals | Calc / dead code | Medium | Outstanding | `ProfileViewModel.swift:280-291`
+**PA-05** | Dead hardcoded 40/30/30 `calculateMacros(tdee:)` with `00.4` literals | Calc / dead code | Medium | **Done (2026-10-24)** | `ProfileViewModel.swift` (removed with PA-04)
 **PA-07** | `updateProtein`/`updateCarbs`/`updateFats` are dead (zero callers) | Calc / dead code | Medium | **Done (2026-10-24)** | `ProfileViewModel.swift:327-346`, `MacroSplitOptionsNormalization.swift:250-271`
 **PA-10** | Four `ActivityLevel` cases reuse base multipliers → duplicate iPhone options | Calc | Medium | Outstanding | `ActivityLevel.swift:11-16`
 **PA-11** | `.light` and `.moderate` both render "Moderate activity" in share card | Calc | Medium | Outstanding | `ActivityLevel.swift:23-24`, `ShareResultsModel.swift:122`
@@ -29,7 +29,7 @@ Ref | Title | Category | Severity | Status | Location
 **PA-03** | `Profile.height` doc says "meters" but value is centimetres | Config | Low | **Done (2026-10-24)** | `Profile.swift:16`
 **PA-08** | Duplicated `snapToStep` / `clampValueTo100` (5 definitions, 2 files) | Calc / dead code | Low | **Done (2026-10-24)** | `MacroSplitOptionModel.swift:174-200`, `MacroSplitOptionsNormalization.swift`
 **PA-09** | `KatchMcArdleMultipliers` misnomer — factor is applied to Mifflin too | Calc | Low | Outstanding | `ActivityLevel.swift:64-78`, `CalculatorTdee.swift:50`
-**PA-12** | Audit trail / `AuditLogger` vestigial; test-only `calculateTDEE` shim | Calc / dead code | Low | Outstanding | `CalculatorTdee.swift:13-15`, `TDEETests.swift:636`
+**PA-12** | Audit trail / `AuditLogger` vestigial; test-only `calculateTDEE` shim | Calc / dead code | Low | **Done (2026-10-24)** | `CalculatorTdee.swift`, `TDEETests.swift` (shim removed)
 **PA-16** | `print()` used for error logging (lost in release, not surfaced) | Error handling | Low | Outstanding | `ProfileStore.swift:78,108,126`, `ProfileViewModel.swift:197,212,258`
 **PA-18** | `regularLayout` shares one `NavigationStack` `path` across sidebar + detail | UI | Low | Outstanding | `ContentView.swift`
 **PA-20** | Watch weight/height ranges diverge from phone (`0…250` vs `20…300`, etc.) | Watch | Low | Outstanding | `WatchRanges.swift:14,18`, `WatchWeightView.swift`
@@ -42,7 +42,7 @@ Ref | Title | Category | Severity | Status | Location
 **PA-24** | Watch uses a standalone store; phone↔watch data never syncs | Watch | Info | By Design | `TDEEWatchApp.swift:16`
 **PA-30** | `File.swift` is an empty test stub | Tests | Info | Outstanding | `TDEETests/File.swift`
 
-**Severity tally:** High 2 · Medium 11 · Low 14 · Info 3 — **30 findings** (6 resolved: PA-02, PA-03, PA-04, PA-06, PA-07, PA-08; plus the "Confirmed correct" section below).
+**Severity tally:** High 2 · Medium 11 · Low 14 · Info 3 — **30 findings** (8 resolved: PA-02, PA-03, PA-04, PA-05, PA-06, PA-07, PA-08, PA-12; plus the "Confirmed correct" section below).
 
 ---
 
@@ -74,6 +74,7 @@ Three different overflow-distribution strategies coexist: (a) the **live** insta
 **Location:** `TDEEShared/Models/ProfileViewModel/ProfileViewModel.swift:280-291`
 `calculateMacros(tdee:)` computes macros from fixed splits `00.4` / `0.3` / implied `0.3`, ignoring the profile's real `protein`/`carbs`/`fats` and `calorieAdjustment`. Reachable only via the dead `refreshResults()` (PA-04) and TDEETests; the production path is `calculateMacros(result:)` in `CalculateMacros.swift`, which uses the actual percents. The `00.4` literal is non-idiomatic (leading-zero double, reads like a typo).
 **Recommendation:** Remove `calculateMacros(tdee:)` with `refreshResults`; if a helper is kept, source splits from the model and use named constants.
+**Status: Done (2026-10-24).** `calculateMacros(tdee:)` was removed together with `refreshResults()` when PA-04 closed the dead second calculation pipeline (2026-10-22) — that method was its only production caller. Grep confirms the sole surviving `calculateMacros` is the live `calculateMacros(result:)` in `CalculateMacros.swift`, which uses the profile's real `protein`/`carbs`/`fats` percents; no `00.4`/`00.3` literals remain. No further action needed.
 
 #### PA-07 — `updateProtein`/`updateCarbs`/`updateFats` are dead
 **Location:** `TDEEShared/Models/ProfileViewModel/ProfileViewModel.swift:327-346`; `TDEEShared/Models/Macros/MacroSplitOptionsNormalization.swift:250-271`
@@ -155,6 +156,7 @@ The property is the generic activity factor (1.2–1.9), applied to **both** BMR
 **Location:** `TDEEShared/Calculations/Extensions/CalculatorTdee.swift:13-15`; `TDEETests/TDEETests.swift:636`
 `Calculator.calculate` always passes `createAudit: false`; BMR helpers accept a `logger:` they ignore; `CalculatorResultViewModel.audit` is only ever `[]` and never read. Separately, `calculateTDEE(bmr:activityLevel:)` is a shim defined inside `TDEETests.swift`, not part of the app.
 **Recommendation:** Remove the audit plumbing and ignored `logger:` params, or wire `createAudit: true` with a reader; delete the test-only shim.
+**Status: Done (2026-10-24) — audit plumbing removed.** Deleted `AuditLogger.swift` and `AuditItem.swift`; dropped the `audit` field from `CalculatorResultViewModel`; removed the `createAudit:` param from `Calculator.calculate` / `calculateTdee` and the ignored `logger:` param from `calculateMifflinStJeor` / `calculateKatchMcArdle` / `calculateLeanBodyMass` / `adjustCalories`. The test-only `calculateTDEE(bmr:activityLevel:)` shim was deleted and its callers redirected to the production `Calculator.adjustForActivityLevel(bmr:activityLevel:)`, so the TDEE-multiplier tests now exercise real code rather than a parallel copy. The "wire `createAudit: true`" alternative was **not** taken: surfacing an audit trail would need a UI surface, which is out of scope under `UI_RESTRICTIONS.md`. Grep confirms **zero residual** `AuditLogger` / `AuditItem` / `createAudit` / `calculateTDEE` / `logger:` references (the lone remaining `func calculateTDEE()` is a naming-convention doc example in `NamingConventions.swift`, not code). Full `TDEE` test suite passes on the iPhone 17e simulator (`** TEST SUCCEEDED **`), including `CalculationParityTests`.
 
 #### PA-16 — `print()` used for error logging
 **Location:** `ProfileStore.swift:78,108,126`; `ProfileViewModel.swift:197,212,258`
@@ -233,9 +235,9 @@ These areas were audited and found sound — included so the scope is explicit:
 2. **PA-14** — UOM not persisted (affects phone + watch display; add entity fields + test).
 3. **~~PA-01~~ (accepted 2026-10-24 — intentional sentinel; the first-launch prompt is a separate UI task, out of scope)**
 4. **PA-19** — watch silently mis-reports 4 activity levels.
-5. **~~PA-02~~ / ~~PA-03~~ / ~~PA-06~~ / ~~PA-07~~ / ~~PA-08~~ (all done 2026-10-24) / ~~PA-04~~ (done 2026-10-22) / PA-12** — the dead calc pipeline (PA-04), the dead static normalize family + `update*` wrappers (PA-06/PA-07), and the duplicate `snapToStep`/`clampValueTo100` helpers (PA-08) are all gone; `MacroSplitOptionsNormalization.swift` now holds only the live `normalizeAll`/`adjustByDiff`; the two Config cleanups (PA-02 method passthrough in `createProfile`, PA-03 height-unit comment) are also done. Only PA-12 (vestigial audit trail) remains from this bundle.
+5. **~~PA-02~~ / ~~PA-03~~ / ~~PA-04~~ / ~~PA-05~~ / ~~PA-06~~ / ~~PA-07~~ / ~~PA-08~~ / ~~PA-12~~** — the whole "Calc / dead code" bundle is now closed: the dead calc pipeline (PA-04, 2026-10-22), the dead 40/30/30 `calculateMacros(tdee:)` (PA-05, gone with PA-04), the dead static normalize family + `update*` wrappers (PA-06/PA-07), the duplicate `snapToStep`/`clampValueTo100` helpers (PA-08), and the vestigial audit trail + test-only `calculateTDEE` shim (PA-12, 2026-10-24) are all removed; `MacroSplitOptionsNormalization.swift` now holds only the live `normalizeAll`/`adjustByDiff`; the two Config cleanups (PA-02 method passthrough in `createProfile`, PA-03 height-unit comment) are also done.
 
-**Then (Medium):** PA-05, PA-10, PA-11, PA-13, PA-15, PA-26, PA-28.
+**Then (Medium):** PA-10, PA-11, PA-13, PA-15, PA-26, PA-28.
 **Low / hygiene:** PA-09, PA-16, PA-18, PA-20, PA-21, PA-22, PA-23, PA-25, PA-29, PA-30.
 **No action:** PA-01 (accepted — intentional sentinel; the first-launch prompt is a separate UI task, out of scope), PA-17 (accepted), PA-24 (by design).
 

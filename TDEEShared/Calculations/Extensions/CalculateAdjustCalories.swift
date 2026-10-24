@@ -10,11 +10,9 @@ import Foundation
 extension ProfileViewModel {
     /// Adjusts base calories based on the user's calorie adjustment method.
     ///
-    /// - Parameters:
-    ///   - base: The base calorie value (typically TDEE)
-    ///   - logger: The audit logger for tracking calculation steps
+    /// - Parameter base: The base calorie value (typically TDEE)
     /// - Returns: The adjusted calorie value (never negative)
-    func adjustCalories(base: Double, logger: AuditLogger) -> Double {
+    func adjustCalories(base: Double) -> Double {
         switch self.calorieAdjustmentMethod {
         case .maintain:
             return max( 0, base)
