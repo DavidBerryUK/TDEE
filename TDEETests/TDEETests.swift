@@ -229,8 +229,6 @@ struct ProfileViewModelTDEETests {
     }
 }
 
-// MARK: - ProfileViewModel Macro Tests
-
 // MARK: - ProfileViewModel Integration Tests
 
 @Suite("ProfileViewModel Integration Tests")

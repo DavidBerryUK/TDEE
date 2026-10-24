@@ -15,7 +15,6 @@ Ref | Title | Category | Severity | Status | Location
 **PA-14** | `weightUom` / `heightUom` are not persisted → UOM resets on reload (phone + watch) | Persistence | Medium | Outstanding | `ProfileViewModel.swift:55,64`, `ProfileMapper.swift`, `Profile.swift`
 **PA-15** | `UIMainView` onChange storm (11 handlers / 10 Tasks) → redundant recalcs, racy `isCalculating` | UI / concurrency | Medium | Outstanding | `UIMainView.swift:132-173`
 **PA-26** | Share card hardcodes "cm"/"kg", ignoring the user's UOM | Share | Medium | Outstanding | `ShareResultsModel.swift:115-119`
-**PA-28** | Core tests assert the dead calc path; live path covered by 2 parity cases only | Tests | Medium | Outstanding | `TDEETests.swift:229-302`
 **PA-09** | `KatchMcArdleMultipliers` misnomer — factor is applied to Mifflin too | Calc | Low | Outstanding | `ActivityLevel.swift:64-78`, `CalculatorTdee.swift:50`
 **PA-16** | `print()` used for error logging (lost in release, not surfaced) | Error handling | Low | Outstanding | `ProfileStore.swift:78,108,126`, `ProfileViewModel.swift:197,212,258`
 **PA-18** | `regularLayout` shares one `NavigationStack` `path` across sidebar + detail | UI | Low | Outstanding | `ContentView.swift`
@@ -34,6 +33,7 @@ Ref | Title | Category | Severity | Status | Location
 **PA-11** | `.light` and `.moderate` both render "Moderate activity" in share card | Calc | Medium | **Done (2026-10-24)** | `ActivityLevel.swift:23-24`, `ShareResultsModel.swift:122`
 **PA-19** | Watch offers 5 of 9 `ActivityLevel` cases; others fall back to `.lightExercise` | Watch | Medium | **Done (2026-10-24)** | `WatchRanges.swift:40`, `WatchActivityLevelView.swift:23`
 **PA-27** | Share card sign bug: a cut reads `+500 kcal` (identical to a 500 bulk) | Share | Medium | **Done (2026-10-24)** | `ShareResultsModel.swift:138-144`
+**PA-28** | Core tests assert the dead calc path; live path now covered by 6 parity cases | Tests | Medium | **Done (2026-10-24)** | `TDEETests.swift`, `CalculationParityTests.swift`
 **PA-02** | Two `ProfileDefaults` fields never consumed by `createProfile` | Config | Low | **Done (2026-10-24)** | `ProfileRepository.swift:78-96`
 **PA-03** | `Profile.height` doc says "meters" but value is centimetres | Config | Low | **Done (2026-10-24)** | `Profile.swift:16`
 **PA-08** | Duplicated `snapToStep` / `clampValueTo100` (5 definitions, 2 files) | Calc / dead code | Low | **Done (2026-10-24)** | `MacroSplitOptionModel.swift:174-200`, `MacroSplitOptionsNormalization.swift`
@@ -42,7 +42,7 @@ Ref | Title | Category | Severity | Status | Location
 **PA-17** | `ProfileViewModel` convenience init spawns a load Task (non-idiomatic, safe) | Concurrency | Info | Accepted | `ProfileViewModel.swift:177-179`
 **PA-24** | Watch uses a standalone store; phone↔watch data never syncs | Watch | Info | By Design | `TDEEWatchApp.swift:16`
 
-**Severity tally:** High 2 · Medium 11 · Low 14 · Info 3 — **30 findings** (12 resolved: PA-02, PA-03, PA-04, PA-05, PA-06, PA-07, PA-08, PA-10, PA-11, PA-12, PA-19, PA-27; plus the "Confirmed correct" section below).
+**Severity tally:** High 2 · Medium 10 · Low 14 · Info 3 — **30 findings** (13 resolved: PA-02, PA-03, PA-04, PA-05, PA-06, PA-07, PA-08, PA-10, PA-11, PA-12, PA-19, PA-27, PA-28; plus the "Confirmed correct" section below).
 
 ---
 
@@ -69,11 +69,6 @@ Eleven `.onChange` handlers (gender, age, weight, height, bodyFatMethod, bodyFat
 **Location:** `TDEEShared/Models/ShareResultsModel.swift:115-119`
 `heightText`/`weightText` are hardcoded `formatAsInteger(profile.height) + " cm"` / `+ " kg"`, ignoring the user's UOM (the inline comments admit "assuming cm from profile, could add UOM support"). A user who entered in pounds / feet-and-inches sees metric units on the share card. Related to PA-14.
 **Recommendation:** Format height/weight through the user's UOM (as `UISectionSummaryValue*` already does).
-
-#### PA-28 — Core tests assert the dead calc path
-**Location:** `TDEETests/TDEETests.swift:229-302`
-`ProfileViewModelMacroTests` and `ProfileViewModelIntegrationTests` assert `profile.tdee` / `profile.macroTargets` and `calculateMacros(tdee:)` — the **dead** 40/30/30 pipeline (PA-04/PA-05) the UI never uses. The live `Calculator.calculate(person:)` path is covered by only 2 cases in `CalculationParityTests`. Green tests here give false confidence that the macro calc is correct.
-**Recommendation:** Point the core tests at `Calculator.calculate` (extend `CalculationParityTests`); remove assertions on the dead path once PA-04/PA-05 are resolved.
 
 #### PA-09 — `KatchMcArdleMultipliers` misnomer
 **Location:** `TDEEShared/Models/SwiftData/ActivityLevel.swift:64-78`; `TDEEShared/Calculations/Extensions/CalculatorTdee.swift:50`
@@ -199,6 +194,12 @@ Rounding/clamping logic is reimplemented 5× across two files (instance `snapToS
 **Recommendation:** Either map the omitted cases onto the watch's 5 offered ones explicitly, or offer the full set on the watch.
 **Status: Done (2026-10-24) — subsumed by PA-10.** The watch already offered exactly the 5 canonical levels (`WatchRanges.activityLevels`), and those 5 are now the whole enum, so there are no longer any omitted cases for `selectionBinding` to fall back on. The transient `watchLevel` bridge (which mapped a base case onto an exercise case) was deleted as dead code; `WatchActivityLevelView` now compares `level == profile.activityLevel` directly, and `WatchMainView` reads `activityLevel.displayName` instead of `activityLevel.watchLevel.displayName`.
 
+#### PA-28 — Core tests assert the dead calc path
+**Location:** `TDEETests/TDEETests.swift`; `TDEETests/CalculationParityTests.swift`
+`ProfileViewModelMacroTests` and `ProfileViewModelIntegrationTests` asserted `profile.tdee` / `profile.macroTargets` and `calculateMacros(tdee:)` — the **dead** 40/30/30 pipeline (PA-04/PA-05) the UI never uses, so the green tests gave false confidence that the macro calc was correct.
+**Recommendation:** Point the core tests at `Calculator.calculate` (extend `CalculationParityTests`); remove assertions on the dead path once PA-04/PA-05 are resolved.
+**Status: Done (2026-10-24) — resolved by the PA-04/PA-05 cascade.** Both halves of the finding no longer hold: `ProfileViewModelMacroTests` (the dead-path suite) was removed, and the surviving `ProfileViewModelIntegrationTests` test (`testBodyFatMethodAffectsCalculation`) exercises the **live** BMR helpers (`calculateMifflinStJeor` / `calculateKatchMcArdle`) that `CalculatorTdee.calculateTdee` uses — not the dead path. The live `Calculator.calculate(person:)` path is now pinned by six `CalculationParityTests` cases (Mifflin-St Jeor, Katch-McArdle, cut, bulk, recalc-on-change, zero-guard) plus `FormulaVerificationTests` and the integration test. Grep confirms **zero** remaining assertions on the dead `profile.tdee` / `profile.macroTargets` / `calculateMacros(tdee:)` symbols; the only surviving mentions are an explanatory comment in `CalculationParityTests` and the live `result.tdee` / `result.bmr` on `CalculatorResultViewModel` (read by `ShareResultsModel`). The one PA-28-specific tidy-up was removing the now-dangling `// MARK: - ProfileViewModel Macro Tests` comment left behind by the suite deletion.
+
 ### Accepted
 
 #### PA-01 — First-launch device profile seeds height/weight = 0
@@ -241,7 +242,7 @@ These areas were audited and found sound — included so the scope is explicit:
 4. **~~PA-19~~ (done 2026-10-24 — subsumed by PA-10; the watch already offered exactly the 5 canonical levels, so the fallback is gone)**
 5. **~~PA-02~~ / ~~PA-03~~ / ~~PA-04~~ / ~~PA-05~~ / ~~PA-06~~ / ~~PA-07~~ / ~~PA-08~~ / ~~PA-12~~** — the whole "Calc / dead code" bundle is now closed: the dead calc pipeline (PA-04, 2026-10-22), the dead 40/30/30 `calculateMacros(tdee:)` (PA-05, gone with PA-04), the dead static normalize family + `update*` wrappers (PA-06/PA-07), the duplicate `snapToStep`/`clampValueTo100` helpers (PA-08), and the vestigial audit trail + test-only `calculateTDEE` shim (PA-12, 2026-10-24) are all removed; `MacroSplitOptionsNormalization.swift` now holds only the live `normalizeAll`/`adjustByDiff`; the two Config cleanups (PA-02 method passthrough in `createProfile`, PA-03 height-unit comment) are also done.
 
-**Then (Medium):** PA-13, PA-15, PA-26, PA-28.
+**Then (Medium):** PA-13, PA-15, PA-26.
 **Low / hygiene:** PA-09, PA-16, PA-18, PA-20, PA-21, PA-22, PA-23, PA-25, PA-29, PA-30.
 **No action:** PA-01 (accepted — intentional sentinel; the first-launch prompt is a separate UI task, out of scope), PA-17 (accepted), PA-24 (by design).
 
