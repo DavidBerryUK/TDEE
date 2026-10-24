@@ -11,7 +11,6 @@
 
 Ref | Title | Category | Severity | Status | Location
 --- | --- | --- | --- | --- | ---
-**PA-13** | `ProfileStore.add`/`rename`/`load()` re-derive active profile to "Main" | State | Medium | Outstanding | `ProfileStore.swift:62-111`
 **PA-14** | `weightUom` / `heightUom` are not persisted → UOM resets on reload (phone + watch) | Persistence | Medium | Outstanding | `ProfileViewModel.swift:55,64`, `ProfileMapper.swift`, `Profile.swift`
 **PA-15** | `UIMainView` onChange storm (11 handlers / 10 Tasks) → redundant recalcs, racy `isCalculating` | UI / concurrency | Medium | Outstanding | `UIMainView.swift:132-173`
 **PA-26** | Share card hardcodes "cm"/"kg", ignoring the user's UOM | Share | Medium | Outstanding | `ShareResultsModel.swift:115-119`
@@ -34,6 +33,7 @@ Ref | Title | Category | Severity | Status | Location
 **PA-19** | Watch offers 5 of 9 `ActivityLevel` cases; others fall back to `.lightExercise` | Watch | Medium | **Done (2026-10-24)** | `WatchRanges.swift:40`, `WatchActivityLevelView.swift:23`
 **PA-27** | Share card sign bug: a cut reads `+500 kcal` (identical to a 500 bulk) | Share | Medium | **Done (2026-10-24)** | `ShareResultsModel.swift:138-144`
 **PA-28** | Core tests assert the dead calc path; live path now covered by 6 parity cases | Tests | Medium | **Done (2026-10-24)** | `TDEETests.swift`, `CalculationParityTests.swift`
+**PA-13** | `ProfileStore.add`/`rename`/`load()` re-derive active profile to "Main" | State | Medium | **Done (2026-10-24)** | `ProfileStore.swift:62-111`
 **PA-02** | Two `ProfileDefaults` fields never consumed by `createProfile` | Config | Low | **Done (2026-10-24)** | `ProfileRepository.swift:78-96`
 **PA-03** | `Profile.height` doc says "meters" but value is centimetres | Config | Low | **Done (2026-10-24)** | `Profile.swift:16`
 **PA-08** | Duplicated `snapToStep` / `clampValueTo100` (5 definitions, 2 files) | Calc / dead code | Low | **Done (2026-10-24)** | `MacroSplitOptionModel.swift:174-200`, `MacroSplitOptionsNormalization.swift`
@@ -42,18 +42,13 @@ Ref | Title | Category | Severity | Status | Location
 **PA-17** | `ProfileViewModel` convenience init spawns a load Task (non-idiomatic, safe) | Concurrency | Info | Accepted | `ProfileViewModel.swift:177-179`
 **PA-24** | Watch uses a standalone store; phone↔watch data never syncs | Watch | Info | By Design | `TDEEWatchApp.swift:16`
 
-**Severity tally:** High 2 · Medium 10 · Low 14 · Info 3 — **30 findings** (13 resolved: PA-02, PA-03, PA-04, PA-05, PA-06, PA-07, PA-08, PA-10, PA-11, PA-12, PA-19, PA-27, PA-28; plus the "Confirmed correct" section below).
+**Severity tally:** High 2 · Medium 9 · Low 14 · Info 3 — **30 findings** (14 resolved: PA-02, PA-03, PA-04, PA-05, PA-06, PA-07, PA-08, PA-10, PA-11, PA-12, PA-13, PA-19, PA-27, PA-28; plus the "Confirmed correct" section below).
 
 ---
 
 ## Detailed findings
 
 ### Outstanding
-
-#### PA-13 — `ProfileStore` clobbers the active profile back to "Main"
-**Location:** `TDEEShared/Models/SwiftData/ProfileStore.swift:62-111`
-`load()` sets `activeProfileId = mainId ?? all.first?.id ?? activeProfileId` — always re-deriving to Main. `add(name:)` and `rename(id:to:)` both call `await load()`, so the active selection jumps back to "Main" after creating or renaming a profile. The in-session active choice is lost on any `load()`.
-**Recommendation:** Preserve the active id across `load()` (re-apply it only when it still exists), so add/rename don't reset selection.
 
 #### PA-14 — `weightUom` / `heightUom` are not persisted
 **Location:** `TDEEShared/Models/ProfileViewModel/ProfileViewModel.swift:55,64`; `TDEEShared/Models/SwiftData/ProfileMapper.swift`; `TDEEShared/Models/SwiftData/Profile.swift`
@@ -200,6 +195,12 @@ Rounding/clamping logic is reimplemented 5× across two files (instance `snapToS
 **Recommendation:** Point the core tests at `Calculator.calculate` (extend `CalculationParityTests`); remove assertions on the dead path once PA-04/PA-05 are resolved.
 **Status: Done (2026-10-24) — resolved by the PA-04/PA-05 cascade.** Both halves of the finding no longer hold: `ProfileViewModelMacroTests` (the dead-path suite) was removed, and the surviving `ProfileViewModelIntegrationTests` test (`testBodyFatMethodAffectsCalculation`) exercises the **live** BMR helpers (`calculateMifflinStJeor` / `calculateKatchMcArdle`) that `CalculatorTdee.calculateTdee` uses — not the dead path. The live `Calculator.calculate(person:)` path is now pinned by six `CalculationParityTests` cases (Mifflin-St Jeor, Katch-McArdle, cut, bulk, recalc-on-change, zero-guard) plus `FormulaVerificationTests` and the integration test. Grep confirms **zero** remaining assertions on the dead `profile.tdee` / `profile.macroTargets` / `calculateMacros(tdee:)` symbols; the only surviving mentions are an explanatory comment in `CalculationParityTests` and the live `result.tdee` / `result.bmr` on `CalculatorResultViewModel` (read by `ShareResultsModel`). The one PA-28-specific tidy-up was removing the now-dangling `// MARK: - ProfileViewModel Macro Tests` comment left behind by the suite deletion.
 
+#### PA-13 — `ProfileStore` clobbers the active profile back to "Main"
+**Location:** `TDEEShared/Models/SwiftData/ProfileStore.swift:62-111`
+`load()` set `activeProfileId = mainId ?? all.first?.id ?? activeProfileId` — always re-deriving to Main. `add(name:)` and `rename(id:to:)` both call `await load()`, so the active selection jumped back to "Main" after creating or renaming a profile; the in-session active choice was lost on any `load()`.
+**Recommendation:** Preserve the active id across `load()` (re-apply it only when it still exists), so add/rename don't reset selection.
+**Status: Done (2026-10-24).** `load()` now keeps the current `activeProfileId` when it still exists in the reloaded list, falling back to Main only when the active profile is gone — so `add()`/`rename()` no longer bounce the selection back to Main. First launch / relaunch still open on Main, because a fresh store's default `UUID()` never matches a stored profile. `delete()` already handled its own active fallback (it does not call `load()`) and is unchanged. Two regression tests added to `SwiftDataPersistenceTests` (`addKeepsActive`, `renameKeepsActive`); the TDEE suite is green on iPhone 17e.
+
 ### Accepted
 
 #### PA-01 — First-launch device profile seeds height/weight = 0
@@ -242,7 +243,7 @@ These areas were audited and found sound — included so the scope is explicit:
 4. **~~PA-19~~ (done 2026-10-24 — subsumed by PA-10; the watch already offered exactly the 5 canonical levels, so the fallback is gone)**
 5. **~~PA-02~~ / ~~PA-03~~ / ~~PA-04~~ / ~~PA-05~~ / ~~PA-06~~ / ~~PA-07~~ / ~~PA-08~~ / ~~PA-12~~** — the whole "Calc / dead code" bundle is now closed: the dead calc pipeline (PA-04, 2026-10-22), the dead 40/30/30 `calculateMacros(tdee:)` (PA-05, gone with PA-04), the dead static normalize family + `update*` wrappers (PA-06/PA-07), the duplicate `snapToStep`/`clampValueTo100` helpers (PA-08), and the vestigial audit trail + test-only `calculateTDEE` shim (PA-12, 2026-10-24) are all removed; `MacroSplitOptionsNormalization.swift` now holds only the live `normalizeAll`/`adjustByDiff`; the two Config cleanups (PA-02 method passthrough in `createProfile`, PA-03 height-unit comment) are also done.
 
-**Then (Medium):** PA-13, PA-15, PA-26.
+**Then (Medium):** PA-15, PA-26.
 **Low / hygiene:** PA-09, PA-16, PA-18, PA-20, PA-21, PA-22, PA-23, PA-25, PA-29, PA-30.
 **No action:** PA-01 (accepted — intentional sentinel; the first-launch prompt is a separate UI task, out of scope), PA-17 (accepted), PA-24 (by design).
 

@@ -58,14 +58,20 @@ final class ProfileStore {
     // MARK: - Loading
 
     /// Ensure a Main profile exists, then load the list. The in-session active profile
-    /// defaults to Main on each launch.
+    /// is preserved across reloads — falling back to Main only when the current choice
+    /// no longer exists — so `add()`/`rename()` don't bounce the selection back to Main.
     func load() async {
         guard let repository else { return }
         do {
             try await repository.ensureMainProfile()
             let all = try await repository.fetchAllProfiles()
-            let mainId = all.first(where: { $0.name == ProfileRepository.mainProfileName })?.id
-            activeProfileId = mainId ?? all.first?.id ?? activeProfileId
+            // Keep the current active choice when it still exists; otherwise fall back to
+            // Main, then any remaining profile. A fresh store's default id never matches a
+            // stored profile, so first launch / relaunch still open on Main.
+            if !all.contains(where: { $0.id == activeProfileId }) {
+                let mainId = all.first(where: { $0.name == ProfileRepository.mainProfileName })?.id
+                activeProfileId = mainId ?? all.first?.id ?? activeProfileId
+            }
             profiles = all.map {
                 ProfileSummary(
                     id: $0.id,

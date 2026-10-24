@@ -301,4 +301,31 @@ struct SwiftDataPersistenceTests {
         let relaunched = await makeStore(container)
         #expect(relaunched.activeProfile?.name == ProfileRepository.mainProfileName)
     }
+
+    @Test("Adding a profile keeps the active selection (no bounce to Main)")
+    func addKeepsActive() async throws {
+        let container = makeContainer()
+        let store = await makeStore(container)
+        let partnerId = try #require(await store.add(name: "Partner"))
+        store.activate(to: partnerId)
+        #expect(store.activeProfile?.id == partnerId)
+
+        _ = try #require(await store.add(name: "Guest"))
+
+        #expect(store.activeProfile?.id == partnerId, "Adding a profile must not reset active to Main")
+        #expect(store.profiles.count == 3)
+    }
+
+    @Test("Renaming the active profile keeps it active under its new name")
+    func renameKeepsActive() async throws {
+        let container = makeContainer()
+        let store = await makeStore(container)
+        let partnerId = try #require(await store.add(name: "Partner"))
+        store.activate(to: partnerId)
+
+        await store.rename(id: partnerId, to: "Partner 2")
+
+        #expect(store.activeProfile?.id == partnerId, "Renaming must not reset active to Main")
+        #expect(store.activeProfile?.name == "Partner 2", "The active profile follows the rename")
+    }
 }
