@@ -1,5 +1,6 @@
 import Observation
 import Foundation
+import os
 
 /// A lightweight, observable snapshot of a stored profile: enough for a list row and a switch target.
 public struct ProfileSummary: Identifiable, Hashable {
@@ -24,6 +25,9 @@ public struct ProfileSummary: Identifiable, Hashable {
 @Observable
 @MainActor
 final class ProfileStore {
+
+    /// Error-logging channel for load/save failures (lost in a release build via `print`).
+    private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "DaveBerryUk.TDEE", category: "ProfileStore")
 
     /// The profiles, ordered Main first then alphabetically by name.
     private(set) var profiles: [ProfileSummary] = []
@@ -81,7 +85,7 @@ final class ProfileStore {
                 )
             }
         } catch {
-            print("Failed to load profiles: \(error)")
+            Self.logger.error("Failed to load profiles: \(error)")
         }
     }
 
@@ -111,7 +115,7 @@ final class ProfileStore {
             await load()
             return profile.id
         } catch {
-            print("Failed to create profile: \(error)")
+            Self.logger.error("Failed to create profile: \(error)")
             return nil
         }
     }
@@ -129,7 +133,7 @@ final class ProfileStore {
             try await repository.renameProfile(id: id, to: trimmed)
             await load()
         } catch {
-            print("Failed to rename profile: \(error)")
+            Self.logger.error("Failed to rename profile: \(error)")
         }
     }
 
@@ -146,7 +150,7 @@ final class ProfileStore {
         do {
             try await repository?.deleteProfile(byId: id)
         } catch {
-            print("Failed to delete profile: \(error)")
+            Self.logger.error("Failed to delete profile: \(error)")
             return
         }
         profiles.removeAll { $0.id == id }

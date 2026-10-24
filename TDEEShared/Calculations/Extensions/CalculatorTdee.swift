@@ -46,7 +46,7 @@ extension Calculator {
        activityLevel: ActivityLevel
    ) -> Double {
 
-       let result = bmr * activityLevel.KatchMcArdleMultipliers
+       let result = bmr * activityLevel.activityMultiplier
        return result
    }
 

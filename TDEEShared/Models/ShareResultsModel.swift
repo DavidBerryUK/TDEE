@@ -19,6 +19,63 @@ private func formatAsInteger(_ value: Double) -> String {
     return String(value)
 }
 
+/// Joins a measurement's major value/unit and optional minor value/unit into a
+/// single string, skipping empty segments — the four-part layout that
+/// UISectionSummaryValueHeight / UISectionSummaryValueWeight render separately.
+private func joinMeasurement(major: String, majorUnit: String, minor: String, minorUnit: String) -> String {
+    [major, majorUnit, minor, minorUnit].filter { !$0.isEmpty }.joined(separator: " ")
+}
+
+/// Formats a height through its UOM, reusing the same `DisplayLength` value
+/// helpers as UISectionSummaryValueHeight (major value + unit, plus the minor
+/// value + unit for feet-and-inches).
+private func formatHeight(length: Double, unit: OptionLength) -> String {
+    let majorUnit: String
+    let minorUnit: String
+    switch unit {
+    case .centimeters:
+        majorUnit = "cm"
+        minorUnit = ""
+    case .inches:
+        majorUnit = "inches"
+        minorUnit = ""
+    case .feetAndInches:
+        majorUnit = "feet"
+        minorUnit = "inches"
+    }
+    return joinMeasurement(
+        major: DisplayLength.asMajorValue(length: length, unit: unit),
+        majorUnit: majorUnit,
+        minor: DisplayLength.asMinorValue(length: length, unit: unit),
+        minorUnit: minorUnit
+    )
+}
+
+/// Formats a weight through its UOM, reusing the same `DisplayWeight` value
+/// helpers as UISectionSummaryValueWeight (major value + unit, plus the minor
+/// value + unit for stones-and-pounds).
+private func formatWeight(weight: Double, unit: OptionWeight) -> String {
+    let majorUnit: String
+    let minorUnit: String
+    switch unit {
+    case .kilograms:
+        majorUnit = "kg"
+        minorUnit = ""
+    case .pounds:
+        majorUnit = "pounds"
+        minorUnit = ""
+    case .stonesAndPounds:
+        majorUnit = "stones"
+        minorUnit = "pounds"
+    }
+    return joinMeasurement(
+        major: DisplayWeight.asMajorValue(weight: weight, unit: unit),
+        majorUnit: majorUnit,
+        minor: DisplayWeight.asMinorValue(weight: weight, unit: unit),
+        minorUnit: minorUnit
+    )
+}
+
 /// Model containing all data needed for sharing calculation results.
 ///
 /// This model provides a clean separation between calculation logic
@@ -112,11 +169,10 @@ struct ShareResultsModel {
         // Format age
         self.ageText = "\(profile.age) years"
 
-        // Format height (assuming cm from profile, could add UOM support)
-        self.heightText = formatAsInteger(profile.height) + " cm"
-
-        // Format weight (assuming kg from profile, could add UOM support)
-        self.weightText = formatAsInteger(profile.weight) + " kg"
+        // Format height/weight through the profile's UOM, mirroring
+        // UISectionSummaryValueHeight / UISectionSummaryValueWeight.
+        self.heightText = formatHeight(length: profile.height, unit: profile.heightUom)
+        self.weightText = formatWeight(weight: profile.weight, unit: profile.weightUom)
 
         // Format activity level with full description
         self.activityLevelText = profile.activityLevel.description

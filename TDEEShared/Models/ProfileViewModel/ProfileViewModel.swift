@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import os
 
 /// State management for user profile metrics.
 ///
@@ -16,6 +17,9 @@ import Observation
 @Observable
 @MainActor
 class ProfileViewModel {
+    /// Error-logging channel for load/save failures (lost in a release build via `print`).
+    private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "DaveBerryUk.TDEE", category: "ProfileViewModel")
+
     // MARK: - Persistence Properties
 
     private let profileRepository: ProfileRepository
@@ -184,7 +188,7 @@ class ProfileViewModel {
                 self.swiftDataId = profile.id
             }
         } catch {
-            print("Failed to load profile from SwiftData: \(error)")
+            Self.logger.error("Failed to load profile from SwiftData: \(error)")
         }
     }
 
@@ -199,7 +203,7 @@ class ProfileViewModel {
                 self.swiftDataId = profile.id
             }
         } catch {
-            print("Failed to load profile by id from SwiftData: \(error)")
+            Self.logger.error("Failed to load profile by id from SwiftData: \(error)")
         }
     }
 
@@ -244,7 +248,7 @@ class ProfileViewModel {
         } catch {
             // Failed after retries - could surface to user via a coordinator/delegate
             // For now, log the error
-            print("Failed to save profile: \(error)")
+            Self.logger.error("Failed to save profile: \(error)")
         }
     }
 

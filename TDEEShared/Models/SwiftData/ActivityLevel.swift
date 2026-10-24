@@ -3,7 +3,7 @@ import Foundation
 /// Represents the user's activity level.
 ///
 /// Five canonical levels, each with a distinct TDEE multiplier
-/// (`KatchMcArdleMultipliers`). The legacy near-duplicates — `Light`,
+/// (`activityMultiplier`). The legacy near-duplicates — `Light`,
 /// `Moderate`, `Active`, `Very Active` — shared multipliers with
 /// `lightExercise` / `moderateExercise` / `heavyExercise` / `athlete` and were
 /// removed in PA-10; their stored raw values are mapped back to the equivalent
@@ -64,8 +64,9 @@ public extension ActivityLevel {
         }
     }
 
-    /// The Katch-McArdle multiplier for this activity level.
-    var KatchMcArdleMultipliers: Double {
+    /// The generic activity multiplier (1.2 to 1.9) for this activity level,
+    /// applied to both BMR formulas (Mifflin-St Jeor and Katch-McArdle).
+    var activityMultiplier: Double {
         switch self {
         case .sedentary:
             return 1.2

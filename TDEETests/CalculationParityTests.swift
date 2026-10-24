@@ -92,6 +92,38 @@ struct CalculationParityTests {
         #expect(result.fatsGrams == 103)
     }
 
+    @Test("Cut: a 500 kcal cut reads a minus in the share text (PA-27)")
+    func cutAdjustmentShareSign() async {
+        let profile = makeProfile(bodyFat: .omit)
+        profile.calorieAdjustmentMethod = .cut
+        profile.calorieAdjustment = 500
+
+        let result = await Calculator.calculate(person: profile)
+        let model = ShareResultsModel(profile: profile, result: result)
+
+        #expect(result.message == nil)
+        // BMR 1673.75 * 1.55 = 2594.3125; minus 500 = 2094.3125 -> Int 2094
+        #expect(result.caloriesAdjustedPerDay == 2094)
+        // Sign comes from the method's prefix, not the non-negative magnitude (PA-27)
+        #expect(model.calorieAdjustmentAmountText == "-500 kcal")
+    }
+
+    @Test("Bulk: a 500 kcal bulk reads a plus in the share text (PA-27)")
+    func bulkAdjustmentShareSign() async {
+        let profile = makeProfile(bodyFat: .omit)
+        profile.calorieAdjustmentMethod = .bulk
+        profile.calorieAdjustment = 500
+
+        let result = await Calculator.calculate(person: profile)
+        let model = ShareResultsModel(profile: profile, result: result)
+
+        #expect(result.message == nil)
+        // 2594.3125 + 500 = 3094.3125 -> Int 3094
+        #expect(result.caloriesAdjustedPerDay == 3094)
+        // Sign comes from the method's prefix, not the non-negative magnitude (PA-27)
+        #expect(model.calorieAdjustmentAmountText == "+500 kcal")
+    }
+
     @Test("Recalculation on the live path: changing weight changes the result")
     func recalculationOnChange() async {
         let profile = makeProfile(bodyFat: .omit)

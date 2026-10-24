@@ -11,19 +11,12 @@
 
 Ref | Title | Category | Severity | Status | Location
 --- | --- | --- | --- | --- | ---
-**PA-14** | `weightUom` / `heightUom` are not persisted → UOM resets on reload (phone + watch) | Persistence | Medium | Outstanding | `ProfileViewModel.swift:55,64`, `ProfileMapper.swift`, `Profile.swift`
 **PA-15** | `UIMainView` onChange storm (11 handlers / 10 Tasks) → redundant recalcs, racy `isCalculating` | UI / concurrency | Medium | Outstanding | `UIMainView.swift:132-173`
-**PA-26** | Share card hardcodes "cm"/"kg", ignoring the user's UOM | Share | Medium | Outstanding | `ShareResultsModel.swift:115-119`
-**PA-09** | `KatchMcArdleMultipliers` misnomer — factor is applied to Mifflin too | Calc | Low | Outstanding | `ActivityLevel.swift:64-78`, `CalculatorTdee.swift:50`
-**PA-16** | `print()` used for error logging (lost in release, not surfaced) | Error handling | Low | Outstanding | `ProfileStore.swift:78,108,126`, `ProfileViewModel.swift:197,212,258`
 **PA-18** | `regularLayout` shares one `NavigationStack` `path` across sidebar + detail | UI | Low | Outstanding | `ContentView.swift`
 **PA-20** | Watch weight/height ranges diverge from phone (`0…250` vs `20…300`, etc.) | Watch | Low | Outstanding | `WatchRanges.swift:14,18`, `WatchWeightView.swift`
 **PA-21** | Watch "missing / Not set" is zero-based and omits age; diverges from calculator | Watch | Low | Outstanding | `WatchMainView.swift:77-84`
 **PA-22** | Watch adjustment: default `500` vs `250`; wheel steps by 25 vs continuous slider | Watch | Low | Outstanding | `CalorieAdjustmentEntryView.swift:19`, `WatchRanges.swift:28`
 **PA-23** | Force-unwrap `WatchRanges.adjustment.first!/last!` — latent crash if stride emptied | Watch | Low | Outstanding | `WatchCalorieAdjustmentView.swift:17`
-**PA-25** | No UOM round-trip persistence test (gap that would catch PA-14) | Tests | Low | Outstanding | `SwiftDataPersistenceTests.swift:166-191`
-**PA-29** | No cut/bulk adjustment test on the production path | Tests | Low | Outstanding | `CalculationParityTests.swift`
-**PA-30** | `File.swift` is an empty test stub | Tests | Info | Outstanding | `TDEETests/File.swift`
 **PA-04** | Dead second calculation pipeline (`refreshResults` / `tdee` / `macroTargets`) | Calc / dead code | **High** | **Done (2026-10-22)** | `ProfileViewModel.swift`
 **PA-06** | Three divergent macro-normalization algorithms | Calc / dead code | **High** | **Done (2026-10-24)** | `MacroSplitOptionModel.swift:103-172`, `MacroSplitOptionsNormalization.swift`
 **PA-05** | Dead hardcoded 40/30/30 `calculateMacros(tdee:)` with `00.4` literals | Calc / dead code | Medium | **Done (2026-10-24)** | `ProfileViewModel.swift` (removed with PA-04)
@@ -34,15 +27,22 @@ Ref | Title | Category | Severity | Status | Location
 **PA-27** | Share card sign bug: a cut reads `+500 kcal` (identical to a 500 bulk) | Share | Medium | **Done (2026-10-24)** | `ShareResultsModel.swift:138-144`
 **PA-28** | Core tests assert the dead calc path; live path now covered by 6 parity cases | Tests | Medium | **Done (2026-10-24)** | `TDEETests.swift`, `CalculationParityTests.swift`
 **PA-13** | `ProfileStore.add`/`rename`/`load()` re-derive active profile to "Main" | State | Medium | **Done (2026-10-24)** | `ProfileStore.swift:62-111`
+**PA-14** | `weightUom` / `heightUom` are not persisted → UOM resets on reload (phone + watch) | Persistence | Medium | **Done (2026-10-24)** | `Profile.swift`, `ProfileMapper.swift`, `ProfileViewModel.swift`
 **PA-02** | Two `ProfileDefaults` fields never consumed by `createProfile` | Config | Low | **Done (2026-10-24)** | `ProfileRepository.swift:78-96`
 **PA-03** | `Profile.height` doc says "meters" but value is centimetres | Config | Low | **Done (2026-10-24)** | `Profile.swift:16`
 **PA-08** | Duplicated `snapToStep` / `clampValueTo100` (5 definitions, 2 files) | Calc / dead code | Low | **Done (2026-10-24)** | `MacroSplitOptionModel.swift:174-200`, `MacroSplitOptionsNormalization.swift`
 **PA-12** | Audit trail / `AuditLogger` vestigial; test-only `calculateTDEE` shim | Calc / dead code | Low | **Done (2026-10-24)** | `CalculatorTdee.swift`, `TDEETests.swift` (shim removed)
+**PA-25** | No UOM round-trip persistence test (gap that would catch PA-14) | Tests | Low | **Done (2026-10-24)** | `SwiftDataPersistenceTests.swift`
+**PA-26** | Share card hardcodes "cm"/"kg", ignoring the user's UOM | Share | Medium | **Done (2026-10-24)** | `ShareResultsModel.swift:115-119`
+**PA-09** | `KatchMcArdleMultipliers` misnomer — factor is applied to Mifflin too | Calc | Low | **Done (2026-10-24)** | `ActivityLevel.swift:64-78`, `CalculatorTdee.swift:50`
+**PA-16** | `print()` used for error logging (lost in release, not surfaced) | Error handling | Low | **Done (2026-10-24)** | `ProfileStore.swift:78,108,126`, `ProfileViewModel.swift:197,212,258`
+**PA-29** | No cut/bulk adjustment test on the production path | Tests | Low | **Done (2026-10-24)** | `CalculationParityTests.swift`
+**PA-30** | `File.swift` is an empty test stub | Tests | Info | **Done (2026-10-24)** | `TDEETests/File.swift`
 **PA-01** | First-launch **device** profile seeds height/weight = 0 → validation error, no TDEE | Config | **Medium** | Accepted | `ProfileDefaults.swift:35-46`, `ProfileRepository.swift:78-96`
 **PA-17** | `ProfileViewModel` convenience init spawns a load Task (non-idiomatic, safe) | Concurrency | Info | Accepted | `ProfileViewModel.swift:177-179`
 **PA-24** | Watch uses a standalone store; phone↔watch data never syncs | Watch | Info | By Design | `TDEEWatchApp.swift:16`
 
-**Severity tally:** High 2 · Medium 9 · Low 14 · Info 3 — **30 findings** (14 resolved: PA-02, PA-03, PA-04, PA-05, PA-06, PA-07, PA-08, PA-10, PA-11, PA-12, PA-13, PA-19, PA-27, PA-28; plus the "Confirmed correct" section below).
+**Severity tally:** High 2 · Medium 7 · Low 10 · Info 2 — **30 findings** (21 resolved: PA-02, PA-03, PA-04, PA-05, PA-06, PA-07, PA-08, PA-09, PA-10, PA-11, PA-12, PA-13, PA-14, PA-16, PA-19, PA-25, PA-26, PA-27, PA-28, PA-29, PA-30; plus the "Confirmed correct" section below).
 
 ---
 
@@ -50,30 +50,10 @@ Ref | Title | Category | Severity | Status | Location
 
 ### Outstanding
 
-#### PA-14 — `weightUom` / `heightUom` are not persisted
-**Location:** `TDEEShared/Models/ProfileViewModel/ProfileViewModel.swift:55,64`; `TDEEShared/Models/SwiftData/ProfileMapper.swift`; `TDEEShared/Models/SwiftData/Profile.swift`
-The `Profile` entity has no UOM fields, and `ProfileMapper.apply`/`mapToEntity` never touch `weightUom`/`heightUom`. On reload both reset to `.kilograms` / `.centimeters` (the in-memory defaults). This affects the phone summary rows and the watch display (`WatchMainView.weightSummary`/`heightSummary`, `WatchWeightView`/`WatchHeightView` read `profile.weightUom`/`heightUom`). No data is lost (metric is the source of truth), only the display-unit preference — hence Medium. No test covers the round-trip (PA-25).
-**Recommendation:** Persist the two UOM fields (entity + mapper + a round-trip test), or document that UOM is session-only.
-
 #### PA-15 — `UIMainView` onChange storm
 **Location:** `TDEE/Pages/MainPage/UIMainView.swift:132-173`
 Eleven `.onChange` handlers (gender, age, weight, height, bodyFatMethod, bodyFatPercentage, calorieAdjustmentMethod, calorieAdjustment, selectedMacroId, globalMacroCollection.items, selectedMacroSplit, activeProfileId) each spawn `Task { await recalculate() }` (~10 of them). Rapid input fires many concurrent recalculations, and `recalculate()` toggles `isCalculating` non-atomically (`true → await → false`), so the "calculating" indicator can show a stale/incorrect state under overlap.
 **Recommendation:** Coalesce into a single reactive dependency (e.g. one `.task(id:)` over a computed inputs key, as `WatchMainView` already does) and gate `isCalculating` on completion.
-
-#### PA-26 — Share card hardcodes cm / kg
-**Location:** `TDEEShared/Models/ShareResultsModel.swift:115-119`
-`heightText`/`weightText` are hardcoded `formatAsInteger(profile.height) + " cm"` / `+ " kg"`, ignoring the user's UOM (the inline comments admit "assuming cm from profile, could add UOM support"). A user who entered in pounds / feet-and-inches sees metric units on the share card. Related to PA-14.
-**Recommendation:** Format height/weight through the user's UOM (as `UISectionSummaryValue*` already does).
-
-#### PA-09 — `KatchMcArdleMultipliers` misnomer
-**Location:** `TDEEShared/Models/SwiftData/ActivityLevel.swift:64-78`; `TDEEShared/Calculations/Extensions/CalculatorTdee.swift:50`
-The property is the generic activity factor (1.2–1.9), applied to **both** BMR formulas (`bmr * activityLevel.KatchMcArdleMultipliers` where `bmr` may be Mifflin-St Jeor). The "Additional cases for Katch-McArdle calculations" comment is likewise misleading — the exercise cases are not Katch-specific (they're the ones the watch uses).
-**Recommendation:** Rename to `activityMultiplier` and fix the comment.
-
-#### PA-16 — `print()` used for error logging
-**Location:** `ProfileStore.swift:78,108,126`; `ProfileViewModel.swift:197,212,258`
-Load/save failures are `print`ed rather than surfaced or logged. In a release build these are effectively lost and give no user feedback on a failed persist.
-**Recommendation:** Route through `os.log`/`os.Logger` and consider surfacing a failed-save state to the UI.
 
 #### PA-18 — `regularLayout` shares one `NavigationStack` path
 **Location:** `TDEE/ContentView.swift` (regular layout)
@@ -99,21 +79,6 @@ The detail `NavigationStack(path: $path)` shares the same `path` as `SidebarView
 **Location:** `TDEEWatch/views/WatchCalorieAdjustmentView.swift:17`
 The calories binding getter and `.onChange` clamp force-unwrap `WatchRanges.adjustment.first!` / `.last!`. Safe while the stride is non-empty, but a future edit that empties the stride (`from:` > `through:`) turns these into a crash on the Goal screen.
 **Recommendation:** Use a non-optional bounds API or a `?? default`.
-
-#### PA-25 — No UOM round-trip persistence test
-**Location:** `TDEETests/SwiftDataPersistenceTests.swift:166-191`
-`profileRoundTrip` asserts age / weight / activityLevel / bodyFat / calorieAdjustment / selectedMacroId but **not** `weightUom` / `heightUom` — the gap that would have caught PA-14.
-**Recommendation:** Add a UOM round-trip assertion (or document UOM as session-only).
-
-#### PA-29 — No cut/bulk adjustment test on the production path
-**Location:** `TDEETests/CalculationParityTests.swift`
-The parity tests exercise `Calculator.calculate` but only with `.maintain`. No case asserts that a cut/bulk adjustment produces the expected `adjustedCalories` (and, with PA-27 fixed, the share text).
-**Recommendation:** Add cut and bulk cases to `CalculationParityTests`.
-
-#### PA-30 — `File.swift` is an empty test stub
-**Location:** `TDEETests/File.swift`
-Contains only `@testable import TDEE` with no tests.
-**Recommendation:** Remove or populate it.
 
 ### Done
 
@@ -201,6 +166,48 @@ Rounding/clamping logic is reimplemented 5× across two files (instance `snapToS
 **Recommendation:** Preserve the active id across `load()` (re-apply it only when it still exists), so add/rename don't reset selection.
 **Status: Done (2026-10-24).** `load()` now keeps the current `activeProfileId` when it still exists in the reloaded list, falling back to Main only when the active profile is gone — so `add()`/`rename()` no longer bounce the selection back to Main. First launch / relaunch still open on Main, because a fresh store's default `UUID()` never matches a stored profile. `delete()` already handled its own active fallback (it does not call `load()`) and is unchanged. Two regression tests added to `SwiftDataPersistenceTests` (`addKeepsActive`, `renameKeepsActive`); the TDEE suite is green on iPhone 17e.
 
+#### PA-14 — `weightUom` / `heightUom` are not persisted
+**Location:** `TDEEShared/Models/SwiftData/Profile.swift`; `TDEEShared/Models/SwiftData/ProfileMapper.swift`; `TDEEShared/Models/ProfileViewModel/ProfileViewModel.swift`
+The `Profile` entity had no UOM fields, and `ProfileMapper.apply`/`mapToEntity` never touched `weightUom`/`heightUom`, so on reload both reset to `.kilograms` / `.centimeters` (the in-memory defaults) — on the phone and the watch alike. Worse on the iPhone, `weightUom`/`heightUom` had **no `didSet`**, so changing the unit via the UOM menu (`UIWeightUomMenuButtonView`/`UIHeightUomMenuButtonView`, which set the unit without converting the metric source of truth) never triggered a save at all. No data is lost (metric kg/cm is the source of truth, UOM is display-only), only the display-unit preference — hence Medium.
+**Recommendation:** Persist the two UOM fields (entity + mapper + a round-trip test), or document that UOM is session-only.
+**Status: Done (2026-10-24).** Chose *persist* over "session-only." `Profile` now stores `weightUomRaw` / `heightUomRaw` (`Int = 0`) with computed `weightUom` / `heightUom` accessors that decode via `OptionWeight(rawValue:)` / `OptionLength(rawValue:)` with a safe fallback to `.kilograms` / `.centimeters` — mirroring the `activityLevel` / `activityLevelRaw` pattern. `ProfileMapper.apply` reads both; `mapToEntity` writes both (new + update branches). `ProfileViewModel.weightUom` / `heightUom` gained a `didSet { triggerSave() }`, so a UOM change on the iPhone now persists (the `didSet` is suppressed during `load()` by the `isLoading` guard, so it fires no spurious save). No migration plan is needed: the `ModelContainer` uses SwiftData's automatic lightweight migration, and the new stored properties carry `= 0` declared defaults, so pre-existing rows fill with `0` (= kg/cm, the historical default). Closes PA-25 (the round-trip test it called for). `TDEE` suite green on iPhone 17e; `TDEEWatch` builds.
+
+#### PA-25 — No UOM round-trip persistence test
+**Location:** `TDEETests/SwiftDataPersistenceTests.swift`
+`profileRoundTrip` asserted age / weight / activityLevel / bodyFat / calorieAdjustment / selectedMacroId but **not** `weightUom` / `heightUom` — the gap that would have caught PA-14.
+**Recommendation:** Add a UOM round-trip assertion (or document UOM as session-only).
+**Status: Done (2026-10-24) — closed with PA-14.** A new `SwiftDataPersistenceTests/uomRoundTrip` sets `weightUom = .pounds` / `heightUom = .inches`, saves, reloads a fresh `ProfileViewModel` over the same container, and asserts both survive — pinning the PA-14 fix and catching any regression of the UOM fields.
+
+#### PA-26 — Share card hardcodes cm / kg
+**Location:** `TDEEShared/Models/ShareResultsModel.swift:115-119`
+`heightText`/`weightText` were hardcoded `formatAsInteger(profile.height) + " cm"` / `+ " kg"`, ignoring the user's UOM (the inline comments admitted "assuming cm from profile, could add UOM support"). A user who entered in pounds / feet-and-inches saw metric units on the share card. Related to PA-14.
+**Recommendation:** Format height/weight through the user's UOM (as `UISectionSummaryValue*` already does).
+**Status: Done (2026-10-24).** `heightText`/`weightText` now format through the profile's persisted UOM (`profile.heightUom` / `profile.weightUom`), reusing the same `DisplayLength.asMajorValue`/`asMinorValue` and `DisplayWeight.asMajorValue`/`asMinorValue` helpers the on-screen summary rows (`UISectionSummaryValueHeight` / `UISectionSummaryValueWeight`) use — three small private helpers (`joinMeasurement`, `formatHeight`, `formatWeight`) added next to `formatAsInteger`, joining major value + major unit + minor value + minor unit and skipping empty segments. No view files were touched (the change lives in `TDEEShared`, which compiles into both app targets). **User-visible output change:** metric is unchanged ("180 cm" / "70 kg" as before), but imperial users now see e.g. "5 feet 7 inches" / "154 pounds" / "14 stones 10 pounds" instead of metric units. Both `ShareResultsModelTests` ("175 cm" / "70 kg") still pass (metric is the default UOM); full `TDEE` suite green on iPhone 17e, `TDEEWatch` builds.
+
+#### PA-09 — `KatchMcArdleMultipliers` misnomer
+**Location:** `TDEEShared/Models/SwiftData/ActivityLevel.swift:64-78`; `TDEEShared/Calculations/Extensions/CalculatorTdee.swift:50`
+The property is the generic activity factor (1.2–1.9), applied to **both** BMR formulas (`bmr * activityLevel.KatchMcArdleMultipliers` where `bmr` may be Mifflin-St Jeor). The "Additional cases for Katch-McArdle calculations" comment is likewise misleading — the exercise cases are not Katch-specific (they're the ones the watch uses).
+**Recommendation:** Rename to `activityMultiplier` and fix the comment.
+**Status: Done (2026-10-24).** Renamed the property `KatchMcArdleMultipliers` → `activityMultiplier` in `ActivityLevel.swift` (the property and the type-level doc-comment reference), and updated the sole use site `bmr * activityLevel.activityMultiplier` in `CalculatorTdee.swift`. A pure symbol rename — the multiplier values (1.2 / 1.375 / 1.55 / 1.725 / 1.9) and their case mappings are unchanged, and it compiles into both `TDEE` and `TDEEWatch` unchanged. The doc comment now reads "The generic activity multiplier (1.2 to 1.9) for this activity level, applied to both BMR formulas (Mifflin-St Jeor and Katch-McArdle)." (The misleading "Additional cases for Katch-McArdle calculations" comment cited in the finding was already removed by the PA-10 9→5 collapse; the surviving one-line `///` comment above the property is what was fixed.) Grep confirms **zero** remaining code references to `KatchMcArdleMultipliers` (only prose in this document remains). Full `TDEE` suite green on iPhone 17e, `TDEEWatch` builds.
+
+#### PA-16 — `print()` used for error logging
+**Location:** `ProfileStore.swift:78,108,126`; `ProfileViewModel.swift:197,212,258`
+Load/save failures were `print`ed rather than surfaced or logged. In a release build these are effectively lost and give no user feedback on a failed persist.
+**Recommendation:** Route through `os.log`/`os.Logger` and consider surfacing a failed-save state to the UI.
+**Status: Done (2026-10-24).** All 7 failure-path `print()` calls now route through `os.Logger` — `ProfileStore.swift` (load / create / rename / delete, 4 calls) and `ProfileViewModel.swift` (load / load-by-id / save, 3 calls). Each file gained `import os` and a `private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "DaveBerryUk.TDEE", category: "ProfileStore" / "ProfileViewModel")`; the logged message content is identical to the old `print` string. Using `Bundle.main.bundleIdentifier` namespaces each app target's logs (resolving to `DaveBerryUk.TDEE` on the phone, `.watchkitapp` on the watch, `TDEETests` in the test host), with the app bundle id as fallback. No UI surfacing of a failed save was added (that remains a candidate UI task under `UI_RESTRICTIONS.md`, out of scope for PA-16). Both `TDEE` and `TDEEWatch` compile warning-clean.
+
+#### PA-29 — No cut/bulk adjustment test on the production path
+**Location:** `TDEETests/CalculationParityTests.swift`
+The parity tests exercised `Calculator.calculate` but only with `.maintain`. No case asserted that a cut/bulk adjustment produced the expected `adjustedCalories` (and, with PA-27 fixed, the share text).
+**Recommendation:** Add cut and bulk cases to `CalculationParityTests`.
+**Status: Done (2026-10-24).** Added two additive cases after the existing cut/bulk `caloriesAdjustedPerDay` tests: `cutAdjustmentShareSign` (`.cut`, adjustment 500 → `caloriesAdjustedPerDay == 2094`, `calorieAdjustmentAmountText == "-500 kcal"`) and `bulkAdjustmentShareSign` (`.bulk`, 500 → `3094`, `"+500 kcal"`), pinning both the adjusted-calorie math and the PA-27 sign on the production `Calculator.calculate` path. Base: `makeProfile(bodyFat: .omit)` → BMR 1673.75 × 1.55 = 2594.3125. No existing test was modified. Full `TDEE` suite green on iPhone 17e.
+
+#### PA-30 — `File.swift` is an empty test stub
+**Location:** `TDEETests/File.swift`
+Contained only `@testable import TDEE` with no tests.
+**Recommendation:** Remove or populate it.
+**Status: Done (2026-10-24) — removed.** Chose "remove" over "populate": the file was a vestigial empty stub (an `@testable import TDEE` header with no `@Test` and no used symbol). The project uses Xcode's file-system-synchronized groups (`PBXFileSystemSynchronizedRootGroup`) and has no `File.swift` reference in the `.pbxproj`, so the deletion needs no project-file edit and is build-safe. Deleted; the `TDEE` suite is green on iPhone 17e.
+
 ### Accepted
 
 #### PA-01 — First-launch device profile seeds height/weight = 0
@@ -238,13 +245,14 @@ These areas were audited and found sound — included so the scope is explicit:
 
 **Fix first (High / user-visible):**
 1. **~~PA-27~~ (done 2026-10-24 — sign now derived from `calorieAdjustmentMethod.adjustmentPrefix`; `.maintain` guarded to "None")**
-2. **PA-14** — UOM not persisted (affects phone + watch display; add entity fields + test).
+2. **~~PA-14~~ (done 2026-10-24 — `weightUom`/`heightUom` now persisted via `Profile` raw fields + `ProfileMapper` read/write + a `ProfileViewModel` `didSet`; `uomRoundTrip` test added; closes PA-25)**
 3. **~~PA-01~~ (accepted 2026-10-24 — intentional sentinel; the first-launch prompt is a separate UI task, out of scope)**
 4. **~~PA-19~~ (done 2026-10-24 — subsumed by PA-10; the watch already offered exactly the 5 canonical levels, so the fallback is gone)**
 5. **~~PA-02~~ / ~~PA-03~~ / ~~PA-04~~ / ~~PA-05~~ / ~~PA-06~~ / ~~PA-07~~ / ~~PA-08~~ / ~~PA-12~~** — the whole "Calc / dead code" bundle is now closed: the dead calc pipeline (PA-04, 2026-10-22), the dead 40/30/30 `calculateMacros(tdee:)` (PA-05, gone with PA-04), the dead static normalize family + `update*` wrappers (PA-06/PA-07), the duplicate `snapToStep`/`clampValueTo100` helpers (PA-08), and the vestigial audit trail + test-only `calculateTDEE` shim (PA-12, 2026-10-24) are all removed; `MacroSplitOptionsNormalization.swift` now holds only the live `normalizeAll`/`adjustByDiff`; the two Config cleanups (PA-02 method passthrough in `createProfile`, PA-03 height-unit comment) are also done.
+6. **~~PA-26~~ / ~~PA-09~~ / ~~PA-16~~ / ~~PA-29~~ / ~~PA-30~~** (done 2026-10-24 — the five "safe" PAs that need no UI approval: the share card now formats height/weight through the user's UOM via the `DisplayLength`/`DisplayWeight` helpers, matching the on-screen summary rows (PA-26); `KatchMcArdleMultipliers` renamed to `activityMultiplier` (PA-09); all 7 `print()` failure logs routed through `os.Logger` (PA-16); cut/bulk parity tests added to `CalculationParityTests` (PA-29); the empty `File.swift` test stub removed (PA-30) — full `TDEE` suite green on iPhone 17e and `TDEEWatch` builds).
 
-**Then (Medium):** PA-15, PA-26.
-**Low / hygiene:** PA-09, PA-16, PA-18, PA-20, PA-21, PA-22, PA-23, PA-25, PA-29, PA-30.
+**Then (Medium):** PA-15 — the last Medium; UI-gated, reported for approval under `UI_RESTRICTIONS.md`.
+**Low / hygiene:** PA-18, PA-20, PA-21, PA-22, PA-23 — all UI-gated, reported for approval under `UI_RESTRICTIONS.md`.
 **No action:** PA-01 (accepted — intentional sentinel; the first-launch prompt is a separate UI task, out of scope), PA-17 (accepted), PA-24 (by design).
 
 ---
