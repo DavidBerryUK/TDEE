@@ -134,13 +134,17 @@ struct ShareResultsModel {
         // Format calorie adjustment
         self.calorieAdjustmentText = profile.calorieAdjustmentMethod.displayName
 
-        // Format calorie adjustment amount
+        // Format calorie adjustment amount.
+        // Direction lives in `calorieAdjustmentMethod`; `calorieAdjustment` is a
+        // non-negative magnitude (MetricRanges.calorieAdjustment = 0...1000), so the
+        // sign must come from the method, not the value — a 500 kcal cut stores 500,
+        // not -500, and must read "-500 kcal", not "+500 kcal" (PA-27). `.maintain`
+        // ignores the magnitude entirely (see adjustCalories), so it reads "None".
         let adjustment = profile.calorieAdjustment
-        if adjustment != 0 {
-            let sign = adjustment > 0 ? "+" : ""
-            self.calorieAdjustmentAmountText = "\(sign)\(Int(adjustment)) kcal"
-        } else {
+        if profile.calorieAdjustmentMethod == .maintain || adjustment == 0 {
             self.calorieAdjustmentAmountText = "None"
+        } else {
+            self.calorieAdjustmentAmountText = "\(profile.calorieAdjustmentMethod.adjustmentPrefix)\(Int(adjustment)) kcal"
         }
 
         // Format macro split method
