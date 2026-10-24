@@ -50,7 +50,11 @@ class ProfileViewModel {
         }
     }
     /// Unit of measure for weight (kilograms or pounds)
-    var weightUom: OptionWeight = OptionWeight.kilograms
+    var weightUom: OptionWeight = OptionWeight.kilograms {
+        didSet {
+            triggerSave()  // Throttled save
+        }
+    }
     /// User's weight in the current unit of measure
     var weight: Double = AppConfig.shared.profileDefaults.weight {
         didSet {
@@ -58,7 +62,11 @@ class ProfileViewModel {
         }
     }
     /// Unit of measure for height (centimeters or inches)
-    var heightUom: OptionLength = OptionLength.centimeters
+    var heightUom: OptionLength = OptionLength.centimeters {
+        didSet {
+            triggerSave()  // Throttled save
+        }
+    }
     /// User's height in the current unit of measure
     var height: Double = AppConfig.shared.profileDefaults.height {
         didSet {

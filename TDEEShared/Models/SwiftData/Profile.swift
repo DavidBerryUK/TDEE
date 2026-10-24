@@ -16,8 +16,26 @@ public class Profile {
     /// User's height in centimetres
     public var height: Double
 
+    /// Height unit of measure (OptionLength raw value: 0 = cm, 1 = in, 2 = ft & in).
+    public var heightUomRaw: Int = 0
+
+    /// Transient property for OptionLength access; decodes with a safe fallback to centimetres.
+    public var heightUom: OptionLength {
+        get { OptionLength(rawValue: heightUomRaw) ?? .centimeters }
+        set { heightUomRaw = newValue.rawValue }
+    }
+
     /// User's weight in kilograms
     public var weight: Double
+
+    /// Weight unit of measure (OptionWeight raw value: 0 = kg, 1 = lb, 2 = stones & lb).
+    public var weightUomRaw: Int = 0
+
+    /// Transient property for OptionWeight access; decodes with a safe fallback to kilograms.
+    public var weightUom: OptionWeight {
+        get { OptionWeight(rawValue: weightUomRaw) ?? .kilograms }
+        set { weightUomRaw = newValue.rawValue }
+    }
 
     /// Body fat percentage (0.0-100.0)
     public var bodyFatPercentage: Double
@@ -62,7 +80,9 @@ public class Profile {
         gender: Int16,
         age: Int,
         height: Double,
+        heightUom: OptionLength = .centimeters,
         weight: Double,
+        weightUom: OptionWeight = .kilograms,
         bodyFatPercentage: Double = 0.0,
         activityLevel: ActivityLevel = .sedentary,
         bodyFatMethod: BodyFatOption = .omit,
@@ -77,7 +97,9 @@ public class Profile {
         self.gender = gender
         self.age = age
         self.height = height
+        self.heightUomRaw = heightUom.rawValue
         self.weight = weight
+        self.weightUomRaw = weightUom.rawValue
         self.bodyFatPercentage = bodyFatPercentage
         self.activityLevelRaw = activityLevel.rawValue
         self.bodyFatMethodRaw = bodyFatMethod.rawValue

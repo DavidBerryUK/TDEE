@@ -190,6 +190,22 @@ struct SwiftDataPersistenceTests {
         #expect(reloaded.selectedMacroId == FactoryMacroSplits.Id.ketogenic)
     }
 
+    @Test("Weight / height UOM round-trip through SwiftData")
+    func uomRoundTrip() async throws {
+        let container = makeContainer()
+        let profile = ProfileViewModel(profileRepository: container.profileRepository)
+        await profile.load()
+        // Default UOM is metric; switch both to non-metric.
+        profile.weightUom = .pounds
+        profile.heightUom = .inches
+        await profile.saveToSwiftData()
+
+        let reloaded = ProfileViewModel(profileRepository: container.profileRepository)
+        await reloaded.load()
+        #expect(reloaded.weightUom == .pounds)
+        #expect(reloaded.heightUom == .inches)
+    }
+
     // MARK: - Multiple profiles
 
     private func makeStore(_ container: SwiftDataContainer) async -> ProfileStore {
