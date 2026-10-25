@@ -170,7 +170,7 @@ struct SwiftDataPersistenceTests {
         await profile.load()
         profile.age = 37
         profile.weight = 81.5
-        profile.activityLevel = .active
+        profile.activityLevel = .heavyExercise
         profile.bodyFatPercentageMethod = .manualEntry
         profile.bodyFatPercentage = 18
         profile.calorieAdjustmentMethod = .cut
@@ -182,12 +182,28 @@ struct SwiftDataPersistenceTests {
         await reloaded.load()
         #expect(reloaded.age == 37)
         #expect(reloaded.weight == 81.5)
-        #expect(reloaded.activityLevel == .active)
+        #expect(reloaded.activityLevel == .heavyExercise)
         #expect(reloaded.bodyFatPercentageMethod == .manualEntry)
         #expect(reloaded.bodyFatPercentage == 18)
         #expect(reloaded.calorieAdjustmentMethod == .cut)
         #expect(reloaded.calorieAdjustment == 300)
         #expect(reloaded.selectedMacroId == FactoryMacroSplits.Id.ketogenic)
+    }
+
+    @Test("Weight / height UOM round-trip through SwiftData")
+    func uomRoundTrip() async throws {
+        let container = makeContainer()
+        let profile = ProfileViewModel(profileRepository: container.profileRepository)
+        await profile.load()
+        // Default UOM is metric; switch both to non-metric.
+        profile.weightUom = .pounds
+        profile.heightUom = .inches
+        await profile.saveToSwiftData()
+
+        let reloaded = ProfileViewModel(profileRepository: container.profileRepository)
+        await reloaded.load()
+        #expect(reloaded.weightUom == .pounds)
+        #expect(reloaded.heightUom == .inches)
     }
 
     // MARK: - Multiple profiles
@@ -300,5 +316,32 @@ struct SwiftDataPersistenceTests {
         // A fresh store (simulating relaunch) defaults back to Main.
         let relaunched = await makeStore(container)
         #expect(relaunched.activeProfile?.name == ProfileRepository.mainProfileName)
+    }
+
+    @Test("Adding a profile keeps the active selection (no bounce to Main)")
+    func addKeepsActive() async throws {
+        let container = makeContainer()
+        let store = await makeStore(container)
+        let partnerId = try #require(await store.add(name: "Partner"))
+        store.activate(to: partnerId)
+        #expect(store.activeProfile?.id == partnerId)
+
+        _ = try #require(await store.add(name: "Guest"))
+
+        #expect(store.activeProfile?.id == partnerId, "Adding a profile must not reset active to Main")
+        #expect(store.profiles.count == 3)
+    }
+
+    @Test("Renaming the active profile keeps it active under its new name")
+    func renameKeepsActive() async throws {
+        let container = makeContainer()
+        let store = await makeStore(container)
+        let partnerId = try #require(await store.add(name: "Partner"))
+        store.activate(to: partnerId)
+
+        await store.rename(id: partnerId, to: "Partner 2")
+
+        #expect(store.activeProfile?.id == partnerId, "Renaming must not reset active to Main")
+        #expect(store.activeProfile?.name == "Partner 2", "The active profile follows the rename")
     }
 }

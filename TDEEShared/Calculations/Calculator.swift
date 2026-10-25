@@ -23,9 +23,8 @@ struct Calculator {
     ///
     /// - Parameters:
     ///   - person: The user's profile data
-    ///   - createAudit: Whether to create an audit trail of calculations
     /// - Returns: A `CalculatorResultViewModel` containing all calculation results
-    static func calculate(person: ProfileViewModel, createAudit: Bool = false) async -> CalculatorResultViewModel {
+    static func calculate(person: ProfileViewModel) async -> CalculatorResultViewModel {
 
         let result = CalculatorResultViewModel()
 
@@ -34,7 +33,7 @@ struct Calculator {
             return result
         }
 
-        await Calculator.calculateTdee(result: result, person: person, createAudit: createAudit)
+        await Calculator.calculateTdee(result: result, person: person)
         person.calculateMacros(result: result)
         return result
 

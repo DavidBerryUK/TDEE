@@ -46,12 +46,6 @@ final class CalculatorResultViewModel {
     var caloriesAdjustedPerWeek: Int = 0
 
     //
-    // Auditing
-    //
-    /// The audit log items from the calculation
-    var audit: [AuditItem]
-
-    //
     // Error Message
     //
     /// An error message if calculation failed, otherwise nil
@@ -59,7 +53,6 @@ final class CalculatorResultViewModel {
 
     init() {
         self.message = nil
-        self.audit = []
     }
 
     /// Updates the error message for this result.

@@ -124,8 +124,9 @@ struct ContentView: View {
     // MARK: - Regular layout (iPad / wide)
 
     /// A two-column split: the master (a drill-down navigation menu) on the left, and the main
-    /// screen as detail on the right, with editors pushed on top of it. The macro / profile lists
-    /// live in the master; their add/edit slides into the detail via the shared `path`.
+    /// screen as detail on the right. The macro / profile lists live in the master; their add/edit
+    /// opens at the *root* of the detail (via `.replaceDetail`) so "Back" returns to the main
+    /// screen instead of a screen the detail toolbar had pushed on top.
     @ViewBuilder
     private var regularLayout: some View {
         NavigationSplitView {

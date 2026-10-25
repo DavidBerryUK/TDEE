@@ -189,11 +189,11 @@ struct ShareResultsModelTests {
         #expect(model.calorieAdjustmentAmountText == "+500 kcal", "Positive adjustment should have + sign")
     }
 
-    @Test("Calorie adjustment amount shows with minus sign when negative")
+    @Test("Calorie adjustment amount shows a minus sign for a cut (non-negative magnitude)")
     func testCalorieAdjustmentNegative() throws {
         let profile = ProfileViewModel()
         profile.calorieAdjustmentMethod = .cut
-        profile.calorieAdjustment = -300
+        profile.calorieAdjustment = 300
 
         let result = CalculatorResultViewModel()
         result.bmr = 1500
@@ -202,7 +202,24 @@ struct ShareResultsModelTests {
 
         let model = ShareResultsModel(profile: profile, result: result)
 
-        #expect(model.calorieAdjustmentAmountText == "-300 kcal", "Negative adjustment should have - sign")
+        // A cut stores a non-negative magnitude; the sign comes from the method, not the value (PA-27).
+        #expect(model.calorieAdjustmentAmountText == "-300 kcal", "A cut should read with a minus sign")
+    }
+
+    @Test("Calorie adjustment shows 'None' for maintain even with a non-zero magnitude")
+    func testCalorieAdjustmentMaintainIgnoresMagnitude() throws {
+        let profile = ProfileViewModel()
+        profile.calorieAdjustmentMethod = .maintain
+        profile.calorieAdjustment = 500
+
+        let result = CalculatorResultViewModel()
+        result.bmr = 1500
+        result.tdee = 2000
+        result.adjustedCalories = 2000
+
+        let model = ShareResultsModel(profile: profile, result: result)
+
+        #expect(model.calorieAdjustmentAmountText == "None", "Maintain ignores the magnitude, so it should read 'None'")
     }
 
     @Test("Calorie adjustment amount shows 'None' when adjustment is 0")

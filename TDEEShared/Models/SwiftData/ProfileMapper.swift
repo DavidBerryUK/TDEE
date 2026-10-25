@@ -11,14 +11,15 @@ enum ProfileMapper {
         viewModel.gender = entity.gender == 1 ? .female : .male
         viewModel.age = entity.age
         viewModel.height = entity.height
+        viewModel.heightUom = entity.heightUom
         viewModel.weight = entity.weight
+        viewModel.weightUom = entity.weightUom
         viewModel.activityLevel = entity.activityLevel
         viewModel.bodyFatPercentageMethod = BodyFatOption(rawValue: entity.bodyFatMethodRaw) ?? .omit
         viewModel.bodyFatPercentage = entity.bodyFatPercentage
         viewModel.calorieAdjustmentMethod = CalorieAdjustmentMethod(rawValue: entity.calorieAdjustmentMethodRaw) ?? .maintain
         viewModel.calorieAdjustment = entity.calorieAdjustment
         viewModel.selectedMacroId = entity.selectedMacroId
-        // Derived values (tdee, macroTargets) are recalculated automatically by ProfileViewModel
     }
 
     /// Convert ViewModel to entity for saving to SwiftData
@@ -32,7 +33,9 @@ enum ProfileMapper {
                 gender: Int16(viewModel.gender.rawValue),
                 age: viewModel.age,
                 height: viewModel.height,
+                heightUom: viewModel.heightUom,
                 weight: viewModel.weight,
+                weightUom: viewModel.weightUom,
                 bodyFatPercentage: viewModel.bodyFatPercentage,
                 activityLevel: viewModel.activityLevel,
                 bodyFatMethod: viewModel.bodyFatPercentageMethod,
@@ -50,7 +53,9 @@ enum ProfileMapper {
         existingProfile.gender = Int16(viewModel.gender.rawValue)
         existingProfile.age = viewModel.age
         existingProfile.height = viewModel.height
+        existingProfile.heightUom = viewModel.heightUom
         existingProfile.weight = viewModel.weight
+        existingProfile.weightUom = viewModel.weightUom
         existingProfile.activityLevel = viewModel.activityLevel
         existingProfile.bodyFatPercentage = viewModel.bodyFatPercentage
         existingProfile.bodyFatMethodRaw = viewModel.bodyFatPercentageMethod.rawValue

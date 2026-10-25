@@ -10,9 +10,8 @@ import Foundation
 extension ProfileViewModel {
     /// Calculates Lean Body Mass using the user's body fat percentage method.
     ///
-    /// - Parameter logger: The audit logger for tracking calculation steps
     /// - Returns: The lean body mass in kilograms
-    func calculateLeanBodyMass(logger: AuditLogger) -> Double {
+    func calculateLeanBodyMass() -> Double {
         let weight = Double(self.weight)
         let height = Double(self.height)
 

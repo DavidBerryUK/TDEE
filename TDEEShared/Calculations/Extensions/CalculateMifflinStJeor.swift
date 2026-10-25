@@ -10,10 +10,8 @@ import Foundation
 extension ProfileViewModel {
     /// Calculates Basal Metabolic Rate using the Mifflin-St Jeor equation.
     ///
-    /// - Parameter logger: The audit logger for tracking calculation steps
     /// - Returns: The BMR in calories per day
-    func calculateMifflinStJeor(logger: AuditLogger) -> Double {
-        // Logger log removed for brevity
+    func calculateMifflinStJeor() -> Double {
 
         let weight = self.weight
         let height = self.height

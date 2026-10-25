@@ -14,7 +14,7 @@ struct WatchCalorieAdjustmentView: View {
         Binding(
             get: {
                 let stepped = Int((profile.calorieAdjustment / 25).rounded()) * 25
-                return min(max(stepped, WatchRanges.adjustment.first!), WatchRanges.adjustment.last!)
+                return min(max(stepped, WatchRanges.adjustmentMin), WatchRanges.adjustmentMax)
             },
             set: { profile.calorieAdjustment = Double($0) }
         )
@@ -43,7 +43,7 @@ struct WatchCalorieAdjustmentView: View {
         .navigationTitle("Goal")
         // Cut or bulk by 0 would be the same as Maintain, so start the wheel somewhere useful
         .onChange(of: profile.calorieAdjustmentMethod, initial: true) { _, method in
-            if method != .maintain, profile.calorieAdjustment < Double(WatchRanges.adjustment.first!) {
+            if method != .maintain, profile.calorieAdjustment < Double(WatchRanges.adjustmentMin) {
                 profile.calorieAdjustment = WatchRanges.startingAdjustment
             }
         }
