@@ -19,8 +19,9 @@ enum MasterDestination: Hashable {
 /// The iPad (regular size class) master: a drill-down menu.
 ///
 /// Selecting a destination pushes its screen onto *this* column (a back arrow returns to the menu).
-/// The macro / profile lists live here; their add/edit opens in the detail via the shared `path`,
-/// so an editor slides into the detail while the list stays in the master.
+/// The macro / profile lists live here; their add/edit opens at the *root* of the detail column
+/// (`editorPushStyle: .replaceDetail`), so "Back" from an editor returns to the main screen while
+/// the list stays in the master.
 struct SidebarView: View {
     @Environment(\.palette) private var palette
     @Environment(MacroSplitOptionsModelCollection.self) private var macroCollection
@@ -37,9 +38,9 @@ struct SidebarView: View {
                 .navigationDestination(for: MasterDestination.self) { destination in
                     switch destination {
                     case .profiles:
-                        ProfileListViewPage(path: $path)
+                        ProfileListViewPage(path: $path, editorPushStyle: .replaceDetail)
                     case .macros:
-                        MacroOptionsListViewPage(path: $path, selectedMacroId: $selectedMacroId)
+                        MacroOptionsListViewPage(path: $path, selectedMacroId: $selectedMacroId, editorPushStyle: .replaceDetail)
                     case .theme:
                         ThemeView()
                     case .inputMethod:

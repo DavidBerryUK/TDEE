@@ -8,6 +8,12 @@ struct ProfileListItemView: View {
 
     var summary: ProfileSummary
     @Binding var path: [AppRoute]
+    /// `.append` when this list lives in the detail stack; `.replaceDetail` for the sidebar's copy.
+    var editorPushStyle: EditorPushStyle = .append
+
+    private func pushEditor(_ route: AppRoute) {
+        if editorPushStyle == .replaceDetail { path = [route] } else { path.append(route) }
+    }
 
     var body: some View {
         HStack(alignment: .firstTextBaseline, spacing: 8) {
@@ -51,7 +57,7 @@ struct ProfileListItemView: View {
         // Swipe right = edit this profile's name.
         .swipeActions(edge: .leading, allowsFullSwipe: true) {
             Button {
-                path.append(.profileEditor(item: summary))
+                pushEditor(.profileEditor(item: summary))
             } label: {
                 Label("Edit", systemImage: "pencil")
             }

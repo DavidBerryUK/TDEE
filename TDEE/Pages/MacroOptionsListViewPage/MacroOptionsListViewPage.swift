@@ -7,6 +7,13 @@ struct MacroOptionsListViewPage: View {
 
     @Binding var path: [AppRoute]
     @Binding var selectedMacroId: UUID
+    /// `.append` when this list lives in the detail stack; `.replaceDetail` for the sidebar's copy.
+    var editorPushStyle: EditorPushStyle = .append
+
+    /// Push an editor the way this list's context expects (append, or reset the detail to the editor).
+    private func pushEditor(_ route: AppRoute) {
+        if editorPushStyle == .replaceDetail { path = [route] } else { path.append(route) }
+    }
 
     //
     // move these into a collection handler
@@ -31,7 +38,7 @@ struct MacroOptionsListViewPage: View {
                         // list items using a sub view for readability
                         //
                         ForEach(collection.sortedItems, id: \.id) { item in
-                            MacroOptionsListCardView(item: item, path: $path, selectedMacroId: $selectedMacroId)
+                            MacroOptionsListCardView(item: item, path: $path, selectedMacroId: $selectedMacroId, editorPushStyle: editorPushStyle)
                                 .listRowSeparator(.hidden)
                                 .listRowBackground(Color.clear)
                                 .id(item.id)
@@ -57,7 +64,7 @@ struct MacroOptionsListViewPage: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
-                        path.append(.macroEditorCreate)
+                        pushEditor(.macroEditorCreate)
                     } label: {
                         HStack(spacing: 4) {
                             Image(systemName: "plus")

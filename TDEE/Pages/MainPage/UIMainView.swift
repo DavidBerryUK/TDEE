@@ -38,6 +38,37 @@ struct UIMainView: View {
         profile.syncMacros(from: selected)
     }
 
+    /// Everything the result depends on. `.task(id:)` re-runs the calculation when this changes,
+    /// replacing the former 11 per-field `.onChange` handlers — a single in-flight calc means
+    /// `isCalculating` can't read stale under overlap. `split` is read from the *catalog* (the
+    /// selected preset), so a value edit to the selected preset is detected, not just a selection.
+    private struct Inputs: Hashable {
+        var gender: Gender
+        var age: Int
+        var weight: Double
+        var height: Double
+        var activityLevel: ActivityLevel
+        var bodyFatMethod: BodyFatOption
+        var bodyFatPercentage: Double
+        var adjustmentMethod: CalorieAdjustmentMethod
+        var adjustment: Double
+        var split: [Int]
+    }
+
+    private var inputs: Inputs {
+        Inputs(
+            gender: profile.gender,
+            age: profile.age,
+            weight: profile.weight,
+            height: profile.height,
+            activityLevel: profile.activityLevel,
+            bodyFatMethod: profile.bodyFatPercentageMethod,
+            bodyFatPercentage: profile.bodyFatPercentage,
+            adjustmentMethod: profile.calorieAdjustmentMethod,
+            adjustment: profile.calorieAdjustment,
+            split: selectedMacroSplit)
+    }
+
     private func share(_ format: ShareContent.Format) {
         guard profile.isValid else { return }
         // Trigger a fresh recalculation before sharing
@@ -119,9 +150,12 @@ struct UIMainView: View {
                     .disabled(!profile.isValid || isCalculating)
                 }
             }
-            .task {
-                // Inject the environment macro collection before calculating so it uses the user's presets
+            // One reactive dependency drives every recompute, the way WatchMainView's `.task(id:)` does:
+            // cancel the in-flight calc and run the latest when `inputs` changes — a single calculation
+            // in flight means `isCalculating` can't read stale under overlap.
+            .task(id: inputs) {
                 updateProfileMacroCollection()
+                syncEditedMacro()            // keep profile.split in step with the catalog's selected preset
                 await recalculate()
             }
             .onTapGesture {
@@ -129,50 +163,10 @@ struct UIMainView: View {
                     sectionManager.collapseAll()
                 }
             }
-            .onChange(of: profile.gender) { _, _ in
-                Task { await recalculate() }
-            }
-            .onChange(of: profile.age) { _, _ in
-                Task { await recalculate() }
-            }
-            .onChange(of: profile.weight) { _, _ in
-                Task { await recalculate() }
-            }
-            .onChange(of: profile.height) { _, _ in
-                Task { await recalculate() }
-            }
-            .onChange(of: profile.activityLevel) { _, _ in
-                Task { await recalculate() }
-            }
-            .onChange(of: profile.bodyFatPercentageMethod) { _, _ in
-                Task { await recalculate() }
-            }
-            .onChange(of: profile.bodyFatPercentage) { _, _ in
-                Task { await recalculate() }
-            }
-            .onChange(of: profile.calorieAdjustmentMethod) { _, _ in
-                Task { await recalculate() }
-            }
-            .onChange(of: profile.calorieAdjustment) { _, _ in
-                Task { await recalculate() }
-            }
-            .onChange(of: profile.selectedMacroId) { _, _ in
-                Task { await recalculate() }
-            }
-            .onChange(of: globalMacroCollection.items) { _, _ in
-                Task { await recalculate() }
-            }
-            .onChange(of: selectedMacroSplit) { _, _ in
-                syncEditedMacro()
-                Task { await recalculate() }
-            }
-            // Switching profiles re-points the shared view model; its per-field onChange handlers
-            // won't fire on a re-point, so drive the recompute (and re-load) explicitly here.
+            // Switching profiles re-points the shared view model (an async load); its per-field inputs
+            // change afterwards, so the recompute flows through the `.task(id:)` above.
             .onChange(of: profileStore.activeProfileId) { _, id in
-                Task {
-                    await profile.switchProfile(to: id)
-                    await recalculate()
-                }
+                Task { await profile.switchProfile(to: id) }
             }
         }
     }

@@ -9,19 +9,26 @@ struct MacroOptionsListCardView: View {
     @Bindable var item: MacroSplitOptionModel
     @Binding var path: [AppRoute]
     @Binding var selectedMacroId: UUID
+    /// `.append` when this list lives in the detail stack; `.replaceDetail` for the sidebar's copy.
+    var editorPushStyle: EditorPushStyle = .append
 
     func handleOnDelete(item: MacroSplitOptionModel) {
         collection.remove(item)
     }
 
+    /// Push an editor the way this list's context expects (append, or reset the detail to the editor).
+    private func pushEditor(_ route: AppRoute) {
+        if editorPushStyle == .replaceDetail { path = [route] } else { path.append(route) }
+    }
+
     func handleOnSelect(item: MacroSplitOptionModel) {
         // Navigate to edit screen (same as swipe-left edit action)
-        path.append(.macroEditorEdit(item))
+        pushEditor(.macroEditorEdit(item))
     }
 
     func handleOnEdit(item: MacroSplitOptionModel) {
         // Navigate to edit screen
-        path.append(.macroEditorEdit(item))
+        pushEditor(.macroEditorEdit(item))
     }
 
     var body: some View {

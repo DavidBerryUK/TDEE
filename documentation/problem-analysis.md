@@ -11,8 +11,8 @@
 
 Ref | Title | Category | Severity | Status | Location
 --- | --- | --- | --- | --- | ---
-**PA-15** | `UIMainView` onChange storm (11 handlers / 10 Tasks) → redundant recalcs, racy `isCalculating` | UI / concurrency | Medium | Outstanding | `UIMainView.swift:132-173`
-**PA-18** | `regularLayout` shares one `NavigationStack` `path` across sidebar + detail | UI | Low | Outstanding | `ContentView.swift`
+**PA-15** | `UIMainView` onChange storm (11 handlers / 10 Tasks) → redundant recalcs, racy `isCalculating` | UI / concurrency | Medium | **Done (2026-10-25)** | `UIMainView.swift` (single `.task(id: inputs)`)
+**PA-18** | `regularLayout` shares one `NavigationStack` `path` across sidebar + detail | UI | Low | **Done (2026-10-25)** | `AppRoute.swift`, `SidebarView.swift`, `ContentView.swift`
 **PA-20** | Watch weight/height ranges diverge from phone (`0…250` vs `20…300`, etc.) | Watch | Low | **Confirmed correct (2026-10-25)** | `WatchRanges.swift:14,18`, `WatchWeightView.swift`
 **PA-21** | Watch "missing / Not set" is zero-based and omits age; diverges from calculator | Watch | Low | **Done (2026-10-25)** | `WatchMainView.swift:77-84`
 **PA-22** | Watch adjustment: default `500` vs `250`; wheel steps by 25 vs continuous slider | Watch | Low | **Confirmed correct (2026-10-25)** | `CalorieAdjustmentEntryView.swift:19`, `WatchRanges.swift:28`
@@ -42,7 +42,7 @@ Ref | Title | Category | Severity | Status | Location
 **PA-17** | `ProfileViewModel` convenience init spawns a load Task (non-idiomatic, safe) | Concurrency | Info | Accepted | `ProfileViewModel.swift:177-179`
 **PA-24** | Watch uses a standalone store; phone↔watch data never syncs | Watch | Info | By Design | `TDEEWatchApp.swift:16`
 
-**Severity tally:** High 2 · Medium 7 · Low 10 · Info 2 — **30 findings**. Outstanding: **PA-15, PA-18** (2). Done: 23 (PA-02, PA-03, PA-04, PA-05, PA-06, PA-07, PA-08, PA-09, PA-10, PA-11, PA-12, PA-13, PA-14, PA-16, PA-19, **PA-21**, **PA-23**, PA-25, PA-26, PA-27, PA-28, PA-29, PA-30). Confirmed correct (2026-10-25): **PA-20, PA-22**. Accepted: PA-01, PA-17. By design: PA-24 — plus the "Confirmed correct" section below.
+**Severity tally:** High 2 · Medium 7 · Low 10 · Info 2 — **30 findings**. Outstanding: none (0). Done: 25 (PA-02, PA-03, PA-04, PA-05, PA-06, PA-07, PA-08, PA-09, PA-10, PA-11, PA-12, PA-13, PA-14, **PA-15**, PA-16, **PA-18**, PA-19, **PA-21**, **PA-23**, PA-25, PA-26, PA-27, PA-28, PA-29, PA-30). Confirmed correct (2026-10-25): **PA-20, PA-22**. Accepted: PA-01, PA-17. By design: PA-24 — plus the "Confirmed correct" section below.
 
 ---
 
@@ -50,7 +50,7 @@ Ref | Title | Category | Severity | Status | Location
 
 ### Outstanding
 
-> Live outstanding set after the 2026-10-25 watch re-audit: **PA-15** (Medium), **PA-18** (Low).
+> Live outstanding set after the 2026-10-25 re-audit: **none** — every finding is closed or reclassified. PA-15 closed 2026-10-25 (the `UIMainView` onChange storm coalesced into one `.task(id: inputs)`, so `isCalculating` can no longer read stale); PA-18 closed 2026-10-25 (sidebar editors now open at the detail root, so "Back" returns to Main).
 > **PA-20** and **PA-22** were reclassified *Confirmed correct* and **PA-21**, **PA-23** were *Done* that day; their
 > subsections remain below for traceability.
 
@@ -58,11 +58,13 @@ Ref | Title | Category | Severity | Status | Location
 **Location:** `TDEE/Pages/MainPage/UIMainView.swift:132-173`
 Eleven `.onChange` handlers (gender, age, weight, height, bodyFatMethod, bodyFatPercentage, calorieAdjustmentMethod, calorieAdjustment, selectedMacroId, globalMacroCollection.items, selectedMacroSplit, activeProfileId) each spawn `Task { await recalculate() }` (~10 of them). Rapid input fires many concurrent recalculations, and `recalculate()` toggles `isCalculating` non-atomically (`true → await → false`), so the "calculating" indicator can show a stale/incorrect state under overlap.
 **Recommendation:** Coalesce into a single reactive dependency (e.g. one `.task(id:)` over a computed inputs key, as `WatchMainView` already does) and gate `isCalculating` on completion.
+**Status: Done (2026-10-25).** The 11 per-field `.onChange` handlers (each `Task { await recalculate() }`) are replaced by a single `.task(id: inputs)`, where `inputs` is a `Hashable` struct of the 9 input fields plus the selected preset's `split` (read from the *catalog*, so a value edit to the selected preset is detected, not just a selection). One in-flight calculation means `isCalculating` can no longer read stale under overlap. `syncEditedMacro()` keeps `profile.split` in step with the catalog's selected preset; the async profile switch stays as a single `.onChange(of: profileStore.activeProfileId)` whose per-field changes then flow through the `.task(id:)`. Mirrors `WatchMainView`'s pattern. No picker style / option case / expanding panel / animation touched. `TDEE` builds.
 
 #### PA-18 — `regularLayout` shares one `NavigationStack` path
 **Location:** `TDEE/ContentView.swift` (regular layout)
 The detail `NavigationStack(path: $path)` shares the same `path` as `SidebarView(path: $path)`. A latent navigation quirk: selecting a sidebar destination and pushing within detail can share/overwrite the same path state.
 **Recommendation:** Give detail its own path binding if the two navigation contexts should be independent.
+**Status: Done (2026-10-25).** The two sidebar list pages now open their editors at the *root* of the detail stack instead of appending to it, via a new `EditorPushStyle` (`.append` / `.replaceDetail`) threaded through `ProfileListViewPage` / `MacroOptionsListViewPage` and their card/row subviews; `SidebarView` passes `.replaceDetail`, so "Back" from a sidebar-triggered editor returns to the main screen rather than a screen the detail toolbar had pushed (theme, etc.). `routeDestination` (compact + the detail route) keeps the default `.append`, so "Back" still returns to the list there — no iPhone behaviour change. The original "give detail its own path" recommendation was a near-no-op: the sidebar's editor push *must* target the detail to keep "slides into detail", so the fix instead makes that push replace the detail root. No picker style / option / panel / animation touched. `TDEE` builds.
 
 #### PA-20 — Watch weight/height ranges diverge from the phone
 **Location:** `TDEEWatch/enums/WatchRanges.swift:14,18`; `TDEEWatch/views/WatchWeightView.swift`
@@ -261,8 +263,8 @@ These areas were audited and found sound — included so the scope is explicit:
 5. **~~PA-02~~ / ~~PA-03~~ / ~~PA-04~~ / ~~PA-05~~ / ~~PA-06~~ / ~~PA-07~~ / ~~PA-08~~ / ~~PA-12~~** — the whole "Calc / dead code" bundle is now closed: the dead calc pipeline (PA-04, 2026-10-22), the dead 40/30/30 `calculateMacros(tdee:)` (PA-05, gone with PA-04), the dead static normalize family + `update*` wrappers (PA-06/PA-07), the duplicate `snapToStep`/`clampValueTo100` helpers (PA-08), and the vestigial audit trail + test-only `calculateTDEE` shim (PA-12, 2026-10-24) are all removed; `MacroSplitOptionsNormalization.swift` now holds only the live `normalizeAll`/`adjustByDiff`; the two Config cleanups (PA-02 method passthrough in `createProfile`, PA-03 height-unit comment) are also done.
 6. **~~PA-26~~ / ~~PA-09~~ / ~~PA-16~~ / ~~PA-29~~ / ~~PA-30~~** (done 2026-10-24 — the five "safe" PAs that need no UI approval: the share card now formats height/weight through the user's UOM via the `DisplayLength`/`DisplayWeight` helpers, matching the on-screen summary rows (PA-26); `KatchMcArdleMultipliers` renamed to `activityMultiplier` (PA-09); all 7 `print()` failure logs routed through `os.Logger` (PA-16); cut/bulk parity tests added to `CalculationParityTests` (PA-29); the empty `File.swift` test stub removed (PA-30) — full `TDEE` suite green on iPhone 17e and `TDEEWatch` builds).
 
-**Then (Medium):** PA-15 — the last Medium; UI-gated, reported for approval under `UI_RESTRICTIONS.md`.
-**Low / hygiene:** ~~PA-20~~ / ~~PA-22~~ — *confirmed correct* (2026-10-25, no code change); ~~PA-21~~ / ~~PA-23~~ — *Done* (2026-10-25, no UI change: `missingFields` now derives weight/height from `MetricRanges`; non-optional `WatchRanges` bounds). Remaining Low: **PA-18**, UI-gated, reported for approval under `UI_RESTRICTIONS.md`.
+**Then (Medium):** ~~PA-15~~ — *Done* (2026-10-25, UI-gated: the 11 per-field `.onChange` handlers coalesced into a single `.task(id: inputs)`; no picker/option/panel/animation change). No Medium findings outstanding.
+**Low / hygiene:** ~~PA-20~~ / ~~PA-22~~ — *confirmed correct* (2026-10-25, no code change); ~~PA-21~~ / ~~PA-23~~ — *Done* (2026-10-25, no UI change: `missingFields` now derives weight/height from `MetricRanges`; non-optional `WatchRanges` bounds). ~~PA-18~~ — *Done* (2026-10-25, UI-gated: sidebar editor now opens at the detail root so "Back" returns to Main; no picker/option/panel/animation change). No Low findings outstanding.
 **No action:** PA-01 (accepted — intentional sentinel; the first-launch prompt is a separate UI task, out of scope), PA-17 (accepted), PA-24 (by design).
 
 ---

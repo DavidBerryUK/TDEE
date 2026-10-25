@@ -6,6 +6,13 @@ struct ProfileListViewPage: View {
 
     @Environment(ProfileStore.self) private var store
     @Binding var path: [AppRoute]
+    /// `.append` when this list lives in the detail stack; `.replaceDetail` for the sidebar's copy.
+    var editorPushStyle: EditorPushStyle = .append
+
+    /// Push an editor the way this list's context expects (append, or reset the detail to the editor).
+    private func pushEditor(_ route: AppRoute) {
+        if editorPushStyle == .replaceDetail { path = [route] } else { path.append(route) }
+    }
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -13,7 +20,7 @@ struct ProfileListViewPage: View {
                 List {
                     SwiftUI.Section {
                         ForEach(store.profiles) { summary in
-                            ProfileListItemView(summary: summary, path: $path)
+                            ProfileListItemView(summary: summary, path: $path, editorPushStyle: editorPushStyle)
                                 .listRowSeparator(.hidden)
                                 .listRowBackground(Color.clear)
                                 .id(summary.id)
@@ -38,7 +45,7 @@ struct ProfileListViewPage: View {
                 .toolbar {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
-                            path.append(.profileEditor(item: nil))
+                            pushEditor(.profileEditor(item: nil))
                         } label: {
                             HStack(spacing: 4) {
                                 Image(systemName: "plus")
