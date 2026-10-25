@@ -35,6 +35,11 @@ internal enum WatchRanges {
 
     /// Cut or bulk by 25-1000 kcal. 0 would be the same as Maintain.
     static let adjustment = Array(stride(from: 25, through: 1000, by: 25))
+    /// The wheel's low/high bounds as non-optionals — the stride is always non-empty, so callers need
+    /// not force-unwrap `adjustment.first`/`.last`. The `?? 25`/`?? 1000` fallbacks are the stride's own
+    /// endpoints, so an emptied stride degrades to the same range instead of crashing (PA-23).
+    static let adjustmentMin = adjustment.first ?? 25
+    static let adjustmentMax = adjustment.last ?? 1000
     static let startingAdjustment = 250.0
 
     /// The activity levels the watch offers. ActivityLevel also has older near-duplicates
