@@ -76,8 +76,10 @@ struct WatchMainView: View {
     /// Inputs a new profile has not set yet, in the order the user should fill them in.
     private var missingFields: [MissingField] {
         var fields: [MissingField] = []
-        if profile.weight == 0 { fields.append(.weight) }
-        if profile.height == 0 { fields.append(.height) }
+        // Mirror the calculator: validateForCalculation() gates on MetricRanges, so 0 stays "Not set"
+        // (it's out of range) and a non-zero sub-range value (e.g. 5 kg) is flagged here too, not just 0.
+        if !MetricRanges.weight.contains(profile.weight) { fields.append(.weight) }
+        if !MetricRanges.height.contains(profile.height) { fields.append(.height) }
         if profile.bodyFatPercentageMethod == .manualEntry,
            !WatchRanges.bodyFatPercent.contains(profile.bodyFatPercentage) { fields.append(.bodyFat) }
         return fields

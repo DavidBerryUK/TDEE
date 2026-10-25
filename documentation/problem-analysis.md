@@ -13,10 +13,10 @@ Ref | Title | Category | Severity | Status | Location
 --- | --- | --- | --- | --- | ---
 **PA-15** | `UIMainView` onChange storm (11 handlers / 10 Tasks) → redundant recalcs, racy `isCalculating` | UI / concurrency | Medium | Outstanding | `UIMainView.swift:132-173`
 **PA-18** | `regularLayout` shares one `NavigationStack` `path` across sidebar + detail | UI | Low | Outstanding | `ContentView.swift`
-**PA-20** | Watch weight/height ranges diverge from phone (`0…250` vs `20…300`, etc.) | Watch | Low | Outstanding | `WatchRanges.swift:14,18`, `WatchWeightView.swift`
-**PA-21** | Watch "missing / Not set" is zero-based and omits age; diverges from calculator | Watch | Low | Outstanding | `WatchMainView.swift:77-84`
-**PA-22** | Watch adjustment: default `500` vs `250`; wheel steps by 25 vs continuous slider | Watch | Low | Outstanding | `CalorieAdjustmentEntryView.swift:19`, `WatchRanges.swift:28`
-**PA-23** | Force-unwrap `WatchRanges.adjustment.first!/last!` — latent crash if stride emptied | Watch | Low | Outstanding | `WatchCalorieAdjustmentView.swift:17`
+**PA-20** | Watch weight/height ranges diverge from phone (`0…250` vs `20…300`, etc.) | Watch | Low | **Confirmed correct (2026-10-25)** | `WatchRanges.swift:14,18`, `WatchWeightView.swift`
+**PA-21** | Watch "missing / Not set" is zero-based and omits age; diverges from calculator | Watch | Low | **Done (2026-10-25)** | `WatchMainView.swift:77-84`
+**PA-22** | Watch adjustment: default `500` vs `250`; wheel steps by 25 vs continuous slider | Watch | Low | **Confirmed correct (2026-10-25)** | `CalorieAdjustmentEntryView.swift:19`, `WatchRanges.swift:28`
+**PA-23** | Force-unwrap `WatchRanges.adjustment.first!/last!` — latent crash if stride emptied | Watch | Low | **Done (2026-10-25)** | `WatchCalorieAdjustmentView.swift:17`, `WatchRanges.swift`
 **PA-04** | Dead second calculation pipeline (`refreshResults` / `tdee` / `macroTargets`) | Calc / dead code | **High** | **Done (2026-10-22)** | `ProfileViewModel.swift`
 **PA-06** | Three divergent macro-normalization algorithms | Calc / dead code | **High** | **Done (2026-10-24)** | `MacroSplitOptionModel.swift:103-172`, `MacroSplitOptionsNormalization.swift`
 **PA-05** | Dead hardcoded 40/30/30 `calculateMacros(tdee:)` with `00.4` literals | Calc / dead code | Medium | **Done (2026-10-24)** | `ProfileViewModel.swift` (removed with PA-04)
@@ -42,13 +42,17 @@ Ref | Title | Category | Severity | Status | Location
 **PA-17** | `ProfileViewModel` convenience init spawns a load Task (non-idiomatic, safe) | Concurrency | Info | Accepted | `ProfileViewModel.swift:177-179`
 **PA-24** | Watch uses a standalone store; phone↔watch data never syncs | Watch | Info | By Design | `TDEEWatchApp.swift:16`
 
-**Severity tally:** High 2 · Medium 7 · Low 10 · Info 2 — **30 findings** (21 resolved: PA-02, PA-03, PA-04, PA-05, PA-06, PA-07, PA-08, PA-09, PA-10, PA-11, PA-12, PA-13, PA-14, PA-16, PA-19, PA-25, PA-26, PA-27, PA-28, PA-29, PA-30; plus the "Confirmed correct" section below).
+**Severity tally:** High 2 · Medium 7 · Low 10 · Info 2 — **30 findings**. Outstanding: **PA-15, PA-18** (2). Done: 23 (PA-02, PA-03, PA-04, PA-05, PA-06, PA-07, PA-08, PA-09, PA-10, PA-11, PA-12, PA-13, PA-14, PA-16, PA-19, **PA-21**, **PA-23**, PA-25, PA-26, PA-27, PA-28, PA-29, PA-30). Confirmed correct (2026-10-25): **PA-20, PA-22**. Accepted: PA-01, PA-17. By design: PA-24 — plus the "Confirmed correct" section below.
 
 ---
 
 ## Detailed findings
 
 ### Outstanding
+
+> Live outstanding set after the 2026-10-25 watch re-audit: **PA-15** (Medium), **PA-18** (Low).
+> **PA-20** and **PA-22** were reclassified *Confirmed correct* and **PA-21**, **PA-23** were *Done* that day; their
+> subsections remain below for traceability.
 
 #### PA-15 — `UIMainView` onChange storm
 **Location:** `TDEE/Pages/MainPage/UIMainView.swift:132-173`
@@ -64,21 +68,25 @@ The detail `NavigationStack(path: $path)` shares the same `path` as `SidebarView
 **Location:** `TDEEWatch/enums/WatchRanges.swift:14,18`; `TDEEWatch/views/WatchWeightView.swift`
 `weightKg = 0…250` (phone `20…300`), `heightCm = 0…272` (phone `100…272`). A phone value outside the watch's caps would trap the watch's `Int(profile.weight)` display; within the watch's own store the value is always in-range, so this is a latent divergence rather than a live crash. The stones path (max ≈ 260 kg) also exceeds the kg/pounds wheel caps.
 **Recommendation:** Align the watch wheel bounds with `MetricRanges`, or clamp the derived `Int` values.
+**Status: Confirmed correct (2026-10-25) — not a divergence; reclassified, no code change.** Re-audited against the current code: the watch wheels are byte-for-byte identical to the phone's `UIWheelPickerWeightView` / `UIWheelPickerHeightView` option arrays (kg `0…250`, lb `0…550`, st `0…40`, st·lb `0…13`, cm `0…272`, in `0…107`, ft `0…8`, ft·in `0…11`), and `WatchRanges.swift:17` documents the intent — "matching the iPhone pickers." The audit compared the **wheel** range (`0…250`) with the **validator** range (`MetricRanges.weight = 20…300` / `MetricRanges.height = 100…272`), but that wheel-vs-validator split exists identically on the phone, and PA-24 (standalone store) means a phone value never reaches the watch. The one real sub-issue — the stones screen can reach ~260 kg, past the kg/lb wheel caps — is a pre-existing **phone** display quirk the watch mirrors (the underlying kilograms stay correct; the wheel simply shows no matching tag at that extreme). Aligning the watch to `MetricRanges` would *diverge* it from the phone and break the `0 = "Not set"` sentinel (PA-01), so the ranges are left as-is.
 
 #### PA-21 — Watch "missing / Not set" is zero-based and omits age
 **Location:** `TDEEWatch/views/WatchMainView.swift:77-84`
 `missingFields` flags weight/height only when the value is exactly `0` and never checks age, whereas `validateForCalculation()` flags weight/height whenever they fall outside `MetricRanges` and also checks `age == 0`. A sub-`20` kg weight reads as "set" on the row while the summary still reports "Weight mandatory" — row and result disagree.
 **Recommendation:** Derive `missingFields` from the same `MetricRanges` the calculator uses (and include age for parity).
+**Status: Done (2026-10-25).** `missingFields` now flags weight/height via the calculator's own `MetricRanges` — `!MetricRanges.weight/height.contains(…)` — instead of `== 0`, so a non-zero sub-range value (e.g. 5 kg) highlights in attention colour and drives the "Set up your profile" CTA, matching the "mandatory" result. `0` is out of range, so the device first-launch "Not set" sentinel (PA-01) is preserved. Age is deliberately left out: its wheel is `16…99` and the device default is `16` (`ProfileDefaults.device()`), so `age == 0` is unreachable on the watch and adding it would be dead code. Body fat was already in sync (`WatchRanges.bodyFatPercent` == `MetricRanges.bodyFatPercentage`). No UI change to picker style / options / panel / animation. `TDEEWatch` builds.
 
 #### PA-22 — Watch adjustment defaults / granularity mismatch
 **Location:** `TDEEWatch/views/CalorieAdjustmentEntryView.swift:19`; `WatchRanges.swift:28`; `WatchCalorieAdjustmentView.swift:24`
 `CalorieAdjustmentEntryView` defaults to `500` while `WatchRanges.startingAdjustment = 250`; the wheel steps by 25 (`stride(from: 25, through: 1000, by: 25)`) while the slider is continuous `0…1000`. Two adjustment inputs with different defaults and granularity.
 **Recommendation:** Unify the default and the step semantics across the two inputs.
+**Status: Confirmed correct (2026-10-25) — stale; reclassified, no code change.** The cited `CalorieAdjustmentEntryView.swift:19` no longer exists, and every `500` in the codebase is inside a `#Preview` block (verified across `SectionCalorieAdjustment`, `UISliderCalorieAdjustmentValue`, `UISectionSummaryValueCalorieAdjustment`, `SectionEditorCalorieAdjustment`); the production default is `0` (`ProfileViewModel` / `Profile.init`) and the watch uses `WatchRanges.startingAdjustment = 250` consistently. The "25-step wheel vs continuous slider" is phone-vs-watch and is **documented as intentional** in `CalorieAdjustmentEntry.swift:18` ("the slider's 25-step was a slider affordance, not a value cap" — the New entry is a free integer 0–1000). No watch-side inconsistency remains.
 
 #### PA-23 — Force-unwrap of `WatchRanges.adjustment` bounds
 **Location:** `TDEEWatch/views/WatchCalorieAdjustmentView.swift:17`
 The calories binding getter and `.onChange` clamp force-unwrap `WatchRanges.adjustment.first!` / `.last!`. Safe while the stride is non-empty, but a future edit that empties the stride (`from:` > `through:`) turns these into a crash on the Goal screen.
 **Recommendation:** Use a non-optional bounds API or a `?? default`.
+**Status: Done (2026-10-25).** Added non-optional bounds to `WatchRanges` — `adjustmentMin` / `adjustmentMax` (`adjustment.first ?? 25` / `adjustment.last ?? 1000`, the stride's own endpoints, so behaviour is identical) — and used them in both force-unwrap sites in `WatchCalorieAdjustmentView` (the `calories` getter and the `.onChange` clamp). The two `first!` / `last!` unwraps are gone; an emptied stride now degrades to the fallback bounds instead of crashing. No UI change (no picker style / option / panel / animation touched). `TDEEWatch` builds.
 
 ### Done
 
@@ -238,6 +246,8 @@ These areas were audited and found sound — included so the scope is explicit:
 - **Preview `UserDefaults` suites do not leak into production** — `com.tdee.calorieAdjustmentPreview` and the other `*Preview` suites are created only inside `#Preview`; production `InputStyleManager`/`ThemeManager` default to `.standard`. (They do write debug state into the app's real UserDefaults domain, but it is never read back — clutter, not a correctness issue.)
 - **`CalculationParityTests` correctly test the live path** — Mifflin and Katch-McArdle cases assert exact `caloriesAdjustedPerDay` / week / macro-gram values via `Calculator.calculate(person:)`.
 - **BMR unit handling is correct** — the model stores metric (kg/cm) as the source of truth; UOM is display-only, so no BMR feeds wrong units. (The gaps are display-only: PA-14, PA-26.)
+- **Watch weight/height wheels mirror the phone (PA-20, reclassified 2026-10-25)** — `WatchRanges` option arrays are byte-for-byte identical to `UIWheelPickerWeightView` / `UIWheelPickerHeightView`; the wheel-vs-`MetricRanges` split is inherent to the design on *both* targets, and PA-24 (standalone store) means a phone value never reaches the watch. The ~260 kg stones edge is a phone display quirk the watch faithfully mirrors.
+- **Watch adjustment default is internally consistent (PA-22, reclassified 2026-10-25)** — every `500` in the codebase is `#Preview` sample data; the production default is `0` and the watch uses `WatchRanges.startingAdjustment = 250`. The 25-step wheel vs continuous slider is documented as intentional (`CalorieAdjustmentEntry.swift:18`).
 
 ---
 
@@ -252,7 +262,7 @@ These areas were audited and found sound — included so the scope is explicit:
 6. **~~PA-26~~ / ~~PA-09~~ / ~~PA-16~~ / ~~PA-29~~ / ~~PA-30~~** (done 2026-10-24 — the five "safe" PAs that need no UI approval: the share card now formats height/weight through the user's UOM via the `DisplayLength`/`DisplayWeight` helpers, matching the on-screen summary rows (PA-26); `KatchMcArdleMultipliers` renamed to `activityMultiplier` (PA-09); all 7 `print()` failure logs routed through `os.Logger` (PA-16); cut/bulk parity tests added to `CalculationParityTests` (PA-29); the empty `File.swift` test stub removed (PA-30) — full `TDEE` suite green on iPhone 17e and `TDEEWatch` builds).
 
 **Then (Medium):** PA-15 — the last Medium; UI-gated, reported for approval under `UI_RESTRICTIONS.md`.
-**Low / hygiene:** PA-18, PA-20, PA-21, PA-22, PA-23 — all UI-gated, reported for approval under `UI_RESTRICTIONS.md`.
+**Low / hygiene:** ~~PA-20~~ / ~~PA-22~~ — *confirmed correct* (2026-10-25, no code change); ~~PA-21~~ / ~~PA-23~~ — *Done* (2026-10-25, no UI change: `missingFields` now derives weight/height from `MetricRanges`; non-optional `WatchRanges` bounds). Remaining Low: **PA-18**, UI-gated, reported for approval under `UI_RESTRICTIONS.md`.
 **No action:** PA-01 (accepted — intentional sentinel; the first-launch prompt is a separate UI task, out of scope), PA-17 (accepted), PA-24 (by design).
 
 ---
