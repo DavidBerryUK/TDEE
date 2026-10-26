@@ -16,21 +16,8 @@ extension ProfileViewModel {
         let caloriesAdjustedPerDay: Int = Int(result.adjustedCalories)
         let caloriesAdjustedPerWeek: Int = caloriesAdjustedPerDay * 7
 
-        // Guard against negative calorie values
-        guard caloriesAdjustedPerDay >= 0 else {
-            result.updateMacros(
-                proteinPercent: protein,
-                carbsPercent: carbs,
-                fatsPercent: fats,
-                proteinGrams: 0,
-                carbsGrams: 0,
-                fatsGrams: 0,
-                caloriesAdjustedPerDay: 0,
-                caloriesAdjustedPerWeek: 0
-            )
-            return
-        }
-
+        // adjustedCalories is always >= 0 — adjustCalories clamps via max(0, …) on every
+        // branch — so no negative guard is needed here.
         // Use the profile's stored macro split
         let proteinPercent: Int = protein
         let carbsPercent: Int = carbs
