@@ -3,7 +3,7 @@
 **Scope:** Static analysis of the `TDEE` (iPhone), `TDEEWatch` (watchOS) and `TDEEShared` (shared calc/persistence/models) targets, with `TDEETests` read for coverage. This is a **continuation** of the 2026-10-22 report (`problem-analysis.md`, findings PA-01…PA-30) — every one of those 30 is now closed, accepted, or by-design. This pass hunts for **new** issues only: bugs, missing checks/validation, dead code, error-handling gaps, and test gaps. It does **not** re-litigate the 30 already resolved.
 **Date:** 2026-10-25
 **Method:** Fresh read of the calc/persistence/model layer plus a targeted sweep of the UI layer; every load-bearing claim was verified against source (grep + read). Where v1 made a blanket claim it was re-checked — one of them (the "no `fatalError`" assertion) turns out to be inaccurate, and is corrected in PA-32.
-**Disposition:** This pass was **analysis-only**, but **PA-31 and PA-32 have been implemented, built, tested, and (with their three new UI surfaces) approved** by the user (see *Handover* below); the remaining six findings stay open candidates. All eight are Low/Info — **none is a High/Medium defect** — so the live calc/persistence paths are sound. Three findings (PA-33, PA-36, PA-37) touch a view or the share card, so under `UI_RESTRICTIONS.md` they are reported for approval and **not** changed. No accepted/by-design item (age inert under Katch-McArdle, the live `normalizeAfter*Change`, the PA-01 device sentinel) was re-raised.
+**Disposition:** This pass began **analysis-only**, but **PA-31, PA-32, PA-33, PA-36 and PA-37 have since been implemented, built, tested, and approved** by the user (see *Handover* below); the remaining three findings (PA-34, PA-35, PA-38) stay open candidates. All eight are Low/Info — **none is a High/Medium defect** — so the live calc/persistence paths are sound. PA-33, PA-36 and PA-37 touch a view or the share card and were **reported under `UI_RESTRICTIONS.md` before changing** (approved; no restriction tripped). No accepted/by-design item (age inert under Katch-McArdle, the live `normalizeAfter*Change`, the PA-01 device sentinel) was re-raised.
 
 ---
 
@@ -13,14 +13,14 @@ Ref | Title | Category | Severity | Status | Location
 --- | --- | --- | --- | --- | ---
 **PA-31** | `print()` still used for preset error logging — PA-16 migrated 2 of 3 logging files | Error handling | Low | **Done** | `MacroSplitOptionsModelCollection.swift` (see *Handover*)
 **PA-32** | `fatalError` at `SwiftDataContainer:25` — legitimate trap, but contradicts v1's "no `fatalError`" claim | Error handling / doc accuracy | **Info** | **Done — trap replaced by recovery** | `SwiftDataContainer.swift` (see *Handover*)
-**PA-33** | `ActivityLevel.displayShortName` is now an exact duplicate of `displayName` (post PA-10) | Dead code / UI | Low | **Open (candidate)** | `ActivityLevel.swift:57-65`, `UISectionSummaryValueActivityLevel.swift:21,27`
+**PA-33** | `ActivityLevel.displayShortName` is now an exact duplicate of `displayName` (post PA-10) | Dead code / UI | Low | **Done** | `ActivityLevel.swift:57-65`, `UISectionSummaryValueActivityLevel.swift:21,27`
 **PA-34** | `ConfigKeys` — 6 unused string constants (pre-SwiftData leftover) | Dead code | **Info** | **Open (candidate)** | `Config/ConfigKeys.swift`
 **PA-35** | Unreachable `guard caloriesAdjustedPerDay >= 0` + misleading comment | Dead code | **Info** | **Open (candidate)** | `CalculateMacros.swift:20`
-**PA-36** | Share card renders two identical "Macro Split" / "Macro Preset" lines | Share / poor code | Low | **Open (candidate)** | `ProfileViewModel.swift:284-285`, `ShareResultsModel.swift:139-140`
-**PA-37** | `.estimate` body fat shows "N/A" or a stale manual value in the share card; untested | Share / test gap | Low | **Open (candidate)** | `CalculateLeanBodyMass.swift:25-33`, `ShareResultsModel.swift:184-188`, `ShareResultsModelTests.swift`
+**PA-36** | Share card renders two identical "Macro Split" / "Macro Preset" lines | Share / poor code | Low | **Done** | `ProfileViewModel.swift:284-285`, `ShareResultsModel.swift:139-140`
+**PA-37** | `.estimate` body fat shows "N/A" or a stale manual value in the share card; untested | Share / test gap | Low | **Done** | `CalculateLeanBodyMass.swift:25-33`, `ShareResultsModel.swift:184-188`, `ShareResultsModelTests.swift`
 **PA-38** | Vestigial macro-edit handlers + stale "move these…" comment + unused `swiftDataContainer` property | Dead code / hygiene | **Info** | **Open (candidate)** | `MacroEditViewPage.swift:29`, `MacroOptionsListViewPage.swift:18-31`, `TDEEApp.swift:15`
 
-**Severity tally:** Low 4 · Info 4 — **8 findings**. Outstanding: **6** — PA-31 and PA-32 are now **Done** (built, tested, approved; see *Handover*); the other six open candidates. No High/Medium findings. **Carried forward from v1:** all 30 closed/accepted/by-design (PA-02…PA-30 Done; PA-01, PA-17 Accepted; PA-24 By Design; PA-20, PA-22 Confirmed correct).
+**Severity tally:** Low 4 · Info 4 — **8 findings**. Outstanding: **3** — PA-31, PA-32, PA-33, PA-36 and PA-37 are now **Done** (built, tested, approved; see *Handover*); the other three open candidates are PA-34, PA-35 and PA-38. No High/Medium findings. **Carried forward from v1:** all 30 closed/accepted/by-design (PA-02…PA-30 Done; PA-01, PA-17 Accepted; PA-24 By Design; PA-20, PA-22 Confirmed correct).
 
 ---
 
@@ -52,7 +52,7 @@ This is a **legitimate, defensible launch trap** — an app with no store cannot
 **Location:** `TDEEShared/Models/SwiftData/ActivityLevel.swift:57-65`; `TDEE/ViewsSectionSummaryValues/UISectionSummaryValueActivityLevel.swift:21,27`
 After PA-10 collapsed `ActivityLevel` from 9 cases to the 5 canonical ones, `displayShortName` (lines 57-65) became **byte-for-byte identical** to `displayName` (lines 46-54) — the "short" form and the full form now converge on the same strings for all five levels. `UISectionSummaryValueActivityLevel` is the **lone consumer** of `displayShortName` (a `Text` at line 21 and its `.accessibilityValue` at line 27); every other call site in the tree uses `displayName`. The two are now redundant aliases.
 **Recommendation:** Collapse `displayShortName` onto `displayName` (delete the duplicate property; point the view at `displayName`). Pure cleanup, no behaviour change.
-**Status: Open (candidate).** Low. **Touches a view** (`UISectionSummaryValueActivityLevel`) → report under `UI_RESTRICTIONS.md` before changing.
+**Status: Done (2026-10-26).** Low. Touched a view (`UISectionSummaryValueActivityLevel`) → reported under `UI_RESTRICTIONS.md` and approved; `displayShortName` deleted, the view now uses `displayName`. Behaviour-preserving — the rendered string is unchanged.
 
 #### PA-34 — `ConfigKeys` is dead
 **Location:** `TDEEShared/Config/ConfigKeys.swift`
@@ -85,7 +85,7 @@ so `shareText` always emits two identical lines:
 ```
 The two fields read as distinct concepts (a split *algorithm* vs a *preset name*), but they are equal in production; for an unmatched `selectedMacroId` both read "Custom". This is the same "card-vs-model" redundancy class as PA-27.
 **Recommendation:** Either drop one of the two share lines, or feed them genuinely different values. The image `ShareCardView` uses only `macroPresetText`, so the duplication is text-only. **Share-card display** → report under `UI_RESTRICTIONS.md`.
-**Status: Open (candidate).** Low.
+**Status: Done (2026-10-26).** Low. Reported under `UI_RESTRICTIONS.md` and approved — collapsed to a single "Macro Preset" line; the redundant `macroSplitMethodText` field / `macroMethodName` param removed (the share image already used only `macroPresetText`).
 
 #### PA-37 — `.estimate` body fat reads a stale / "N/A" value in the share card; untested
 **Location:** `TDEEShared/Calculations/Extensions/CalculateLeanBodyMass.swift:25-33`; `TDEEShared/Models/ShareResultsModel.swift:184-188`; `TDEETests/ShareResultsModelTests.swift` (no `.estimate` case)
@@ -99,7 +99,7 @@ if profile.bodyFatPercentageMethod != .omit, profile.bodyFatPercentage > 0 {
 ```
 So an `.estimate` profile prints **"N/A"** on a fresh profile (default `bodyFatPercentage` is `0`) or — worse — a **stale manual value**, because `bodyFatPercentage` is a persisted field that the `.manualEntry → .estimate` switch does **not** zero (`bodyFatPercentageMethod.didSet` only toggles `bodyFatPercentageShowManualEntry`, it never clears the value). The card can therefore show a body-fat % the estimate never used. The on-screen rows already gate on the method (`UISectionSummaryValueBodyFat` and `WatchBodyFatView` both check `method == .manualEntry`); the share card is the odd one out. `ShareResultsModelTests` cover `.omit`→"N/A" and `.manualEntry`→"15%"/zero→"N/A" but have **no `.estimate` case**, so the gap is untested.
 **Recommendation:** Gate `bodyFatText` on `bodyFatPercentageMethod == .manualEntry` (matching the on-screen rows), and add a `.estimate`→"N/A" test. **Share-card display** → report under `UI_RESTRICTIONS.md`.
-**Status: Open (candidate).** Low.
+**Status: Done (2026-10-26).** Low. Reported under `UI_RESTRICTIONS.md` and approved — `bodyFatText` now gated on `bodyFatPercentageMethod == .manualEntry`; a `.estimate`→"N/A" test added to `ShareResultsModelTests`.
 
 #### PA-38 — Vestigial macro-edit handlers, a stale comment, and an unused property
 **Location:** `TDEE/Pages/MacroEditPage/MacroEditViewPage.swift:29`; `TDEE/Pages/MacroOptionsListPage/MacroOptionsListViewPage.swift:18-31`; `TDEE/TDEEApp.swift:15`
@@ -145,9 +145,9 @@ All eight are Low/Info; a single cleanup pass covers them. Suggested order:
 ---
 
 ### Constraints honoured
-- **Analysis-only for PA-33…PA-38** — those six were not modified. **PA-31 and PA-32 have since been implemented**; see *Handover* below.
+- **Analysis-only for PA-34, PA-35, PA-38** — those three remain untouched. **PA-31, PA-32, PA-33, PA-36 and PA-37 have since been implemented**; see *Handover* below.
 - **`MacroSplitOptionsNormalization.swift`** was not touched (DO-NOT-EDIT); PA-06's accepted split between the live instance `normalizeAfter*Change(_:)` and the `init`/`clone` `normalizeAll`/`adjustByDiff` was not re-raised.
-- **`UI_RESTRICTIONS.md`:** PA-33, PA-36 and PA-37 each touch a view or the share card, so they are **reported for approval, not changed** — no `.pickerStyle` / option-case / `UILayoutExpandingPanel` / animation-parameter change is proposed anywhere in this document.
+- **`UI_RESTRICTIONS.md`:** PA-33, PA-36 and PA-37 each touch a view or the share card, so each was **reported for approval before changing** (and approved); no `.pickerStyle` / option-case / `UILayoutExpandingPanel` / animation-parameter change was made — PA-33 is behaviour-preserving (identical strings), and PA-36/PA-37 change share-card *text* only.
 - **Accepted / by-design items not re-raised:** age inert under Katch-McArdle, the live `normalizeAfter*Change`, and the PA-01 device height/weight `0` sentinel were all left as-is.
 
 ---
@@ -178,4 +178,17 @@ This pass was analysis-only, but **PA-31 and PA-32 have since been implemented**
 - `NoticeBanner.swift:60` + `LaunchErrorView.swift:87` — the preview `ThemeManager(defaults: UserDefaults(suiteName: …))` needs a non-optional; added `!`, matching the existing previews (`ContentView` / `ThemeView` / `SidebarView`).
 - `LaunchStore.swift` — the templated `init(underlying:afterReset:)` suppresses the synthesized memberwise init that the `notAttempted` placeholder needs; added an explicit `init(userMessage:detail:underlying:)`.
 
-**PA-33…PA-38 remain open candidates** (untouched).
+**PA-34, PA-35 and PA-38 remain open candidates** (untouched).
+
+---
+
+## Handover — PA-33, PA-36 & PA-37 implementation (2026-10-26)
+
+At the user's request (*"work through 33, 36, 37"*), the three remaining UI-touching open candidates were implemented. Each was first reported under `UI_RESTRICTIONS.md` rule 5 (file / reason / proposed change / approval request); the user approved all three and, for PA-36, chose to keep the "Macro Preset" label over "Macro Split".
+
+**Done:**
+- **PA-33** — deleted the duplicate `ActivityLevel.displayShortName` (byte-for-byte identical to `displayName` after PA-10) and pointed its lone consumer, `UISectionSummaryValueActivityLevel` (the `Text` and its `.accessibilityValue`), at `displayName`. Behaviour-preserving — the rendered string is unchanged.
+- **PA-36** — collapsed the two identical share-card lines to a single "Macro Preset" line. Removed the now-redundant `macroSplitMethodText` field and the `macroMethodName` init param from `ShareResultsModel` (and the matching `createShareResultsModel` argument in `ProfileViewModel`); the share image already used only `macroPresetText`, so the duplication was text-only. The two `ShareResultsModelTests` macro cases were pointed at `macroPresetText` and their labels updated.
+- **PA-37** — gated `ShareResultsModel.bodyFatText` on `bodyFatPercentageMethod == .manualEntry` (matching the on-screen `UISectionSummaryValueBodyFat` / `WatchBodyFatView` rows), so an `.estimate` profile reads "N/A" instead of a stale manual value; added a `.estimate`→"N/A" regression test.
+
+**Build & test (2026-10-26):** `TDEE` and `TDEEWatch` schemes both build (`** BUILD SUCCEEDED **`); `TDEETests` run green — **228 passed, 0 failed** (the prior 227 plus the one new `.estimate` case). No `UI_RESTRICTIONS.md` restriction tripped: PA-33 is behaviour-preserving, and PA-36/PA-37 change share-card *text* only (no picker / option-case / panel / animation change).

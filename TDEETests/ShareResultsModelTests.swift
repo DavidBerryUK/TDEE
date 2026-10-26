@@ -156,6 +156,22 @@ struct ShareResultsModelTests {
         #expect(model.bodyFatText == "N/A", "Body fat should be N/A when value is 0")
     }
 
+    @Test("Body fat shows N/A when method is estimate (value ignored, method-gated)")
+    func testBodyFatWhenEstimate() throws {
+        let profile = ProfileViewModel()
+        profile.bodyFatPercentageMethod = .estimate
+        profile.bodyFatPercentage = 15  // a stale manual value that estimate never overwrites
+
+        let result = CalculatorResultViewModel()
+        result.bmr = 1500
+        result.tdee = 2000
+        result.adjustedCalories = 1800
+
+        let model = ShareResultsModel(profile: profile, result: result)
+
+        #expect(model.bodyFatText == "N/A", "Estimate never populates bodyFatPercentage, so the share card must read N/A")
+    }
+
     // MARK: - Calorie Adjustment Formatting Tests
 
     @Test("Calorie adjustment shows method name")
@@ -240,7 +256,7 @@ struct ShareResultsModelTests {
 
     // MARK: - Macro Split Formatting Tests
 
-    @Test("Macro split method name is used")
+    @Test("Macro preset name is used")
     func testMacroSplitMethodName() throws {
         let profile = ProfileViewModel()
         profile.selectedMacroId = FactoryMacroSplits.Id.ketogenic
@@ -250,12 +266,12 @@ struct ShareResultsModelTests {
         result.tdee = 2000
         result.adjustedCalories = 1800
 
-        let model = ShareResultsModel(profile: profile, result: result, macroMethodName: "Ketogenic", macroPresetName: "Ketogenic")
+        let model = ShareResultsModel(profile: profile, result: result, macroPresetName: "Ketogenic")
 
-        #expect(model.macroSplitMethodText == "Ketogenic", "Macro split method should use preset name")
+        #expect(model.macroPresetText == "Ketogenic", "Macro preset should use the preset name")
     }
 
-    @Test("Macro split method falls back to 'Custom' when preset not found")
+    @Test("Macro preset falls back to 'Custom' when not found")
     func testMacroSplitMethodFallback() throws {
         let profile = ProfileViewModel()
         profile.selectedMacroId = UUID()
@@ -265,9 +281,9 @@ struct ShareResultsModelTests {
         result.tdee = 2000
         result.adjustedCalories = 1800
 
-        let model = ShareResultsModel(profile: profile, result: result, macroMethodName: "Custom", macroPresetName: "Custom")
+        let model = ShareResultsModel(profile: profile, result: result, macroPresetName: "Custom")
 
-        #expect(model.macroSplitMethodText == "Custom", "Missing preset should fallback to 'Custom'")
+        #expect(model.macroPresetText == "Custom", "Missing preset should fallback to 'Custom'")
     }
 
     // MARK: - Calculation Output Formatting Tests

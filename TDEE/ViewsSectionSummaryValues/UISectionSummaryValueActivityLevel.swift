@@ -18,13 +18,13 @@ struct UISectionSummaryValueActivityLevel: View {
         let isExpanded = sectionManager.activityLevelIsExpanded
 
         HStack{
-            Text( model.activityLevel.displayShortName)
+            Text( model.activityLevel.displayName)
                 .contentTransition(.interpolate)
                 .animation(.easeInOut, value: model.activityLevel)
                 .foregroundColor(UITextStyleResolver.fontColor(palette, isExpanded: isExpanded))
                 .fontWeight(UITextStyleResolver.fontWeight(isExpanded: isExpanded))
                 .accessibilityLabel("Activity level value")
-                .accessibilityValue(model.activityLevel.displayShortName)
+                .accessibilityValue(model.activityLevel.displayName)
         }
     }
 }

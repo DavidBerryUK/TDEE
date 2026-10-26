@@ -53,17 +53,6 @@ public extension ActivityLevel {
         }
     }
 
-    /// Short display name for UI
-    var displayShortName: String {
-        switch self {
-        case .sedentary: return "Sedentary"
-        case .lightExercise: return "Light Exercise"
-        case .moderateExercise: return "Moderate Exercise"
-        case .heavyExercise: return "Heavy Exercise"
-        case .athlete: return "Athlete"
-        }
-    }
-
     /// The generic activity multiplier (1.2 to 1.9) for this activity level,
     /// applied to both BMR formulas (Mifflin-St Jeor and Katch-McArdle).
     var activityMultiplier: Double {

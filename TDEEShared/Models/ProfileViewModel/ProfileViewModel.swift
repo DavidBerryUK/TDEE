@@ -281,7 +281,6 @@ class ProfileViewModel {
         return ShareResultsModel(
             profile: self,
             result: result,
-            macroMethodName: selectedMacro?.name ?? "Custom",
             macroPresetName: selectedMacro?.name ?? "Custom"
         )
     }

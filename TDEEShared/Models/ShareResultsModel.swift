@@ -103,8 +103,6 @@ struct ShareResultsModel {
     let calorieAdjustmentText: String
     /// Calorie adjustment amount
     let calorieAdjustmentAmountText: String
-    /// Macro split method name
-    let macroSplitMethodText: String
     /// Selected macro preset name
     let macroPresetText: String
 
@@ -136,7 +134,6 @@ struct ShareResultsModel {
         \(bodyFatText.isEmpty ? "" : "- Body Fat: \(bodyFatText)\n")
         - Calorie Adjustment: \(calorieAdjustmentText)
         \(calorieAdjustmentAmountText.isEmpty ? "" : "- Adjustment Amount: \(calorieAdjustmentAmountText)\n")
-        - Macro Split: \(macroSplitMethodText)
         - Macro Preset: \(macroPresetText)
 
         RESULTS:
@@ -155,12 +152,10 @@ struct ShareResultsModel {
     /// - Parameters:
     ///   - profile: The user's profile data
     ///   - result: The calculation results
-    ///   - macroMethodName: The name of the selected macro split method
     ///   - macroPresetName: The name of the selected macro preset
     init(
         profile: ProfileViewModel,
         result: CalculatorResultViewModel,
-        macroMethodName: String = "Custom",
         macroPresetName: String = "Custom"
     ) {
         // Format gender
@@ -181,7 +176,7 @@ struct ShareResultsModel {
         self.bodyFatMethodText = profile.bodyFatPercentageMethod.displayName
 
         // Format body fat percentage
-        if profile.bodyFatPercentageMethod != .omit, profile.bodyFatPercentage > 0 {
+        if profile.bodyFatPercentageMethod == .manualEntry, profile.bodyFatPercentage > 0 {
             self.bodyFatText = formatAsInteger(profile.bodyFatPercentage) + "%"
         } else {
             self.bodyFatText = "N/A"
@@ -202,9 +197,6 @@ struct ShareResultsModel {
         } else {
             self.calorieAdjustmentAmountText = "\(profile.calorieAdjustmentMethod.adjustmentPrefix)\(Int(adjustment)) kcal"
         }
-
-        // Format macro split method
-        self.macroSplitMethodText = macroMethodName
 
         // Format macro preset name
         self.macroPresetText = macroPresetName
@@ -234,7 +226,6 @@ struct ShareResultsModel {
             bodyFatText: "",
             calorieAdjustmentText: "",
             calorieAdjustmentAmountText: "",
-            macroSplitMethodText: "",
             macroPresetText: "",
             bmrText: "",
             tdeeText: "",
@@ -254,7 +245,6 @@ struct ShareResultsModel {
         bodyFatText: String,
         calorieAdjustmentText: String,
         calorieAdjustmentAmountText: String,
-        macroSplitMethodText: String,
         macroPresetText: String,
         bmrText: String,
         tdeeText: String,
@@ -270,7 +260,6 @@ struct ShareResultsModel {
         self.bodyFatText = bodyFatText
         self.calorieAdjustmentText = calorieAdjustmentText
         self.calorieAdjustmentAmountText = calorieAdjustmentAmountText
-        self.macroSplitMethodText = macroSplitMethodText
         self.macroPresetText = macroPresetText
         self.bmrText = bmrText
         self.tdeeText = tdeeText
