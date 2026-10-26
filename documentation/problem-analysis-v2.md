@@ -3,7 +3,7 @@
 **Scope:** Static analysis of the `TDEE` (iPhone), `TDEEWatch` (watchOS) and `TDEEShared` (shared calc/persistence/models) targets, with `TDEETests` read for coverage. This is a **continuation** of the 2026-10-22 report (`problem-analysis.md`, findings PA-01…PA-30) — every one of those 30 is now closed, accepted, or by-design. This pass hunts for **new** issues only: bugs, missing checks/validation, dead code, error-handling gaps, and test gaps. It does **not** re-litigate the 30 already resolved.
 **Date:** 2026-10-25
 **Method:** Fresh read of the calc/persistence/model layer plus a targeted sweep of the UI layer; every load-bearing claim was verified against source (grep + read). Where v1 made a blanket claim it was re-checked — one of them (the "no `fatalError`" assertion) turns out to be inaccurate, and is corrected in PA-32.
-**Disposition:** This pass began **analysis-only**, but **PA-31, PA-32, PA-33, PA-36 and PA-37 have since been implemented, built, tested, and approved** by the user (see *Handover* below); the remaining three findings (PA-34, PA-35, PA-38) stay open candidates. All eight are Low/Info — **none is a High/Medium defect** — so the live calc/persistence paths are sound. PA-33, PA-36 and PA-37 touch a view or the share card and were **reported under `UI_RESTRICTIONS.md` before changing** (approved; no restriction tripped). No accepted/by-design item (age inert under Katch-McArdle, the live `normalizeAfter*Change`, the PA-01 device sentinel) was re-raised.
+**Disposition:** This pass began **analysis-only**, but **PA-31, PA-32, PA-33, PA-34, PA-36 and PA-37 have since been implemented, built, tested, and approved** by the user (see *Handover* below); the remaining two findings (PA-35, PA-38) stay open candidates. All eight are Low/Info — **none is a High/Medium defect** — so the live calc/persistence paths are sound. PA-33, PA-36 and PA-37 touch a view or the share card and were **reported under `UI_RESTRICTIONS.md` before changing** (approved; no restriction tripped). No accepted/by-design item (age inert under Katch-McArdle, the live `normalizeAfter*Change`, the PA-01 device sentinel) was re-raised.
 
 ---
 
@@ -14,13 +14,13 @@ Ref | Title | Category | Severity | Status | Location
 **PA-31** | `print()` still used for preset error logging — PA-16 migrated 2 of 3 logging files | Error handling | Low | **Done** | `MacroSplitOptionsModelCollection.swift` (see *Handover*)
 **PA-32** | `fatalError` at `SwiftDataContainer:25` — legitimate trap, but contradicts v1's "no `fatalError`" claim | Error handling / doc accuracy | **Info** | **Done — trap replaced by recovery** | `SwiftDataContainer.swift` (see *Handover*)
 **PA-33** | `ActivityLevel.displayShortName` is now an exact duplicate of `displayName` (post PA-10) | Dead code / UI | Low | **Done** | `ActivityLevel.swift:57-65`, `UISectionSummaryValueActivityLevel.swift:21,27`
-**PA-34** | `ConfigKeys` — 6 unused string constants (pre-SwiftData leftover) | Dead code | **Info** | **Open (candidate)** | `Config/ConfigKeys.swift`
+**PA-34** | `ConfigKeys` — 6 unused string constants (pre-SwiftData leftover) | Dead code | **Info** | **Done** | `Config/ConfigKeys.swift` (deleted; see *Handover*)
 **PA-35** | Unreachable `guard caloriesAdjustedPerDay >= 0` + misleading comment | Dead code | **Info** | **Open (candidate)** | `CalculateMacros.swift:20`
 **PA-36** | Share card renders two identical "Macro Split" / "Macro Preset" lines | Share / poor code | Low | **Done** | `ProfileViewModel.swift:284-285`, `ShareResultsModel.swift:139-140`
 **PA-37** | `.estimate` body fat shows "N/A" or a stale manual value in the share card; untested | Share / test gap | Low | **Done** | `CalculateLeanBodyMass.swift:25-33`, `ShareResultsModel.swift:184-188`, `ShareResultsModelTests.swift`
 **PA-38** | Vestigial macro-edit handlers + stale "move these…" comment + unused `swiftDataContainer` property | Dead code / hygiene | **Info** | **Open (candidate)** | `MacroEditViewPage.swift:29`, `MacroOptionsListViewPage.swift:18-31`, `TDEEApp.swift:15`
 
-**Severity tally:** Low 4 · Info 4 — **8 findings**. Outstanding: **3** — PA-31, PA-32, PA-33, PA-36 and PA-37 are now **Done** (built, tested, approved; see *Handover*); the other three open candidates are PA-34, PA-35 and PA-38. No High/Medium findings. **Carried forward from v1:** all 30 closed/accepted/by-design (PA-02…PA-30 Done; PA-01, PA-17 Accepted; PA-24 By Design; PA-20, PA-22 Confirmed correct).
+**Severity tally:** Low 4 · Info 4 — **8 findings**. Outstanding: **2** — PA-31, PA-32, PA-33, PA-34, PA-36 and PA-37 are now **Done** (built, tested, approved; see *Handover*); the other two open candidates are PA-35 and PA-38. No High/Medium findings. **Carried forward from v1:** all 30 closed/accepted/by-design (PA-02…PA-30 Done; PA-01, PA-17 Accepted; PA-24 By Design; PA-20, PA-22 Confirmed correct).
 
 ---
 
@@ -58,7 +58,7 @@ After PA-10 collapsed `ActivityLevel` from 9 cases to the 5 canonical ones, `dis
 **Location:** `TDEEShared/Config/ConfigKeys.swift`
 A `struct` of 6 unused string constants (`gender`, `age`, `height`, `weight`, `activityLevel`, `bodyFatPercentage`) — the `UserDefaults` keys from the pre-SwiftData persistence era. A full-tree grep returns **zero** references outside the file's own definition.
 **Recommendation:** Delete the file. No callers, no behaviour change.
-**Status: Open (candidate).** Info.
+**Status: Done (2026-10-26).** Info. Deleted `TDEEShared/Config/ConfigKeys.swift` — a full-tree grep confirmed zero references outside its own definition (the lone `ConfigLoader.swift` in the same folder is independent). No callers, no behaviour change. `TDEE`/`TDEEWatch` build; `TDEETests` 228/0. Pure dead-code removal → no `UI_RESTRICTIONS.md` approval needed.
 
 #### PA-35 — Unreachable `guard caloriesAdjustedPerDay >= 0`
 **Location:** `TDEEShared/Calculations/Extensions/CalculateMacros.swift:20`
@@ -137,7 +137,7 @@ All eight are Low/Info; a single cleanup pass covers them. Suggested order:
 2. **PA-37** — the share card can print a body-fat % the `.estimate` path never used; user-visible and untested. (Report first — share card.)
 3. **PA-36** — the duplicated "Macro Split" / "Macro Preset" share line. (Report first — share card.)
 4. **PA-33** — collapse the now-identical `displayShortName` onto `displayName`. (Report first — touches a view.)
-5. **PA-34 / PA-35 / PA-38** — pure dead-code / hygiene removals (`ConfigKeys`, the unreachable `>= 0` guard + comment, the vestigial handlers + stale comment + unused property). No approval needed.
+5. **PA-35 / PA-38** — pure dead-code / hygiene removals (the unreachable `>= 0` guard + comment, the vestigial handlers + stale comment + unused property). No approval needed. (**PA-34** — `ConfigKeys` — was done in this same pass; see *Handover* below.)
 6. **PA-32** — correct v1's "no `fatalError`" claim; the trap itself is accepted by-design. No code change.
 
 **No High/Medium findings** — nothing blocks a release; all items are optional cleanups.
@@ -145,7 +145,7 @@ All eight are Low/Info; a single cleanup pass covers them. Suggested order:
 ---
 
 ### Constraints honoured
-- **Analysis-only for PA-34, PA-35, PA-38** — those three remain untouched. **PA-31, PA-32, PA-33, PA-36 and PA-37 have since been implemented**; see *Handover* below.
+- **PA-35 and PA-38 remain analysis-only** — those two stay untouched. **PA-31, PA-32, PA-33, PA-34, PA-36 and PA-37 have since been implemented**; see *Handover* below.
 - **`MacroSplitOptionsNormalization.swift`** was not touched (DO-NOT-EDIT); PA-06's accepted split between the live instance `normalizeAfter*Change(_:)` and the `init`/`clone` `normalizeAll`/`adjustByDiff` was not re-raised.
 - **`UI_RESTRICTIONS.md`:** PA-33, PA-36 and PA-37 each touch a view or the share card, so each was **reported for approval before changing** (and approved); no `.pickerStyle` / option-case / `UILayoutExpandingPanel` / animation-parameter change was made — PA-33 is behaviour-preserving (identical strings), and PA-36/PA-37 change share-card *text* only.
 - **Accepted / by-design items not re-raised:** age inert under Katch-McArdle, the live `normalizeAfter*Change`, and the PA-01 device height/weight `0` sentinel were all left as-is.
@@ -178,7 +178,7 @@ This pass was analysis-only, but **PA-31 and PA-32 have since been implemented**
 - `NoticeBanner.swift:60` + `LaunchErrorView.swift:87` — the preview `ThemeManager(defaults: UserDefaults(suiteName: …))` needs a non-optional; added `!`, matching the existing previews (`ContentView` / `ThemeView` / `SidebarView`).
 - `LaunchStore.swift` — the templated `init(underlying:afterReset:)` suppresses the synthesized memberwise init that the `notAttempted` placeholder needs; added an explicit `init(userMessage:detail:underlying:)`.
 
-**PA-34, PA-35 and PA-38 remain open candidates** (untouched).
+**PA-35 and PA-38 remain open candidates** (untouched).
 
 ---
 
@@ -192,3 +192,16 @@ At the user's request (*"work through 33, 36, 37"*), the three remaining UI-touc
 - **PA-37** — gated `ShareResultsModel.bodyFatText` on `bodyFatPercentageMethod == .manualEntry` (matching the on-screen `UISectionSummaryValueBodyFat` / `WatchBodyFatView` rows), so an `.estimate` profile reads "N/A" instead of a stale manual value; added a `.estimate`→"N/A" regression test.
 
 **Build & test (2026-10-26):** `TDEE` and `TDEEWatch` schemes both build (`** BUILD SUCCEEDED **`); `TDEETests` run green — **228 passed, 0 failed** (the prior 227 plus the one new `.estimate` case). No `UI_RESTRICTIONS.md` restriction tripped: PA-33 is behaviour-preserving, and PA-36/PA-37 change share-card *text* only (no picker / option-case / panel / animation change).
+
+---
+
+## Handover — PA-34 implementation (2026-10-26)
+
+At the user's request (*"please do pa-34"*), the `ConfigKeys` dead-code removal was done. Pure hygiene — no `UI_RESTRICTIONS.md` approval needed.
+
+**Done:**
+- **PA-34** — deleted `TDEEShared/Config/ConfigKeys.swift`, the 6 pre-SwiftData `UserDefaults` string constants (`gender`, `age`, `height`, `weight`, `activityLevel`, `bodyFatPercentage`). A full-tree grep confirmed **zero** references outside the file's own definition before deletion; the only same-folder sibling that reads config, `ConfigLoader.swift`, does not reference `ConfigKeys` and is unaffected. The other four files in `Config/` (`AppConfig`, `ConfigLoader`, `MetricRanges`, `ProfileDefaults`) remain. Xcode 16+ synchronised folder → no `project.pbxproj` edit.
+
+**Build & test (2026-10-26):** `TDEE` and `TDEEWatch` schemes both build (`** BUILD SUCCEEDED **`); `TDEETests` run green — **228 passed, 0 failed** (unchanged count; the deletion references no test). No `UI_RESTRICTIONS.md` restriction tripped.
+
+**PA-35 and PA-38 remain open candidates** (untouched).
