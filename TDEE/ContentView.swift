@@ -62,6 +62,14 @@ struct ContentView: View {
             await macroCollection.loadPresets()
             await profileStore.load()
         }
+        // A non-blocking notice when a macro-preset operation fails to persist (PA-31).
+        .safeAreaInset(edge: .top, spacing: 0) {
+            if let notice = macroCollection.notice {
+                NoticeBanner(message: notice) {
+                    macroCollection.notice = nil
+                }
+            }
+        }
         // Keep the selection valid if the selected macro is deleted or reset away
         .onChange(of: macroCollection.items) { _, items in
             guard !items.isEmpty, !items.contains(where: { $0.id == profile.selectedMacroId }) else { return }

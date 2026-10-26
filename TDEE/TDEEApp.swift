@@ -6,27 +6,51 @@
 //
 
 import SwiftUI
-import SwiftData
 
 @main
 struct TDEEApp: App {
 
-    // Initialize SwiftData container
-    private let swiftDataContainer = SwiftDataContainer.shared
-
     @State private var themeManager = ThemeManager()
     @State private var inputStyleManager = InputStyleManager()
 
-    // Created once here: the App body re-runs, and ContentView.init with it
-    @State private var profile = ProfileViewModel(profileRepository: SwiftDataContainer.shared.profileRepository)
-    @State private var macroCollection = MacroSplitOptionsModelCollection(profileRepository: SwiftDataContainer.shared.profileRepository)
-    @State private var profileStore = ProfileStore(profileRepository: SwiftDataContainer.shared.profileRepository)
+    // Opens the store up front; the first body render already knows the outcome, so the app never
+    // starts on a half-opened store. A failure routes to the recovery screen instead of a trap.
+    @State private var launch = LaunchStore()
 
     var body: some Scene {
         WindowGroup {
             ThemedRoot(themeManager: themeManager, inputStyleManager: inputStyleManager) {
-                ContentView(profile: profile, macroCollection: macroCollection, profileStore: profileStore)
+                switch launch.outcome {
+                case .ready(let repository):
+                    PhoneLaunchView(repository: repository)
+                case .failed(let failure):
+                    LaunchErrorView(
+                        failure: failure,
+                        onRetry: { launch.retry() },
+                        onReset: { launch.reset() })
+                }
             }
         }
+    }
+}
+
+/// Builds the three app models only once the store has opened, then hands them to `ContentView`.
+///
+/// The models can't be `@State` in `TDEEApp`: a `@State` default must always run, but the store
+/// open can fail. `LaunchStore` decides readiness and this view is built only on the `.ready`
+/// branch, so the models are created from a live repository exactly once (not on every body re-run).
+private struct PhoneLaunchView: View {
+    @State private var profile: ProfileViewModel
+    @State private var macroCollection: MacroSplitOptionsModelCollection
+    @State private var profileStore: ProfileStore
+
+    init(repository: ProfileRepository) {
+        _profile = State(initialValue: ProfileViewModel(profileRepository: repository))
+        _macroCollection = State(initialValue: MacroSplitOptionsModelCollection(profileRepository: repository))
+        _profileStore = State(initialValue: ProfileStore(profileRepository: repository))
+    }
+
+    var body: some View {
+        ContentView(profile: profile, macroCollection: macroCollection, profileStore: profileStore)
     }
 }

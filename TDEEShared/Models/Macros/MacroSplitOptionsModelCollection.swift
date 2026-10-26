@@ -1,5 +1,6 @@
 import Observation
 import Foundation
+import os
 
 /// Collection of all the Macro Split Options
 @Observable
@@ -9,7 +10,15 @@ final class MacroSplitOptionsModelCollection {
     // Source of truth
     public var items: [MacroSplitOptionModel] = []
 
+    /// A transient, user-facing message when a preset load/reset/save/delete fails to persist.
+    /// Non-blocking: the UI surfaces it briefly and clears it; a failed operation never halts the app.
+    var notice: String?
+
     private var profileRepository: ProfileRepository?
+
+    /// Error-logging channel for a preset load/reset/save/delete that fails to persist
+    /// (lost in a release build via `print`).
+    private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "DaveBerryUk.TDEE", category: "MacroSplitOptionsModelCollection")
 
     var sortedItems: [MacroSplitOptionModel] {
         items.sorted { $0.ordinal < $1.ordinal }
@@ -41,8 +50,9 @@ final class MacroSplitOptionsModelCollection {
             let presets = try await repository.fetchPresets()
             self.items = presets.map { MacroPresetMapper.mapToModel($0) }
         } catch {
-            print("Failed to load presets, using factory presets in memory: \(error)")
+            Self.logger.error("Failed to load presets, using factory presets in memory: \(error)")
             self.items = FactoryMacroSplits.get()
+            notice = "Couldn't load your saved macro presets. Using the defaults."
         }
     }
 
@@ -53,7 +63,8 @@ final class MacroSplitOptionsModelCollection {
             do {
                 try await repository.resetPresetsToDefaults()
             } catch {
-                print("Failed to reset presets: \(error)")
+                Self.logger.error("Failed to reset presets: \(error)")
+                notice = "Couldn't reset your macros to the defaults."
                 return
             }
         }
@@ -86,7 +97,8 @@ final class MacroSplitOptionsModelCollection {
                 try await repository.savePreset(MacroPresetMapper.mapToEntity(preset))
             }
         } catch {
-            print("Failed to save presets: \(error)")
+            Self.logger.error("Failed to save presets: \(error)")
+            notice = "Couldn't save your macro changes."
         }
     }
 
@@ -134,7 +146,10 @@ final class MacroSplitOptionsModelCollection {
         enqueue { [weak self] in
             guard let repository = self?.profileRepository else { return }
             do { try await repository.deletePreset(id: id) }
-            catch { print("Failed to delete preset: \(error)") }
+            catch {
+                Self.logger.error("Failed to delete preset: \(error)")
+                self?.notice = "Couldn't delete that macro."
+            }
         }
     }
 
