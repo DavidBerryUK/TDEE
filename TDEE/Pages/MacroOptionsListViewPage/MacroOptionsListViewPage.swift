@@ -15,20 +15,6 @@ struct MacroOptionsListViewPage: View {
         if editorPushStyle == .replaceDetail { path = [route] } else { path.append(route) }
     }
 
-    //
-    // move these into a collection handler
-    //
-    func handleOnDelete(item: MacroSplitOptionModel) {
-        collection.remove(item)
-    }
-
-    func handleOnSave(item: MacroSplitOptionModel) {
-        collection.update(item)
-    }
-
-    //
-    //
-    //
     var body: some View {
         ZStack(alignment: .bottom) {
             ScrollViewReader { proxy in

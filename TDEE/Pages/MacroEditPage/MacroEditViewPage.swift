@@ -24,13 +24,6 @@ struct MacroEditViewPage: View {
         self._editMacro = State(initialValue: (item == nil) ? MacroSplitOptionModel() : item!.clone())
     }
     
-    // MARK: - Actions
-
-    private func handleOnDelete() {
-        collection.remove(editMacro)
-        dismiss()
-    }
-    
     // MARK: - View
     
     var body: some View {

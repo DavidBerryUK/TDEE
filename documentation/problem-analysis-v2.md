@@ -3,7 +3,7 @@
 **Scope:** Static analysis of the `TDEE` (iPhone), `TDEEWatch` (watchOS) and `TDEEShared` (shared calc/persistence/models) targets, with `TDEETests` read for coverage. This is a **continuation** of the 2026-10-22 report (`problem-analysis.md`, findings PA-01…PA-30) — every one of those 30 is now closed, accepted, or by-design. This pass hunts for **new** issues only: bugs, missing checks/validation, dead code, error-handling gaps, and test gaps. It does **not** re-litigate the 30 already resolved.
 **Date:** 2026-10-25
 **Method:** Fresh read of the calc/persistence/model layer plus a targeted sweep of the UI layer; every load-bearing claim was verified against source (grep + read). Where v1 made a blanket claim it was re-checked — one of them (the "no `fatalError`" assertion) turns out to be inaccurate, and is corrected in PA-32.
-**Disposition:** This pass began **analysis-only**, but **PA-31, PA-32, PA-33, PA-34, PA-35, PA-36 and PA-37 have since been implemented, built, tested, and approved** by the user (see *Handover* below); the remaining one finding (PA-38) stays an open candidate. All eight are Low/Info — **none is a High/Medium defect** — so the live calc/persistence paths are sound. PA-33, PA-36 and PA-37 touch a view or the share card and were **reported under `UI_RESTRICTIONS.md` before changing** (approved; no restriction tripped). No accepted/by-design item (age inert under Katch-McArdle, the live `normalizeAfter*Change`, the PA-01 device sentinel) was re-raised.
+**Disposition:** This pass began **analysis-only**, but **all eight findings (PA-31 through PA-38) have since been implemented, built, tested, and approved** by the user (see *Handover* below); no open candidates remain. All eight are Low/Info — **none is a High/Medium defect** — so the live calc/persistence paths are sound. PA-33, PA-36 and PA-37 touch a view or the share card and were **reported under `UI_RESTRICTIONS.md` before changing** (approved; no restriction tripped). No accepted/by-design item (age inert under Katch-McArdle, the live `normalizeAfter*Change`, the PA-01 device sentinel) was re-raised.
 
 ---
 
@@ -18,9 +18,9 @@ Ref | Title | Category | Severity | Status | Location
 **PA-35** | Unreachable `guard caloriesAdjustedPerDay >= 0` + misleading comment | Dead code | **Info** | **Done** | `CalculateMacros.swift` (guard + comment removed; see *Handover*)
 **PA-36** | Share card renders two identical "Macro Split" / "Macro Preset" lines | Share / poor code | Low | **Done** | `ProfileViewModel.swift:284-285`, `ShareResultsModel.swift:139-140`
 **PA-37** | `.estimate` body fat shows "N/A" or a stale manual value in the share card; untested | Share / test gap | Low | **Done** | `CalculateLeanBodyMass.swift:25-33`, `ShareResultsModel.swift:184-188`, `ShareResultsModelTests.swift`
-**PA-38** | Vestigial macro-edit handlers + stale "move these…" comment + unused `swiftDataContainer` property | Dead code / hygiene | **Info** | **Open (candidate)** | `MacroEditViewPage.swift:29`, `MacroOptionsListViewPage.swift:18-31`, `TDEEApp.swift:15`
+**PA-38** | Vestigial macro-edit handlers + stale "move these…" comment + unused `swiftDataContainer` property | Dead code / hygiene | **Info** | **Done** | `MacroEditViewPage.swift`, `MacroOptionsListViewPage.swift` (handlers + comment removed; `swiftDataContainer` already gone; see *Handover*)
 
-**Severity tally:** Low 4 · Info 4 — **8 findings**. Outstanding: **1** — PA-31, PA-32, PA-33, PA-34, PA-35, PA-36 and PA-37 are now **Done** (built, tested, approved; see *Handover*); the other open candidate is PA-38. No High/Medium findings. **Carried forward from v1:** all 30 closed/accepted/by-design (PA-02…PA-30 Done; PA-01, PA-17 Accepted; PA-24 By Design; PA-20, PA-22 Confirmed correct).
+**Severity tally:** Low 4 · Info 4 — **8 findings**. Outstanding: **0** — all eight (PA-31 through PA-38) are now **Done** (built, tested, approved; see *Handover*). No High/Medium findings. **Carried forward from v1:** all 30 closed/accepted/by-design (PA-02…PA-30 Done; PA-01, PA-17 Accepted; PA-24 By Design; PA-20, PA-22 Confirmed correct).
 
 ---
 
@@ -108,7 +108,7 @@ Three small dead/legacy items in the macro-edit flow:
 - **(b)** The page-level `MacroOptionsListViewPage.handleOnDelete(item:)` / `handleOnSave(item:)` are also **uncalled** (the card/row subviews define and call their *own* copies), and the comment directly above them reads `// move these into a collection handler` — already effectively done, since `collection.remove` / `collection.update` *are* the handlers. A trailing empty `//` block sits below them too.
 - **(c)** `TDEEApp.swift:15` `private let swiftDataContainer = SwiftDataContainer.shared` is an **unused stored property** — `SwiftDataContainer.shared` is a `static let`, alive for the process regardless, so the property adds nothing.
 **Recommendation:** Delete the three uncalled handlers and the unused property; remove the stale "move these into a collection handler" comment and the empty comment block. No behaviour change.
-**Status: Open (candidate).** Info.
+**Status: Done (2026-10-26).** Info. **(a)** Deleted the uncalled no-arg `handleOnDelete()` from `MacroEditViewPage` (the real delete runs `DeleteConfirmationSheet.onConfirm` → `collection.remove(editMacro)`); its now-orphaned `// MARK: - Actions` header was removed with it. **(b)** Deleted the uncalled page-level `handleOnDelete(item:)` / `handleOnSave(item:)` from `MacroOptionsListViewPage`, the stale `// move these into a collection handler` comment, and the trailing empty `//` block — the card/row subviews keep and call their *own* copies, and `collection.remove` / `collection.update` already *are* the handlers. **(c)** The `swiftDataContainer` property was already gone: the PA-31/PA-32 `TDEEApp` rewrite replaced it with `@State private var launch = LaunchStore()`, so a full-tree grep found **zero** references. No behaviour change, no test referenced any of it. `TDEE` builds; `TDEETests` 228/0. Pure dead-code removal → no `UI_RESTRICTIONS.md` approval needed.
 
 ---
 
@@ -137,7 +137,7 @@ All eight are Low/Info; a single cleanup pass covers them. Suggested order:
 2. **PA-37** — the share card can print a body-fat % the `.estimate` path never used; user-visible and untested. (Report first — share card.)
 3. **PA-36** — the duplicated "Macro Split" / "Macro Preset" share line. (Report first — share card.)
 4. **PA-33** — collapse the now-identical `displayShortName` onto `displayName`. (Report first — touches a view.)
-5. **PA-38** — pure dead-code / hygiene removals (the vestigial handlers + stale comment + unused property). No approval needed. (**PA-35** — the unreachable `>= 0` guard + comment — and **PA-34** — `ConfigKeys` — were done in this same pass; see *Handover* below.)
+5. **PA-38** — pure dead-code / hygiene removals (the vestigial handlers + stale comment + unused property). Done in this same pass (with PA-35 and PA-34); see *Handover* below.
 6. **PA-32** — correct v1's "no `fatalError`" claim; the trap itself is accepted by-design. No code change.
 
 **No High/Medium findings** — nothing blocks a release; all items are optional cleanups.
@@ -145,7 +145,7 @@ All eight are Low/Info; a single cleanup pass covers them. Suggested order:
 ---
 
 ### Constraints honoured
-- **PA-38 remains analysis-only** — that one stays untouched. **PA-31, PA-32, PA-33, PA-34, PA-35, PA-36 and PA-37 have since been implemented**; see *Handover* below.
+- **No open candidates remain.** **PA-31, PA-32, PA-33, PA-34, PA-35, PA-36, PA-37 and PA-38 have all been implemented**; see *Handover* below.
 - **`MacroSplitOptionsNormalization.swift`** was not touched (DO-NOT-EDIT); PA-06's accepted split between the live instance `normalizeAfter*Change(_:)` and the `init`/`clone` `normalizeAll`/`adjustByDiff` was not re-raised.
 - **`UI_RESTRICTIONS.md`:** PA-33, PA-36 and PA-37 each touch a view or the share card, so each was **reported for approval before changing** (and approved); no `.pickerStyle` / option-case / `UILayoutExpandingPanel` / animation-parameter change was made — PA-33 is behaviour-preserving (identical strings), and PA-36/PA-37 change share-card *text* only.
 - **Accepted / by-design items not re-raised:** age inert under Katch-McArdle, the live `normalizeAfter*Change`, and the PA-01 device height/weight `0` sentinel were all left as-is.
@@ -178,7 +178,7 @@ This pass was analysis-only, but **PA-31 and PA-32 have since been implemented**
 - `NoticeBanner.swift:60` + `LaunchErrorView.swift:87` — the preview `ThemeManager(defaults: UserDefaults(suiteName: …))` needs a non-optional; added `!`, matching the existing previews (`ContentView` / `ThemeView` / `SidebarView`).
 - `LaunchStore.swift` — the templated `init(underlying:afterReset:)` suppresses the synthesized memberwise init that the `notAttempted` placeholder needs; added an explicit `init(userMessage:detail:underlying:)`.
 
-**PA-38 remains an open candidate** (untouched).
+**No open candidates remain.**
 
 ---
 
@@ -204,7 +204,7 @@ At the user's request (*"please do pa-34"*), the `ConfigKeys` dead-code removal 
 
 **Build & test (2026-10-26):** `TDEE` and `TDEEWatch` schemes both build (`** BUILD SUCCEEDED **`); `TDEETests` run green — **228 passed, 0 failed** (unchanged count; the deletion references no test). No `UI_RESTRICTIONS.md` restriction tripped.
 
-**PA-38 remains an open candidate** (untouched).
+**No open candidates remain.**
 
 ---
 
@@ -217,4 +217,21 @@ At the user's request (*"please do PA-35"*), the unreachable-guard removal was d
 
 **Build & test (2026-10-26):** `TDEE` and `TDEEWatch` schemes both build (`** BUILD SUCCEEDED **`); `TDEETests` run green — **228 passed, 0 failed** (unchanged count; the removal references no test). No `UI_RESTRICTIONS.md` restriction tripped.
 
-**PA-38 remains an open candidate** (untouched).
+**No open candidates remain.**
+
+---
+
+## Handover — PA-38 implementation (2026-10-26)
+
+At the user's request (*"go ahead with last story"*), the last open candidate was closed. Pure dead-code / hygiene removal — no `UI_RESTRICTIONS.md` approval needed.
+
+**Done:**
+- **PA-38 (a)** — deleted the uncalled no-arg `handleOnDelete()` from `MacroEditViewPage` (the real delete runs through `DeleteConfirmationSheet.onConfirm` → `collection.remove(editMacro)`); its now-orphaned `// MARK: - Actions` header was removed with it.
+- **PA-38 (b)** — deleted the uncalled page-level `handleOnDelete(item:)` / `handleOnSave(item:)` from `MacroOptionsListViewPage`, the stale `// move these into a collection handler` comment, and the trailing empty `//` block. The card/row subviews (`MacroOptionsListCardView`, `MacroOptionsListItemView`) define and call their *own* copies, and `collection.remove` / `collection.update` already *are* the handlers.
+- **PA-38 (c)** — the `swiftDataContainer` property was already gone: the PA-31/PA-32 `TDEEApp` rewrite replaced it with `@State private var launch = LaunchStore()`, so a full-tree grep found **zero** references. Nothing to delete.
+
+Xcode 16+ synchronised folders → no `project.pbxproj` edits.
+
+**Build & test (2026-10-26):** `TDEE` builds (`** BUILD SUCCEEDED **`); `TDEETests` run green — **228 passed, 0 failed** (unchanged count; the removals reference no test). No `UI_RESTRICTIONS.md` restriction tripped.
+
+**No open candidates remain.**
