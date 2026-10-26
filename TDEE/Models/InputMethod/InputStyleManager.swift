@@ -26,6 +26,27 @@ enum InputStyle: String, CaseIterable, Codable, Identifiable {
     }
 }
 
+/// The aggregate state the master "All inputs" control displays.
+///
+/// `.classic` / `.new` are bulk presets the user can apply to every input at once. `.mixed` is not
+/// a choice — it's *derived* when the per-input overrides aren't all the same, so the control shows
+/// that the inputs are individually tuned rather than set to a single preset.
+enum InputMasterStyle: String, CaseIterable, Identifiable, Hashable {
+    case classic
+    case mixed
+    case `new`
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .classic: "Classic"
+        case .mixed: "Mixed"
+        case .new: "New"
+        }
+    }
+}
+
 /// The sections the input list is grouped into, mirroring the main screen.
 enum InputSection: String, CaseIterable, Identifiable {
     case personal = "Personal"
@@ -114,6 +135,51 @@ final class InputStyleManager {
     func resetToClassic() {
         styles.removeAll()
         persist()
+    }
+
+    /// Set every input to `.new`. Writes the same per-input store, so the master control is a bulk
+    /// convenience over the per-input settings — not a separate global value.
+    func setNewForAll() {
+        for input in InputID.allCases { styles[input] = .new }
+        persist()
+    }
+
+    /// Apply one style to every input at once: `.classic` clears the store, `.new` sets it all.
+    func applyAll(_ style: InputStyle) {
+        switch style {
+        case .classic: resetToClassic()
+        case .new: setNewForAll()
+        }
+    }
+
+    /// How many inputs currently resolve to each style, for the master "All inputs" row.
+    var styleCounts: (classic: Int, new: Int) {
+        InputID.allCases.reduce(into: (classic: 0, new: 0)) { counts, input in
+            switch style(for: input) {
+            case .classic: counts.classic += 1
+            case .new: counts.new += 1
+            }
+        }
+    }
+
+    /// The aggregate the master control highlights: `.classic` when every input is Classic, `.new`
+    /// when every input is New, otherwise `.mixed`.
+    var masterState: InputMasterStyle {
+        let counts = styleCounts
+        if counts.new == 0 { return .classic }
+        if counts.classic == 0 { return .new }
+        return .mixed
+    }
+
+    /// Apply the master control's selection. `.classic` / `.new` bulk-apply; `.mixed` is a display
+    /// state (you can't bulk-apply "mixed"), so it's a no-op — the control snaps back to the
+    /// derived aggregate.
+    func applyMaster(_ style: InputMasterStyle) {
+        switch style {
+        case .classic: applyAll(.classic)
+        case .new: applyAll(.new)
+        case .mixed: break
+        }
     }
 
     init(defaults: UserDefaults = .standard) {

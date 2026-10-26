@@ -131,6 +131,99 @@ struct InputStyleManagerTests {
         #expect(manager.style(for: .weight) == .classic)   // never stored
     }
 
+    // MARK: - Master control (bulk apply over the per-input store)
+
+    @Test("setNewForAll sets every input to New")
+    func setNewForAllSetsEveryInput() {
+        let manager = InputStyleManager(defaults: makeDefaults())
+
+        manager.setNewForAll()
+
+        for input in InputID.allCases {
+            #expect(manager.style(for: input) == .new, "expected .new for \(input)")
+        }
+        #expect(manager.styleCounts == (classic: 0, new: InputID.allCases.count))
+    }
+
+    @Test("setNewForAll persists across a relaunch")
+    func setNewForAllPersists() {
+        let defaults = makeDefaults()
+        InputStyleManager(defaults: defaults).setNewForAll()
+
+        let reloaded = InputStyleManager(defaults: defaults)
+        for input in InputID.allCases {
+            #expect(reloaded.style(for: input) == .new, "expected .new for \(input)")
+        }
+    }
+
+    @Test("applyAll(.classic) resets the store; applyAll(.new) sets it all")
+    func applyAllDispatchesToBulkOperations() {
+        let manager = InputStyleManager(defaults: makeDefaults())
+
+        manager.applyAll(.new)
+        #expect(manager.styleCounts.new == InputID.allCases.count)
+        #expect(manager.styleCounts.classic == 0)
+
+        manager.applyAll(.classic)
+        #expect(manager.styleCounts.classic == InputID.allCases.count)
+        #expect(manager.styleCounts.new == 0)
+        #expect(manager.styles.isEmpty)  // .classic is the default, so the store is cleared
+    }
+
+    @Test("styleCounts tracks per-input overrides against a bulk baseline")
+    func styleCountsTrackOverrides() {
+        let manager = InputStyleManager(defaults: makeDefaults())
+
+        manager.setNewForAll()
+        manager.setStyle(.classic, for: .gender)
+        manager.setStyle(.classic, for: .weight)
+
+        #expect(manager.styleCounts == (classic: 2, new: InputID.allCases.count - 2))
+    }
+
+    @Test("masterState is Classic when uniform Classic, New when uniform New, otherwise Mixed")
+    func masterStateReflectsAggregate() {
+        let manager = InputStyleManager(defaults: makeDefaults())
+
+        // All classic by default.
+        #expect(manager.masterState == .classic)
+
+        // All New → New.
+        manager.setNewForAll()
+        #expect(manager.masterState == .new)
+
+        // One override back to Classic → the set is mixed.
+        manager.setStyle(.classic, for: .gender)
+        #expect(manager.masterState == .mixed)
+
+        // Re-unify → back to a single style.
+        manager.applyAll(.classic)
+        #expect(manager.masterState == .classic)
+    }
+
+    @Test("applyMaster bulk-applies Classic/New and is a no-op for Mixed")
+    func applyMasterNoOpsOnMixed() {
+        let manager = InputStyleManager(defaults: makeDefaults())
+
+        manager.applyMaster(.new)
+        #expect(manager.styleCounts == (classic: 0, new: InputID.allCases.count))
+        #expect(manager.masterState == .new)
+
+        // Mixing an individual override.
+        manager.setStyle(.classic, for: .gender)
+        #expect(manager.masterState == .mixed)
+
+        // Choosing "Mixed" doesn't change anything — it's a display state, not a bulk apply.
+        manager.applyMaster(.mixed)
+        #expect(manager.style(for: .gender) == .classic)
+        #expect(manager.styleCounts == (classic: 1, new: InputID.allCases.count - 1))
+        #expect(manager.masterState == .mixed)
+
+        // …but "Classic" still bulk-applies.
+        manager.applyMaster(.classic)
+        #expect(manager.styleCounts == (classic: InputID.allCases.count, new: 0))
+    }
+
     // MARK: - Sections (the view groups inputs by these)
 
     @Test("The five input sections carry their display titles")
