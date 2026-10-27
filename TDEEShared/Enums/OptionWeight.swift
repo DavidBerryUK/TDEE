@@ -19,4 +19,16 @@ extension OptionWeight {
         case .stonesAndPounds: return "Stones & Pounds"
         }
     }
+
+    /// The full unit name shown on the unit-switcher button (e.g. "Kilograms"), paired with a selector
+    /// chevron so the control reads as a value picker. Kept separate from `displayName` because that
+    /// short form ("Kg") also labels the accessibility-size segmented control, which can't carry the
+    /// spelled-out name in every segment.
+    var fullName: String {
+        switch self {
+        case .kilograms: return "Kilograms"
+        case .pounds: return "Pounds"
+        case .stonesAndPounds: return "Stones & Pounds"
+        }
+    }
 }
