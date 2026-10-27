@@ -72,11 +72,14 @@ struct WeightNewSectionView: View {
         }
     }
 
-    /// The value entry — honors the `weight` toggle (Decision 11).
+    /// The value entry — honors the `weight` toggle (Decision 11). The New box is right-aligned to the
+    /// card's right edge so it shares a right edge with every other value box; a compound UoM
+    /// (stones & pounds) keeps each sub-field at the shared width and grows left from that edge.
     @ViewBuilder
     private var valueSlot: some View {
         if isWeightNew {
             UIWeightTextFieldEntry(model: model, errorMessage: $error)
+                .frame(maxWidth: .infinity, alignment: .trailing)
         } else {
             // Classic value: the wheel picker, reused unchanged.
             UIWheelPickerWeightView(value: $model.weight, unitOfMeasure: $model.weightUom)

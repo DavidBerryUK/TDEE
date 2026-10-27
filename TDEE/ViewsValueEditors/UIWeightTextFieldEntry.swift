@@ -79,11 +79,12 @@ struct UIWeightTextFieldEntry: View {
     }
 
     /// A bordered `.numberPad` field with an in-field UoM suffix (reusing the picker label's
-    /// voice/color). Styling only — the caller attaches `onChange`.
+    /// voice/color). Styling only — the caller attaches `onChange`. Uses the shared `UIValueFieldStyle`
+    /// so this box matches every other numeric entry's width and right edge.
     @ViewBuilder
     private func field(text: Binding<String>, suffix: String) -> some View {
         TextField("Enter \(suffix)", text: text)
-            .modifier(WeightFieldStyle(suffix: suffix, fullWidth: isAccessibilitySize))
+            .modifier(UIValueFieldStyle(suffix: suffix, fullWidth: isAccessibilitySize))
     }
 
     // MARK: - Commit (buffer-and-commit; commit only on a complete, in-range entry)
@@ -154,25 +155,6 @@ struct UIWeightTextFieldEntry: View {
             stonesText = String(totalPounds / 14)
             poundsText = String(totalPounds % 14)
         }
-    }
-}
-
-/// Bordered `.numberPad` styling with an in-field trailing UoM suffix.
-private struct WeightFieldStyle: ViewModifier {
-    let suffix: String
-    let fullWidth: Bool
-
-    func body(content: Content) -> some View {
-        content
-            .keyboardType(.numberPad)
-            .textFieldStyle(.roundedBorder)
-            .multilineTextAlignment(.trailing)
-            // Leave room on the right for the in-field UoM suffix.
-            .padding(.trailing, 30)
-            .frame(maxWidth: fullWidth ? .infinity : 96)
-            .overlay(alignment: .trailing) {
-                UITextPickerLabel(suffix).padding(.trailing, 8)
-            }
     }
 }
 

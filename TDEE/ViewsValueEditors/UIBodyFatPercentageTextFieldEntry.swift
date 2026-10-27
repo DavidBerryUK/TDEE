@@ -55,10 +55,11 @@ struct UBodyFatPercentageTextFieldEntry: View {
 
     /// A bordered `.decimalPad` field with an in-field `%` suffix (reusing the picker label's
     /// voice/color) and a focus tag for the Done key. Styling only — the caller attaches `onChange`.
+    /// Uses the shared `UIValueFieldStyle` so this box matches every other numeric entry.
     @ViewBuilder
     private func field(text: Binding<String>, suffix: String) -> some View {
         TextField("Enter \(suffix)", text: text)
-            .modifier(BodyFatFieldStyle(suffix: suffix, fullWidth: isAccessibilitySize))
+            .modifier(UIValueFieldStyle(suffix: suffix, keyboardType: .decimalPad, fullWidth: isAccessibilitySize))
             .focused($isFocused)
     }
 
@@ -86,25 +87,6 @@ struct UBodyFatPercentageTextFieldEntry: View {
     private func rederive() {
         errorMessage = ""
         text = String(model.bodyFatPercentage)
-    }
-}
-
-/// Bordered `.decimalPad` styling with an in-field trailing `%` suffix.
-private struct BodyFatFieldStyle: ViewModifier {
-    let suffix: String
-    let fullWidth: Bool
-
-    func body(content: Content) -> some View {
-        content
-            .keyboardType(.decimalPad)
-            .textFieldStyle(.roundedBorder)
-            .multilineTextAlignment(.trailing)
-            // Leave room on the right for the in-field % suffix.
-            .padding(.trailing, 30)
-            .frame(maxWidth: fullWidth ? .infinity : 96)
-            .overlay(alignment: .trailing) {
-                UITextPickerLabel(suffix).padding(.trailing, 8)
-            }
     }
 }
 

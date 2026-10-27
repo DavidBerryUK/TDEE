@@ -62,15 +62,14 @@ struct AgeNewSectionView: View {
     }
 
     /// The age entry: a bordered, prompt-bearing numeric field so it reads as an editable input
-    /// rather than a static number. Compact and trailing in the header; full-width on its own line at
-    /// accessibility sizes.
+    /// rather than a static number. It uses the shared `UIValueFieldStyle` with a `yrs` in-field unit —
+    /// like every other value entry — so its box and number column match weight / height; compact and
+    /// trailing in the header, full-width on its own line at accessibility sizes. The `yrs` suffix and its
+    /// reserve scale with Large Text inside `UIValueFieldStyle`, so the unit never overlaps the number.
     @ViewBuilder
     private var field: some View {
         TextField("Age", text: $text, prompt: Text("Enter age"))
-            .keyboardType(.numberPad)
-            .textFieldStyle(.roundedBorder)
-            .multilineTextAlignment(.trailing)
-            .frame(maxWidth: dynamicTypeSize.isAccessibilitySize ? .infinity : 96)
+            .modifier(UIValueFieldStyle(suffix: "yrs", fullWidth: dynamicTypeSize.isAccessibilitySize))
             .onChange(of: text) { _, newValue in
                 validate(newValue)
             }

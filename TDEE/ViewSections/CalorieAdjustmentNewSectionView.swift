@@ -90,11 +90,14 @@ struct CalorieAdjustmentNewSectionView: View {
         }
     }
 
-    /// The value entry — honors the `calorieAdjustment` toggle; rendered only under Cut / Bulk.
+    /// The value entry — honors the `calorieAdjustment` toggle; rendered only under Cut / Bulk. The New
+    /// box is right-aligned to the card's right edge so it shares a right edge with every other value
+    /// box.
     @ViewBuilder
     private var valueSlot: some View {
         if isValueNew {
             UICalorieAdjustmentTextFieldEntry(model: model, errorMessage: $error)
+                .frame(maxWidth: .infinity, alignment: .trailing)
         } else {
             // Classic value: the slider, reused unchanged.
             UISliderCalorieAdjustmentValue(model: model)

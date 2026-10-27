@@ -55,10 +55,12 @@ struct UICalorieAdjustmentTextFieldEntry: View {
 
     /// A bordered `.numberPad` field with an in-field `kCals` suffix (reusing the picker label's
     /// voice/color) and a focus tag for the Done key. Styling only — the caller attaches `onChange`.
+    /// Uses the shared `UIValueFieldStyle` with a wider suffix reserve for `kCals`; same box width as
+    /// every other numeric entry.
     @ViewBuilder
     private func field(text: Binding<String>, suffix: String) -> some View {
         TextField("Enter \(suffix)", text: text)
-            .modifier(CalorieAdjustmentFieldStyle(suffix: suffix, fullWidth: isAccessibilitySize))
+            .modifier(UIValueFieldStyle(suffix: suffix, suffixReserve: 44, fullWidth: isAccessibilitySize))
             .focused($isFocused)
     }
 
@@ -86,25 +88,6 @@ struct UICalorieAdjustmentTextFieldEntry: View {
     private func rederive() {
         errorMessage = ""
         text = String(Int(model.calorieAdjustment))
-    }
-}
-
-/// Bordered `.numberPad` styling with an in-field trailing `kCals` suffix.
-private struct CalorieAdjustmentFieldStyle: ViewModifier {
-    let suffix: String
-    let fullWidth: Bool
-
-    func body(content: Content) -> some View {
-        content
-            .keyboardType(.numberPad)
-            .textFieldStyle(.roundedBorder)
-            .multilineTextAlignment(.trailing)
-            // Leave room on the right for the in-field kCals suffix (wider than "kg" / "%").
-            .padding(.trailing, 44)
-            .frame(maxWidth: fullWidth ? .infinity : 110)
-            .overlay(alignment: .trailing) {
-                UITextPickerLabel(suffix).padding(.trailing, 8)
-            }
     }
 }
 

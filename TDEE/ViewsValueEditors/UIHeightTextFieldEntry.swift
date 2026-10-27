@@ -99,10 +99,11 @@ struct UIHeightTextFieldEntry: View {
 
     /// A bordered `.numberPad` field with an in-field UoM suffix (reusing the picker label's
     /// voice/color) and a focus tag for the Done key. Styling only — the caller attaches `onChange`.
+    /// Uses the shared `UIValueFieldStyle` so this box matches every other numeric entry.
     @ViewBuilder
     private func field(text: Binding<String>, suffix: String, focus: Field) -> some View {
         TextField("Enter \(suffix)", text: text)
-            .modifier(HeightFieldStyle(suffix: suffix, fullWidth: isAccessibilitySize))
+            .modifier(UIValueFieldStyle(suffix: suffix, fullWidth: isAccessibilitySize))
             .focused($focusedField, equals: focus)
     }
 
@@ -171,25 +172,6 @@ struct UIHeightTextFieldEntry: View {
             feetText = String(LengthConverter.toFeet(cm))
             inchesText = String(LengthConverter.toRemainingInches(cm))
         }
-    }
-}
-
-/// Bordered `.numberPad` styling with an in-field trailing UoM suffix.
-private struct HeightFieldStyle: ViewModifier {
-    let suffix: String
-    let fullWidth: Bool
-
-    func body(content: Content) -> some View {
-        content
-            .keyboardType(.numberPad)
-            .textFieldStyle(.roundedBorder)
-            .multilineTextAlignment(.trailing)
-            // Leave room on the right for the in-field UoM suffix.
-            .padding(.trailing, 30)
-            .frame(maxWidth: fullWidth ? .infinity : 96)
-            .overlay(alignment: .trailing) {
-                UITextPickerLabel(suffix).padding(.trailing, 8)
-            }
     }
 }
 

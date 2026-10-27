@@ -87,11 +87,14 @@ struct BodyFatPercentageNewSectionView: View {
         }
     }
 
-    /// The % value entry — honors the `bodyFatPercentage` toggle; rendered only for Manual Entry.
+    /// The % value entry — honors the `bodyFatPercentage` toggle; rendered only for Manual Entry. The
+    /// New box is right-aligned to the card's right edge so it shares a right edge with every other
+    /// value box.
     @ViewBuilder
     private var valueSlot: some View {
         if isPercentageNew {
             UBodyFatPercentageTextFieldEntry(model: model, errorMessage: $error)
+                .frame(maxWidth: .infinity, alignment: .trailing)
         } else {
             // Classic value: the wheel picker, reused unchanged.
             UIWheelPickerBodyFatView(value: $model.bodyFatPercentage)
