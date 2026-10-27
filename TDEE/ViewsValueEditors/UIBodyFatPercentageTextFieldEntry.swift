@@ -18,7 +18,8 @@ import SwiftUI
 /// `BodyFatPercentageNewSectionView`.
 ///
 /// This entry is rendered by its section **only under the `.manualEntry` method** — the gate
-/// (Decision 18). A keyboard **Done** accessory key (the height pattern) dismisses the keyboard.
+/// (Decision 18). The keyboard **Done** key is owned by `UIMainView` (one per screen), so this
+/// entry carries none.
 struct UBodyFatPercentageTextFieldEntry: View {
 
     @Bindable var model: ProfileViewModel
@@ -31,9 +32,6 @@ struct UBodyFatPercentageTextFieldEntry: View {
     /// The local buffer, seeded on appear and re-derived from the stored value on a model change.
     @State private var text: String = ""
 
-    /// The focused field, so the Done key can resign first responder.
-    @FocusState private var isFocused: Bool
-
     private var isAccessibilitySize: Bool { dynamicTypeSize.isAccessibilitySize }
 
     var body: some View {
@@ -43,24 +41,17 @@ struct UBodyFatPercentageTextFieldEntry: View {
             // Re-derive the display from the stored value on a model change — never writing back
             // (a unit switch has no analogue here, but a load / reset does).
             .onChange(of: model.bodyFatPercentage) { _, _ in rederive() }
-            // The Done accessory key (the height pattern), shown above the keyboard for this field.
-            .toolbar {
-                ToolbarItem(placement: .keyboard) {
-                    Button("Done") { isFocused = false }
-                }
-            }
     }
 
     // MARK: - Field
 
     /// A bordered `.decimalPad` field with an in-field `%` suffix (reusing the picker label's
-    /// voice/color) and a focus tag for the Done key. Styling only — the caller attaches `onChange`.
-    /// Uses the shared `UIValueFieldStyle` so this box matches every other numeric entry.
+    /// voice/color). Styling only — the caller attaches `onChange`. Uses the shared `UIValueFieldStyle`
+    /// so this box matches every other numeric entry.
     @ViewBuilder
     private func field(text: Binding<String>, suffix: String) -> some View {
         TextField("Enter \(suffix)", text: text)
             .modifier(UIValueFieldStyle(suffix: suffix, keyboardType: .decimalPad, fullWidth: isAccessibilitySize))
-            .focused($isFocused)
     }
 
     // MARK: - Commit (buffer-and-commit; commit only on a complete, in-range entry)

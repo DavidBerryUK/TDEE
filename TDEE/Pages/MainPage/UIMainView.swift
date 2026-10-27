@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 import Observation
 
 struct UIMainView: View {
@@ -148,6 +149,19 @@ struct UIMainView: View {
                     }
                     .accessibilityLabel("Share calculation results")
                     .disabled(!profile.isValid || isCalculating)
+                }
+                // One keyboard "Done" for the whole screen. Co-present numeric entries (height, body-fat
+                // %, calorie adjustment) all render in this view at once and share the keyboard
+                // accessory view, so each carrying its own `.keyboard` item rendered duplicate "Done"
+                // buttons. A single screen-level Done resigns the current first responder instead.
+                ToolbarItem(placement: .keyboard) {
+                    Button("Done") {
+                        // Resign whatever field is first responder and dismiss the keyboard — no
+                        // per-field focus to track, so one button covers every entry on the screen.
+                        UIApplication.shared.sendAction(
+                            #selector(UIResponder.resignFirstResponder),
+                            to: nil, from: nil, for: nil)
+                    }
                 }
             }
             // One reactive dependency drives every recompute, the way WatchMainView's `.task(id:)` does:

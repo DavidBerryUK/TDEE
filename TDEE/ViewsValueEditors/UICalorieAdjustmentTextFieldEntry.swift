@@ -17,8 +17,8 @@ import SwiftUI
 /// owned by `CalorieAdjustmentNewSectionView`.
 ///
 /// This entry is rendered by its section **only under Cut / Bulk** (Maintain carries no adjustment) —
-/// the gate (Decision 18 analog). A keyboard **Done** accessory key (the height / body-fat pattern)
-/// dismisses the keyboard.
+/// the gate (Decision 18 analog). The keyboard **Done** key is owned by `UIMainView` (one per
+/// screen), so this entry carries none.
 struct UICalorieAdjustmentTextFieldEntry: View {
 
     @Bindable var model: ProfileViewModel
@@ -31,9 +31,6 @@ struct UICalorieAdjustmentTextFieldEntry: View {
     /// The local buffer, seeded on appear and re-derived from the stored value on a model change.
     @State private var text: String = ""
 
-    /// The focused field, so the Done key can resign first responder.
-    @FocusState private var isFocused: Bool
-
     private var isAccessibilitySize: Bool { dynamicTypeSize.isAccessibilitySize }
 
     var body: some View {
@@ -43,25 +40,17 @@ struct UICalorieAdjustmentTextFieldEntry: View {
             // Re-derive the display from the stored value on a model change — never writing back (a
             // method switch has no analogue here, but a load / reset does).
             .onChange(of: model.calorieAdjustment) { _, _ in rederive() }
-            // The Done accessory key (the height / body-fat pattern), shown above the keyboard.
-            .toolbar {
-                ToolbarItem(placement: .keyboard) {
-                    Button("Done") { isFocused = false }
-                }
-            }
     }
 
     // MARK: - Field
 
     /// A bordered `.numberPad` field with an in-field `kCals` suffix (reusing the picker label's
-    /// voice/color) and a focus tag for the Done key. Styling only — the caller attaches `onChange`.
-    /// Uses the shared `UIValueFieldStyle` with a wider suffix reserve for `kCals`; same box width as
-    /// every other numeric entry.
+    /// voice/color). Styling only — the caller attaches `onChange`. Uses the shared `UIValueFieldStyle`
+    /// with a wider suffix reserve for `kCals`; same box width as every other numeric entry.
     @ViewBuilder
     private func field(text: Binding<String>, suffix: String) -> some View {
         TextField("Enter \(suffix)", text: text)
             .modifier(UIValueFieldStyle(suffix: suffix, suffixReserve: 44, fullWidth: isAccessibilitySize))
-            .focused($isFocused)
     }
 
     // MARK: - Commit (buffer-and-commit; commit only on a complete, in-range entry)

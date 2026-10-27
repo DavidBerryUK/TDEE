@@ -18,9 +18,10 @@ import SwiftUI
 /// buffers from the stored cm and never rewrites `model.height` (Decision 13). The one section-level
 /// message is driven through `errorMessage`, owned by `HeightNewSectionView`.
 ///
-/// A keyboard **Done** accessory key (Decision 17a, revisited this pass) dismisses the keyboard — the
-/// first field to carry one. It is applied here so it can be back-ported to the age / weight entries
-/// as a shared concern.
+/// The keyboard **Done** key is a screen-level concern: this entry renders co-present with the
+/// body-fat and calorie-adjustment entries on the main view, so each carrying its own `.keyboard`
+/// item showed duplicate "Done" buttons. `UIMainView` owns the one Done that resigns the current
+/// first responder.
 struct UIHeightTextFieldEntry: View {
 
     @Bindable var model: ProfileViewModel
@@ -34,15 +35,6 @@ struct UIHeightTextFieldEntry: View {
     @State private var singleText: String = ""
     @State private var feetText: String = ""
     @State private var inchesText: String = ""
-
-    /// The focused field, so the Done key can resign first responder.
-    @FocusState private var focusedField: Field?
-
-    enum Field {
-        case single
-        case feet
-        case inches
-    }
 
     private var isAccessibilitySize: Bool { dynamicTypeSize.isAccessibilitySize }
 
@@ -60,12 +52,6 @@ struct UIHeightTextFieldEntry: View {
         // back to the model (Decision 13).
         .onChange(of: model.heightUom) { _, _ in rederive() }
         .onChange(of: model.height) { _, _ in rederive() }
-        // The Done accessory key (Decision 17a), shown above the keyboard for this entry's fields.
-        .toolbar {
-            ToolbarItem(placement: .keyboard) {
-                Button("Done") { focusedField = nil }
-            }
-        }
     }
 
     // MARK: - Fields
@@ -73,7 +59,7 @@ struct UIHeightTextFieldEntry: View {
     /// A single field for cm / inches, with the unit as an in-field suffix.
     @ViewBuilder
     private var singleField: some View {
-        field(text: $singleText, suffix: singleSuffix, focus: .single)
+        field(text: $singleText, suffix: singleSuffix)
             .onChange(of: singleText) { _, _ in commit() }
     }
 
@@ -83,28 +69,27 @@ struct UIHeightTextFieldEntry: View {
     private var feetInchesFields: some View {
         VStack(spacing: isAccessibilitySize ? Spacing.small : 0) {
             HStack(spacing: Spacing.small) {
-                field(text: $feetText, suffix: "ft", focus: .feet)
+                field(text: $feetText, suffix: "ft")
                     .onChange(of: feetText) { _, _ in commit() }
                 if !isAccessibilitySize {
-                    field(text: $inchesText, suffix: "in", focus: .inches)
+                    field(text: $inchesText, suffix: "in")
                         .onChange(of: inchesText) { _, _ in commit() }
                 }
             }
             if isAccessibilitySize {
-                field(text: $inchesText, suffix: "in", focus: .inches)
+                field(text: $inchesText, suffix: "in")
                     .onChange(of: inchesText) { _, _ in commit() }
             }
         }
     }
 
     /// A bordered `.numberPad` field with an in-field UoM suffix (reusing the picker label's
-    /// voice/color) and a focus tag for the Done key. Styling only — the caller attaches `onChange`.
-    /// Uses the shared `UIValueFieldStyle` so this box matches every other numeric entry.
+    /// voice/color). Styling only — the caller attaches `onChange`. Uses the shared `UIValueFieldStyle`
+    /// so this box matches every other numeric entry.
     @ViewBuilder
-    private func field(text: Binding<String>, suffix: String, focus: Field) -> some View {
+    private func field(text: Binding<String>, suffix: String) -> some View {
         TextField("Enter \(suffix)", text: text)
             .modifier(UIValueFieldStyle(suffix: suffix, fullWidth: isAccessibilitySize))
-            .focused($focusedField, equals: focus)
     }
 
     // MARK: - Commit (buffer-and-commit; commit only on a complete, in-range entry)
