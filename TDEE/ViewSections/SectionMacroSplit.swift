@@ -32,7 +32,14 @@ struct SectionMacroSplit: View {
             accessibilityId: "sectionMacroSplit",
             sectionId: "sectionMacroSplit",
             sectionSummaryValueView: {
-                UISectionSummaryValueMacroMix(profile: profile, sectionManager: sectionManager)
+                // New mode shows the value in the editor's menu button, so the header summary hides
+                // itself while expanded (keeps "Balanced" from appearing twice); Classic mode always
+                // shows it. See `UISectionSummaryValueMacroMix.hideWhenExpanded`.
+                UISectionSummaryValueMacroMix(
+                    profile: profile,
+                    sectionManager: sectionManager,
+                    hideWhenExpanded: inputStyle.style(for: .macroMix) == .new
+                )
             },
             editorView: {
                 VStack(spacing: 0) {
