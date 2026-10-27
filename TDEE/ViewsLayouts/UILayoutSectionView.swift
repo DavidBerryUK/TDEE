@@ -5,6 +5,7 @@
 //  Created by David Berry on 05/04/2026.
 //
 import SwiftUI
+import UIKit
 
 /// A reusable section view with expand/collapse functionality.
 ///
@@ -81,6 +82,10 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
             .padding(Spacing.large) // <-- FIX 3: Using constant for main header padding (replaces 16)
             .contentShape(Rectangle()) // Make the entire HStack area tappable
             .onTapGesture {
+                // End any in-progress edit on a section-header tap — this header is the reusable one
+                // every section (incl. Macro Split) uses, and it consumes the tap, so a tap that
+                // would otherwise fall through to the screen-level handler is handled here instead.
+                UIApplication.shared.endEditing()
                 withAnimation(AnimationParams.springDefault) { // <-- FIX 4: Using animation constant
                     isExpanded.toggle()
                 }

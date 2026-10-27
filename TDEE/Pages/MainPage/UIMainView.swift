@@ -158,9 +158,7 @@ struct UIMainView: View {
                     Button("Done") {
                         // Resign whatever field is first responder and dismiss the keyboard — no
                         // per-field focus to track, so one button covers every entry on the screen.
-                        UIApplication.shared.sendAction(
-                            #selector(UIResponder.resignFirstResponder),
-                            to: nil, from: nil, for: nil)
+                        UIApplication.shared.endEditing()
                     }
                 }
             }
@@ -172,7 +170,14 @@ struct UIMainView: View {
                 syncEditedMacro()            // keep profile.split in step with the catalog's selected preset
                 await recalculate()
             }
+            // Tap outside any field — the background, the gaps between sections — ends the edit:
+            // resign the current first responder so the keyboard dismisses, and collapse the sections.
+            // A child field or section header consumes its own tap, so only taps that fall through to
+            // this screen-level layer fire; the keyboard never dismisses on a header or field tap.
             .onTapGesture {
+                // A child field or section header consumes its own tap, so this fires on a tap that
+                // falls through to the screen layer — end the edit there, and collapse the sections.
+                UIApplication.shared.endEditing()
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                     sectionManager.collapseAll()
                 }

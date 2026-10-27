@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct MainSectionCaloriesAndAdjustments: View {
     @Environment(\.palette) private var palette
@@ -24,6 +25,9 @@ struct MainSectionCaloriesAndAdjustments: View {
             .opacity(profile.isValid ? 1 : 0)
             .animation(.easeInOut(duration: 0.25), value: profile.isValid)
             .onTapGesture {
+                // End any in-progress edit when tapping this panel (it consumes the tap, so the
+                // screen-level fall-through handler in UIMainView never sees it).
+                UIApplication.shared.endEditing()
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
                     sectionManager.calorieAdjustmentExpanded.toggle()
                 }
