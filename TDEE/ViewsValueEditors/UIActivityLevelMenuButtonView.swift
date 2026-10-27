@@ -9,10 +9,13 @@ import SwiftUI
 
 /// The New activity-level control (story 023, input #9) for compact and regular sizes.
 ///
-/// A neutral `Menu` labelled "Activity Level" that lists every `ActivityLevel` case and rebinds
-/// `model.activityLevel` — the Classic wheel picker's 9-case categorical pick, surfaced as a dropdown.
-/// It mirrors the neutral UoM menu button (`UIWeightUomMenuButtonView` / `UIHeightUomMenuButtonView`)
-/// and replaces `UIWheelPickerActivityLevelView` without touching it — see `ActivityLevelNewSectionView`.
+/// A `Menu` whose label is the current level's full name (`Sedentary` / `Light Exercise` /
+/// `Moderate Exercise` / `Heavy Exercise` / `Athlete`) plus a selector chevron, that rebinds
+/// `model.activityLevel` — the Classic wheel picker's categorical pick, surfaced as a dropdown. The
+/// full name and chevron make the control read as a value picker, the discoverability fix for the old
+/// neutral "Activity Level" label (Decision 10), mirroring the UoM switchers
+/// (`UIWeightUomMenuButtonView` / `UIHeightUomMenuButtonView`), and replacing
+/// `UIWheelPickerActivityLevelView` without touching it — see `ActivityLevelNewSectionView`.
 struct UIActivityLevelMenuButtonView: View {
 
     @Bindable var model: ProfileViewModel
@@ -27,7 +30,13 @@ struct UIActivityLevelMenuButtonView: View {
                 }
             }
         } label: {
-            Text("Activity Level")
+            // Full name + a selector chevron, so the control reads as a value picker.
+            HStack(spacing: 4) {
+                Text(model.activityLevel.displayName)
+                Image(systemName: "chevron.down")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
         }
         .accessibilityIdentifier("activityLevelMenu")
     }
