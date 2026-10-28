@@ -26,6 +26,8 @@ struct ThemeView: View {
                         }
                     }
                     .pickerStyle(.segmented)
+                    // A theme that pins its colour scheme ignores the Appearance choice.
+                    .disabled(themeManager.theme.colorScheme != nil)
                 }
 
                 VStack(alignment: .leading, spacing: 8) {

@@ -136,7 +136,14 @@ struct UIMainView: View {
                 mainContent
             }
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                // Theme lives here (not in ContentView) so it shares one themed cluster with share.
+                ThemedToolbarCluster(placement: .topBarTrailing, tint: palette.toolbar?.itemBackground) {
+                    Button {
+                        path.append(.theme)
+                    } label: {
+                        Image(systemName: "paintpalette")
+                    }
+                    .accessibilityLabel("Change theme")
                     Menu {
                         Button("Share Image", systemImage: "photo") {
                             share(.image)

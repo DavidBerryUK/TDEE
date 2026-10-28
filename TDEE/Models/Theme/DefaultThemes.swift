@@ -9,6 +9,7 @@ import SwiftUI
 
 enum ThemeID: String, CaseIterable, Identifiable {
     case standard
+    case orange
     case clouds
     case turquoise
     case emerald
@@ -26,6 +27,7 @@ enum DefaultThemes {
 
     static let all: [Theme] = [
         standard,
+        orange,
         clouds,
         turquoise,
         emerald,
@@ -59,6 +61,48 @@ enum DefaultThemes {
             selection: .green
         )
         return Theme(id: .standard, name: "Default", description: "The app's original iOS system colours", light: system, dark: system)
+    }()
+
+
+    /// Bold coral sections on black, after a Nike-run-club watch face — a bright coral on a black
+    /// field, white text. Light and dark share one palette.
+    ///
+    /// `surface` is the coral; `primary` is *white* (not coral) because it colours CTA text that sits
+    /// on the coral surface, so it must contrast it. `text` on coral is ~3.3:1 — fine for the large
+    /// summary values, marginal for fine print; deepen `surface` toward `#C23B1E` for full AA.
+    /// `editText`/`highlight`/`selection` are forced white (their default, `primary`, already is). The
+    /// nav bar is themed to the black field and every section icon is the dark maroon accent, so both
+    /// stay legible on the coral surface.
+    static let orange: Theme = {
+        let coral = Color(hex: "#E8633F")   // the section / accent colour
+        let maroon = Color(hex: "#3A1512")  // the dark secondary accent (the "complication" colour)
+        // One on-brand colour for every section icon: dark maroon reads crisply on the coral surface
+        // (the built-in orange ruler was invisible on orange). Swap the value, or pass a per-icon
+        // map, to curate individual icons.
+        let iconColors: [Icon: Color] = Dictionary(
+            Icon.allCases.map { ($0, maroon) },
+            uniquingKeysWith: { first, _ in first }
+        )
+        let palette = ColorPalette(
+            primary: .white,
+            secondary: maroon,
+            background: .black,
+            surface: coral,
+            text: .white,
+            textSecondary: .white,
+            border: .white.opacity(0.2),
+            macroProtein: Color(hex: "#E91E63"),
+            macroCarbs: Color(hex: "#3498DB"),
+            macroFat: Color(hex: "#F1C40F"),
+            editText: .white,
+            highlight: .white,
+            selection: .white,
+            // Opt into the two new overrides: a black nav bar matching the field, maroon icons.
+            toolbar: .init(background: .black, itemBackground: maroon),
+            iconColors: iconColors
+        )
+        // Pinned dark: system text (nav titles, list headers) must be light on the black field.
+        return Theme(id: .orange, name: "Orange", description: "Bold coral on black", light: palette, dark: palette, colorScheme: .dark)
     }()
 
 

@@ -29,7 +29,7 @@ struct ThemedRoot<Content: View>: View {
         PaletteResolver(theme: themeManager.theme) { content }
             .environment(themeManager)
             .environment(inputStyleManager)
-            .preferredColorScheme(themeManager.appearance.colorScheme)
+            .preferredColorScheme(themeManager.theme.colorScheme ?? themeManager.appearance.colorScheme)
     }
 }
 
@@ -53,5 +53,41 @@ extension View {
         self
             .scrollContentBackground(.hidden)
             .background(palette.background)
+    }
+
+    /// Applies a theme's optional toolbar background; keeps the system `.visible` bar when the theme
+    /// doesn't override it (the default for every theme that doesn't opt in).
+    @ViewBuilder
+    func themedToolbarBackground(_ background: Color?) -> some View {
+        if let background {
+            self.toolbarBackground(background, for: .navigationBar)
+        } else {
+            self.toolbarBackground(.visible, for: .navigationBar)
+        }
+    }
+}
+
+/// A cluster of toolbar buttons that share one background.
+///
+/// Neither SwiftUI nor UIKit can tint the system's shared glass behind grouped bar items, so a
+/// theme with a `tint` hides that shared background and draws its own tinted Liquid Glass capsule
+/// around the cluster. With `tint == nil` the buttons stay ordinary items, grouped by the system.
+struct ThemedToolbarCluster<Content: View>: ToolbarContent {
+    let placement: ToolbarItemPlacement
+    let tint: Color?
+    @ViewBuilder let content: Content
+
+    var body: some ToolbarContent {
+        if let tint {
+            ToolbarItem(placement: placement) {
+                HStack(spacing: 0) { content }
+                    .labelStyle(.iconOnly)
+                    .padding(.horizontal, 4)
+                    .glassEffect(.regular.tint(tint), in: .capsule)
+            }
+            .sharedBackgroundVisibility(.hidden)
+        } else {
+            ToolbarItemGroup(placement: placement) { content }
+        }
     }
 }

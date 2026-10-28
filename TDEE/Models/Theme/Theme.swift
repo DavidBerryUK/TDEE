@@ -24,13 +24,34 @@ struct ColorPalette {
     /// Marks the selected item in a list (e.g. the active macro preset).
     let selection: Color
 
+    /// Optional navigation-bar override. `nil` (the default) keeps the app's system bar.
+    let toolbar: Toolbar?
+    /// Optional per-icon colour for `UIIcon`. `nil` keeps each icon's built-in catalog colour;
+    /// a present entry (the map may be partial) wins for that icon.
+    let iconColors: [Icon: Color]?
+
+    /// How a theme overrides the navigation bar. A `nil` `background` keeps
+    /// `.toolbarBackground(.visible, for: .navigationBar)`.
+    struct Toolbar {
+        /// The bar behind the menu buttons; `nil` keeps the system `.visible` bar.
+        var background: Color?
+        /// The chip the system draws behind the grouped menu buttons; `nil` keeps the system grey.
+        var itemBackground: Color?
+        init(background: Color? = nil, itemBackground: Color? = nil) {
+            self.background = background
+            self.itemBackground = itemBackground
+        }
+    }
+
     /// `editText`, `highlight` and `selection` default to `primary`; Default overrides them
-    /// to keep the app's original red, teal and green.
+    /// to keep the app's original red, teal and green. `toolbar`/`iconColors` default to `nil`, so
+    /// every theme keeps today's system bar and icon colours unless it opts in.
     init(
         primary: Color, secondary: Color, background: Color, surface: Color,
         text: Color, textSecondary: Color, border: Color,
         macroProtein: Color, macroCarbs: Color, macroFat: Color,
-        editText: Color? = nil, highlight: Color? = nil, selection: Color? = nil
+        editText: Color? = nil, highlight: Color? = nil, selection: Color? = nil,
+        toolbar: Toolbar? = nil, iconColors: [Icon: Color]? = nil
     ) {
         self.primary = primary
         self.secondary = secondary
@@ -45,6 +66,8 @@ struct ColorPalette {
         self.editText = editText ?? primary
         self.highlight = highlight ?? primary
         self.selection = selection ?? primary
+        self.toolbar = toolbar
+        self.iconColors = iconColors
     }
 }
 
@@ -55,6 +78,10 @@ struct Theme: Identifiable {
     let description: String
     let light: ColorPalette
     let dark: ColorPalette
+    /// Pins the app to one colour scheme, overriding the Appearance setting. For themes whose
+    /// palette only works one way (Orange's black field needs dark-mode system text, e.g. nav
+    /// titles and list headers); `nil` (the default) follows the user's Appearance choice.
+    var colorScheme: ColorScheme? = nil
 
     func palette(for colorScheme: ColorScheme) -> ColorPalette {
         colorScheme == .dark ? dark : light

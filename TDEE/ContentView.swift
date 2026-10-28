@@ -33,6 +33,7 @@ struct ContentView: View {
     @State private var profile: ProfileViewModel
 
     @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+    @Environment(\.palette) private var palette
     @State private var shareContent: ShareContent?
     @State private var macroCollection: MacroSplitOptionsModelCollection
     @State private var profileStore: ProfileStore
@@ -98,10 +99,9 @@ struct ContentView: View {
 
                 .toolbar {
                     // Quick-switch: choose the active profile for this session (leading).
-                    ToolbarItem(placement: .topBarLeading) {
+                    // Theme + share sit trailing in UIMainView, so they share one cluster.
+                    ThemedToolbarCluster(placement: .topBarLeading, tint: palette.toolbar?.itemBackground) {
                         quickSwitchMenu
-                    }
-                    ToolbarItem(placement: .topBarLeading) {
                         Button {
                             path.append(.system)
                         } label: {
@@ -109,17 +109,9 @@ struct ContentView: View {
                         }
                         .accessibilityLabel("Open navigation menu")
                     }
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                            path.append(.theme)
-                        } label: {
-                            Image(systemName: "paintpalette")
-                        }
-                        .accessibilityLabel("Change theme")
-                    }
                 }
 
-                .toolbarBackground(.visible, for: .navigationBar)
+                .themedToolbarBackground(palette.toolbar?.background)
                 .toolbarTitleDisplayMode(.inline)
                 .navigationBarTitleDisplayMode(.inline)
 
@@ -143,18 +135,12 @@ struct ContentView: View {
             NavigationStack(path: $path) {
                 mainDetail
                     .navigationTitle("TDEE")
+                    .themedToolbarBackground(palette.toolbar?.background)
                     .toolbar {
-                        // The sidebar replaces the hamburger; quick-switch + theme stay on the detail.
-                        ToolbarItem(placement: .topBarLeading) {
+                        // The sidebar replaces the hamburger; quick-switch stays on the detail
+                        // (theme + share come from UIMainView).
+                        ThemedToolbarCluster(placement: .topBarLeading, tint: palette.toolbar?.itemBackground) {
                             quickSwitchMenu
-                        }
-                        ToolbarItem(placement: .topBarTrailing) {
-                            Button {
-                                path.append(.theme)
-                            } label: {
-                                Image(systemName: "paintpalette")
-                            }
-                            .accessibilityLabel("Change theme")
                         }
                     }
                     .navigationDestination(for: AppRoute.self) { route in
