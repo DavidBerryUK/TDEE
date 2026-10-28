@@ -76,6 +76,9 @@ enum DefaultThemes {
     static let orange: Theme = {
         let coral = Color(hex: "#E8633F")   // the section / accent colour
         let maroon = Color(hex: "#3A1512")  // the dark secondary accent (the "complication" colour)
+        // A deeper tint of the coral for the *expanded* content panel: the header stays coral, the
+        // region that opens below it deepens so it reads as a distinct panel. Tweak this one hex.
+        let deepCoral = Color(hex: "#C23B1E")
         // One on-brand colour for every section icon: dark maroon reads crisply on the coral surface
         // (the built-in orange ruler was invisible on orange). Swap the value, or pass a per-icon
         // map, to curate individual icons.
@@ -97,9 +100,11 @@ enum DefaultThemes {
             editText: .white,
             highlight: .white,
             selection: .white,
-            // Opt into the two new overrides: a black nav bar matching the field, maroon icons.
+            // Opt into the theme overrides: a black nav bar matching the field, maroon icons, and a
+            // deeper-coral panel behind each section's expanded content.
             toolbar: .init(background: .black, itemBackground: maroon),
-            iconColors: iconColors
+            iconColors: iconColors,
+            expandedContentBackground: deepCoral
         )
         // Pinned dark: system text (nav titles, list headers) must be light on the black field.
         return Theme(id: .orange, name: "Orange", description: "Bold coral on black", light: palette, dark: palette, colorScheme: .dark)

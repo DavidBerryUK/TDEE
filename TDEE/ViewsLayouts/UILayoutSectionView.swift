@@ -51,6 +51,24 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
             .foregroundStyle(palette.textSecondary)
     }
 
+    /// The editor region shown when the section is open. When the theme supplies an
+    /// `expandedContentBackground`, the editor sits on that tint — a distinct panel below the
+    /// header — so the open content stands away from the section's `surface`. With no override the
+    /// content is unchanged and stays on `surface`, exactly as before.
+    @ViewBuilder
+    private var expandedContent: some View {
+        let content = editorView()
+            .padding(.top, Spacing.medium) // <-- FIX 6: Using constant for top padding (replaces 12)
+            .padding(.bottom, Spacing.small) // <-- FIX 7: Using constant for bottom padding (replaces 8)
+        if let background = palette.expandedContentBackground {
+            content
+                .frame(maxWidth: .infinity)
+                .background(background)
+        } else {
+            content
+        }
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: Spacing.medium)
         {
@@ -100,9 +118,7 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
 
             // Expanded content: outside of the error background
             if isExpanded {
-                editorView()
-                    .padding(.top, Spacing.medium) // <-- FIX 6: Using constant for top padding (replaces 12)
-                    .padding(.bottom, Spacing.small) // <-- FIX 7: Using constant for bottom padding (replaces 8)
+                expandedContent
             }
         }
         // Make the entire VStack area tappable

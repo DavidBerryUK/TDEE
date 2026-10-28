@@ -30,6 +30,11 @@ struct ColorPalette {
     /// a present entry (the map may be partial) wins for that icon.
     let iconColors: [Icon: Color]?
 
+    /// Background of a section's *expanded* content area, drawn beneath the editor while the section
+    /// is open. `nil` (the default) leaves the content on the section's `surface`; a value tints just
+    /// the expanded region, so it reads as a distinct panel while the header stays on `surface`.
+    let expandedContentBackground: Color?
+
     /// How a theme overrides the navigation bar. A `nil` `background` keeps
     /// `.toolbarBackground(.visible, for: .navigationBar)`.
     struct Toolbar {
@@ -44,14 +49,16 @@ struct ColorPalette {
     }
 
     /// `editText`, `highlight` and `selection` default to `primary`; Default overrides them
-    /// to keep the app's original red, teal and green. `toolbar`/`iconColors` default to `nil`, so
-    /// every theme keeps today's system bar and icon colours unless it opts in.
+    /// to keep the app's original red, teal and green. `toolbar`/`iconColors`/`expandedContentBackground`
+    /// default to `nil`, so every theme keeps today's system bar, icon colours and content background
+    /// unless it opts in.
     init(
         primary: Color, secondary: Color, background: Color, surface: Color,
         text: Color, textSecondary: Color, border: Color,
         macroProtein: Color, macroCarbs: Color, macroFat: Color,
         editText: Color? = nil, highlight: Color? = nil, selection: Color? = nil,
-        toolbar: Toolbar? = nil, iconColors: [Icon: Color]? = nil
+        toolbar: Toolbar? = nil, iconColors: [Icon: Color]? = nil,
+        expandedContentBackground: Color? = nil
     ) {
         self.primary = primary
         self.secondary = secondary
@@ -68,6 +75,7 @@ struct ColorPalette {
         self.selection = selection ?? primary
         self.toolbar = toolbar
         self.iconColors = iconColors
+        self.expandedContentBackground = expandedContentBackground
     }
 }
 
