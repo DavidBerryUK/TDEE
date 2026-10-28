@@ -20,6 +20,7 @@ struct SectionEditorWeight: View {
     var body: some View {
         VStack {
             UISegmentUomWeightView(option: $model.weightUom)
+                .padding(.horizontal, 8)
             UIWheelPickerWeightView(value: $model.weight, unitOfMeasure: $model.weightUom)
         }
     }
