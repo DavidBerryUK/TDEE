@@ -3,9 +3,10 @@
 //  TDEE
 //
 
-// AI AGENT WARNING: the `.wheel` style is intentional here — a wheel picker is best for ordered
-// numeric values. This wraps a `UIPickerView` (a wheel, not a menu) so a theme can dress it; do not
-// swap it for a dropdown. See UIWheelPickerAgeView for the same note.
+// AI AGENT WARNING: the `.wheel` style is intentional here — a wheel picker is best for ordered values.
+// This wraps a `UIPickerView` (a wheel, not a menu) so a theme can dress it; do not swap it for a
+// dropdown. It is the one reusable, palette-driven wheel the app's value editors share; see
+// UIWheelPickerAgeView for the same note.
 
 import SwiftUI
 import UIKit
@@ -16,15 +17,24 @@ import UIKit
 /// highlighted row stays the system's fixed grey capsule — invisible on a busy theme. This reaches the
 /// underlying `UIPickerView` to (1) make its field transparent so a theme-supplied panel shows through,
 /// (2) force its appearance so its digits read on a light panel, and (3) theme the selection band.
-struct ThemedWheelPicker: UIViewRepresentable {
-    let rows: [Int]
-    @Binding var selection: Int
+///
+/// It is generic over the row type and reads the picker's colours from the active `palette`, so a call
+/// site is just `ThemedWheelPicker(rows:selection:)` and the wheel dresses itself to whatever theme is
+/// active — a categorical picker passes its own `rowText` (e.g. `ActivityLevel.displayName`). The panel
+/// that insets it is the separate `pickerPanel` modifier, which stays at the call site so a multi-wheel
+/// group can wrap its wheels as a whole.
+struct ThemedWheelPicker<T: Hashable>: UIViewRepresentable {
+    let rows: [T]
+    @Binding var selection: T
 
-    /// Force the picker's appearance; `nil` inherits the app's. `.light` makes the digits dark, which
-    /// is what reads on a light panel.
-    var colorScheme: ColorScheme? = nil
-    /// The selection band colour; `nil` keeps the system's grey indicator.
-    var selectionColor: Color? = nil
+    /// Turns a row into the string the wheel shows. Defaults to `String(describing:)` — for an `Int`
+    /// wheel that is the same as `"\(value)"`; a categorical wheel passes its own (e.g. `\.displayName`).
+    var rowText: (T) -> String = { String(describing: $0) }
+
+    /// The wheel's appearance and selection band come from the active theme; every theme that doesn't
+    /// opt in leaves these `nil`, so the picker keeps its system appearance and selection band. The
+    /// surrounding panel is the call site's `pickerPanel` (see the type's documentation).
+    @Environment(\.palette) private var palette
 
     func makeCoordinator() -> Coordinator {
         Coordinator(self)
@@ -56,14 +66,14 @@ struct ThemedWheelPicker: UIViewRepresentable {
     private func applyTheme(to picker: UIPickerView) {
         // Force the picker's appearance so its digits read on a light panel; `nil` inherits the app's.
         picker.overrideUserInterfaceStyle = {
-            guard let colorScheme else { return UIUserInterfaceStyle.unspecified }
-            return colorScheme == .light ? .light : .dark
+            guard let scheme = palette.pickerColorScheme else { return UIUserInterfaceStyle.unspecified }
+            return scheme == .light ? .light : .dark
         }()
 
         // `UIPickerView` has no public selection-indicator API, so theme the private one via KVC,
         // guarded so an OS that drops the key degrades to the system indicator instead of raising
         // `NSUnknownKeyException`.
-        if let selectionColor {
+        if let selectionColor = palette.pickerSelectionColor {
             applySelectionIndicator(UIColor(selectionColor), to: picker)
         }
     }
@@ -73,11 +83,11 @@ struct ThemedWheelPicker: UIViewRepresentable {
         picker.setValue(ThemedSelectionIndicator(color: color), forKey: "selectionIndicator")
     }
 
-    /// Keeps a `@Binding` in sync with a `UIPickerView`: one component of integer rows.
+    /// Keeps a `@Binding` in sync with a `UIPickerView`: one component of `T` rows.
     final class Coordinator: NSObject, UIPickerViewDataSource, UIPickerViewDelegate {
-        var parent: ThemedWheelPicker
+        var parent: ThemedWheelPicker<T>
 
-        init(_ parent: ThemedWheelPicker) {
+        init(_ parent: ThemedWheelPicker<T>) {
             self.parent = parent
         }
 
@@ -89,7 +99,7 @@ struct ThemedWheelPicker: UIViewRepresentable {
 
         func pickerView(_ pickerView: UIPickerView, titleForRow row: Int, forComponent component: Int) -> String? {
             guard row < parent.rows.count else { return nil }
-            return String(parent.rows[row])
+            return parent.rowText(parent.rows[row])
         }
 
         func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {

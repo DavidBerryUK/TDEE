@@ -23,17 +23,13 @@ struct UIWheelPickerAgeView: View {
 
     var body: some View {
         HStack {
-            // A `UIPickerView`-backed wheel so a theme can dress it: a themed selection band (the
-            // system's is a fixed grey), forced light appearance so the digits read on a light panel,
-            // and a transparent field so the panel shows through. Still a wheel, not a menu.
-            ThemedWheelPicker(
-                rows: optionsAge,
-                selection: $value,
-                colorScheme: palette.pickerColorScheme,
-                selectionColor: palette.pickerSelectionColor
-            )
-            .frame(width: 160, height: 150)
-            .accessibilityIdentifier("agePicker")
+            // A `UIPickerView`-backed wheel that a theme dresses itself: forced light appearance so the
+            // digits read on a light panel, a themed selection band, and a transparent field for the
+            // panel — all read from the active theme, so it stays a one-line call site. Still a wheel,
+            // not a menu.
+            ThemedWheelPicker(rows: optionsAge, selection: $value)
+                .frame(width: 160, height: 150)
+                .accessibilityIdentifier("agePicker")
             // When the theme opts in, just the picker sits in a rounded-rect panel; the "age in years"
             // label stays outside, on the section content.
             .pickerPanel(background: palette.pickerBackground)
