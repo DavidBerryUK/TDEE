@@ -145,36 +145,47 @@ So a `cm → inches → cm` round-trip can drift by ±1 cm (round out, floor bac
 keeps the Double (no rounding) and is what the commit path uses, so the *stored* value is exact; the
 drift only shows in the *inches* display. Flag this before any "fix" to the sync logic.
 
-## 6. Themed vs Plain — and the multi-wheel selection-band gap
+## 6. Themed vs Plain — per-wheel panels
 
-`UIWheelHeightThemed` (`TDEE/ViewsValueEditors/Height/UIWheelHeightThemed.swift:18-28`) wraps the plain
-wheel and adds the theme's picker dressing:
+`UIWheelHeightThemed` (`TDEE/ViewsValueEditors/Height/UIWheelHeightThemed.swift:19-30`) feeds the
+palette's panel dressing into `UIWheelHeightPlain`, which now insets **each wheel into its own
+rounded-rect panel** (a `nil`-default width, so non-theming themes see no panel):
 ```swift
-UIWheelHeightPlain(value:unitOfMeasure:)
-    .pickerPanel(background: palette.pickerBackground)   // rounded-rect field
-    .preferredColorScheme(palette.pickerColorScheme)     // force .light so digits read
+UIWheelHeightPlain(
+    value:unitOfMeasure:
+    pickerBackground: palette.pickerBackground,
+    pickerPanelWidth: palette.pickerPanelWidth,        // fixed width per wheel (Orange: 110)
+    pickerLabelOffsetX: palette.pickerLabelOffsetX      // caption offset (Orange: 72)
+)
+    .preferredColorScheme(palette.pickerColorScheme)
 ```
-It is **not** `UIThemedWheelPicker` — the height wheel is a bespoke multi-wheel ZStack, so it can only
-take the panel + a forced appearance, **not** a themed selection band.
+The panel moved from *around the whole group* to *around each wheel* (`pickerPanel(background:width:)`,
+`Color+Theme.swift:75`), so the feet-&-inches wheels are two separate fields and each unit caption sits
+as a sibling *outside* its panel. It is still **not** `UIThemedWheelPicker` — a bespoke multi-wheel
+ZStack — so it can take a panel + forced appearance but **not** a themed selection band.
 
-### `pickerPanel` (`TDEE/Constants/Color+Theme.swift:75-87`)
+### `pickerPanel` (`TDEE/Constants/Color+Theme.swift:75`)
 `RoundedRectangle(cornerRadius: 12)`, `Spacing.small` padding, and — crucially — a `.clipShape`, because
-`UIPickerView` draws its wheel and band *beyond its own frame*. `nil` background (every non-opting theme)
-leaves the picker untouched.
+`UIPickerView` draws its wheel and band *beyond its own frame*. A `nil` background (every non-opting
+theme) leaves the picker untouched. An optional `width` insets just the wheel, so a multi-wheel group
+gets one panel per wheel.
 
 ### Orange's dressing (`TDEE/Models/Theme/DefaultThemes.swift:76-121`; fields in `Theme.swift:38-62`)
 - `pickerBackground = lightCoral #F8D0C5` — a tint of the section coral, so the panel reads in-family.
 - `pickerColorScheme = .light` — forces digits dark on the light panel.
-- `pickerSelectionColor = coral #E8633F` — themed selection band.
+- `pickerSelectionColor = coral #E8633F` — themed selection band (single-wheel pickers only; see below).
+- `pickerPanelWidth = 110` — narrows each wheel into its own field (tunable).
+- `pickerLabelOffsetX = 72` — shifts each unit caption outside the narrowed panel (tunable).
 - `isPickerThemed` (`Theme.swift:60-62`) is `true` for Orange, so `SectionEditorHeight` renders
   `UIWheelHeightThemed`.
 
-### ⚠ The selection band stays system-grey on height
+### ⚠ The selection band still stays system-grey on height
 The themed band comes from `UIThemedWheelPicker` via KVC (`setSelectionIndicator:`, guarded,
 `TDEE/ViewsValueEditors/UIThemedWheelPicker.swift:81-84`, `112-124`) — a single-wheel `UIPickerView`
 wrapper used by the **single-wheel** pickers (Age, Activity). The height wheel is multi-wheel, so its
 selection band stays the system's fixed grey capsule (per the note in
-`UIWheelHeightThemed.swift:11-13`). **This is the most likely candidate for the amendment** — see §11.
+`UIWheelHeightThemed.swift:11-13`). The per-wheel *panel* is now done; the *band* is the remaining gap —
+see §11.1.
 
 ## 7. The UoM switcher — `UISegmentUomLengthView`  ⚠ DO NOT MODIFY
 
@@ -233,9 +244,10 @@ amendment should respect:
 
 ## 11. Known tensions / gotchas (candidates for the amendment)
 
-1. **Multi-wheel selection band (§6).** Height can't take the themed band; on Orange its band stays
-   system-grey while Age/Activity get coral. Closing this gap (extend the band to the multi-wheel group,
-   or wrap height wheels in `UIThemedWheelPicker`) is the leading candidate.
+1. **Multi-wheel selection band (§6) — panel done, band open.** Each wheel now has its own panel
+   (decision 2026-10-29). The themed *selection band* still can't reach a multi-wheel group; on Orange
+   the band stays system-grey while Age/Activity get coral. Extending the band (wrap each height wheel in
+   `UIThemedWheelPicker`, or push the KVC band onto the group) is the remaining candidate.
 2. **Classic section message looser than the gate (§8).** The 0/NaN check vs the 100–272 range.
 3. **Wheel can reach out-of-range values.** `optionsCm = 0...272` lets the wheel sit at 0–99 cm, which
    `isHeightValid` rejects with no visible message on the Classic path.
@@ -283,13 +295,17 @@ amendment should respect:
 
 ## 14. Goal — what we want the amendment to achieve
 
-> **Open.** State the intended change when we agree it — one sentence of *what* and *why*, plus the
-> acceptance test. Candidate directions are in §11.
+**On Orange, each wheel of the height picker sits in its own light-coral field, and the "feet"/"inches"
+captions sit *outside* their field on the section background — so feet & inches read as two separate
+pickers, not one wide field.** Every other theme is untouched (`nil`-default palette fields).
 
-- [ ] Desired end state: *(TBD)*
-- [ ] Why it's worth doing: *(TBD)*
-- [ ] Acceptance test / how we'll know it's right: *(TBD)*
-- [ ] Which of the three UoM modes (cm / inches / feet+inches) must it hold up in? *(TBD)*
+- [x] Desired end state: per-wheel panel + caption outside it, Orange-only.
+- [x] Why it's worth doing: one wide field made the two feet-&-inches wheels read as a single control.
+- [ ] Acceptance test / how we'll know it's right: build succeeds; on Orange the feet & inches wheels
+      show two separate panels with their captions outside; cm/inches show one panel each; other themes
+      unchanged. *(Visual check pending in Xcode — `pickerPanelWidth`/`pickerLabelOffsetX` are the two
+      tunable numbers.)*
+- [x] UoM modes: all three — the caption offset applies per wheel; feet+inches is the visible case.
 
 ## 15. Open questions / to decide
 
@@ -306,13 +322,18 @@ amendment should respect:
 
 | Date | Decision | Rationale | Rejected option(s) |
 |---|---|---|---|
-| — | *(none yet)* | — | — |
+| 2026-10-29 | **Per-wheel panel** — move `pickerPanel` from around the whole group onto each wheel | One group panel made the feet-&-inches wheels read as a single field | — |
+| 2026-10-29 | **Narrow panel + caption outside, both theme-driven** (`pickerPanelWidth` + `pickerLabelOffsetX`, `nil` default) | Chosen over "offset-x only" (panel stays wide) and "width only" (caption can't clear it); both knobs together get the caption outside a narrowed field, and `nil` defaults keep every other theme identical | Offset-x only; width only |
 
 ## 17. Progress
 
 > A task list we tick off as work lands. Cross-reference the commit/PR that closes each item.
 
-- [ ] *(none yet)*
+- [x] Per-wheel panel: `pickerPanel` moved onto each wheel; `pickerPanel(background:width:)` (built, exit 0).
+- [x] Caption outside: `pickerLabelOffsetX` shifts the caption; Orange sets `pickerPanelWidth: 110`, `pickerLabelOffsetX: 72`.
+- [ ] Visual confirm in Xcode — tune `pickerPanelWidth`/`pickerLabelOffsetX` if a caption overlaps the
+      next wheel in feet & inches.
+- [ ] Themed selection band for the multi-wheel group (§11.1) — next candidate.
 
 ## 18. References
 

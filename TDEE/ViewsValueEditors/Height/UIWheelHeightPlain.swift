@@ -7,8 +7,9 @@
 
 // AI AGENT WARNING: the .pickerStyle(.wheel) is intentional — a wheel is best for ordered numeric
 // values, not a dropdown. This is the PLAIN height wheel: the raw multi-unit SwiftUI
-// .pickerStyle(.wheel) with no theme dressing. Its themed sibling (themed panel + forced appearance)
-// is UIWheelHeightThemed; a parent shows one or the other based on the active theme.
+// .pickerStyle(.wheel). Each wheel insets into its OWN rounded panel when a `pickerBackground` is
+// supplied (nil by default, so a non-theming theme sees no panel — identical to before); the themed
+// sibling (UIWheelHeightThemed) feeds the active palette's panel colour and adds a forced appearance.
 // This is a multi-wheel picker (cm / inches / feet+inches) with load-bearing unit-conversion logic —
 // do not change .wheel to .menu and do not remove that logic. Renamed from UIWheelPickerHeightView
 // as part of the story-023 Themed/Plain split.
@@ -19,6 +20,21 @@ struct UIWheelHeightPlain: View {
 
     @Binding var value: Double
     @Binding var unitOfMeasure : OptionLength
+
+    /// The panel colour each wheel is inset into so its highlighted row reads against a distinct
+    /// field. `nil` (the default — every theme that doesn't opt in) leaves each wheel panel-less,
+    /// exactly as before; the themed sibling passes the active palette's `pickerBackground`.
+    var pickerBackground: Color? = nil
+
+    /// The panel's fixed width; `nil` keeps each wheel at its natural width. The themed sibling passes
+    /// the active palette's `pickerPanelWidth`.
+    var pickerPanelWidth: CGFloat? = nil
+    /// The unit caption's x-offset; `nil` keeps each wheel's own caption position. The themed sibling
+    /// passes the active palette's `pickerLabelOffsetX`.
+    var pickerLabelOffsetX: CGFloat? = nil
+    /// The gap between the two wheels of a compound unit; `nil` uses the group's natural spacing. The
+    /// themed sibling passes the active palette's `pickerWheelSpacing`.
+    var pickerWheelSpacing: CGFloat? = nil
 
     @State private  var valueCm: Int = 0
     @State private  var valueInches: Int = 0
@@ -166,8 +182,9 @@ private extension UIWheelHeightPlain {
             }
             .pickerStyle(.wheel)
             .accessibilityIdentifier("heightCmWheel")
+            .pickerPanel(background: pickerBackground, width: pickerPanelWidth)
             UITextPickerLabel("centimeters")
-                .offset(x: 60)
+                .offset(x: pickerLabelOffsetX ?? 60)
         }
     }
 
@@ -181,36 +198,49 @@ private extension UIWheelHeightPlain {
             }
             .pickerStyle(.wheel)
             .accessibilityIdentifier("heightInchesWheel")
+            .pickerPanel(background: pickerBackground, width: pickerPanelWidth)
             UITextPickerLabel("inches")
-                .offset(x: 40)
+                .offset(x: pickerLabelOffsetX ?? 40)
         }
     }
 
+    @ViewBuilder
     var UIPickerViewFeetAndInches : some View {
-        HStack{
-            ZStack{
-                Picker("feet", selection: $valueFeet) {
-                    ForEach(optionsFeet, id: \.self) { value in
-                        Text("\(value)").tag(value)
-                    }
-                }
-                .pickerStyle(.wheel)
-                .accessibilityIdentifier("heightFeetWheel")
-                UITextPickerLabel("feet")
-                    .offset(x: 36)
-            }
+        // A themed gap (`pickerWheelSpacing`) opens the space between the two wheels so a unit caption
+        // can sit between them; with no spacing the group uses its natural spacing, as before.
+        if let spacing = pickerWheelSpacing {
+            HStack(spacing: spacing) { feetAndInchesWheels }
+        } else {
+            HStack { feetAndInchesWheels }
+        }
+    }
 
-            ZStack{
-                Picker("Inches", selection: $valueFeetInches) {
-                    ForEach(optionsFeetInches, id: \.self) { value in
-                        Text("\(value)").tag(value)
-                    }
+    @ViewBuilder
+    private var feetAndInchesWheels: some View {
+        ZStack{
+            Picker("feet", selection: $valueFeet) {
+                ForEach(optionsFeet, id: \.self) { value in
+                    Text("\(value)").tag(value)
                 }
-                .pickerStyle(.wheel)
-                .accessibilityIdentifier("heightFeetInchesWheel")
-                UITextPickerLabel("inches")
-                    .offset(x: 36)
             }
+            .pickerStyle(.wheel)
+            .accessibilityIdentifier("heightFeetWheel")
+            .pickerPanel(background: pickerBackground, width: pickerPanelWidth)
+            UITextPickerLabel("feet")
+                .offset(x: pickerLabelOffsetX ?? 36)
+        }
+
+        ZStack{
+            Picker("Inches", selection: $valueFeetInches) {
+                ForEach(optionsFeetInches, id: \.self) { value in
+                    Text("\(value)").tag(value)
+                }
+            }
+            .pickerStyle(.wheel)
+            .accessibilityIdentifier("heightFeetInchesWheel")
+            .pickerPanel(background: pickerBackground, width: pickerPanelWidth)
+            UITextPickerLabel("inches")
+                .offset(x: pickerLabelOffsetX ?? 36)
         }
     }
 }

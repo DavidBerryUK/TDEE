@@ -114,7 +114,12 @@ enum DefaultThemes {
             expandedContentBackground: deepCoral,
             pickerBackground: lightCoral,
             pickerColorScheme: .light,
-            pickerSelectionColor: coral
+            pickerSelectionColor: coral,
+            // Narrow each wheel into its own field, shift its unit caption outside the panel, and open a
+            // gap between the two feet-&-inches wheels so the "feet" caption sits between them. Tunable.
+            pickerPanelWidth: 110,
+            pickerLabelOffsetX: 72,
+            pickerWheelSpacing: 56
         )
         // Pinned dark: system text (nav titles, list headers) must be light on the black field.
         return Theme(id: .orange, name: "Orange", description: "Bold coral on black", light: palette, dark: palette, colorScheme: .dark)

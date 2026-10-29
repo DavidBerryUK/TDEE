@@ -53,6 +53,19 @@ struct ColorPalette {
     /// section coral for Orange) themes the band.
     let pickerSelectionColor: Color?
 
+    /// The wheel picker's fixed panel width, so a theme can inset each wheel into a narrower field.
+    /// `nil` (the default) leaves the panel at the wheel's natural width.
+    let pickerPanelWidth: CGFloat?
+
+    /// The wheel picker's unit-caption x-offset (the "cm"/"inches"/"feet"/"inches" label). `nil`
+    /// (the default) keeps each wheel's own caption position; a value shifts the caption so it can
+    /// sit outside a narrowed panel.
+    let pickerLabelOffsetX: CGFloat?
+
+    /// The gap between the two wheels of a compound unit (feet & inches, stones & pounds), so a unit
+    /// caption can sit *between* them. `nil` (the default) uses the group's natural spacing.
+    let pickerWheelSpacing: CGFloat?
+
     /// Whether the theme dresses the wheel picker — a panel, a forced appearance, or a themed
     /// selection band. A parent shows the themed wheel (`UIWheelXxxThemed`) when this is true and the
     /// plain wheel (`UIWheelXxxPlain`) otherwise; every theme that doesn't opt in leaves all three
@@ -76,8 +89,9 @@ struct ColorPalette {
 
     /// `editText`, `highlight` and `selection` default to `primary`; Default overrides them
     /// to keep the app's original red, teal and green. `toolbar`/`iconColors`/`expandedContentBackground`
-    /// /`pickerBackground`/`pickerColorScheme`/`pickerSelectionColor` default to `nil`, so every theme keeps
-    /// today's system bar, icon colours, content background and plain picker unless it opts in.
+    /// /`pickerBackground`/`pickerColorScheme`/`pickerSelectionColor`/`pickerPanelWidth`/`pickerLabelOffsetX`
+    /// /`pickerWheelSpacing` default to `nil`, so every theme keeps today's system bar, icon colours,
+    /// content background and plain picker unless it opts in.
     init(
         primary: Color, secondary: Color, background: Color, surface: Color,
         text: Color, textSecondary: Color, border: Color,
@@ -85,7 +99,9 @@ struct ColorPalette {
         editText: Color? = nil, highlight: Color? = nil, selection: Color? = nil,
         toolbar: Toolbar? = nil, iconColors: [Icon: Color]? = nil,
         expandedContentBackground: Color? = nil, pickerBackground: Color? = nil,
-        pickerColorScheme: ColorScheme? = nil, pickerSelectionColor: Color? = nil
+        pickerColorScheme: ColorScheme? = nil, pickerSelectionColor: Color? = nil,
+        pickerPanelWidth: CGFloat? = nil, pickerLabelOffsetX: CGFloat? = nil,
+        pickerWheelSpacing: CGFloat? = nil
     ) {
         self.primary = primary
         self.secondary = secondary
@@ -106,6 +122,9 @@ struct ColorPalette {
         self.pickerBackground = pickerBackground
         self.pickerColorScheme = pickerColorScheme
         self.pickerSelectionColor = pickerSelectionColor
+        self.pickerPanelWidth = pickerPanelWidth
+        self.pickerLabelOffsetX = pickerLabelOffsetX
+        self.pickerWheelSpacing = pickerWheelSpacing
     }
 }
 

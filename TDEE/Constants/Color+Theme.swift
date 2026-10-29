@@ -71,16 +71,24 @@ extension View {
     /// picker's appearance and selection band are handled by `ThemedWheelPicker`, not here.
     ///
     /// The panel is both filled and *clipped* to the same rounded rect: a `UIPickerView` draws its
-    /// wheel and selection band beyond its own frame, so clipping keeps them inside the panel.
+    /// wheel and selection band beyond its own frame, so clipping keeps them inside the panel. An
+    /// optional `width` insets just the wheel into a narrower field, so a multi-wheel group (feet &
+    /// inches, stones & pounds) gets one panel per wheel instead of one around the whole group.
     @ViewBuilder
-    func pickerPanel(background: Color? = nil) -> some View {
+    func pickerPanel(background: Color? = nil, width: CGFloat? = nil) -> some View {
         let panelShape = RoundedRectangle(cornerRadius: 12)
         if let background {
-            self
-                .padding(.horizontal, Spacing.small)
-                .padding(.vertical, Spacing.small)
-                .background(background, in: panelShape)
-                .clipShape(panelShape)
+            Group {
+                if let width {
+                    self.frame(width: width)
+                } else {
+                    self
+                }
+            }
+            .padding(.horizontal, Spacing.small)
+            .padding(.vertical, Spacing.small)
+            .background(background, in: panelShape)
+            .clipShape(panelShape)
         } else {
             self
         }
