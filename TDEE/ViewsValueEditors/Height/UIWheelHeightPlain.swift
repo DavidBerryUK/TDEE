@@ -239,8 +239,10 @@ private extension UIWheelHeightPlain {
             .pickerStyle(.wheel)
             .accessibilityIdentifier("heightFeetInchesWheel")
             .pickerPanel(background: pickerBackground, width: pickerPanelWidth)
+            // Rightmost wheel: point the caption inward (negative offset) so it sits in the gap to the
+            // wheel's left instead of overflowing the screen's right edge.
             UITextPickerLabel("inches")
-                .offset(x: pickerLabelOffsetX ?? 36)
+                .offset(x: -(pickerLabelOffsetX ?? 36))
         }
     }
 }

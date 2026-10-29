@@ -155,7 +155,8 @@ UIWheelHeightPlain(
     value:unitOfMeasure:
     pickerBackground: palette.pickerBackground,
     pickerPanelWidth: palette.pickerPanelWidth,        // fixed width per wheel (Orange: 110)
-    pickerLabelOffsetX: palette.pickerLabelOffsetX      // caption offset (Orange: 72)
+    pickerLabelOffsetX: palette.pickerLabelOffsetX,     // caption offset (Orange: 72)
+    pickerWheelSpacing: palette.pickerWheelSpacing       // gap between compound wheels (Orange: 56)
 )
     .preferredColorScheme(palette.pickerColorScheme)
 ```
@@ -176,6 +177,8 @@ gets one panel per wheel.
 - `pickerSelectionColor = coral #E8633F` — themed selection band (single-wheel pickers only; see below).
 - `pickerPanelWidth = 110` — narrows each wheel into its own field (tunable).
 - `pickerLabelOffsetX = 72` — shifts each unit caption outside the narrowed panel (tunable).
+- `pickerWheelSpacing = 56` — the gap between the two feet-&-inches wheels, so the "feet" caption sits
+  between them (tunable).
 - `isPickerThemed` (`Theme.swift:60-62`) is `true` for Orange, so `SectionEditorHeight` renders
   `UIWheelHeightThemed`.
 
