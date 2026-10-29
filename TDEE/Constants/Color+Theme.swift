@@ -65,6 +65,26 @@ extension View {
             self.toolbarBackground(.visible, for: .navigationBar)
         }
     }
+
+    /// Insets a wheel picker into its own rounded-rect panel so it reads as a distinct field. `nil`
+    /// (the default for every theme that doesn't opt in) leaves the picker exactly as it was. The
+    /// picker's appearance and selection band are handled by `ThemedWheelPicker`, not here.
+    ///
+    /// The panel is both filled and *clipped* to the same rounded rect: a `UIPickerView` draws its
+    /// wheel and selection band beyond its own frame, so clipping keeps them inside the panel.
+    @ViewBuilder
+    func pickerPanel(background: Color? = nil) -> some View {
+        let panelShape = RoundedRectangle(cornerRadius: 12)
+        if let background {
+            self
+                .padding(.horizontal, Spacing.small)
+                .padding(.vertical, Spacing.small)
+                .background(background, in: panelShape)
+                .clipShape(panelShape)
+        } else {
+            self
+        }
+    }
 }
 
 /// A cluster of toolbar buttons that share one background.

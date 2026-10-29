@@ -35,6 +35,24 @@ struct ColorPalette {
     /// the expanded region, so it reads as a distinct panel while the header stays on `surface`.
     let expandedContentBackground: Color?
 
+    /// The wheel picker's own panel background, drawn as a rounded rect *around* the picker so its
+    /// highlighted row reads against a distinct field. `nil` (the default) leaves the picker on the
+    /// section surface; a value insets just the picker into that tint while the picker's label (e.g.
+    /// "age in years") stays outside the rect, on the section content.
+    let pickerBackground: Color?
+
+    /// The wheel picker's appearance override, so its rows read on a light panel. The `.wheel` style
+    /// is a `UIPickerView` that draws its rows in the system label colour and ignores `foregroundStyle`,
+    /// so on a light panel the digits stay light and wash out; forcing `.light` here makes the rows
+    /// render dark. `nil` (the default) keeps the picker on the app's scheme, correct on every other
+    /// theme's dark surface.
+    let pickerColorScheme: ColorScheme?
+
+    /// The wheel picker's selection band colour, so the highlighted row reads on-theme instead of the
+    /// system's fixed grey capsule. `nil` (the default) keeps the system indicator; a value (the
+    /// section coral for Orange) themes the band.
+    let pickerSelectionColor: Color?
+
     /// How a theme overrides the navigation bar. A `nil` `background` keeps
     /// `.toolbarBackground(.visible, for: .navigationBar)`.
     struct Toolbar {
@@ -50,15 +68,16 @@ struct ColorPalette {
 
     /// `editText`, `highlight` and `selection` default to `primary`; Default overrides them
     /// to keep the app's original red, teal and green. `toolbar`/`iconColors`/`expandedContentBackground`
-    /// default to `nil`, so every theme keeps today's system bar, icon colours and content background
-    /// unless it opts in.
+    /// /`pickerBackground`/`pickerColorScheme`/`pickerSelectionColor` default to `nil`, so every theme keeps
+    /// today's system bar, icon colours, content background and plain picker unless it opts in.
     init(
         primary: Color, secondary: Color, background: Color, surface: Color,
         text: Color, textSecondary: Color, border: Color,
         macroProtein: Color, macroCarbs: Color, macroFat: Color,
         editText: Color? = nil, highlight: Color? = nil, selection: Color? = nil,
         toolbar: Toolbar? = nil, iconColors: [Icon: Color]? = nil,
-        expandedContentBackground: Color? = nil
+        expandedContentBackground: Color? = nil, pickerBackground: Color? = nil,
+        pickerColorScheme: ColorScheme? = nil, pickerSelectionColor: Color? = nil
     ) {
         self.primary = primary
         self.secondary = secondary
@@ -76,6 +95,9 @@ struct ColorPalette {
         self.toolbar = toolbar
         self.iconColors = iconColors
         self.expandedContentBackground = expandedContentBackground
+        self.pickerBackground = pickerBackground
+        self.pickerColorScheme = pickerColorScheme
+        self.pickerSelectionColor = pickerSelectionColor
     }
 }
 

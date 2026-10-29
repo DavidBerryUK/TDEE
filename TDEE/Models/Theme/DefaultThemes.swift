@@ -76,9 +76,15 @@ enum DefaultThemes {
     static let orange: Theme = {
         let coral = Color(hex: "#E8633F")   // the section / accent colour
         let maroon = Color(hex: "#3A1512")  // the dark secondary accent (the "complication" colour)
-        // A deeper tint of the coral for the *expanded* content panel: the header stays coral, the
-        // region that opens below it deepens so it reads as a distinct panel. Tweak this one hex.
-        let deepCoral = Color(hex: "#C23B1E")
+        // A gentle deepening of the coral for the *expanded* content panel: the header stays coral and
+        // the region that opens below it darkens just a touch, so it reads as a distinct panel without
+        // a dramatic jump. Tweak this one hex.
+        let deepCoral = Color(hex: "#D24E2C")
+        // A light tint of the section coral for the wheel picker's *own* panel: the picker's highlighted
+        // row was barely visible on the coral, so the picker is inset into this light field. It's a tint
+        // of the coral itself (not a neutral cream) so the panel reads as part of the orange family.
+        // Tweak this one hex.
+        let lightCoral = Color(hex: "#F8D0C5")
         // One on-brand colour for every section icon: dark maroon reads crisply on the coral surface
         // (the built-in orange ruler was invisible on orange). Swap the value, or pass a per-icon
         // map, to curate individual icons.
@@ -100,11 +106,15 @@ enum DefaultThemes {
             editText: .white,
             highlight: .white,
             selection: .white,
-            // Opt into the theme overrides: a black nav bar matching the field, maroon icons, and a
-            // deeper-coral panel behind each section's expanded content.
+            // Opt into the theme overrides: a black nav bar matching the field, maroon icons, a gentle
+            // deep-coral content panel, and a light-coral panel around each wheel picker, forced to light
+            // appearance so its digits read, with the section coral as its selection band.
             toolbar: .init(background: .black, itemBackground: maroon),
             iconColors: iconColors,
-            expandedContentBackground: deepCoral
+            expandedContentBackground: deepCoral,
+            pickerBackground: lightCoral,
+            pickerColorScheme: .light,
+            pickerSelectionColor: coral
         )
         // Pinned dark: system text (nav titles, list headers) must be light on the black field.
         return Theme(id: .orange, name: "Orange", description: "Bold coral on black", light: palette, dark: palette, colorScheme: .dark)
