@@ -19,7 +19,8 @@ import Observation
 ///   the full-width segmented `UISegmentBodyFatCalcMethodView` reused verbatim at accessibility sizes
 ///   (Decision 10 analog).
 /// - **Value** (`bodyFatPercentage`): `UIBodyFatPercentageTextFieldEntry` (a `.decimalPad` field with
-///   an in-field `%` suffix), or the Classic `UIWheelPickerBodyFatView` reused when `.bodyFatPercentage`
+///   an in-field `%` suffix), or the wheel (`UIWheelBodyFatPlain`, or `UIWheelBodyFatThemed` when the
+///   active theme supplies picker colours) reused when `.bodyFatPercentage`
 ///   is Classic. **Shown only under the `.manualEntry` method** — a show/hide gate (Decision 18), the
 ///   one element with no precedent in the weight / height passes, which relate their pieces by a unit
 ///   switch rather than a gate.
@@ -32,6 +33,7 @@ struct BodyFatPercentageNewSectionView: View {
 
     @Bindable var model: ProfileViewModel
     @Environment(InputStyleManager.self) private var inputStyle
+    @Environment(\.palette) private var palette
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     /// The one section-level message, driven by the % entry.
@@ -96,8 +98,12 @@ struct BodyFatPercentageNewSectionView: View {
             UBodyFatPercentageTextFieldEntry(model: model, errorMessage: $error)
                 .frame(maxWidth: .infinity, alignment: .trailing)
         } else {
-            // Classic value: the wheel picker, reused unchanged.
-            UIWheelPickerBodyFatView(value: $model.bodyFatPercentage)
+            // Classic value: the wheel picker, dressed by the active theme (themed vs plain).
+            if palette.isPickerThemed {
+                UIWheelBodyFatThemed(value: $model.bodyFatPercentage)
+            } else {
+                UIWheelBodyFatPlain(value: $model.bodyFatPercentage)
+            }
         }
     }
 }

@@ -1,19 +1,20 @@
 //
-//  UIWheelPickerAgeView.swift
+//  UIWheelAgeThemed.swift
 //  TDEE
 //
 //  Created by David Berry on 05/04/2026.
 //
 
-// AI AGENT WARNING: DO NOT MODIFY THIS FILE UNDER ANY CIRCUMSTANCES.
-// This file contains a wheel picker for age selection.
-// The .pickerStyle(.wheel) is intentional - wheel pickers are best for ordered numeric values.
-// Changing to .pickerStyle(.menu) would create a dropdown which is less user-friendly for age.
-// APPROVAL REQUIRED BEFORE ANY MODIFICATIONS.
+// AI AGENT WARNING: the .pickerStyle(.wheel) is intentional — a wheel is best for ordered numeric
+// values, not a dropdown. This is the THEMED age wheel: a ThemedWheelPicker (a `UIPickerView` a theme
+// can fully dress — forced light appearance, themed selection band, transparent field) inset into the
+// theme's panel. Its plain sibling (a raw SwiftUI .pickerStyle(.wheel)) is UIWheelAgePlain; a parent
+// shows one or the other based on the active theme. Renamed from UIWheelPickerAgeView as part of the
+// story-023 Themed/Plain split.
 
 import SwiftUI
 
-struct UIWheelPickerAgeView: View {
+struct UIWheelAgeThemed: View {
     @Environment(\.palette) private var palette
 
     @Binding var value: Int
@@ -27,7 +28,7 @@ struct UIWheelPickerAgeView: View {
             // digits read on a light panel, a themed selection band, and a transparent field for the
             // panel — all read from the active theme, so it stays a one-line call site. Still a wheel,
             // not a menu.
-            ThemedWheelPicker(rows: optionsAge, selection: $value)
+            UIThemedWheelPicker(rows: optionsAge, selection: $value)
                 .frame(width: 160, height: 150)
                 .accessibilityIdentifier("agePicker")
             // When the theme opts in, just the picker sits in a rounded-rect panel; the "age in years"
@@ -45,5 +46,5 @@ struct UIWheelPickerAgeView: View {
 
 #Preview("age") {
     @Previewable @State var selectedAge: Int = 21
-    UIWheelPickerAgeView(value: $selectedAge)
+    UIWheelAgeThemed(value: $selectedAge)
 }

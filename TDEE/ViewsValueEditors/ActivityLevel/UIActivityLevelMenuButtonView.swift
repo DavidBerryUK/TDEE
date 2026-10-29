@@ -15,7 +15,7 @@ import SwiftUI
 /// full name and chevron make the control read as a value picker, the discoverability fix for the old
 /// neutral "Activity Level" label (Decision 10), mirroring the UoM switchers
 /// (`UIWeightUomMenuButtonView` / `UIHeightUomMenuButtonView`), and replacing
-/// `UIWheelPickerActivityLevelView` without touching it — see `ActivityLevelNewSectionView`.
+/// `UIWheelActivityLevelPlain` / `UIWheelActivityLevelThemed` without touching it — see `ActivityLevelNewSectionView`.
 struct UIActivityLevelMenuButtonView: View {
 
     @Bindable var model: ProfileViewModel

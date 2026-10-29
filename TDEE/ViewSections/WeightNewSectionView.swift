@@ -18,8 +18,8 @@ import Observation
 ///   full-width segmented `UISegmentUomWeightView` reused verbatim at accessibility sizes
 ///   (Decision 10).
 /// - **Value** (`weight`): `UIWeightTextFieldEntry` (1 field for kg / lb, 2 for stones & pounds, each
-///   with an in-field UoM suffix), or the Classic `UIWheelPickerWeightView` reused when `.weight` is
-///   Classic.
+///   with an in-field UoM suffix), or the wheel (`UIWheelWeightPlain`, or `UIWheelWeightThemed` when
+///   the active theme supplies picker colours) reused when `.weight` is Classic.
 ///
 /// A unit switch re-derives the display from the stored kg and never mutates the model (Decision 13).
 /// `MainSectionProfileInput` selects this when either weight toggle is `.new`.
@@ -27,6 +27,7 @@ struct WeightNewSectionView: View {
 
     @Bindable var model: ProfileViewModel
     @Environment(InputStyleManager.self) private var inputStyle
+    @Environment(\.palette) private var palette
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     /// The one section-level message, driven by the value entry.
@@ -81,8 +82,12 @@ struct WeightNewSectionView: View {
             UIWeightTextFieldEntry(model: model, errorMessage: $error)
                 .frame(maxWidth: .infinity, alignment: .trailing)
         } else {
-            // Classic value: the wheel picker, reused unchanged.
-            UIWheelPickerWeightView(value: $model.weight, unitOfMeasure: $model.weightUom)
+            // Classic value: the wheel picker, dressed by the active theme (themed vs plain).
+            if palette.isPickerThemed {
+                UIWheelWeightThemed(value: $model.weight, unitOfMeasure: $model.weightUom)
+            } else {
+                UIWheelWeightPlain(value: $model.weight, unitOfMeasure: $model.weightUom)
+            }
         }
     }
 }

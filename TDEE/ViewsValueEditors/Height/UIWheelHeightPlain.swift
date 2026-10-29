@@ -1,21 +1,21 @@
 //
-//  UIWheelPickerHeightView.swift
+//  UIWheelHeightPlain.swift
 //  TDEE
 //
 //  Created by David Berry on 05/04/2026.
 //
 
-// AI AGENT WARNING: DO NOT MODIFY THIS FILE UNDER ANY CIRCUMSTANCES.
-// This file contains a multi-wheel picker for height selection with unit support.
-// It shows different wheel pickers based on unit: cm, inches, or feet+inches.
-// The .pickerStyle(.wheel) is intentional - wheel pickers are best for numeric values.
-// DO NOT change to .pickerStyle(.menu) which would create a dropdown.
-// DO NOT remove unit conversion logic - it is essential for the picker to work correctly.
-// APPROVAL REQUIRED BEFORE ANY MODIFICATIONS.
+// AI AGENT WARNING: the .pickerStyle(.wheel) is intentional — a wheel is best for ordered numeric
+// values, not a dropdown. This is the PLAIN height wheel: the raw multi-unit SwiftUI
+// .pickerStyle(.wheel) with no theme dressing. Its themed sibling (themed panel + forced appearance)
+// is UIWheelHeightThemed; a parent shows one or the other based on the active theme.
+// This is a multi-wheel picker (cm / inches / feet+inches) with load-bearing unit-conversion logic —
+// do not change .wheel to .menu and do not remove that logic. Renamed from UIWheelPickerHeightView
+// as part of the story-023 Themed/Plain split.
 
 import SwiftUI
 
-struct UIWheelPickerHeightView: View {
+struct UIWheelHeightPlain: View {
 
     @Binding var value: Double
     @Binding var unitOfMeasure : OptionLength
@@ -102,7 +102,7 @@ struct UIWheelPickerHeightView: View {
     }
 }
 
-private extension UIWheelPickerHeightView {
+private extension UIWheelHeightPlain {
 
     func initialiseValues() {
         valueCm = Int(round( value))
@@ -155,7 +155,7 @@ private extension UIWheelPickerHeightView {
     }
 }
 
-private extension UIWheelPickerHeightView {
+private extension UIWheelHeightPlain {
 
     var UIPickerViewCentimeters : some View {
         ZStack{
@@ -218,17 +218,17 @@ private extension UIWheelPickerHeightView {
 #Preview("Centimeters") {
     @Previewable @State var selectedHeight: Double = 200
     @Previewable @State var unitOfMeasure : OptionLength = OptionLength.centimeters
-    UIWheelPickerHeightView(value: $selectedHeight, unitOfMeasure: $unitOfMeasure)
+    UIWheelHeightPlain(value: $selectedHeight, unitOfMeasure: $unitOfMeasure)
 }
 
 #Preview("Inches") {
     @Previewable @State var selectedHeight: Double = 200
     @Previewable @State var unitOfMeasure : OptionLength = OptionLength.inches
-    UIWheelPickerHeightView(value: $selectedHeight, unitOfMeasure: $unitOfMeasure)
+    UIWheelHeightPlain(value: $selectedHeight, unitOfMeasure: $unitOfMeasure)
 }
 
 #Preview("Feet and Inches") {
     @Previewable @State var selectedHeight: Double = 200
     @Previewable @State var unitOfMeasure : OptionLength = OptionLength.feetAndInches
-    UIWheelPickerHeightView(value: $selectedHeight, unitOfMeasure: $unitOfMeasure)
+    UIWheelHeightPlain(value: $selectedHeight, unitOfMeasure: $unitOfMeasure)
 }

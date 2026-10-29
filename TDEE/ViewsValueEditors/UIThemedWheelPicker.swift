@@ -6,7 +6,7 @@
 // AI AGENT WARNING: the `.wheel` style is intentional here — a wheel picker is best for ordered values.
 // This wraps a `UIPickerView` (a wheel, not a menu) so a theme can dress it; do not swap it for a
 // dropdown. It is the one reusable, palette-driven wheel the app's value editors share; see
-// UIWheelPickerAgeView for the same note.
+// UIWheelAgeThemed for the same note.
 
 import SwiftUI
 import UIKit
@@ -23,7 +23,7 @@ import UIKit
 /// active — a categorical picker passes its own `rowText` (e.g. `ActivityLevel.displayName`). The panel
 /// that insets it is the separate `pickerPanel` modifier, which stays at the call site so a multi-wheel
 /// group can wrap its wheels as a whole.
-struct ThemedWheelPicker<T: Hashable>: UIViewRepresentable {
+struct UIThemedWheelPicker<T: Hashable>: UIViewRepresentable {
     let rows: [T]
     @Binding var selection: T
 
@@ -85,9 +85,9 @@ struct ThemedWheelPicker<T: Hashable>: UIViewRepresentable {
 
     /// Keeps a `@Binding` in sync with a `UIPickerView`: one component of `T` rows.
     final class Coordinator: NSObject, UIPickerViewDataSource, UIPickerViewDelegate {
-        var parent: ThemedWheelPicker<T>
+        var parent: UIThemedWheelPicker<T>
 
-        init(_ parent: ThemedWheelPicker<T>) {
+        init(_ parent: UIThemedWheelPicker<T>) {
             self.parent = parent
         }
 

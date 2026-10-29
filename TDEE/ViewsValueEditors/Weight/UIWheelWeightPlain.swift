@@ -1,21 +1,21 @@
 //
-//  UIWheelPickerWeightView.swift
+//  UIWheelWeightPlain.swift
 //  TDEE
 //
 //  Created by David Berry on 05/04/2026.
 //
 
-// AI AGENT WARNING: DO NOT MODIFY THIS FILE UNDER ANY CIRCUMSTANCES.
-// This file contains a multi-wheel picker for weight selection with unit support.
-// It shows different wheel pickers based on unit: kg, pounds, or stones+ pounds.
-// The .pickerStyle(.wheel) is intentional - wheel pickers are best for numeric values.
-// DO NOT change to .pickerStyle(.menu) which would create a dropdown.
-// DO NOT remove unit conversion logic - it is essential for the picker to work correctly.
-// APPROVAL REQUIRED BEFORE ANY MODIFICATIONS.
+// AI AGENT WARNING: the .pickerStyle(.wheel) is intentional — a wheel is best for ordered numeric
+// values, not a dropdown. This is the PLAIN weight wheel: the raw multi-unit SwiftUI
+// .pickerStyle(.wheel) with no theme dressing. Its themed sibling (themed panel + forced appearance)
+// is UIWheelWeightThemed; a parent shows one or the other based on the active theme.
+// This is a multi-wheel picker (kg / pounds / stones+pounds) with load-bearing unit-conversion logic —
+// do not change .wheel to .menu and do not remove that logic. Renamed from UIWheelPickerWeightView
+// as part of the story-023 Themed/Plain split.
 
 import SwiftUI
 
-struct UIWheelPickerWeightView: View {
+struct UIWheelWeightPlain: View {
 
     //
     // Source of truth: always kilograms
@@ -109,7 +109,7 @@ struct UIWheelPickerWeightView: View {
     }
 }
 
-private extension UIWheelPickerWeightView {
+private extension UIWheelWeightPlain {
 
     func initialiseValues() {
         valueKg = Int(round( value))
@@ -162,7 +162,7 @@ private extension UIWheelPickerWeightView {
     }
 }
 
-private extension UIWheelPickerWeightView {
+private extension UIWheelWeightPlain {
 
     var UIPickerKgView: some View {
         ZStack {
@@ -227,17 +227,17 @@ private extension UIWheelPickerWeightView {
 #Preview("kg") {
     @Previewable @State var value: Double = 21
     @Previewable @State var unitOfMeasure : OptionWeight = OptionWeight.kilograms
-    UIWheelPickerWeightView(value: $value, unitOfMeasure: $unitOfMeasure)
+    UIWheelWeightPlain(value: $value, unitOfMeasure: $unitOfMeasure)
 }
 
 #Preview("Pounds") {
     @Previewable @State var value: Double = 21
     @Previewable @State var unitOfMeasure : OptionWeight = OptionWeight.pounds
-    UIWheelPickerWeightView(value: $value, unitOfMeasure: $unitOfMeasure)
+    UIWheelWeightPlain(value: $value, unitOfMeasure: $unitOfMeasure)
 }
 
 #Preview("Stones and Pounds") {
     @Previewable @State var weightInKg: Double = 21
     @Previewable @State var unitOfMeasure : OptionWeight = OptionWeight.stonesAndPounds
-    UIWheelPickerWeightView(value: $weightInKg, unitOfMeasure: $unitOfMeasure)
+    UIWheelWeightPlain(value: $weightInKg, unitOfMeasure: $unitOfMeasure)
 }

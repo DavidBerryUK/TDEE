@@ -18,8 +18,8 @@ import Observation
 ///   full-width segmented `UISegmentUomLengthView` reused verbatim at accessibility sizes
 ///   (Decision 10).
 /// - **Value** (`height`): `UIHeightTextFieldEntry` (1 field for cm / inches, 2 for feet & inches,
-///   each with an in-field UoM suffix), or the Classic `UIWheelPickerHeightView` reused when `.height`
-///   is Classic.
+///   each with an in-field UoM suffix), or the wheel (`UIWheelHeightPlain`, or `UIWheelHeightThemed`
+///   when the active theme supplies picker colours) reused when `.height` is Classic.
 ///
 /// A unit switch re-derives the display from the stored cm and never mutates the model (Decision 13).
 /// `MainSectionProfileInput` selects this when either height toggle is `.new`.
@@ -27,6 +27,7 @@ struct HeightNewSectionView: View {
 
     @Bindable var model: ProfileViewModel
     @Environment(InputStyleManager.self) private var inputStyle
+    @Environment(\.palette) private var palette
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     /// The one section-level message, driven by the value entry.
@@ -81,8 +82,12 @@ struct HeightNewSectionView: View {
             UIHeightTextFieldEntry(model: model, errorMessage: $error)
                 .frame(maxWidth: .infinity, alignment: .trailing)
         } else {
-            // Classic value: the wheel picker, reused unchanged.
-            UIWheelPickerHeightView(value: $model.height, unitOfMeasure: $model.heightUom)
+            // Classic value: the wheel picker, dressed by the active theme (themed vs plain).
+            if palette.isPickerThemed {
+                UIWheelHeightThemed(value: $model.height, unitOfMeasure: $model.heightUom)
+            } else {
+                UIWheelHeightPlain(value: $model.height, unitOfMeasure: $model.heightUom)
+            }
         }
     }
 }

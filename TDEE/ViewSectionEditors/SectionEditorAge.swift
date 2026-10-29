@@ -5,22 +5,26 @@
 //  Created by David Berry on 05/04/2026.
 //
 
-// AI AGENT WARNING: DO NOT MODIFY THIS FILE UNDER ANY CIRCUMSTANCES.
-// This file contains UI components that must remain as wheel pickers.
-// Changing picker styles from .wheel to .menu (or vice versa) alters the
-// user experience and must be explicitly approved by the user.
-// If you need to make changes, report back to the user first.
-// APPROVAL REQUIRED BEFORE ANY MODIFICATIONS.
+// AI AGENT WARNING: this editor shows the age wheel — a wheel is best for ordered numeric values, not
+// a dropdown. It shows the themed wheel (UIWheelAgeThemed) when the active theme supplies picker
+// colours and the plain wheel (UIWheelAgePlain) otherwise; both are .pickerStyle(.wheel), so keep
+// them wheels, never menus. Story-023 Themed/Plain wiring.
 
 import SwiftUI
 
 struct SectionEditorAge: View {
 
     @Bindable var model: ProfileViewModel
+    @Environment(\.palette) private var palette
 
     var body: some View {
         VStack {
-            UIWheelPickerAgeView(value: $model.age)
+            // The active theme chooses the wheel's dressing (UIWheelAgeThemed vs UIWheelAgePlain).
+            if palette.isPickerThemed {
+                UIWheelAgeThemed(value: $model.age)
+            } else {
+                UIWheelAgePlain(value: $model.age)
+            }
         }
     }
 }

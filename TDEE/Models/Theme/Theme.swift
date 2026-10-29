@@ -53,6 +53,14 @@ struct ColorPalette {
     /// section coral for Orange) themes the band.
     let pickerSelectionColor: Color?
 
+    /// Whether the theme dresses the wheel picker — a panel, a forced appearance, or a themed
+    /// selection band. A parent shows the themed wheel (`UIWheelXxxThemed`) when this is true and the
+    /// plain wheel (`UIWheelXxxPlain`) otherwise; every theme that doesn't opt in leaves all three
+    /// picker fields `nil`, so its wheels stay plain.
+    var isPickerThemed: Bool {
+        pickerBackground != nil || pickerColorScheme != nil || pickerSelectionColor != nil
+    }
+
     /// How a theme overrides the navigation bar. A `nil` `background` keeps
     /// `.toolbarBackground(.visible, for: .navigationBar)`.
     struct Toolbar {

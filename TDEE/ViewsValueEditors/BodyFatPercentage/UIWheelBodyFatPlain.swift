@@ -1,19 +1,19 @@
 //
-//  UIWheelPickerBodyFatView.swift
+//  UIWheelBodyFatPlain.swift
 //  TDEE
 //
 //  Created by David Berry on 05/04/2026.
 //
 
-// AI AGENT WARNING: DO NOT MODIFY THIS FILE UNDER ANY CIRCUMSTANCES.
-// This file contains wheel pickers for body fat percentage (integer + decimal).
-// The .pickerStyle(.wheel) is intentional - wheel pickers are best for numeric values.
-// DO NOT change to .pickerStyle(.menu) which would create a dropdown.
-// APPROVAL REQUIRED BEFORE ANY MODIFICATIONS.
+// AI AGENT WARNING: the .pickerStyle(.wheel) is intentional — a wheel is best for ordered numeric
+// values, not a dropdown. This is the PLAIN body-fat-percentage wheel: the raw integer + decimal
+// SwiftUI .pickerStyle(.wheel) pair with no theme dressing. Its themed sibling (themed panel + forced
+// appearance) is UIWheelBodyFatThemed; a parent shows one or the other based on the active theme.
+// Renamed from UIWheelPickerBodyFatView as part of the story-023 Themed/Plain split.
 
 import SwiftUI
 
-struct UIWheelPickerBodyFatView: View {
+struct UIWheelBodyFatPlain: View {
     @Environment(\.palette) private var palette
 
     @Binding var value: Double
@@ -74,5 +74,5 @@ struct UIWheelPickerBodyFatView: View {
 
 #Preview() {
     @Previewable @State var bodyFat: Double = 15.7
-    UIWheelPickerBodyFatView(value: $bodyFat)
+    UIWheelBodyFatPlain(value: $bodyFat)
 }

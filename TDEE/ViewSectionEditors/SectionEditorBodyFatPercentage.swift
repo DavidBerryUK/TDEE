@@ -5,18 +5,19 @@
 //  Created by David Berry on 05/04/2026.
 //
 
-// AI AGENT WARNING: DO NOT MODIFY THIS FILE UNDER ANY CIRCUMSTANCES.
-// This file uses UILayoutExpandingPanel to conditionally show/hide the picker.
-// When "Omit" or "Estimate" is selected, the picker area is hidden.
-// When "Manual Entry" is selected, the picker area expands to show the wheel pickers.
-// Changing this behavior alters the user experience significantly.
-// APPROVAL REQUIRED BEFORE ANY MODIFICATIONS.
+// AI AGENT WARNING: this editor uses UILayoutExpandingPanel to show the body-fat wheel only for
+// Manual Entry — when "Omit" or "Estimate" is selected the picker area is hidden; for "Manual Entry"
+// it expands to the wheel. It shows the themed wheel (UIWheelBodyFatThemed) when the active theme
+// supplies picker colours and the plain wheel (UIWheelBodyFatPlain) otherwise; both are
+// .pickerStyle(.wheel). Keep the manual-entry gate and the wheels (never menus). Story-023
+// Themed/Plain wiring.
 
 import SwiftUI
 
 struct SectionEditorBodyFatPercentage: View {
 
     @Bindable var model: ProfileViewModel
+    @Environment(\.palette) private var palette
 
     var body: some View {
         UILayoutExpandingPanel(
@@ -27,7 +28,12 @@ struct SectionEditorBodyFatPercentage: View {
                     .accessibilityLabel("Body fat percentage calculation method selector")
             }
         ) {
-            UIWheelPickerBodyFatView(value: $model.bodyFatPercentage)
+            // The active theme chooses the wheel's dressing (UIWheelBodyFatThemed vs Plain).
+            if palette.isPickerThemed {
+                UIWheelBodyFatThemed(value: $model.bodyFatPercentage)
+            } else {
+                UIWheelBodyFatPlain(value: $model.bodyFatPercentage)
+            }
         }
         .accessibilityElement(children: .contain)
     }

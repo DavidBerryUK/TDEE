@@ -13,8 +13,9 @@ import Observation
 /// A layout redesign of the activity-level control, like `GenderNewSectionView`: there is no
 /// expand/collapse panel — a neutral `Menu` lives inline in the section header (compact / regular) and
 /// drops to its own full-width line at accessibility sizes. It lists every `ActivityLevel` case (9) and
-/// rebinds `model.activityLevel`, replacing the Classic wheel picker without touching
-/// `UIWheelPickerActivityLevelView` / `SectionEditorActivityLevel` (the Classic path stays untouched).
+/// rebinds `model.activityLevel`, replacing the Classic wheel picker without touching its
+/// `UIWheelActivityLevelPlain` / `UIWheelActivityLevelThemed` / `SectionEditorActivityLevel` (the
+/// Classic path stays untouched).
 ///
 /// Activity level is a categorical pick with no range / zero gate, so — unlike the weight and height
 /// passes — this needs no `MetricRanges` entry, no validator, and no `validateForCalculation()` change.

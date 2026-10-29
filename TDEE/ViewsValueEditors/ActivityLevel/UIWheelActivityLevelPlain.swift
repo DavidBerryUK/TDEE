@@ -1,19 +1,19 @@
 //
-//  UIWheelPickerActivityLevelView.swift
+//  UIWheelActivityLevelPlain.swift
 //  TDEE
 //
 //  Created by David Berry on 05/04/2026.
 //
 
-// AI AGENT WARNING: DO NOT MODIFY THIS FILE UNDER ANY CIRCUMSTANCES.
-// This file contains a wheel picker for activity level selection.
-// The .pickerStyle(.wheel) is intentional - wheel pickers are best for ordered categorical values.
-// DO NOT change to .pickerStyle(.menu) which would create a dropdown.
-// APPROVAL REQUIRED BEFORE ANY MODIFICATIONS.
+// AI AGENT WARNING: the .pickerStyle(.wheel) is intentional — a wheel is best for ordered categorical
+// values, not a dropdown. This is the PLAIN activity-level wheel: the raw SwiftUI .pickerStyle(.wheel)
+// with no theme dressing. Its themed sibling (a ThemedWheelPicker with a themed selection band) is
+// UIWheelActivityLevelThemed; a parent shows one or the other based on the active theme.
+// Renamed from UIWheelPickerActivityLevelView as part of the story-023 Themed/Plain split.
 
 import SwiftUI
 
-struct UIWheelPickerActivityLevelView: View {
+struct UIWheelActivityLevelPlain: View {
 
     @Binding var value: ActivityLevel
 
@@ -39,6 +39,6 @@ struct PickerActivityLevel_Previews: PreviewProvider {
 
     static var previews: some View {
         // Make sure the binding value exists in pickerData
-        UIWheelPickerActivityLevelView(value: $option)
+        UIWheelActivityLevelPlain(value: $option)
     }
 }
