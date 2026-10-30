@@ -115,11 +115,14 @@ enum DefaultThemes {
             pickerBackground: lightCoral,
             pickerColorScheme: .light,
             pickerSelectionColor: coral,
-            // One panel per wheel; each unit caption sits in the gap between the two feet-&-inches wheels
-            // (the rightmost points inward so it can't overflow the screen edge). Tunable.
-            pickerPanelWidth: 110,
-            pickerLabelOffsetX: 72,
-            pickerWheelSpacing: 80
+            // One panel per wheel; each unit caption sits to the RIGHT of its wheel (including the
+            // rightmost "inches"). The panel width, gap and offset keep the whole group — two panels
+            // plus two right-pointing captions — inside the screen. Tunable.
+            pickerPanelWidth: 96,
+            pickerLabelOffsetX: 56,
+            pickerWheelSpacing: 60,
+            // Black digits so they read on the light-coral panel, like the age section's wheels.
+            pickerText: .black
         )
         // Pinned dark: system text (nav titles, list headers) must be light on the black field.
         return Theme(id: .orange, name: "Orange", description: "Bold coral on black", light: palette, dark: palette, colorScheme: .dark)

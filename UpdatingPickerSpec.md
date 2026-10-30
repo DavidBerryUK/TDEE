@@ -154,9 +154,10 @@ rounded-rect panel** (a `nil`-default width, so non-theming themes see no panel)
 UIWheelHeightPlain(
     value:unitOfMeasure:
     pickerBackground: palette.pickerBackground,
-    pickerPanelWidth: palette.pickerPanelWidth,        // fixed width per wheel (Orange: 110)
-    pickerLabelOffsetX: palette.pickerLabelOffsetX,     // caption offset (Orange: 72)
-    pickerWheelSpacing: palette.pickerWheelSpacing       // gap between compound wheels (Orange: 56)
+    pickerPanelWidth: palette.pickerPanelWidth,        // fixed width per wheel (Orange: 96)
+    pickerLabelOffsetX: palette.pickerLabelOffsetX,     // caption offset (Orange: 56)
+    pickerWheelSpacing: palette.pickerWheelSpacing,     // gap between compound wheels (Orange: 60)
+    pickerText: palette.pickerText                       // digit colour (Orange: .black)
 )
     .preferredColorScheme(palette.pickerColorScheme)
 ```
@@ -171,14 +172,19 @@ ZStack — so it can take a panel + forced appearance but **not** a themed selec
 theme) leaves the picker untouched. An optional `width` insets just the wheel, so a multi-wheel group
 gets one panel per wheel.
 
-### Orange's dressing (`TDEE/Models/Theme/DefaultThemes.swift:76-121`; fields in `Theme.swift:38-62`)
+### Orange's dressing (`TDEE/Models/Theme/DefaultThemes.swift:76-121`; fields in `Theme.swift:38-68`)
 - `pickerBackground = lightCoral #F8D0C5` — a tint of the section coral, so the panel reads in-family.
-- `pickerColorScheme = .light` — forces digits dark on the light panel.
+- `pickerColorScheme = .light` — forces the picker's appearance light so the digits read on the panel.
 - `pickerSelectionColor = coral #E8633F` — themed selection band (single-wheel pickers only; see below).
-- `pickerPanelWidth = 110` — narrows each wheel into its own field (tunable).
-- `pickerLabelOffsetX = 72` — shifts each unit caption outside the narrowed panel (tunable).
-- `pickerWheelSpacing = 56` — the gap between the two feet-&-inches wheels, so the "feet" caption sits
+- `pickerPanelWidth = 96` — narrows each wheel into its own field (tunable).
+- `pickerLabelOffsetX = 56` — shifts each unit caption to the **right** of its panel (tunable). Every
+  caption, including the rightmost "inches", points right; the panel width + gap keep the whole group
+  (two panels + two right-pointing captions) inside the screen.
+- `pickerWheelSpacing = 60` — the gap between the two feet-&-inches wheels, so the "feet" caption sits
   between them (tunable).
+- `pickerText = .black` — forces the wheel digits black so they read on the light-coral panel, like the
+  age section's wheels. Applied via `.foregroundStyle` on the wheel (a `nil` for every other theme keeps
+  the system label colour).
 - `isPickerThemed` (`Theme.swift:60-62`) is `true` for Orange, so `SectionEditorHeight` renders
   `UIWheelHeightThemed`.
 

@@ -36,6 +36,10 @@ struct UIWheelHeightPlain: View {
     /// themed sibling passes the active palette's `pickerWheelSpacing`.
     var pickerWheelSpacing: CGFloat? = nil
 
+    /// The wheel's digit text colour; `nil` keeps the system label colour. The themed sibling passes the
+    /// active palette's `pickerText`.
+    var pickerText: Color? = nil
+
     @State private  var valueCm: Int = 0
     @State private  var valueInches: Int = 0
     @State private  var valueFeet: Int = 0
@@ -96,6 +100,9 @@ struct UIWheelHeightPlain: View {
                 .allowsHitTesting(showFeetAndInches)
         }
         .frame(height: 150)
+        // Force the digit colour when the theme supplies one (e.g. black on a light panel); the system
+        // label colour otherwise, which is the wheel's default.
+        .foregroundStyle(pickerText ?? .primary)
         .animation(.easeInOut(duration: animDuration), value: unitOfMeasure)
         .onAppear {
             initialiseValues()
@@ -239,10 +246,11 @@ private extension UIWheelHeightPlain {
             .pickerStyle(.wheel)
             .accessibilityIdentifier("heightFeetInchesWheel")
             .pickerPanel(background: pickerBackground, width: pickerPanelWidth)
-            // Rightmost wheel: point the caption inward (negative offset) so it sits in the gap to the
-            // wheel's left instead of overflowing the screen's right edge.
+            // Rightmost wheel: the "inches" caption sits to the RIGHT of its wheel, like every other
+            // unit caption. The gap (`pickerWheelSpacing`) and the panel width keep the whole group —
+            // two panels plus two right-pointing captions — inside the screen.
             UITextPickerLabel("inches")
-                .offset(x: -(pickerLabelOffsetX ?? 36))
+                .offset(x: pickerLabelOffsetX ?? 36)
         }
     }
 }
