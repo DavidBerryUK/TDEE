@@ -31,6 +31,11 @@ struct UIThemedWheelPicker<T: Hashable>: UIViewRepresentable {
     /// wheel that is the same as `"\(value)"`; a categorical wheel passes its own (e.g. `\.displayName`).
     var rowText: (T) -> String = { String(describing: $0) }
 
+    /// Whether the themed selection band is applied. `true` (the default) themes the band on themes
+    /// that set `pickerSelectionColor`; `false` keeps the system's capsule — used by the height wheel,
+    /// which wants the theme's forced *digit colour* (the appearance) without also taking the band.
+    var themedBand: Bool = true
+
     /// The wheel's appearance and selection band come from the active theme; every theme that doesn't
     /// opt in leaves these `nil`, so the picker keeps its system appearance and selection band. The
     /// surrounding panel is the call site's `pickerPanel` (see the type's documentation).
@@ -72,8 +77,9 @@ struct UIThemedWheelPicker<T: Hashable>: UIViewRepresentable {
 
         // `UIPickerView` has no public selection-indicator API, so theme the private one via KVC,
         // guarded so an OS that drops the key degrades to the system indicator instead of raising
-        // `NSUnknownKeyException`.
-        if let selectionColor = palette.pickerSelectionColor {
+        // `NSUnknownKeyException`. `themedBand` gates it so a caller can take the digit colour without
+        // the band.
+        if themedBand, let selectionColor = palette.pickerSelectionColor {
             applySelectionIndicator(UIColor(selectionColor), to: picker)
         }
     }
