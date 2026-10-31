@@ -108,13 +108,12 @@ enum DefaultThemes {
             selection: .white,
             // Opt into the theme overrides: a black nav bar matching the field, maroon icons, a gentle
             // deep-coral content panel, and a light-coral panel around each wheel picker, forced to light
-            // appearance so its digits read, with the section coral as its selection band.
+            // appearance so its digits read.
             toolbar: .init(background: .black, itemBackground: maroon),
             iconColors: iconColors,
             expandedContentBackground: deepCoral,
             pickerBackground: lightCoral,
             pickerColorScheme: .light,
-            pickerSelectionColor: coral,
             // One panel per wheel; each unit caption sits to the RIGHT of its wheel (including the
             // rightmost "inches"). The panel width, gap and offset keep the whole group — two panels
             // plus two right-pointing captions — inside the screen. Tunable.

@@ -183,7 +183,7 @@ private extension UIWheelHeightPlain {
 
     var UIPickerViewCentimeters : some View {
         ZStack{
-            UIThemedWheelPicker(rows: optionsCm, selection: $valueCm, themedBand: false)
+            UIThemedWheelPicker(rows: optionsCm, selection: $valueCm)
                 .frame(height: 150)
                 .accessibilityIdentifier("heightCmWheel")
                 .pickerPanel(background: pickerBackground, width: pickerPanelWidth)
@@ -195,7 +195,7 @@ private extension UIWheelHeightPlain {
     var UIPickerViewInches : some View {
         ZStack{
 
-            UIThemedWheelPicker(rows: optionsInches, selection: $valueInches, themedBand: false)
+            UIThemedWheelPicker(rows: optionsInches, selection: $valueInches)
                 .frame(height: 150)
                 .accessibilityIdentifier("heightInchesWheel")
                 .pickerPanel(background: pickerBackground, width: pickerPanelWidth)
@@ -218,7 +218,7 @@ private extension UIWheelHeightPlain {
     @ViewBuilder
     private var feetAndInchesWheels: some View {
         ZStack{
-            UIThemedWheelPicker(rows: optionsFeet, selection: $valueFeet, themedBand: false)
+            UIThemedWheelPicker(rows: optionsFeet, selection: $valueFeet)
                 .frame(height: 150)
                 .accessibilityIdentifier("heightFeetWheel")
                 .pickerPanel(background: pickerBackground, width: pickerPanelWidth)
@@ -227,7 +227,7 @@ private extension UIWheelHeightPlain {
         }
 
         ZStack{
-            UIThemedWheelPicker(rows: optionsFeetInches, selection: $valueFeetInches, themedBand: false)
+            UIThemedWheelPicker(rows: optionsFeetInches, selection: $valueFeetInches)
                 .frame(height: 150)
                 .accessibilityIdentifier("heightFeetInchesWheel")
                 .pickerPanel(background: pickerBackground, width: pickerPanelWidth)

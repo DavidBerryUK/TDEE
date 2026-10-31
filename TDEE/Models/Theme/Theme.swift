@@ -48,11 +48,6 @@ struct ColorPalette {
     /// theme's dark surface.
     let pickerColorScheme: ColorScheme?
 
-    /// The wheel picker's selection band colour, so the highlighted row reads on-theme instead of the
-    /// system's fixed grey capsule. `nil` (the default) keeps the system indicator; a value (the
-    /// section coral for Orange) themes the band.
-    let pickerSelectionColor: Color?
-
     /// The wheel picker's fixed panel width, so a theme can inset each wheel into a narrower field.
     /// `nil` (the default) leaves the panel at the wheel's natural width.
     let pickerPanelWidth: CGFloat?
@@ -76,12 +71,12 @@ struct ColorPalette {
     /// caption can sit *between* them. `nil` (the default) uses the group's natural spacing.
     let pickerWheelSpacing: CGFloat?
 
-    /// Whether the theme dresses the wheel picker — a panel, a forced appearance, or a themed
-    /// selection band. A parent shows the themed wheel (`UIWheelXxxThemed`) when this is true and the
-    /// plain wheel (`UIWheelXxxPlain`) otherwise; every theme that doesn't opt in leaves all three
-    /// picker fields `nil`, so its wheels stay plain.
+    /// Whether the theme dresses the wheel picker — a panel or a forced appearance. A parent shows the
+    /// themed wheel (`UIWheelXxxThemed`) when this is true and the plain wheel (`UIWheelXxxPlain`)
+    /// otherwise; every theme that doesn't opt in leaves both picker fields `nil`, so its wheels stay
+    /// plain.
     var isPickerThemed: Bool {
-        pickerBackground != nil || pickerColorScheme != nil || pickerSelectionColor != nil
+        pickerBackground != nil || pickerColorScheme != nil
     }
 
     /// How a theme overrides the navigation bar. A `nil` `background` keeps
@@ -99,7 +94,7 @@ struct ColorPalette {
 
     /// `editText`, `highlight` and `selection` default to `primary`; Default overrides them
     /// to keep the app's original red, teal and green. `toolbar`/`iconColors`/`expandedContentBackground`
-    /// /`pickerBackground`/`pickerColorScheme`/`pickerSelectionColor`/`pickerPanelWidth`/`pickerLabelOffsetX`
+    /// /`pickerBackground`/`pickerColorScheme`/`pickerPanelWidth`/`pickerLabelOffsetX`
     /// /`pickerFeetLabelOffsetX`/`pickerFeetInchesLabelOffsetX`/`pickerWheelSpacing` default
     /// to `nil`, so every theme keeps today's system bar, icon colours, content background and plain
     /// picker unless it opts in.
@@ -110,7 +105,7 @@ struct ColorPalette {
         editText: Color? = nil, highlight: Color? = nil, selection: Color? = nil,
         toolbar: Toolbar? = nil, iconColors: [Icon: Color]? = nil,
         expandedContentBackground: Color? = nil, pickerBackground: Color? = nil,
-        pickerColorScheme: ColorScheme? = nil, pickerSelectionColor: Color? = nil,
+        pickerColorScheme: ColorScheme? = nil,
         pickerPanelWidth: CGFloat? = nil, pickerLabelOffsetX: CGFloat? = nil,
         pickerFeetLabelOffsetX: CGFloat? = nil, pickerFeetInchesLabelOffsetX: CGFloat? = nil,
         pickerWheelSpacing: CGFloat? = nil
@@ -133,7 +128,6 @@ struct ColorPalette {
         self.expandedContentBackground = expandedContentBackground
         self.pickerBackground = pickerBackground
         self.pickerColorScheme = pickerColorScheme
-        self.pickerSelectionColor = pickerSelectionColor
         self.pickerPanelWidth = pickerPanelWidth
         self.pickerLabelOffsetX = pickerLabelOffsetX
         self.pickerFeetLabelOffsetX = pickerFeetLabelOffsetX

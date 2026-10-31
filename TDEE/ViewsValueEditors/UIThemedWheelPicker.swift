@@ -13,10 +13,10 @@ import UIKit
 
 /// A `UIPickerView`-backed wheel a theme can fully dress.
 ///
-/// SwiftUI's `.pickerStyle(.wheel)` exposes no handle for the picker's selection band, so the
-/// highlighted row stays the system's fixed grey capsule — invisible on a busy theme. This reaches the
-/// underlying `UIPickerView` to (1) make its field transparent so a theme-supplied panel shows through,
-/// (2) force its appearance so its digits read on a light panel, and (3) theme the selection band.
+/// SwiftUI's `.pickerStyle(.wheel)` ignores `foregroundStyle` and exposes no handle to make the
+/// picker's field transparent, so the digits can't be themed and a theme-supplied panel can't show
+/// through. This reaches the underlying `UIPickerView` to (1) make its field transparent so the panel
+/// shows, and (2) force its appearance so the digits read on a light panel.
 ///
 /// It is generic over the row type and reads the picker's colours from the active `palette`, so a call
 /// site is just `ThemedWheelPicker(rows:selection:)` and the wheel dresses itself to whatever theme is
@@ -31,14 +31,9 @@ struct UIThemedWheelPicker<T: Hashable>: UIViewRepresentable {
     /// wheel that is the same as `"\(value)"`; a categorical wheel passes its own (e.g. `\.displayName`).
     var rowText: (T) -> String = { String(describing: $0) }
 
-    /// Whether the themed selection band is applied. `true` (the default) themes the band on themes
-    /// that set `pickerSelectionColor`; `false` keeps the system's capsule — used by the height wheel,
-    /// which wants the theme's forced *digit colour* (the appearance) without also taking the band.
-    var themedBand: Bool = true
-
-    /// The wheel's appearance and selection band come from the active theme; every theme that doesn't
-    /// opt in leaves these `nil`, so the picker keeps its system appearance and selection band. The
-    /// surrounding panel is the call site's `pickerPanel` (see the type's documentation).
+    /// The wheel's appearance comes from the active theme; every theme that doesn't opt in leaves it
+    /// `nil`, so the picker keeps its system appearance. The surrounding panel is the call site's
+    /// `pickerPanel` (see the type's documentation).
     @Environment(\.palette) private var palette
 
     func makeCoordinator() -> Coordinator {
@@ -74,19 +69,6 @@ struct UIThemedWheelPicker<T: Hashable>: UIViewRepresentable {
             guard let scheme = palette.pickerColorScheme else { return UIUserInterfaceStyle.unspecified }
             return scheme == .light ? .light : .dark
         }()
-
-        // `UIPickerView` has no public selection-indicator API, so theme the private one via KVC,
-        // guarded so an OS that drops the key degrades to the system indicator instead of raising
-        // `NSUnknownKeyException`. `themedBand` gates it so a caller can take the digit colour without
-        // the band.
-        if themedBand, let selectionColor = palette.pickerSelectionColor {
-            applySelectionIndicator(UIColor(selectionColor), to: picker)
-        }
-    }
-
-    private func applySelectionIndicator(_ color: UIColor, to picker: UIPickerView) {
-        guard picker.responds(to: NSSelectorFromString("setSelectionIndicator:")) else { return }
-        picker.setValue(ThemedSelectionIndicator(color: color), forKey: "selectionIndicator")
     }
 
     /// Keeps a `@Binding` in sync with a `UIPickerView`: one component of `T` rows.
@@ -112,19 +94,5 @@ struct UIThemedWheelPicker<T: Hashable>: UIViewRepresentable {
             guard row < parent.rows.count else { return }
             parent.selection = parent.rows[row]
         }
-    }
-}
-
-/// A rounded selection band for a `UIPickerView`, filled with a theme colour so the highlighted row
-/// reads on-theme instead of the system's fixed grey capsule. The picker lays out its frame.
-final class ThemedSelectionIndicator: UIView {
-    init(color: UIColor, cornerRadius: CGFloat = 8) {
-        super.init(frame: .zero)
-        backgroundColor = color
-        layer.cornerRadius = cornerRadius
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
 }
