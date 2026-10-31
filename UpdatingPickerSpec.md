@@ -1,7 +1,7 @@
 # UpdatingPickerSpec — The Classic Height Picker
 
 **Status:** Reference / in progress
-**Last updated:** 2026-10-29
+**Last updated:** 2026-10-31
 **Branch:** `theme-new`
 **Owner:** David Berry
 
@@ -35,8 +35,7 @@ see project memory; it has no shared height picker).
   when no preference is stored (`InputStyleManager.style(for:)` returns `.classic`).
 - **New** = the redesigned inline text field (`UIHeightTextFieldEntry`).
 - **Orange** is a *colour* theme, not an input style. It just dresses whichever control renders: the
-  wheel gets a light-coral panel, a forced light appearance, and (on the *single-wheel* pickers only) a
-  coral selection band.
+  wheel gets a light-coral panel and a forced light appearance, so its digits read dark on the panel.
 
 > "Amend the Classic height picker on Orange" = edit the Classic wheel and its Orange dressing, **not**
 > the New text field and **not** Orange's other fields.
@@ -61,8 +60,8 @@ MainSectionProfileInput            TDEE/Pages/MainPage/MainSectionProfileInput.s
             └─ SectionEditorHeight           TDEE/ViewSectionEditors/SectionEditorHeight.swift   (editor, when open)
                  ├─ UISegmentUomLengthView   TDEE/ViewsValueEditors/Height/UISegmentUomLengthView.swift   ⚠ DO NOT MODIFY
                  └─ UIWheelHeightThemed | UIWheelHeightPlain
-                      TDEE/ViewsValueEditors/Height/UIWheelHeightThemed.swift  (Orange: panel + light)
-                      TDEE/ViewsValueEditors/Height/UIWheelHeightPlain.swift   (the 3-wheel picker)
+                      TDEE/ViewsValueEditors/Height/UIWheelHeightThemed.swift  (Orange: feeds the palette's picker fields)
+                      TDEE/ViewsValueEditors/Height/UIWheelHeightPlain.swift   (cm/inches/feet+inches, 4 UIThemedWheelPicker wheels)
 ```
 
 - **`HeightClassicSectionView`** (`:15-41`) wraps everything in `UILayoutSectionView` with `title:
@@ -101,24 +100,29 @@ public enum OptionLength: Int, CaseIterable {
 
 ## 5. The Classic wheel picker — `UIWheelHeightPlain`
 
-`TDEE/ViewsValueEditors/Height/UIWheelHeightPlain.swift` is a **multi-wheel** picker: three
-`.pickerStyle(.wheel)` controls stacked in a `ZStack`, only one opaque + hittable at a time, cross-faded
-on a UoM switch.
+`TDEE/ViewsValueEditors/Height/UIWheelHeightPlain.swift` is a **multi-wheel** picker: the cm, inches and
+feet-&-inches modes stacked in a `ZStack` — four `UIThemedWheelPicker` wheels (feet-&-inches is two),
+only one opaque + hittable at a time, cross-faded on a UoM switch. Each wheel is a
+`UIThemedWheelPicker` (`TDEE/ViewsValueEditors/UIThemedWheelPicker.swift`), a `UIPickerView` a theme can
+dress — **not** a raw SwiftUI `.pickerStyle(.wheel)`: the native wheel ignores `foregroundStyle` and loses
+a forced light appearance to the app's dark scheme, so the digit colour can't be themed through it.
 
-### The three wheels (`:158-215`)
+### The four wheels (`:184-240`)
 
-| Wheel | `@State` | Options | Accessibility id | Label offset x |
+| Wheel | `@State` | Options | Accessibility id | Caption x-offset (fallback) |
 |---|---|---|---|---|
-| Centimeters (`:160-172`) | `valueCm` | `0...272` | `heightCmWheel` | 60 |
-| Inches (`:174-187`) | `valueInches` | `0...107` | `heightInchesWheel` | 40 |
-| Feet & Inches (`:189-215`) | `valueFeet` + `valueFeetInches` | `0...8` + `0...11` | `heightFeetWheel`, `heightFeetInchesWheel` | 36 + 36 |
+| Centimeters (`:184-193`) | `valueCm` | `0...272` | `heightCmWheel` | `pickerLabelOffsetX ?? 60` |
+| Inches (`:195-205`) | `valueInches` | `0...107` | `heightInchesWheel` | `pickerLabelOffsetX ?? 40` |
+| Feet (`:218-227`) | `valueFeet` | `0...8` | `heightFeetWheel` | `pickerFeetLabelOffsetX ?? pickerLabelOffsetX ?? 36` |
+| Feet-inches (`:229-239`) | `valueFeetInches` | `0...11` | `heightFeetInchesWheel` | `pickerFeetInchesLabelOffsetX ?? pickerLabelOffsetX ?? 36` |
 
-Each wheel is a `Picker(.wheel)` of `Text("\(value)").tag(value)` with a `UITextPickerLabel` suffix
-(`centimeters` / `inches` / `feet` / `inches`). The labels are `UITextPickerLabel` (`TDEE/ViewsLabels/UITextPickerLabel.swift`):
-`footnote`, `palette.textSecondary`, `allowsHitTesting(false)`, positioned by the magic `offset(x:)`
-values above.
+Each wheel is a `UIThemedWheelPicker(rows:selection:)` with a `UITextPickerLabel` suffix
+(`centimeters` / `inches` / `feet` / `inches`). The labels are `UITextPickerLabel`
+(`TDEE/ViewsLabels/UITextPickerLabel.swift`): `footnote`, `palette.textSecondary`,
+`allowsHitTesting(false)`, positioned by the `offset(x:)` values above. The feet-&-inches wheels sit in an
+`HStack` whose gap is `pickerWheelSpacing` (when set) so the "feet" caption can sit *between* them.
 
-### Cross-fade + state (`:56-102`, constants `:29-48`)
+### Cross-fade + state (`:86-125`, constants `:52-72`)
 
 - A `ZStack` of all three, each toggled by `opacity` (1/0), `offset(y:)` (0 / 24), `scaleEffect`
   (1.0 / 0.98), `allowsHitTesting` — `.frame(height: 150)`, `.easeInOut(0.30)` on `unitOfMeasure`.
@@ -145,56 +149,67 @@ So a `cm → inches → cm` round-trip can drift by ±1 cm (round out, floor bac
 keeps the Double (no rounding) and is what the commit path uses, so the *stored* value is exact; the
 drift only shows in the *inches* display. Flag this before any "fix" to the sync logic.
 
-## 6. Themed vs Plain — per-wheel panels
+## 6. Themed vs Plain — per-wheel panels + digit colour
 
-`UIWheelHeightThemed` (`TDEE/ViewsValueEditors/Height/UIWheelHeightThemed.swift:19-30`) feeds the
-palette's panel dressing into `UIWheelHeightPlain`, which now insets **each wheel into its own
-rounded-rect panel** (a `nil`-default width, so non-theming themes see no panel):
+`UIWheelHeightThemed` (`TDEE/ViewsValueEditors/Height/UIWheelHeightThemed.swift:19-37`) feeds the
+palette's picker dressing into `UIWheelHeightPlain`, which insets **each wheel into its own rounded-rect
+panel** and forces a light appearance so the digits read on it (a `nil`-default width/appearance, so
+non-theming themes see no panel and keep the system digits):
 ```swift
 UIWheelHeightPlain(
     value:unitOfMeasure:
-    pickerBackground: palette.pickerBackground,
+    pickerBackground: palette.pickerBackground,        // panel fill (Orange: lightCoral #F8D0C5)
     pickerPanelWidth: palette.pickerPanelWidth,        // fixed width per wheel (Orange: 96)
-    pickerLabelOffsetX: palette.pickerLabelOffsetX,     // caption offset (Orange: 56)
-    pickerWheelSpacing: palette.pickerWheelSpacing,     // gap between compound wheels (Orange: 60)
-    pickerText: palette.pickerText                       // digit colour (Orange: .black)
+    pickerLabelOffsetX: palette.pickerLabelOffsetX,     // cm/inches caption offset (Orange: 78)
+    pickerFeetLabelOffsetX: palette.pickerFeetLabelOffsetX,        // "feet" caption (Orange: 74)
+    pickerFeetInchesLabelOffsetX: palette.pickerFeetInchesLabelOffsetX, // "inches" caption (Orange: 82)
+    pickerWheelSpacing: palette.pickerWheelSpacing      // gap between compound wheels (Orange: 60)
 )
-    .preferredColorScheme(palette.pickerColorScheme)
+    .preferredColorScheme(palette.pickerColorScheme)   // forces .light so the digits read on the panel
 ```
-The panel moved from *around the whole group* to *around each wheel* (`pickerPanel(background:width:)`,
-`Color+Theme.swift:75`), so the feet-&-inches wheels are two separate fields and each unit caption sits
-as a sibling *outside* its panel. It is still **not** `UIThemedWheelPicker` — a bespoke multi-wheel
-ZStack — so it can take a panel + forced appearance but **not** a themed selection band.
+Each wheel is a `UIThemedWheelPicker` (a `UIPickerView` a theme can dress), so a multi-unit layout *can*
+now be themed. The panel moved from *around the whole group* to *around each wheel*
+(`pickerPanel(background:width:)`, `Color+Theme.swift:75`), and the digit colour is forced via the
+picker's appearance (`pickerColorScheme` → `overrideUserInterfaceStyle`), not `foregroundStyle`, which the
+native `.wheel` ignores. The themed **selection band was removed** (see below) — every wheel now shows the
+system's capsule.
 
 ### `pickerPanel` (`TDEE/Constants/Color+Theme.swift:75`)
 `RoundedRectangle(cornerRadius: 12)`, `Spacing.small` padding, and — crucially — a `.clipShape`, because
-`UIPickerView` draws its wheel and band *beyond its own frame*. A `nil` background (every non-opting
-theme) leaves the picker untouched. An optional `width` insets just the wheel, so a multi-wheel group
-gets one panel per wheel.
+`UIPickerView` draws its wheel *beyond its own frame*. A `nil` background (every non-opting theme) leaves
+the picker untouched. An optional `width` insets just the wheel, so a multi-wheel group gets one panel per
+wheel.
 
-### Orange's dressing (`TDEE/Models/Theme/DefaultThemes.swift:76-121`; fields in `Theme.swift:38-68`)
+### Why the digit colour comes from `pickerColorScheme`, not a colour field
+The wheel's digits are drawn by the underlying `UIPickerView` in the system label colour; a forced
+`.light` appearance (set on the `UIPickerView` via `overrideUserInterfaceStyle` in
+`UIThemedWheelPicker.applyTheme`) makes them render dark on the light-coral panel. An earlier attempt
+coloured the digits with `foregroundStyle` + a `pickerText` palette field, but the native wheel ignores
+`foregroundStyle` and a forced light appearance lost to the app's dark scheme — so that path was dead and
+is gone. `pickerColorScheme` is the live knob.
+
+### Orange's dressing (`TDEE/Models/Theme/DefaultThemes.swift:76-131`; fields in `Theme.swift:38-80`)
 - `pickerBackground = lightCoral #F8D0C5` — a tint of the section coral, so the panel reads in-family.
-- `pickerColorScheme = .light` — forces the picker's appearance light so the digits read on the panel.
-- `pickerSelectionColor = coral #E8633F` — themed selection band (single-wheel pickers only; see below).
+- `pickerColorScheme = .light` — forces the picker's appearance light, so the digits read dark on the
+  panel. This is the *live* digit-colour knob (not a `foregroundStyle`/`pickerText`).
 - `pickerPanelWidth = 96` — narrows each wheel into its own field (tunable).
-- `pickerLabelOffsetX = 56` — shifts each unit caption to the **right** of its panel (tunable). Every
-  caption, including the rightmost "inches", points right; the panel width + gap keep the whole group
-  (two panels + two right-pointing captions) inside the screen.
+- `pickerLabelOffsetX = 78` — shifts the cm / inches captions to the **right** of their panel.
+- `pickerFeetLabelOffsetX = 74`, `pickerFeetInchesLabelOffsetX = 82` — separate offsets for the "feet"
+  (short) and "inches" (long) captions so they hold **equal gaps** from their panels; a single shared
+  offset can't equalise a short and a long label. Fall back to `pickerLabelOffsetX` when a theme sets only
+  the shared offset.
 - `pickerWheelSpacing = 60` — the gap between the two feet-&-inches wheels, so the "feet" caption sits
   between them (tunable).
-- `pickerText = .black` — forces the wheel digits black so they read on the light-coral panel, like the
-  age section's wheels. Applied via `.foregroundStyle` on the wheel (a `nil` for every other theme keeps
-  the system label colour).
-- `isPickerThemed` (`Theme.swift:60-62`) is `true` for Orange, so `SectionEditorHeight` renders
-  `UIWheelHeightThemed`.
+- `isPickerThemed` (`Theme.swift:78-80`) is `pickerBackground != nil || pickerColorScheme != nil`, so it
+  is `true` for Orange and `SectionEditorHeight` renders `UIWheelHeightThemed`.
 
-### ⚠ The selection band still stays system-grey on height
-The themed band comes from `UIThemedWheelPicker` via KVC (`setSelectionIndicator:`, guarded,
-`TDEE/ViewsValueEditors/UIThemedWheelPicker.swift:81-84`, `112-124`) — a single-wheel `UIPickerView`
-wrapper used by the **single-wheel** pickers (Age, Activity). The height wheel is multi-wheel, so its
-selection band stays the system's fixed grey capsule (per the note in
-`UIWheelHeightThemed.swift:11-13`). The per-wheel *panel* is now done; the *band* is the remaining gap —
-see §11.1.
+### ⚠ The themed selection band was removed (2026-10-31)
+The band was a `UIPickerView` private-API hack — KVC `setSelectionIndicator:` (guarded so a missing key
+degrades to the system capsule) wrapping a `ThemedSelectionIndicator` view, gated behind a `themedBand`
+flag and a `pickerSelectionColor` palette field. It **never rendered** (true/false looked identical on
+iOS 27), so the whole machinery — `themedBand`, `ThemedSelectionIndicator`, `applySelectionIndicator`, and
+`pickerSelectionColor` — was removed as dead code. Every wheel now shows the system's fixed grey capsule.
+`isPickerThemed` no longer tests a band field; the panel + forced appearance are enough to opt in.
 
 ## 7. The UoM switcher — `UISegmentUomLengthView`  ⚠ DO NOT MODIFY
 
@@ -232,8 +247,9 @@ Treat this file as frozen unless the owner approves in writing.
 - **Dynamic type:** the Classic control has no dynamic-type-specific wheel layout; `UILayoutSectionView`
   handles a11y sizing by giving the summary its own full-width line at accessibility sizes
   (`UILayoutSectionView.swift:78-89`). The New section is the one that re-lays-out the switcher for a11y.
-- **The `height` wheel is a `UIPickerView` (via SwiftUI `.wheel`)** — it reads digits in the system
-  label colour and ignores `foregroundStyle`; Orange forces `.light` so they read on the coral panel.
+- **Each `height` wheel is a `UIThemedWheelPicker` (a `UIPickerView`)** — the digits are drawn in the
+  system label colour and ignore `foregroundStyle`; Orange forces a `.light` appearance
+  (`pickerColorScheme`) so they render dark on the coral panel.
 
 ## 10. The New sibling (for contrast) — `UIHeightTextFieldEntry`
 
@@ -253,10 +269,10 @@ amendment should respect:
 
 ## 11. Known tensions / gotchas (candidates for the amendment)
 
-1. **Multi-wheel selection band (§6) — panel done, band open.** Each wheel now has its own panel
-   (decision 2026-10-29). The themed *selection band* still can't reach a multi-wheel group; on Orange
-   the band stays system-grey while Age/Activity get coral. Extending the band (wrap each height wheel in
-   `UIThemedWheelPicker`, or push the KVC band onto the group) is the remaining candidate.
+1. **Themed selection band — RESOLVED by removal (2026-10-31).** Each wheel has its own panel and a forced
+   light appearance. The themed *selection band* (a `UIPickerView` KVC hack) never rendered, so it was
+   removed rather than extended. Every wheel now shows the system's capsule; Age/Activity lost their
+   themed band too. Revisit only if a real band API (or a working private key) becomes available.
 2. **Classic section message looser than the gate (§8).** The 0/NaN check vs the 100–272 range.
 3. **Wheel can reach out-of-range values.** `optionsCm = 0...272` lets the wheel sit at 0–99 cm, which
    `isHeightValid` rejects with no visible message on the Classic path.
@@ -281,10 +297,10 @@ amendment should respect:
 | `TDEE/ViewSections/HeightNewSectionView.swift` | New composing section (inline, no expand) |
 | `TDEE/ViewSectionEditors/SectionEditorHeight.swift` | Classic editor: segment + themed/plain wheel |
 | `TDEE/ViewsValueEditors/Height/UISegmentUomLengthView.swift` | UoM switcher ⚠ frozen |
-| `TDEE/ViewsValueEditors/Height/UIWheelHeightPlain.swift` | The 3-wheel picker (cross-fade + sync) |
+| `TDEE/ViewsValueEditors/Height/UIWheelHeightPlain.swift` | Multi-wheel picker via `UIThemedWheelPicker` (cross-fade + sync) |
 | `TDEE/ViewsValueEditors/Height/UIWheelHeightThemed.swift` | Panel + forced appearance (Orange) |
 | `TDEE/ViewsValueEditors/Height/UIHeightTextFieldEntry.swift` | New text-field entry (contrast) |
-| `TDEE/ViewsValueEditors/UIThemedWheelPicker.swift` | Generic single-wheel + themed band (KVC) |
+| `TDEE/ViewsValueEditors/UIThemedWheelPicker.swift` | Generic `UIPickerView` wheel; forces digit appearance via `pickerColorScheme` (no themed band — removed 2026-10-31) |
 | `TDEE/Constants/Color+Theme.swift:75` | `pickerPanel` modifier (fill + clip) |
 | `TDEE/ViewsLabels/UITextPickerLabel.swift` | Wheel suffix label |
 | `TDEE/ViewsSectionSummaryValues/UISectionSummaryValueHeight.swift` | Collapsed summary value |
@@ -298,7 +314,7 @@ amendment should respect:
 | `TDEEShared/Models/ProfileViewModel/ProfileViewModelValidation.swift:44` | `isHeightValid` |
 | `TDEEShared/Calculations/Extensions/CalculationValidatePerson.swift:19` | Second gate |
 | `TDEE/Models/Theme/DefaultThemes.swift:76` | Orange palette |
-| `TDEE/Models/Theme/Theme.swift:38` | Picker palette fields + `isPickerThemed` |
+| `TDEE/Models/Theme/Theme.swift:38` | Picker palette fields + `isPickerThemed` (no `pickerSelectionColor` / `pickerText` — removed 2026-10-31) |
 | `TDEE/Models/InputMethod/InputStyleManager.swift` | Per-input Classic/New store |
 | `TDEETests/HeightEntryTests.swift` | Validator + range tests |
 
@@ -318,8 +334,8 @@ pickers, not one wide field.** Every other theme is untouched (`nil`-default pal
 
 ## 15. Open questions / to decide
 
-- [ ] Do we extend the themed selection band to the multi-wheel height picker, or keep the system capsule
-      on Orange? (§11.1)
+- [x] **Resolved 2026-10-31:** the themed selection band was removed as a no-op (it never rendered); every
+      wheel shows the system capsule. (§11.1)
 - [ ] Do we tighten the Classic section's `validationText` to the 100–272 range to match `isHeightValid`?
       (§11.2)
 - [ ] If the wheel touches the sync/round-trip, what test coverage do we add? (§12)
@@ -331,6 +347,9 @@ pickers, not one wide field.** Every other theme is untouched (`nil`-default pal
 
 | Date | Decision | Rationale | Rejected option(s) |
 |---|---|---|---|
+| 2026-10-31 | **Removed the themed selection band** (`a84bc82`) — dropped `themedBand`, `ThemedSelectionIndicator`, `applySelectionIndicator` and `pickerSelectionColor` | The band was a `UIPickerView` KVC hack that never rendered (true/false identical on iOS 27) — dead code; every wheel keeps the system capsule | Keep the dead band; gate it behind a flag |
+| 2026-10-31 | **Theme-driven digit colour via forced appearance** (`1c916dc`, `07d77ce`) — the 4 height wheels render through `UIThemedWheelPicker`; digit colour comes from `pickerColorScheme` (forced `.light`), not `foregroundStyle`/`pickerText` | The native `.wheel` ignores `foregroundStyle` and loses a forced light appearance to the app's dark scheme, so the old `pickerText`/`.foregroundStyle` path was dead; `overrideUserInterfaceStyle` is what the age picker already used | `pickerText` + `foregroundStyle` (removed as dead) |
+| 2026-10-31 | **Per-caption offsets** (`5784464`) — add `pickerFeetLabelOffsetX` / `pickerFeetInchesLabelOffsetX` (Orange 74 / 82); `pickerLabelOffsetX` 56 → 78 | A single shared `pickerLabelOffsetX` can't give "feet" (short) and "inches" (long) equal gaps from their panels; two knobs equalise them, `nil`-default so other themes are unchanged | One shared offset for all captions |
 | 2026-10-29 | **Per-wheel panel** — move `pickerPanel` from around the whole group onto each wheel | One group panel made the feet-&-inches wheels read as a single field | — |
 | 2026-10-29 | **Narrow panel + caption outside, both theme-driven** (`pickerPanelWidth` + `pickerLabelOffsetX`, `nil` default) | Chosen over "offset-x only" (panel stays wide) and "width only" (caption can't clear it); both knobs together get the caption outside a narrowed field, and `nil` defaults keep every other theme identical | Offset-x only; width only |
 
@@ -338,11 +357,17 @@ pickers, not one wide field.** Every other theme is untouched (`nil`-default pal
 
 > A task list we tick off as work lands. Cross-reference the commit/PR that closes each item.
 
-- [x] Per-wheel panel: `pickerPanel` moved onto each wheel; `pickerPanel(background:width:)` (built, exit 0).
-- [x] Caption outside: `pickerLabelOffsetX` shifts the caption; Orange sets `pickerPanelWidth: 110`, `pickerLabelOffsetX: 72`.
-- [ ] Visual confirm in Xcode — tune `pickerPanelWidth`/`pickerLabelOffsetX` if a caption overlaps the
-      next wheel in feet & inches.
-- [ ] Themed selection band for the multi-wheel group (§11.1) — next candidate.
+- [x] Per-wheel panel: `pickerPanel` moved onto each wheel; `pickerPanel(background:width:)`.
+- [x] Caption outside: `pickerLabelOffsetX` shifts cm/inches; `pickerFeetLabelOffsetX` /
+      `pickerFeetInchesLabelOffsetX` equalise the feet & inches gaps. Orange sets `pickerPanelWidth: 96`,
+      `pickerLabelOffsetX: 78`, `pickerFeetLabelOffsetX: 74`, `pickerFeetInchesLabelOffsetX: 82`,
+      `pickerWheelSpacing: 60`.
+- [x] Theme-driven digit colour: the 4 wheels render through `UIThemedWheelPicker`; `pickerColorScheme:
+      .light` forces dark digits on the panel. `pickerText` removed as dead.
+- [x] Themed selection band: **removed** as a no-op (never rendered) — every wheel shows the system
+      capsule. (§11.1)
+- [x] Visual confirm in Xcode: feet & inches captions clear of their panels and digits dark on Orange
+      (confirmed in the simulator; `5784464`, `1c916dc`).
 
 ## 18. References
 
