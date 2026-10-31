@@ -6,16 +6,27 @@
 //
 
 // AI AGENT WARNING: a wheel is intentional — a wheel is best for ordered numeric values, not a
-// dropdown. Each wheel renders through `UIThemedWheelPicker` (a `UIPickerView` a theme can dress, see
-// its file) rather than a raw SwiftUI `.pickerStyle(.wheel)`: the native wheel ignores `foregroundStyle`
-// and a forced light appearance loses to the app's dark scheme, so its digit colour couldn't be themed —
-// the height wheels now borrow the age picker's themed wheel to get the theme's digit colour. It is
-// still a wheel, not a menu. Each wheel insets into its OWN rounded panel when a `pickerBackground` is
-// supplied (nil by default, so a non-theming theme sees no panel — identical to before); the themed
-// sibling (UIWheelHeightThemed) feeds the active palette's colours. This is a multi-wheel picker
-// (cm / inches / feet+inches) with load-bearing unit-conversion logic — do not switch to `.menu` and do
-// not remove that logic. Renamed from UIWheelPickerHeightView as part of the story-023 Themed/Plain
-// split.
+// dropdown. DO NOT switch to `.pickerStyle(.menu)` and DO NOT remove the unit-conversion logic below;
+// it is load-bearing. APPROVAL REQUIRED BEFORE ANY MODIFICATIONS to the wheel/segment pairing.
+//
+// This is the PLAIN control: the original native SwiftUI `.pickerStyle(.wheel)` (its `develop` form),
+// undressed. A parent (`SectionEditorHeight` / `HeightNewSectionView`) shows it for every theme that
+// does not opt into picker colours, so it must stay visually identical to the pre-theming control — a
+// native wheel at the section's natural width, NOT a width-unbounded `UIPickerView`.
+//
+// The THEMED sibling (`UIWheelHeightThemed`) is the only place a theme dresses the wheel: it passes
+// `forceAppearance: true` so each wheel renders as a `UIPickerView` (`UIThemedWheelPicker`) whose
+// appearance is forced to light from the theme's `pickerColorScheme`, and it insets each wheel into its
+// own rounded panel via `.pickerPanel(background:width:)` (`pickerBackground` / `pickerPanelWidth`, nil
+// for non-opting themes). A native `.pickerStyle(.wheel)`'s digits can't be coloured via `foregroundStyle`
+// or a wrapper's `.preferredColorScheme` — that's why the revert's plain path lost its dark digits — so the
+// appearance must be forced on the `UIPickerView` itself; only the themed path uses `UIThemedWheelPicker`.
+//
+// Multi-unit picker (cm / inches / feet+inches); per-wheel panels + caption offsets are theme-driven and
+// nil-default, so a non-opting theme is unchanged. Renamed from `UIWheelPickerHeightView` as part of the
+// story-023 Themed/Plain split; the "all wheels via `UIThemedWheelPicker`" route was reverted 2026-10-31
+// because it made the plain control a width-unbounded `UIPickerView` that filled the section on every
+// non-Orange theme.
 
 import SwiftUI
 
@@ -43,6 +54,12 @@ struct UIWheelHeightPlain: View {
     /// The gap between the two wheels of a compound unit; `nil` uses the group's natural spacing. The
     /// themed sibling passes the active palette's `pickerWheelSpacing`.
     var pickerWheelSpacing: CGFloat? = nil
+    /// Forces each wheel's digit colour dark via a forced light appearance. A native
+    /// `.pickerStyle(.wheel)` ignores `foregroundStyle` and a wrapper's `.preferredColorScheme` does not
+    /// reach its digit colour, so the themed sibling passes `true` to render each wheel as a `UIPickerView`
+    /// (`UIThemedWheelPicker`) whose appearance is forced from the theme's `pickerColorScheme`. `false`
+    /// (the default — every non-opting theme) keeps the original native wheel.
+    var forceAppearance: Bool = false
 
     @State private  var valueCm: Int = 0
     @State private  var valueInches: Int = 0
@@ -181,9 +198,27 @@ private extension UIWheelHeightPlain {
 
 private extension UIWheelHeightPlain {
 
+    // The single wheel, shared by every builder: a `UIPickerView` with a forced appearance (themed, so
+    // the digits read dark on the light panel) when `forceAppearance`, else the original native wheel.
+    // Keeping the renderer choice in one place means the cross-fade / sync logic has a single copy — the
+    // plain and themed controls differ only in this renderer.
+    @ViewBuilder
+    private func heightWheel(_ label: String, selection: Binding<Int>, rows: [Int]) -> some View {
+        if forceAppearance {
+            UIThemedWheelPicker(rows: rows, selection: selection)
+        } else {
+            Picker(label, selection: selection) {
+                ForEach(rows, id: \.self) { value in
+                    Text("\(value)").tag(value)
+                }
+            }
+            .pickerStyle(.wheel)
+        }
+    }
+
     var UIPickerViewCentimeters : some View {
         ZStack{
-            UIThemedWheelPicker(rows: optionsCm, selection: $valueCm)
+            heightWheel("Cm", selection: $valueCm, rows: optionsCm)
                 .frame(height: 150)
                 .accessibilityIdentifier("heightCmWheel")
                 .pickerPanel(background: pickerBackground, width: pickerPanelWidth)
@@ -195,7 +230,7 @@ private extension UIWheelHeightPlain {
     var UIPickerViewInches : some View {
         ZStack{
 
-            UIThemedWheelPicker(rows: optionsInches, selection: $valueInches)
+            heightWheel("Inches", selection: $valueInches, rows: optionsInches)
                 .frame(height: 150)
                 .accessibilityIdentifier("heightInchesWheel")
                 .pickerPanel(background: pickerBackground, width: pickerPanelWidth)
@@ -218,7 +253,7 @@ private extension UIWheelHeightPlain {
     @ViewBuilder
     private var feetAndInchesWheels: some View {
         ZStack{
-            UIThemedWheelPicker(rows: optionsFeet, selection: $valueFeet)
+            heightWheel("feet", selection: $valueFeet, rows: optionsFeet)
                 .frame(height: 150)
                 .accessibilityIdentifier("heightFeetWheel")
                 .pickerPanel(background: pickerBackground, width: pickerPanelWidth)
@@ -227,7 +262,7 @@ private extension UIWheelHeightPlain {
         }
 
         ZStack{
-            UIThemedWheelPicker(rows: optionsFeetInches, selection: $valueFeetInches)
+            heightWheel("Inches", selection: $valueFeetInches, rows: optionsFeetInches)
                 .frame(height: 150)
                 .accessibilityIdentifier("heightFeetInchesWheel")
                 .pickerPanel(background: pickerBackground, width: pickerPanelWidth)
