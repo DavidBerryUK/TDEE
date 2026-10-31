@@ -32,6 +32,11 @@ struct UIWheelHeightPlain: View {
     /// The unit caption's x-offset; `nil` keeps each wheel's own caption position. The themed sibling
     /// passes the active palette's `pickerLabelOffsetX`.
     var pickerLabelOffsetX: CGFloat? = nil
+    /// The feet wheel's caption offset within feet & inches; `nil` falls back to `pickerLabelOffsetX`
+    /// (then the wheel's own position), so a theme that sets only the shared offset is unchanged.
+    var pickerFeetLabelOffsetX: CGFloat? = nil
+    /// The feet-&-inches wheel's ("inches") caption offset; `nil` falls back to `pickerLabelOffsetX`.
+    var pickerFeetInchesLabelOffsetX: CGFloat? = nil
     /// The gap between the two wheels of a compound unit; `nil` uses the group's natural spacing. The
     /// themed sibling passes the active palette's `pickerWheelSpacing`.
     var pickerWheelSpacing: CGFloat? = nil
@@ -234,7 +239,7 @@ private extension UIWheelHeightPlain {
             .accessibilityIdentifier("heightFeetWheel")
             .pickerPanel(background: pickerBackground, width: pickerPanelWidth)
             UITextPickerLabel("feet")
-                .offset(x: pickerLabelOffsetX ?? 36)
+                .offset(x: pickerFeetLabelOffsetX ?? pickerLabelOffsetX ?? 36)
         }
 
         ZStack{
@@ -250,7 +255,7 @@ private extension UIWheelHeightPlain {
             // unit caption. The gap (`pickerWheelSpacing`) and the panel width keep the whole group —
             // two panels plus two right-pointing captions — inside the screen.
             UITextPickerLabel("inches")
-                .offset(x: pickerLabelOffsetX ?? 36)
+                .offset(x: pickerFeetInchesLabelOffsetX ?? pickerLabelOffsetX ?? 36)
         }
     }
 }

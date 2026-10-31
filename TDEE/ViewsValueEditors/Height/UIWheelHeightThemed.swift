@@ -29,6 +29,8 @@ struct UIWheelHeightThemed: View {
             pickerBackground: palette.pickerBackground,
             pickerPanelWidth: palette.pickerPanelWidth,
             pickerLabelOffsetX: palette.pickerLabelOffsetX,
+            pickerFeetLabelOffsetX: palette.pickerFeetLabelOffsetX,
+            pickerFeetInchesLabelOffsetX: palette.pickerFeetInchesLabelOffsetX,
             pickerWheelSpacing: palette.pickerWheelSpacing,
             pickerText: palette.pickerText
         )

@@ -119,7 +119,12 @@ enum DefaultThemes {
             // rightmost "inches"). The panel width, gap and offset keep the whole group — two panels
             // plus two right-pointing captions — inside the screen. Tunable.
             pickerPanelWidth: 96,
-            pickerLabelOffsetX: 56,
+            pickerLabelOffsetX: 78,
+            // "feet" and "inches" hold equal gaps from their panels: "feet" is a short label and
+            // "inches" a longer one, so one shared offset would not equalise them. Nudge "feet" in and
+            // "inches" out to match; the single-wheel cm/inches captions keep pickerLabelOffsetX.
+            pickerFeetLabelOffsetX: 74,
+            pickerFeetInchesLabelOffsetX: 82,
             pickerWheelSpacing: 60,
             // Black digits so they read on the light-coral panel, like the age section's wheels.
             pickerText: .black

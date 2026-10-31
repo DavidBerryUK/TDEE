@@ -62,6 +62,16 @@ struct ColorPalette {
     /// sit outside a narrowed panel.
     let pickerLabelOffsetX: CGFloat?
 
+    /// The feet wheel's ("feet") caption x-offset within a compound unit (feet & inches). Kept separate
+    /// from `pickerLabelOffsetX` because the same centre-offset can't give "feet" (a short label) and
+    /// "inches" (a longer one) equal gaps from their panels. `nil` (the default) falls back to
+    /// `pickerLabelOffsetX`, then the wheel's own position, so a theme that doesn't set it is unchanged.
+    let pickerFeetLabelOffsetX: CGFloat?
+
+    /// The feet-&-inches wheel's ("inches" caption) x-offset within a compound unit. See
+    /// `pickerFeetLabelOffsetX`; `nil` (the default) falls back to `pickerLabelOffsetX`.
+    let pickerFeetInchesLabelOffsetX: CGFloat?
+
     /// The gap between the two wheels of a compound unit (feet & inches, stones & pounds), so a unit
     /// caption can sit *between* them. `nil` (the default) uses the group's natural spacing.
     let pickerWheelSpacing: CGFloat?
@@ -96,8 +106,9 @@ struct ColorPalette {
     /// `editText`, `highlight` and `selection` default to `primary`; Default overrides them
     /// to keep the app's original red, teal and green. `toolbar`/`iconColors`/`expandedContentBackground`
     /// /`pickerBackground`/`pickerColorScheme`/`pickerSelectionColor`/`pickerPanelWidth`/`pickerLabelOffsetX`
-    /// /`pickerWheelSpacing`/`pickerText` default to `nil`, so every theme keeps today's system bar, icon
-    /// colours, content background and plain picker unless it opts in.
+    /// /`pickerFeetLabelOffsetX`/`pickerFeetInchesLabelOffsetX`/`pickerWheelSpacing`/`pickerText` default
+    /// to `nil`, so every theme keeps today's system bar, icon colours, content background and plain
+    /// picker unless it opts in.
     init(
         primary: Color, secondary: Color, background: Color, surface: Color,
         text: Color, textSecondary: Color, border: Color,
@@ -107,6 +118,7 @@ struct ColorPalette {
         expandedContentBackground: Color? = nil, pickerBackground: Color? = nil,
         pickerColorScheme: ColorScheme? = nil, pickerSelectionColor: Color? = nil,
         pickerPanelWidth: CGFloat? = nil, pickerLabelOffsetX: CGFloat? = nil,
+        pickerFeetLabelOffsetX: CGFloat? = nil, pickerFeetInchesLabelOffsetX: CGFloat? = nil,
         pickerWheelSpacing: CGFloat? = nil, pickerText: Color? = nil
     ) {
         self.primary = primary
@@ -130,6 +142,8 @@ struct ColorPalette {
         self.pickerSelectionColor = pickerSelectionColor
         self.pickerPanelWidth = pickerPanelWidth
         self.pickerLabelOffsetX = pickerLabelOffsetX
+        self.pickerFeetLabelOffsetX = pickerFeetLabelOffsetX
+        self.pickerFeetInchesLabelOffsetX = pickerFeetInchesLabelOffsetX
         self.pickerWheelSpacing = pickerWheelSpacing
         self.pickerText = pickerText
     }
