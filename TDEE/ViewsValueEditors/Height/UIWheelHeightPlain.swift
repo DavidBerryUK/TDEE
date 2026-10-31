@@ -44,10 +44,6 @@ struct UIWheelHeightPlain: View {
     /// themed sibling passes the active palette's `pickerWheelSpacing`.
     var pickerWheelSpacing: CGFloat? = nil
 
-    /// The wheel's digit text colour; `nil` keeps the system label colour. The themed sibling passes the
-    /// active palette's `pickerText`.
-    var pickerText: Color? = nil
-
     @State private  var valueCm: Int = 0
     @State private  var valueInches: Int = 0
     @State private  var valueFeet: Int = 0
@@ -108,9 +104,6 @@ struct UIWheelHeightPlain: View {
                 .allowsHitTesting(showFeetAndInches)
         }
         .frame(height: 150)
-        // Force the digit colour when the theme supplies one (e.g. black on a light panel); the system
-        // label colour otherwise, which is the wheel's default.
-        .foregroundStyle(pickerText ?? .primary)
         .animation(.easeInOut(duration: animDuration), value: unitOfMeasure)
         .onAppear {
             initialiseValues()

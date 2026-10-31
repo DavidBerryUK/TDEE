@@ -125,9 +125,7 @@ enum DefaultThemes {
             // "inches" out to match; the single-wheel cm/inches captions keep pickerLabelOffsetX.
             pickerFeetLabelOffsetX: 74,
             pickerFeetInchesLabelOffsetX: 82,
-            pickerWheelSpacing: 60,
-            // Black digits so they read on the light-coral panel, like the age section's wheels.
-            pickerText: .black
+            pickerWheelSpacing: 60
         )
         // Pinned dark: system text (nav titles, list headers) must be light on the black field.
         return Theme(id: .orange, name: "Orange", description: "Bold coral on black", light: palette, dark: palette, colorScheme: .dark)
