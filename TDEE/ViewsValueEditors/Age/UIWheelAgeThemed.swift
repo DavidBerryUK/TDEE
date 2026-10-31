@@ -7,7 +7,7 @@
 
 // AI AGENT WARNING: the .pickerStyle(.wheel) is intentional — a wheel is best for ordered numeric
 // values, not a dropdown. This is the THEMED age wheel: a ThemedWheelPicker (a `UIPickerView` a theme
-// can fully dress — forced light appearance, themed selection band, transparent field) inset into the
+// can fully dress — a forced light appearance and a transparent field) inset into the
 // theme's panel. Its plain sibling (a raw SwiftUI .pickerStyle(.wheel)) is UIWheelAgePlain; a parent
 // shows one or the other based on the active theme. Renamed from UIWheelPickerAgeView as part of the
 // story-023 Themed/Plain split.
@@ -25,7 +25,7 @@ struct UIWheelAgeThemed: View {
     var body: some View {
         HStack {
             // A `UIPickerView`-backed wheel that a theme dresses itself: forced light appearance so the
-            // digits read on a light panel, a themed selection band, and a transparent field for the
+            // digits read on a light panel, and a transparent field for the
             // panel — all read from the active theme, so it stays a one-line call site. Still a wheel,
             // not a menu.
             UIThemedWheelPicker(rows: optionsAge, selection: $value)

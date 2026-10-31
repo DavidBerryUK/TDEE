@@ -9,10 +9,9 @@
 // with the active theme: it feeds the palette's `pickerBackground` so EACH wheel insets into its own
 // rounded-rect panel (so the highlighted row reads against a distinct field, and the feet & inches
 // wheels get separate panels rather than one shared), plus a forced light appearance so the digits
-// read on the light panels. A multi-unit layout still can't take a themed selection band — that's a
-// single-wheel ThemedWheelPicker concern — so the band stays the system's. A parent shows this instead
-// of UIWheelHeightPlain when the active theme supplies picker colours. Part of the story-023
-// Themed/Plain split.
+// read dark on the light panels — the colour comes from the forced appearance, since the native
+// `.wheel` ignores `foregroundStyle`. A parent shows this instead of UIWheelHeightPlain when the
+// active theme supplies picker colours. Part of the story-023 Themed/Plain split.
 
 import SwiftUI
 

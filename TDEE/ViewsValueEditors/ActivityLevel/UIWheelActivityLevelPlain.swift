@@ -7,8 +7,8 @@
 
 // AI AGENT WARNING: the .pickerStyle(.wheel) is intentional — a wheel is best for ordered categorical
 // values, not a dropdown. This is the PLAIN activity-level wheel: the raw SwiftUI .pickerStyle(.wheel)
-// with no theme dressing. Its themed sibling (a ThemedWheelPicker with a themed selection band) is
-// UIWheelActivityLevelThemed; a parent shows one or the other based on the active theme.
+// with no theme dressing. Its themed sibling (a ThemedWheelPicker — a `UIPickerView` a theme can
+// dress) is UIWheelActivityLevelThemed; a parent shows one or the other based on the active theme.
 // Renamed from UIWheelPickerActivityLevelView as part of the story-023 Themed/Plain split.
 
 import SwiftUI
