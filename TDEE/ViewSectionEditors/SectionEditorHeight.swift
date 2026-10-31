@@ -22,12 +22,18 @@ struct SectionEditorHeight: View {
         VStack {
             UISegmentUomLengthView(option: $model.heightUom)
                 .padding(.horizontal, 8)
-            // The active theme chooses the wheel's dressing (UIWheelHeightThemed vs UIWheelHeightPlain).
-            if palette.isPickerThemed {
-                UIWheelHeightThemed(value: $model.height, unitOfMeasure: $model.heightUom)
-            } else {
-                UIWheelHeightPlain(value: $model.height, unitOfMeasure: $model.heightUom)
+            Group {
+                // The active theme chooses the wheel's dressing (UIWheelHeightThemed vs UIWheelHeightPlain).
+                if palette.isPickerThemed {
+                    UIWheelHeightThemed(value: $model.height, unitOfMeasure: $model.heightUom)
+                } else {
+                    UIWheelHeightPlain(value: $model.height, unitOfMeasure: $model.heightUom)
+                }
             }
+            // The wheel's container breathes like the age section's picker row: a 16pt (Spacing.large)
+            // top/bottom padding around it. Age's is horizontal; here the height wheel sits tight under
+            // the unit segment, so the same 16pt breath is needed top and bottom.
+            .padding(.vertical, Spacing.large)
         }
     }
 }
