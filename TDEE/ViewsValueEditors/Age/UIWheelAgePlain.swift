@@ -23,6 +23,10 @@ struct UIWheelAgePlain: View {
     var optionsAge: [Int] = Array(MetricRanges.age)
 
     var body: some View {
+        // The wheel is full-width, like the height section's "centimeters" wheel: a height only, no
+        // fixed width, so it fills the section's content width (the section's own edge inset is the
+        // "some padding"). This mirrors UIWheelHeightPlain.UIPickerViewCentimeters exactly.
+        //
         // The caption "age in years" sits *over* the wheel — the standard-theme layout, unlike the
         // orange UIWheelAgeThemed which pushes it outside to the section's edge. It mirrors the height
         // section's "centimeters" caption: a UITextPickerLabel centred on the wheel and nudged right,
@@ -35,12 +39,11 @@ struct UIWheelAgePlain: View {
                 }
             }
             .pickerStyle(.wheel)
-            .frame(width: 160, height: 150)
+            .frame(height: 150)
             .accessibilityIdentifier("agePicker")
 
             // 60 mirrors the height section's "centimeters" caption offset (UIWheelHeightPlain's
-            // `pickerLabelOffsetX ?? 60`). The wheel is a fixed 160pt here, so this is a first cut —
-            // nudge to taste once the caption position is confirmed in Xcode.
+            // `pickerLabelOffsetX ?? 60`).
             UITextPickerLabel("age in years")
                 .offset(x: 60)
         }
