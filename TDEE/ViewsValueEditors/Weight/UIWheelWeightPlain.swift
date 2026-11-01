@@ -5,13 +5,28 @@
 //  Created by David Berry on 05/04/2026.
 //
 
-// AI AGENT WARNING: the .pickerStyle(.wheel) is intentional — a wheel is best for ordered numeric
-// values, not a dropdown. This is the PLAIN weight wheel: the raw multi-unit SwiftUI
-// .pickerStyle(.wheel) with no theme dressing. Its themed sibling (themed panel + forced appearance)
-// is UIWheelWeightThemed; a parent shows one or the other based on the active theme.
-// This is a multi-wheel picker (kg / pounds / stones+pounds) with load-bearing unit-conversion logic —
-// do not change .wheel to .menu and do not remove that logic. Renamed from UIWheelPickerWeightView
-// as part of the story-023 Themed/Plain split.
+// AI AGENT WARNING: a wheel is intentional — a wheel is best for ordered numeric values, not a
+// dropdown. DO NOT switch to `.pickerStyle(.menu)` and DO NOT remove the unit-conversion logic below;
+// it is load-bearing.
+//
+// This is the PLAIN control: the original native SwiftUI `.pickerStyle(.wheel)` (its `develop` form),
+// undressed. A parent (`SectionEditorWeight` / `WeightNewSectionView`) shows it for every theme that
+// does not opt into picker colours, so it must stay visually identical to the pre-theming control — a
+// native wheel at the section's natural width, NOT a width-unbounded `UIPickerView`.
+//
+// The THEMED sibling (`UIWheelWeightThemed`) is the only place a theme dresses the wheel: it passes
+// `forceAppearance: true` so each wheel renders as a `UIPickerView` (`UIThemedWheelPicker`) whose
+// appearance is forced to light from the theme's `pickerColorScheme`, and it insets each wheel into its
+// own rounded panel via `.pickerPanel(background:width:)` (`pickerBackground` / `pickerPanelWidth`, nil
+// for non-opting themes). A native `.pickerStyle(.wheel)`'s digits can't be coloured via `foregroundStyle`
+// or a wrapper's `.preferredColorScheme` — so the appearance must be forced on the `UIPickerView`
+// itself; only the themed path uses `UIThemedWheelPicker`.
+//
+// Multi-unit picker (kg / pounds / stones+pounds); per-wheel panels + caption offsets are theme-driven and
+// nil-default, so a non-opting theme is unchanged. The compound unit (stones & pounds) reuses the shared
+// `pickerFeetLabelOffsetX` / `pickerFeetInchesLabelOffsetX` / `pickerWheelSpacing` knobs (documented as
+// shared for both compound units). Renamed from `UIWheelPickerWeightView` as part of the story-023
+// Themed/Plain split.
 
 import SwiftUI
 
@@ -22,6 +37,22 @@ struct UIWheelWeightPlain: View {
     //
     @Binding var value: Double
     @Binding var unitOfMeasure: OptionWeight
+
+    // The theme-driven dressing, threaded in by UIWheelWeightThemed; all nil/false for the plain call, so
+    // a non-opting theme is undressed. Mirrors UIWheelHeightPlain: per-wheel panel + caption offsets; the
+    // compound unit (stones & pounds) reuses the shared picker* knobs.
+    var pickerBackground: Color? = nil
+    var pickerPanelWidth: CGFloat? = nil
+    var pickerLabelOffsetX: CGFloat? = nil
+    var pickerFeetLabelOffsetX: CGFloat? = nil
+    var pickerFeetInchesLabelOffsetX: CGFloat? = nil
+    var pickerWheelSpacing: CGFloat? = nil
+    /// Forces each wheel's digit colour dark via a forced light appearance. A native
+    /// `.pickerStyle(.wheel)` ignores `foregroundStyle` and a wrapper's `.preferredColorScheme` does not
+    /// reach its digit colour, so the themed sibling passes `true` to render each wheel as a `UIPickerView`
+    /// (`UIThemedWheelPicker`) whose appearance is forced from the theme's `pickerColorScheme`. `false`
+    /// (the default — every non-opting theme) keeps the original native wheel.
+    var forceAppearance: Bool = false
 
     // Picker state
     @State private var valueKg: Int = 0
@@ -164,60 +195,78 @@ private extension UIWheelWeightPlain {
 
 private extension UIWheelWeightPlain {
 
-    var UIPickerKgView: some View {
-        ZStack {
-            Picker("Kg", selection: $valueKg) {
-                ForEach(optionsKg, id: \.self) { value in
+    // The single wheel, shared by every builder: a `UIPickerView` with a forced appearance (themed, so
+    // the digits read dark on the light panel) when `forceAppearance`, else the original native wheel.
+    // Keeping the renderer choice in one place means the cross-fade / sync logic has a single copy — the
+    // plain and themed controls differ only in this renderer.
+    @ViewBuilder
+    private func weightWheel(_ label: String, selection: Binding<Int>, rows: [Int]) -> some View {
+        if forceAppearance {
+            UIThemedWheelPicker(rows: rows, selection: selection)
+        } else {
+            Picker(label, selection: selection) {
+                ForEach(rows, id: \.self) { value in
                     Text("\(value)").tag(value)
                 }
             }
             .pickerStyle(.wheel)
-            .accessibilityIdentifier("weightKgWheel")
+        }
+    }
+
+    var UIPickerKgView: some View {
+        ZStack {
+            weightWheel("Kg", selection: $valueKg, rows: optionsKg)
+                .frame(height: 150)
+                .accessibilityIdentifier("weightKgWheel")
+                .pickerPanel(background: pickerBackground, width: pickerPanelWidth)
             UITextPickerLabel("kg")
-                .offset(x: 36)
+                .offset(x: pickerLabelOffsetX ?? 36)
         }
     }
 
     var UIPickerPoundsView: some View {
         ZStack {
-            Picker("Pounds", selection: $valuePounds) {
-                ForEach(optionsPounds, id: \.self) { value in
-                    Text("\(value)").tag(value)
-                }
-            }
-            .pickerStyle(.wheel)
-            .accessibilityIdentifier("weightPoundsWheel")
+            weightWheel("Pounds", selection: $valuePounds, rows: optionsPounds)
+                .frame(height: 150)
+                .accessibilityIdentifier("weightPoundsWheel")
+                .pickerPanel(background: pickerBackground, width: pickerPanelWidth)
             UITextPickerLabel("pounds")
-                .offset(x: 50)
+                .offset(x: pickerLabelOffsetX ?? 50)
         }
     }
 
-    var UIPickerStonesAndPoundsView: some View {
-        HStack {
+    @ViewBuilder
+    var UIPickerStonesAndPoundsView : some View {
+        // A themed gap (`pickerWheelSpacing`) opens the space between the two wheels so a unit caption
+        // can sit between them; with no spacing the group uses its natural spacing, as before.
+        if let spacing = pickerWheelSpacing {
+            HStack(spacing: spacing) { stonesAndPoundsWheels }
+        } else {
+            HStack { stonesAndPoundsWheels }
+        }
+    }
 
-            ZStack {
-                Picker("Stones", selection: $valueStones) {
-                    ForEach(optionsStones, id: \.self) { value in
-                        Text("\(value)").tag(value)
-                    }
-                }
-                .pickerStyle(.wheel)
+    @ViewBuilder
+    private var stonesAndPoundsWheels: some View {
+        ZStack{
+            weightWheel("Stones", selection: $valueStones, rows: optionsStones)
+                .frame(height: 150)
                 .accessibilityIdentifier("weightStonesWheel")
-                UITextPickerLabel("stones")
-                    .offset(x: 36)
-            }
+                .pickerPanel(background: pickerBackground, width: pickerPanelWidth)
+            // The compound unit's first caption reuses the shared `pickerFeetLabelOffsetX` knob.
+            UITextPickerLabel("stones")
+                .offset(x: pickerFeetLabelOffsetX ?? pickerLabelOffsetX ?? 36)
+        }
 
-            ZStack {
-                Picker("Pounds", selection: $valueStonePounds) {
-                    ForEach(optionsStonePounds, id: \.self) { value in
-                        Text("\(value)").tag(value)
-                    }
-                }
-                .pickerStyle(.wheel)
+        ZStack{
+            weightWheel("Pounds", selection: $valueStonePounds, rows: optionsStonePounds)
+                .frame(height: 150)
                 .accessibilityIdentifier("weightStonesPoundsWheel")
-                UITextPickerLabel("pounds")
-                    .offset(x: 36)
-            }
+                .pickerPanel(background: pickerBackground, width: pickerPanelWidth)
+            // Rightmost wheel of the compound: the "pounds" caption sits to the RIGHT of its wheel, like
+            // every other unit caption. Reuses the shared `pickerFeetInchesLabelOffsetX` knob.
+            UITextPickerLabel("pounds")
+                .offset(x: pickerFeetInchesLabelOffsetX ?? pickerLabelOffsetX ?? 36)
         }
     }
 }

@@ -22,12 +22,18 @@ struct SectionEditorWeight: View {
         VStack {
             UISegmentUomWeightView(option: $model.weightUom)
                 .padding(.horizontal, 8)
-            // The active theme chooses the wheel's dressing (UIWheelWeightThemed vs UIWheelWeightPlain).
-            if palette.isPickerThemed {
-                UIWheelWeightThemed(value: $model.weight, unitOfMeasure: $model.weightUom)
-            } else {
-                UIWheelWeightPlain(value: $model.weight, unitOfMeasure: $model.weightUom)
+            Group {
+                // The active theme chooses the wheel's dressing (UIWheelWeightThemed vs UIWheelWeightPlain).
+                if palette.isPickerThemed {
+                    UIWheelWeightThemed(value: $model.weight, unitOfMeasure: $model.weightUom)
+                } else {
+                    UIWheelWeightPlain(value: $model.weight, unitOfMeasure: $model.weightUom)
+                }
             }
+            // The wheel's container breathes like the height/age section's picker row: a 16pt
+            // (Spacing.large) top/bottom padding around it. Without it the wheel sits tight under the
+            // unit segment, unlike the age/height sections which pad their container.
+            .padding(.vertical, Spacing.large)
         }
     }
 }
