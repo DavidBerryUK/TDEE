@@ -9,7 +9,7 @@
 // values, not a dropdown. This is the THEMED (orange) age wheel: a ThemedWheelPicker (a `UIPickerView`
 // a theme can fully dress — a forced light appearance and a transparent field) inset into the theme's
 // panel. Unlike its plain sibling (`UIWheelAgePlain`), its "age in years" caption sits *outside* the
-// picker — a `Spacer` pushes it to the section's right edge, over the section content rather than the
+// picker — the wheel and caption form a tight `Spacing.medium`-gap group centred by a `Spacer` on each side, over the section content rather than the
 // wheel; this is the orange-theme layout the standard themes don't get. A parent (`SectionEditorAge`)
 // shows this instead of `UIWheelAgePlain` when the active theme supplies picker colours. Renamed from
 // `UIWheelPickerAgeView` as part of the story-023 Themed/Plain split.
@@ -25,7 +25,11 @@ struct UIWheelAgeThemed: View {
     var optionsAge: [Int] = Array(MetricRanges.age)
 
     var body: some View {
-        HStack {
+        // The wheel and its "age in years" caption form a tight group — a Spacing.medium gap between
+        // them — centred in the row by a Spacer on each side. The caption stays outside the panel, on
+        // the section content, over the wheel-free space rather than on the wheel.
+        HStack(spacing: Spacing.medium) {
+            Spacer()
             // A `UIPickerView`-backed wheel that a theme dresses itself: forced light appearance so the
             // digits read on a light panel, and a transparent field for the
             // panel — all read from the active theme, so it stays a one-line call site. Still a wheel,
@@ -37,10 +41,10 @@ struct UIWheelAgeThemed: View {
             // label stays outside, on the section content.
             .pickerPanel(background: palette.pickerBackground)
 
-            Spacer()
-
             Text("age in years")
                 .foregroundStyle(palette.textSecondary)
+
+            Spacer()
         }
         .padding(.horizontal, Spacing.large)
     }
