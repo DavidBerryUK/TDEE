@@ -300,6 +300,16 @@ amendment should respect:
    (`forceAppearance: false`) and rendering `UIThemedWheelPicker` only for the themed control. A first cut
    that kept the native wheel + a wrapper `.preferredColorScheme` failed — the digit colour forces only via
    the `UIPickerView`'s `overrideUserInterfaceStyle` (see §18).
+8. **Weight + body fat ported (2026-10-31).** `UIWheelWeightThemed/Plain` + `SectionEditorWeight` and
+   `UIWheelBodyFatThemed/Plain` now mirror the height fix: `forceAppearance` + a shared wheel builder
+   (`weightWheel` / `bodyFatWheel`) render each wheel as `UIThemedWheelPicker` (forced light appearance) when
+   the theme opts in, so the digits read dark on the light panel — the bug the wrapper's `.preferredColorScheme`
+   could never fix. Weight adds per-wheel `pickerPanel(background:width:)` + theme-driven caption offsets + a
+   `.padding(.vertical, Spacing.large)` breath; its compound unit (stones & pounds) reuses the shared
+   `pickerFeetLabelOffsetX` / `pickerFeetInchesLabelOffsetX` / `pickerWheelSpacing` knobs. Body fat is a single
+   number (integer.decimal%), so it keeps ONE group panel and no side captions / breath — only the forced digit
+   colour changes. **Watch:** body fat's inline "." and "%" use `palette.textSecondary` (white on Orange) and may
+   wash out on the light panel; a panel-aware colour would be a follow-up.
 
 ## 12. Test coverage
 
@@ -377,6 +387,8 @@ pickers, not one wide field.** Every other theme is untouched (`nil`-default pal
 
 | Date | Decision | Rationale | Rejected option(s) |
 |---|---|---|---|
+| 2026-10-31 | **Port the two-control fix to body fat** (`UIWheelBodyFatPlain/Themed`) — `forceAppearance` + a shared `bodyFatWheel` builder, so each wheel renders as `UIThemedWheelPicker` (forced light appearance) and the digits read dark on the light panel | Body fat's themed wheel was on the old whole-group panel + wrapper `.preferredColorScheme` shape — the same light-digit-on-panel bug. Body fat is a single number (integer.decimal%), so it keeps ONE group panel and no side captions / breath — only the forced digit colour changes | Per-wheel panels + caption offsets / breath (a single number reads as one field, not a compound split); a panel-aware colour for the inline "." and "%" (flagged as a follow-up in §11.8) |
+| 2026-10-31 | **Port the two-control fix to weight** (`UIWheelWeightPlain/Themed` + `SectionEditorWeight`) — `forceAppearance` + a shared `weightWheel` builder, per-wheel `pickerPanel(background:width:)`, theme-driven caption offsets, and the `.padding(.vertical, Spacing.large)` container breath, mirroring height | Weight's themed wheel was on the old whole-group panel + wrapper `.preferredColorScheme` shape — the same light-digit-on-panel bug height's first cut had. The compound unit (stones & pounds) reuses the shared `pickerFeetLabelOffsetX` / `pickerFeetInchesLabelOffsetX` / `pickerWheelSpacing` knobs (`pickerWheelSpacing` is already documented as shared) | Add weight-specific `pickerStonesLabelOffsetX` / `pickerStonePoundsLabelOffsetX` fields (bigger change; the shared knobs already serve the compound unit) |
 | 2026-10-31 | **16pt top/bottom breath around the height wheel's container** (`SectionEditorHeight`) — wrap the themed/plain wheel in a `Group` and give it `.padding(.vertical, Spacing.large)` | The height wheel sits tight under the unit segment; age's *standalone* picker row (`UIWheelAgeThemed/Plain`) breathes with `Spacing.large`. Same 16pt magnitude — age's is horizontal, height needs it vertical so the wheel isn't cramped under the segment | Put it in `UIWheelHeightPlain` (would touch the "APPROVAL REQUIRED" wheel/segment pairing **and** pad `HeightNewSectionView`'s wheel too); pad the whole `VStack` (would also push the segment up) |
 | 2026-10-31 | **Restore two controls — native plain + forced-appearance themed (§11.7 / §18).** `UIWheelHeightPlain` is native `.pickerStyle(.wheel)` by default; `UIWheelHeightThemed` sets `forceAppearance: true` so each wheel renders as `UIThemedWheelPicker` (forced light appearance) + per-wheel `pickerPanel`; one `forceAppearance` flag keeps the cross-fade/sync a single copy | `1c916dc`'s "route all four wheels through `UIThemedWheelPicker`" made the *plain* control a width-unbounded `UIPickerView` that fills the section on every non-Orange theme ("too wide"). The digit colour needs the `UIPickerView`'s forced appearance, **not** a wrapper's `.preferredColorScheme` (that left Orange's digits light on the panel) | Constrain the `UIPickerView` width on the plain path (non-original look; can't do per-wheel panels); native plain + wrapper `.preferredColorScheme` (fails to force the digit colour) |
 | 2026-10-31 | **Removed the themed selection band** (`a84bc82`) — dropped `themedBand`, `ThemedSelectionIndicator`, `applySelectionIndicator` and `pickerSelectionColor` | The band was a `UIPickerView` KVC hack that never rendered (true/false identical on iOS 27) — dead code; every wheel keeps the system capsule | Keep the dead band; gate it behind a flag |
@@ -412,6 +424,15 @@ pickers, not one wide field.** Every other theme is untouched (`nil`-default pal
       top/bottom), mirroring the age section's row padding. Kept in the editor — not `UIWheelHeightPlain` — so the
       "APPROVAL REQUIRED" wheel/segment pairing and `HeightNewSectionView`'s wheel stay untouched. (Pending visual
       confirm in Xcode — this box has no Xcode/simctl.)
+- [x] **Weight port (§11.8):** `UIWheelWeightPlain/Themed` + `SectionEditorWeight` now mirror the height fix —
+      `forceAppearance` + a shared `weightWheel` builder, per-wheel `pickerPanel(background:width:)`,
+      theme-driven caption offsets, and the `.padding(.vertical, Spacing.large)` breath. The compound unit
+      (stones & pounds) reuses the shared `pickerFeetLabelOffsetX` / `pickerFeetInchesLabelOffsetX` /
+      `pickerWheelSpacing` knobs. (Pending visual confirm in Xcode.)
+- [x] **Body fat port (§11.8):** `UIWheelBodyFatPlain/Themed` now mirror the height fix — `forceAppearance`
+      + a shared `bodyFatWheel` builder force the digit appearance; one group panel (single number) is kept, so
+      no per-wheel panels / captions / breath. Watch the inline "." / "%" colour (white `textSecondary` on the
+      light panel). (Pending visual confirm in Xcode.)
 
 ## 18. Fix — two controls: native plain wheel + forced-appearance themed (landed)
 
@@ -487,8 +508,10 @@ Age/Weight do, so it's preferred.
   on the plain path and tried a wrapper's `.preferredColorScheme(.light)` for the digits — it left Orange's
   digits light on the panel. The colour forces only via the `UIPickerView`'s `overrideUserInterfaceStyle`,
   which is why the *themed* control uses `UIThemedWheelPicker` and the *plain* control stays native.
-- `UIWheelWeightThemed` uses the same "native + `.preferredColorScheme`" shape; it may share the latent
-  light-digit bug on Orange — worth a check.
+- **Weight ported (§11.8):** `UIWheelWeightThemed` used the same "native + `.preferredColorScheme`" shape and
+  shared the latent light-digit bug on Orange; it now mirrors the height fix (`forceAppearance` + per-wheel
+  panel + theme-driven offsets + container breath). Body fat (`UIWheelBodyFatThemed`) is still on the old
+  shape — the next port.
 
 **Acceptance.** Build succeeds; on Clouds (a non-Orange theme) the height section matches `develop` (native
 wheel, in-bounds captions, not too wide); on Orange the feet & inches wheels show two separate panels with
