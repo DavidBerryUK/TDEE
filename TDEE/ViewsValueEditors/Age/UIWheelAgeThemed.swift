@@ -6,11 +6,13 @@
 //
 
 // AI AGENT WARNING: the .pickerStyle(.wheel) is intentional — a wheel is best for ordered numeric
-// values, not a dropdown. This is the THEMED age wheel: a ThemedWheelPicker (a `UIPickerView` a theme
-// can fully dress — a forced light appearance and a transparent field) inset into the
-// theme's panel. Its plain sibling (a raw SwiftUI .pickerStyle(.wheel)) is UIWheelAgePlain; a parent
-// shows one or the other based on the active theme. Renamed from UIWheelPickerAgeView as part of the
-// story-023 Themed/Plain split.
+// values, not a dropdown. This is the THEMED (orange) age wheel: a ThemedWheelPicker (a `UIPickerView`
+// a theme can fully dress — a forced light appearance and a transparent field) inset into the theme's
+// panel. Unlike its plain sibling (`UIWheelAgePlain`), its "age in years" caption sits *outside* the
+// picker — a `Spacer` pushes it to the section's right edge, over the section content rather than the
+// wheel; this is the orange-theme layout the standard themes don't get. A parent (`SectionEditorAge`)
+// shows this instead of `UIWheelAgePlain` when the active theme supplies picker colours. Renamed from
+// `UIWheelPickerAgeView` as part of the story-023 Themed/Plain split.
 
 import SwiftUI
 
