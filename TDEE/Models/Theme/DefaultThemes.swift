@@ -64,32 +64,58 @@ enum DefaultThemes {
     }()
 
 
-    /// Bold coral sections on black, after a Nike-run-club watch face — a bright coral on a black
-    /// field, white text. Light and dark share one palette.
+    /// Bold coral on a black field (dark) / warm coral on white (light), after a Nike-run-club watch
+    /// face. The two schemes are genuinely distinct palettes, so the theme follows the user's Appearance
+    /// like every other theme — no `colorScheme` pin.
     ///
-    /// `surface` is the coral; `primary` is *white* (not coral) because it colours CTA text that sits
-    /// on the coral surface, so it must contrast it. `text` on coral is ~3.3:1 — fine for the large
-    /// summary values, marginal for fine print; deepen `surface` toward `#C23B1E` for full AA.
+    /// **Dark:** `surface` is the coral; `primary` is *white* (not coral) because it colours CTA text
+    /// that sits on the coral surface, so it must contrast it. `text` on coral is ~3.3:1 — fine for the
+    /// large summary values, marginal for fine print; deepen `surface` toward `#C23B1E` for full AA.
     /// `editText`/`highlight`/`selection` are forced white (their default, `primary`, already is). The
     /// nav bar is themed to the black field and every section icon is the dark maroon accent, so both
     /// stay legible on the coral surface. Its wheel picker is dressed by adopting `PickerDressing.orange`
     /// — a light-coral panel, a forced light appearance, and the tuned caption offsets — so the picker's
     /// values live on that preset, not here.
+    ///
+    /// **Light:** the field inverts to a warm off-white with the coral kept as the accent, mirroring
+    /// `carrot`'s light structure. `primary` is a *deep coral* (`#C24124`) so CTA/highlight text is
+    /// legible on the white surface (5.1:1); `secondary` is the brand coral `#E8633F` (3.3:1, the vivid
+    /// accent). Text is a deep maroon and `textSecondary` a warm brown-grey, both clear of AA on the warm
+    /// ground. The macro colours match `carrot`'s light set — dark gold `#AE8E0A` fat (bright `#F1C40F`
+    /// fails 3:1 on white). The light scheme swaps the maroon icons for a curated per-icon palette
+    /// (coral/orange/teal/plum, each white-legible), so the sections read as distinct colours instead of
+    /// one brown. The light picker stays **undressed** (a plain native wheel on white), so only the dark
+    /// scheme adopts the orange dressing.
     static let orange: Theme = {
-        let coral = Color(hex: "#E8633F")   // the section / accent colour
-        let maroon = Color(hex: "#3A1512")  // the dark secondary accent (the "complication" colour)
-        // A gentle deepening of the coral for the *expanded* content panel: the header stays coral and
-        // the region that opens below it darkens just a touch, so it reads as a distinct panel without
-        // a dramatic jump. Tweak this one hex.
-        let deepCoral = Color(hex: "#D24E2C")
-        // One on-brand colour for every section icon: dark maroon reads crisply on the coral surface
-        // (the built-in orange ruler was invisible on orange). Swap the value, or pass a per-icon
-        // map, to curate individual icons.
-        let iconColors: [Icon: Color] = Dictionary(
+        // Dark scheme: one on-brand colour for every section icon — dark maroon reads crisply on the
+        // coral surface (the built-in orange ruler was invisible on coral).
+        let maroon = Color(hex: "#3A1512")
+        let darkIcons: [Icon: Color] = Dictionary(
             Icon.allCases.map { ($0, maroon) },
             uniquingKeysWith: { first, _ in first }
         )
-        let palette = ColorPalette(
+
+        // Light scheme: a curated per-icon palette — vibrant, warm-forward, each white-legible as a solid
+        // chip (white glyph ≥3:1). A coral/orange family with a teal and a plum for variety, so the
+        // sections read as distinct colours instead of one brown.
+        let lightIcons: [Icon: Color] = [
+            .gender:        Color(hex: "#EE6048"), // warm coral
+            .age:           Color(hex: "#E8633F"), // brand orange
+            .height:        Color(hex: "#D2691E"), // rich orange
+            .weight:        Color(hex: "#2A9D8F"), // teal
+            .activityLevel: Color(hex: "#D64545"), // energetic red
+            .bodyFat:       Color(hex: "#B565A7"), // plum
+            .calorie:       Color(hex: "#E8633F"), // flame = brand orange
+            .protein:       Color(hex: "#D64545"),
+            .carbs:         Color(hex: "#2A9D8F"),
+            .fats:          Color(hex: "#C87F0A"), // dark gold: bright yellow fails 3:1 on white
+            .macroSplit:    Color(hex: "#E8633F"),
+        ]
+
+        // The dark scheme: bright coral surface on a black field, white text.
+        let coral = Color(hex: "#E8633F")      // the section / accent colour
+        let deepCoral = Color(hex: "#D24E2C")  // a gentle deepening for the *expanded* content panel
+        let darkPalette = ColorPalette(
             primary: .white,
             secondary: maroon,
             background: .black,
@@ -106,7 +132,7 @@ enum DefaultThemes {
             // Opt into the theme overrides: a black nav bar matching the field, maroon icons, and a
             // gentle deep-coral content panel.
             toolbar: .init(background: .black, itemBackground: maroon),
-            iconColors: iconColors,
+            iconColors: darkIcons,
             expandedContentBackground: deepCoral,
             // The wheel picker is dressed by adopting `PickerDressing.orange` — a light-coral panel, a
             // forced light appearance, and the tuned caption offsets/spacing — instead of setting its
@@ -114,8 +140,28 @@ enum DefaultThemes {
             // theme opts in the same way with `PickerDressing.panel(…)`.
             pickerDressing: .orange
         )
-        // Pinned dark: system text (nav titles, list headers) must be light on the black field.
-        return Theme(id: .orange, name: "Orange", description: "Bold coral on black", light: palette, dark: palette, colorScheme: .dark)
+
+        // The light scheme: warm off-white field, deep-orange accent, warm-dark text, and a curated
+        // per-icon palette (vibrant, not one brown). No pickerDressing, so the wheel stays a plain
+        // native field on the white surface.
+        let lightPalette = ColorPalette(
+            primary: Color(hex: "#C24124"),      // deep coral: CTA/highlight text on white (5.1:1)
+            secondary: Color(hex: "#E35A33"),    // deep brand orange (3.3:1 on white, margin on the warm ground)
+            background: Color(hex: "#FDF1EA"),   // warm coral-tinted off-white field
+            surface: .white,
+            text: Color(hex: "#2A1712"),         // deep maroon body text
+            textSecondary: Color(hex: "#6E5A50"),// warm brown-grey captions
+            border: Color(hex: "#FBE4DA"),       // light coral-tinted dividers
+            macroProtein: Color(hex: "#E91E63"),
+            macroCarbs: Color(hex: "#3498DB"),
+            macroFat: Color(hex: "#AE8E0A"),     // dark gold: bright #F1C40F fails 3:1 on white
+            // editText/highlight/selection default to primary (#C24124).
+            toolbar: .init(background: Color(hex: "#FDF1EA"), itemBackground: Color(hex: "#F7C9B8")),
+            iconColors: lightIcons,
+            expandedContentBackground: Color(hex: "#FDF4EE")  // a barely-there warm panel, much lighter than the dark scheme's
+        )
+
+        return Theme(id: .orange, name: "Orange", description: "Bold coral on black", light: lightPalette, dark: darkPalette)
     }()
 
 

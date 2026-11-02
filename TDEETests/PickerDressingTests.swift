@@ -85,14 +85,24 @@ struct PickerDressingTests {
         #expect(palette.isPickerThemed == false)
     }
 
-    @Test("DefaultThemes.Orange adopts the orange dressing")
+    @Test("DefaultThemes.Orange dark adopts the orange dressing")
     func testOrangeThemeAdoptsDressing() {
-        let palette = DefaultThemes.orange.light
+        let palette = DefaultThemes.orange.dark
         #expect(hex(palette.pickerBackground) == "#F8D0C5")
         #expect(palette.pickerColorScheme == .light)
         #expect(palette.pickerPanelWidth == 96)
         #expect(palette.pickerLabelOffsetX == 78)
         #expect(palette.isPickerThemed == true)
+    }
+
+    @Test("DefaultThemes.Orange light stays undressed (plain native wheel)")
+    func testOrangeLightIsPlain() {
+        let palette = DefaultThemes.orange.light
+        #expect(palette.pickerBackground == nil)
+        #expect(palette.pickerColorScheme == nil)
+        #expect(palette.pickerPanelWidth == nil)
+        #expect(palette.pickerLabelOffsetX == nil)
+        #expect(palette.isPickerThemed == false)
     }
 
     @Test("every non-Orange theme stays undressed (plain)")
