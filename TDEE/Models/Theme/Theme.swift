@@ -94,21 +94,20 @@ struct ColorPalette {
 
     /// `editText`, `highlight` and `selection` default to `primary`; Default overrides them
     /// to keep the app's original red, teal and green. `toolbar`/`iconColors`/`expandedContentBackground`
-    /// /`pickerBackground`/`pickerColorScheme`/`pickerPanelWidth`/`pickerLabelOffsetX`
-    /// /`pickerFeetLabelOffsetX`/`pickerFeetInchesLabelOffsetX`/`pickerWheelSpacing` default
-    /// to `nil`, so every theme keeps today's system bar, icon colours, content background and plain
-    /// picker unless it opts in.
+    /// default to `nil`, so every theme keeps today's system bar, icon colours and content background
+    /// unless it opts in. The picker's seven fields come from one adopted `pickerDressing` (a
+    /// `PickerDressing`; `nil` = `.plain`/undressed), so a theme dresses its wheels by adopting a
+    /// dressing rather than setting seven numbers. The fields stay stored on the palette — the frozen
+    /// picker views read them by name — so the dressing is the model-layer generalisation and the views
+    /// stay untouched.
     init(
         primary: Color, secondary: Color, background: Color, surface: Color,
         text: Color, textSecondary: Color, border: Color,
         macroProtein: Color, macroCarbs: Color, macroFat: Color,
         editText: Color? = nil, highlight: Color? = nil, selection: Color? = nil,
         toolbar: Toolbar? = nil, iconColors: [Icon: Color]? = nil,
-        expandedContentBackground: Color? = nil, pickerBackground: Color? = nil,
-        pickerColorScheme: ColorScheme? = nil,
-        pickerPanelWidth: CGFloat? = nil, pickerLabelOffsetX: CGFloat? = nil,
-        pickerFeetLabelOffsetX: CGFloat? = nil, pickerFeetInchesLabelOffsetX: CGFloat? = nil,
-        pickerWheelSpacing: CGFloat? = nil
+        expandedContentBackground: Color? = nil,
+        pickerDressing: PickerDressing? = nil
     ) {
         self.primary = primary
         self.secondary = secondary
@@ -126,13 +125,17 @@ struct ColorPalette {
         self.toolbar = toolbar
         self.iconColors = iconColors
         self.expandedContentBackground = expandedContentBackground
-        self.pickerBackground = pickerBackground
-        self.pickerColorScheme = pickerColorScheme
-        self.pickerPanelWidth = pickerPanelWidth
-        self.pickerLabelOffsetX = pickerLabelOffsetX
-        self.pickerFeetLabelOffsetX = pickerFeetLabelOffsetX
-        self.pickerFeetInchesLabelOffsetX = pickerFeetInchesLabelOffsetX
-        self.pickerWheelSpacing = pickerWheelSpacing
+        // The picker's seven fields come from one adopted `PickerDressing`, expanded here so the stored
+        // fields — which the frozen picker views read by name — keep their names; `nil` is `.plain`
+        // (undressed, the app's original wheel).
+        let dressing = pickerDressing ?? .plain
+        self.pickerBackground = dressing.background
+        self.pickerColorScheme = dressing.colorScheme
+        self.pickerPanelWidth = dressing.panelWidth
+        self.pickerLabelOffsetX = dressing.labelOffsetX
+        self.pickerFeetLabelOffsetX = dressing.feetLabelOffsetX
+        self.pickerFeetInchesLabelOffsetX = dressing.feetInchesLabelOffsetX
+        self.pickerWheelSpacing = dressing.wheelSpacing
     }
 }
 

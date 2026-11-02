@@ -72,7 +72,9 @@ enum DefaultThemes {
     /// summary values, marginal for fine print; deepen `surface` toward `#C23B1E` for full AA.
     /// `editText`/`highlight`/`selection` are forced white (their default, `primary`, already is). The
     /// nav bar is themed to the black field and every section icon is the dark maroon accent, so both
-    /// stay legible on the coral surface.
+    /// stay legible on the coral surface. Its wheel picker is dressed by adopting `PickerDressing.orange`
+    /// — a light-coral panel, a forced light appearance, and the tuned caption offsets — so the picker's
+    /// values live on that preset, not here.
     static let orange: Theme = {
         let coral = Color(hex: "#E8633F")   // the section / accent colour
         let maroon = Color(hex: "#3A1512")  // the dark secondary accent (the "complication" colour)
@@ -80,11 +82,6 @@ enum DefaultThemes {
         // the region that opens below it darkens just a touch, so it reads as a distinct panel without
         // a dramatic jump. Tweak this one hex.
         let deepCoral = Color(hex: "#D24E2C")
-        // A light tint of the section coral for the wheel picker's *own* panel: the picker's highlighted
-        // row was barely visible on the coral, so the picker is inset into this light field. It's a tint
-        // of the coral itself (not a neutral cream) so the panel reads as part of the orange family.
-        // Tweak this one hex.
-        let lightCoral = Color(hex: "#F8D0C5")
         // One on-brand colour for every section icon: dark maroon reads crisply on the coral surface
         // (the built-in orange ruler was invisible on orange). Swap the value, or pass a per-icon
         // map, to curate individual icons.
@@ -106,25 +103,16 @@ enum DefaultThemes {
             editText: .white,
             highlight: .white,
             selection: .white,
-            // Opt into the theme overrides: a black nav bar matching the field, maroon icons, a gentle
-            // deep-coral content panel, and a light-coral panel around each wheel picker, forced to light
-            // appearance so its digits read.
+            // Opt into the theme overrides: a black nav bar matching the field, maroon icons, and a
+            // gentle deep-coral content panel.
             toolbar: .init(background: .black, itemBackground: maroon),
             iconColors: iconColors,
             expandedContentBackground: deepCoral,
-            pickerBackground: lightCoral,
-            pickerColorScheme: .light,
-            // One panel per wheel; each unit caption sits to the RIGHT of its wheel (including the
-            // rightmost "inches"). The panel width, gap and offset keep the whole group — two panels
-            // plus two right-pointing captions — inside the screen. Tunable.
-            pickerPanelWidth: 96,
-            pickerLabelOffsetX: 78,
-            // "feet" and "inches" hold equal gaps from their panels: "feet" is a short label and
-            // "inches" a longer one, so one shared offset would not equalise them. Nudge "feet" in and
-            // "inches" out to match; the single-wheel cm/inches captions keep pickerLabelOffsetX.
-            pickerFeetLabelOffsetX: 74,
-            pickerFeetInchesLabelOffsetX: 82,
-            pickerWheelSpacing: 60
+            // The wheel picker is dressed by adopting `PickerDressing.orange` — a light-coral panel, a
+            // forced light appearance, and the tuned caption offsets/spacing — instead of setting its
+            // seven fields here. The values live on that preset (see PickerDressing.swift); a future
+            // theme opts in the same way with `PickerDressing.panel(…)`.
+            pickerDressing: .orange
         )
         // Pinned dark: system text (nav titles, list headers) must be light on the black field.
         return Theme(id: .orange, name: "Orange", description: "Bold coral on black", light: palette, dark: palette, colorScheme: .dark)

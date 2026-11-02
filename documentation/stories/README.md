@@ -32,3 +32,4 @@ plan); a few add further notes (e.g. `palettes.md`, `review-findings.md`, `chang
 | 021 | [Multiple Profiles](story-021-multiple-profiles/story.md) | Done |
 | 022 | [iPad Adaptation](story-022-ipad-adaptation/story.md) | Done |
 | 023 | [Input Method](story-023-input-method/story.md) | Done |
+| 024 | [Picker Dressing](story-024-picker-dressing/story.md) | Done |
