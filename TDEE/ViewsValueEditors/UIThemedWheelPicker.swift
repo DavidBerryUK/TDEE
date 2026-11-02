@@ -63,6 +63,17 @@ struct UIThemedWheelPicker<T: Hashable>: UIViewRepresentable {
         }
     }
 
+    // Constrain the wheel to the slot its caller proposes — the panel width (and a 150pt height when the
+    // caller fixes one) — instead of UIPickerView's own large intrinsic content size. Without this a wheel
+    // in a multi-wheel HStack (feet & inches, stones & pounds, integer.decimal) overflows its rounded
+    // panel: the panel is clipped to the slot, but the underlying UIPickerView's real frame — and
+    // therefore its UIKit touch region — stays wide and reaches left into a neighbouring wheel, so the
+    // right wheel steals the touches that belong to the left.
+    func sizeThatFits(_ proposal: ProposedViewSize, uiView: UIPickerView, context: Context) -> CGSize? {
+        guard let width = proposal.width else { return nil }
+        return CGSize(width: width, height: proposal.height ?? 150)
+    }
+
     private func applyTheme(to picker: UIPickerView) {
         // Force the picker's appearance so its digits read on a light panel; `nil` inherits the app's.
         picker.overrideUserInterfaceStyle = {

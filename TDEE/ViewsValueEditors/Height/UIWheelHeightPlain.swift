@@ -94,6 +94,15 @@ struct UIWheelHeightPlain: View {
     var optionsFeet: [Int] = Array(0...8)
     var optionsFeetInches: [Int] = Array(0...11)
 
+    /// The themed layout flag: when a theme opts into picker colours (`isPickerThemed`), each unit
+    /// caption sits to the RIGHT of its wheel — a simple `wheel / label` row instead of a magic
+    /// `.offset(x:)` number. Derived from the forwarded `pickerBackground` / `forceAppearance` so only
+    /// themed variants get it; a non-opting theme leaves both nil/false and keeps the side-offset
+    /// layout untouched.
+    private var captionBesideWheel: Bool {
+        pickerBackground != nil || forceAppearance
+    }
+
     var body: some View {
 
         let showCm : Bool = (unitOfMeasure == OptionLength.centimeters)
@@ -216,56 +225,80 @@ private extension UIWheelHeightPlain {
         }
     }
 
-    var UIPickerViewCentimeters : some View {
-        ZStack{
-            heightWheel("Cm", selection: $valueCm, rows: optionsCm)
-                .frame(height: 150)
-                .accessibilityIdentifier("heightCmWheel")
-                .pickerPanel(background: pickerBackground, width: pickerPanelWidth)
-            UITextPickerLabel("centimeters")
-                .offset(x: pickerLabelOffsetX ?? 60)
+    // A wheel inset into its themed panel (or bare for a non-opting theme), at the cross-fade height
+    // with its accessibility id — shared by every builder below.
+    private func wheelWithPanel(_ label: String, selection: Binding<Int>, rows: [Int], id: String) -> some View {
+        heightWheel(label, selection: selection, rows: rows)
+            .frame(height: 150)
+            .accessibilityIdentifier(id)
+            .pickerPanel(background: pickerBackground, width: pickerPanelWidth)
+    }
+
+    // The themed unit: a wheel with its caption to the RIGHT of it, as a simple row (`wheel / label`)
+    // — no magic `.offset(x:)` number.
+    private func wheelWithCaption(_ label: String, selection: Binding<Int>, rows: [Int], id: String, caption: String) -> some View {
+        HStack {
+            wheelWithPanel(label, selection: selection, rows: rows, id: id)
+            UITextPickerLabel(caption)
         }
     }
 
-    var UIPickerViewInches : some View {
-        ZStack{
+    @ViewBuilder
+    var UIPickerViewCentimeters : some View {
+        if captionBesideWheel {
+            wheelWithCaption("Cm", selection: $valueCm, rows: optionsCm, id: "heightCmWheel", caption: "centimeters")
+        } else {
+            ZStack {
+                wheelWithPanel("Cm", selection: $valueCm, rows: optionsCm, id: "heightCmWheel")
+                UITextPickerLabel("centimeters")
+                    .offset(x: pickerLabelOffsetX ?? 78)
+            }
+        }
+    }
 
-            heightWheel("Inches", selection: $valueInches, rows: optionsInches)
-                .frame(height: 150)
-                .accessibilityIdentifier("heightInchesWheel")
-                .pickerPanel(background: pickerBackground, width: pickerPanelWidth)
-            UITextPickerLabel("inches")
-                .offset(x: pickerLabelOffsetX ?? 40)
+    @ViewBuilder
+    var UIPickerViewInches : some View {
+        if captionBesideWheel {
+            wheelWithCaption("Inches", selection: $valueInches, rows: optionsInches, id: "heightInchesWheel", caption: "inches")
+        } else {
+            ZStack {
+                wheelWithPanel("Inches", selection: $valueInches, rows: optionsInches, id: "heightInchesWheel")
+                UITextPickerLabel("inches")
+                    .offset(x: pickerLabelOffsetX ?? 78)
+            }
         }
     }
 
     @ViewBuilder
     var UIPickerViewFeetAndInches : some View {
-        // A themed gap (`pickerWheelSpacing`) opens the space between the two wheels so a unit caption
-        // can sit between them; with no spacing the group uses its natural spacing, as before.
-        if let spacing = pickerWheelSpacing {
-            HStack(spacing: spacing) { feetAndInchesWheels }
+        if captionBesideWheel {
+            // Themed compound: two wheel+caption rows in a line, each caption to the RIGHT of its own
+            // wheel, a small gap between the pairs.
+            HStack(spacing: Spacing.small) {
+                wheelWithCaption("feet", selection: $valueFeet, rows: optionsFeet, id: "heightFeetWheel", caption: "feet")
+                wheelWithCaption("Inches", selection: $valueFeetInches, rows: optionsFeetInches, id: "heightFeetInchesWheel", caption: "inches")
+            }
         } else {
-            HStack { feetAndInchesWheels }
+            // A themed gap (`pickerWheelSpacing`) opens the space between the two wheels so a unit
+            // caption can sit between them; with no spacing the group uses its natural spacing.
+            if let spacing = pickerWheelSpacing {
+                HStack(spacing: spacing) { feetAndInchesWheels }
+            } else {
+                HStack { feetAndInchesWheels }
+            }
         }
     }
 
     @ViewBuilder
     private var feetAndInchesWheels: some View {
         ZStack{
-            heightWheel("feet", selection: $valueFeet, rows: optionsFeet)
-                .frame(height: 150)
-                .accessibilityIdentifier("heightFeetWheel")
-                .pickerPanel(background: pickerBackground, width: pickerPanelWidth)
+            wheelWithPanel("feet", selection: $valueFeet, rows: optionsFeet, id: "heightFeetWheel")
             UITextPickerLabel("feet")
                 .offset(x: pickerFeetLabelOffsetX ?? pickerLabelOffsetX ?? 36)
         }
 
         ZStack{
-            heightWheel("Inches", selection: $valueFeetInches, rows: optionsFeetInches)
-                .frame(height: 150)
-                .accessibilityIdentifier("heightFeetInchesWheel")
-                .pickerPanel(background: pickerBackground, width: pickerPanelWidth)
+            wheelWithPanel("Inches", selection: $valueFeetInches, rows: optionsFeetInches, id: "heightFeetInchesWheel")
             // Rightmost wheel: the "inches" caption sits to the RIGHT of its wheel, like every other
             // unit caption. The gap (`pickerWheelSpacing`) and the panel width keep the whole group —
             // two panels plus two right-pointing captions — inside the screen.

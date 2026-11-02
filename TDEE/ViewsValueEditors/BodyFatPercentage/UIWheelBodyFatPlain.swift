@@ -16,9 +16,9 @@
 //
 // The THEMED sibling (`UIWheelBodyFatThemed`) is the only place a theme dresses the wheel: it passes
 // `forceAppearance: true` so each wheel renders as a `UIPickerView` (`UIThemedWheelPicker`) whose appearance
-// is forced to light from the theme's `pickerColorScheme`, and it insets the whole integer.decimal group into
-// ONE rounded panel via `.pickerPanel(background:)` — a single number reads as one field, unlike the
-// feet-&-inches / stones-&-pounds split. A native `.pickerStyle(.wheel)`'s digits can't be coloured via
+// is forced to light from the theme's `pickerColorScheme`, and it passes `pickerBackground` so EACH wheel is
+// inset into its own rounded panel via `.pickerPanel(background:)` — the "." and "%" stay *outside* the
+// panels (they are not wheels). A native `.pickerStyle(.wheel)`'s digits can't be coloured via
 // `foregroundStyle` or a wrapper's `.preferredColorScheme` — so the appearance must be forced on the
 // `UIPickerView` itself; only the themed path uses `UIThemedWheelPicker`.
 //
@@ -37,6 +37,12 @@ struct UIWheelBodyFatPlain: View {
     var optionsInteger: [Int] = Array(0...99)
     var optionsDecimal: [Int] = Array(0...9)
 
+    /// The panel colour each wheel is inset into, so the integer and decimal wheels each read as their
+    /// own rounded-rect field. `nil` (the default — every non-opting theme) leaves each wheel bare,
+    /// exactly as before; the themed sibling passes the active palette's `pickerBackground`. The "." and
+    /// "%" stay *outside* the panels (they are not part of a wheel).
+    var pickerBackground: Color? = nil
+
     /// Forces each wheel's digit colour dark via a forced light appearance. A native
     /// `.pickerStyle(.wheel)` ignores `foregroundStyle` and a wrapper's `.preferredColorScheme` does not
     /// reach its digit colour, so the themed sibling passes `true` to render each wheel as a `UIPickerView`
@@ -50,6 +56,7 @@ struct UIWheelBodyFatPlain: View {
             bodyFatWheel("Body fat percentage", selection: $valueInteger, rows: optionsInteger)
                 .frame(width: 110)   // key change
                 .accessibilityIdentifier("bodyFatPicker")
+                .pickerPanel(background: pickerBackground) // per-wheel panel; bare when nil (plain)
 
             Text(".")
                 .foregroundStyle(palette.textSecondary)
@@ -58,6 +65,7 @@ struct UIWheelBodyFatPlain: View {
             bodyFatWheel("Body fat decimal", selection: $valueDecimal, rows: optionsDecimal)
                 .frame(width: 110)   // key change
                 .accessibilityIdentifier("bodyFatDecimalPicker")
+                .pickerPanel(background: pickerBackground) // per-wheel panel; bare when nil (plain)
 
             Text("%")
                 .foregroundStyle(palette.textSecondary)

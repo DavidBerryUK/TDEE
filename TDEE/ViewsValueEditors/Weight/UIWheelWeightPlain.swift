@@ -88,13 +88,22 @@ struct UIWheelWeightPlain: View {
     var optionsStones: [Int] = Array(0...40)
     var optionsStonePounds: [Int] = Array(0...13)
 
+    /// The themed layout flag: when a theme opts into picker colours (`isPickerThemed`), each unit
+    /// caption sits to the RIGHT of its wheel — a simple `wheel / label` row instead of a magic
+    /// `.offset(x:)` number. Derived from the forwarded `pickerBackground` / `forceAppearance` so only
+    /// themed variants get it; a non-opting theme leaves both nil/false and keeps the side-offset
+    /// layout untouched.
+    private var captionBesideWheel: Bool {
+        pickerBackground != nil || forceAppearance
+    }
+
     var body: some View {
 
         let showIsKg = unitOfMeasure == .kilograms
         let showIsPounds = unitOfMeasure == .pounds
         let showIsStonesAndPounds = unitOfMeasure == .stonesAndPounds
 
-        return ZStack {
+        ZStack {
 
             // KG
             UIPickerKgView
@@ -213,58 +222,83 @@ private extension UIWheelWeightPlain {
         }
     }
 
-    var UIPickerKgView: some View {
-        ZStack {
-            weightWheel("Kg", selection: $valueKg, rows: optionsKg)
-                .frame(height: 150)
-                .accessibilityIdentifier("weightKgWheel")
-                .pickerPanel(background: pickerBackground, width: pickerPanelWidth)
-            UITextPickerLabel("kg")
-                .offset(x: pickerLabelOffsetX ?? 36)
+    // A wheel inset into its themed panel (or bare for a non-opting theme), at the cross-fade height
+    // with its accessibility id — shared by every builder below.
+    private func wheelWithPanel(_ label: String, selection: Binding<Int>, rows: [Int], id: String) -> some View {
+        weightWheel(label, selection: selection, rows: rows)
+            .frame(height: 150)
+            .accessibilityIdentifier(id)
+            .pickerPanel(background: pickerBackground, width: pickerPanelWidth)
+    }
+
+    // The themed unit: a wheel with its caption to the RIGHT of it, as a simple row (`wheel / label`)
+    // — no magic `.offset(x:)` number.
+    private func wheelWithCaption(_ label: String, selection: Binding<Int>, rows: [Int], id: String, caption: String) -> some View {
+        HStack {
+            wheelWithPanel(label, selection: selection, rows: rows, id: id)
+            UITextPickerLabel(caption)
         }
     }
 
+    @ViewBuilder
+    var UIPickerKgView: some View {
+        if captionBesideWheel {
+            wheelWithCaption("Kg", selection: $valueKg, rows: optionsKg, id: "weightKgWheel", caption: "kg")
+        } else {
+            ZStack {
+                wheelWithPanel("Kg", selection: $valueKg, rows: optionsKg, id: "weightKgWheel")
+                UITextPickerLabel("kg")
+                    .offset(x: pickerLabelOffsetX ?? 36)
+            }
+        }
+    }
+
+    @ViewBuilder
     var UIPickerPoundsView: some View {
-        ZStack {
-            weightWheel("Pounds", selection: $valuePounds, rows: optionsPounds)
-                .frame(height: 150)
-                .accessibilityIdentifier("weightPoundsWheel")
-                .pickerPanel(background: pickerBackground, width: pickerPanelWidth)
-            UITextPickerLabel("pounds")
-                .offset(x: pickerLabelOffsetX ?? 50)
+        if captionBesideWheel {
+            wheelWithCaption("Pounds", selection: $valuePounds, rows: optionsPounds, id: "weightPoundsWheel", caption: "pounds")
+        } else {
+            ZStack {
+                wheelWithPanel("Pounds", selection: $valuePounds, rows: optionsPounds, id: "weightPoundsWheel")
+                UITextPickerLabel("pounds")
+                    .offset(x: pickerLabelOffsetX ?? 50)
+            }
         }
     }
 
     @ViewBuilder
     var UIPickerStonesAndPoundsView : some View {
-        // A themed gap (`pickerWheelSpacing`) opens the space between the two wheels so a unit caption
-        // can sit between them; with no spacing the group uses its natural spacing, as before.
-        if let spacing = pickerWheelSpacing {
-            HStack(spacing: spacing) { stonesAndPoundsWheels }
+        if captionBesideWheel {
+            // Themed compound: two wheel+caption rows in a line, each caption to the RIGHT of its own
+            // wheel, a small gap between the pairs.
+            HStack(spacing: Spacing.small) {
+                wheelWithCaption("Stones", selection: $valueStones, rows: optionsStones, id: "weightStonesWheel", caption: "stones")
+                wheelWithCaption("Pounds", selection: $valueStonePounds, rows: optionsStonePounds, id: "weightStonesPoundsWheel", caption: "pounds")
+            }
         } else {
-            HStack { stonesAndPoundsWheels }
+            // A themed gap (`pickerWheelSpacing`) opens the space between the two wheels so a unit
+            // caption can sit between them; with no spacing the group uses its natural spacing.
+            if let spacing = pickerWheelSpacing {
+                HStack(spacing: spacing) { stonesAndPoundsWheels }
+            } else {
+                HStack { stonesAndPoundsWheels }
+            }
         }
     }
 
     @ViewBuilder
     private var stonesAndPoundsWheels: some View {
         ZStack{
-            weightWheel("Stones", selection: $valueStones, rows: optionsStones)
-                .frame(height: 150)
-                .accessibilityIdentifier("weightStonesWheel")
-                .pickerPanel(background: pickerBackground, width: pickerPanelWidth)
+            wheelWithPanel("Stones", selection: $valueStones, rows: optionsStones, id: "weightStonesWheel")
             // The compound unit's first caption reuses the shared `pickerFeetLabelOffsetX` knob.
             UITextPickerLabel("stones")
                 .offset(x: pickerFeetLabelOffsetX ?? pickerLabelOffsetX ?? 36)
         }
 
         ZStack{
-            weightWheel("Pounds", selection: $valueStonePounds, rows: optionsStonePounds)
-                .frame(height: 150)
-                .accessibilityIdentifier("weightStonesPoundsWheel")
-                .pickerPanel(background: pickerBackground, width: pickerPanelWidth)
-            // Rightmost wheel of the compound: the "pounds" caption sits to the RIGHT of its wheel, like
-            // every other unit caption. Reuses the shared `pickerFeetInchesLabelOffsetX` knob.
+            wheelWithPanel("Pounds", selection: $valueStonePounds, rows: optionsStonePounds, id: "weightStonesPoundsWheel")
+            // Rightmost wheel of the compound: the "pounds" caption sits to the RIGHT of its wheel,
+            // like every other unit caption. Reuses the shared `pickerFeetInchesLabelOffsetX` knob.
             UITextPickerLabel("pounds")
                 .offset(x: pickerFeetInchesLabelOffsetX ?? pickerLabelOffsetX ?? 36)
         }
