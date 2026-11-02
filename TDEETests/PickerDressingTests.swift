@@ -105,12 +105,18 @@ struct PickerDressingTests {
         #expect(palette.isPickerThemed == false)
     }
 
-    @Test("every non-Orange theme stays undressed (plain)")
+    @Test("themes that don't opt in stay undressed (plain)")
     func testPlainThemesStayUndressed() {
-        for theme in DefaultThemes.all where theme.id != .orange {
+        // Orange and Emerald dress their DARK pickers; every other theme — and their own light palettes
+        // — stay undressed (the native wheel).
+        for theme in DefaultThemes.all {
             #expect(theme.light.isPickerThemed == false, "\(theme.name) light should be undressed")
-            #expect(theme.dark.isPickerThemed == false, "\(theme.name) dark should be undressed")
+            if theme.id != .orange && theme.id != .emerald {
+                #expect(theme.dark.isPickerThemed == false, "\(theme.name) dark should be undressed")
+            }
         }
+        #expect(DefaultThemes.orange.dark.isPickerThemed == true, "Orange dark should be themed")
+        #expect(DefaultThemes.emerald.dark.isPickerThemed == true, "Emerald dark should be themed")
     }
 
     // MARK: - Helpers (mirrors ThemeTests: Color is not Equatable, so compare via hex)

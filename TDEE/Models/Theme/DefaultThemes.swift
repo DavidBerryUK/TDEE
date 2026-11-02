@@ -253,7 +253,30 @@ enum DefaultThemes {
             border: Color(hex: "#205A3E"),
             macroProtein: Color(hex: "#E92366"),
             macroCarbs: Color(hex: "#3498DB"),
-            macroFat: Color(hex: "#F1C40F")
+            macroFat: Color(hex: "#F1C40F"),
+            // Full themed set for the dark scheme (mirrors Orange's dark treatment, in greens): a green
+            // nav bar matching the field, a distinct per-icon palette — a natural greens-forward set
+            // (forest / teal / goldenrod / slate / terracotta / plum, each white-legible as a solid
+            // chip), a distinct green expanded panel, and a light-mint picker panel with forced-light
+            // digits.
+            toolbar: .init(background: Color(hex: "#101E1B"), itemBackground: Color(hex: "#1E7A4D")),
+            iconColors: [
+                .gender:        Color(hex: "#2E8B57"), // sea green
+                .age:           Color(hex: "#157A5E"), // deep teal-green
+                .height:        Color(hex: "#B8860B"), // goldenrod (sunlight)
+                .weight:        Color(hex: "#3E7CB1"), // slate blue (water)
+                .activityLevel: Color(hex: "#C25E3A"), // terracotta (energy)
+                .bodyFat:       Color(hex: "#8E5BA6"), // plum (berry)
+                .calorie:       Color(hex: "#D35400"), // pumpkin (flame)
+                .protein:       Color(hex: "#E92366"), // pink-red
+                .carbs:         Color(hex: "#3498DB"), // blue
+                .fats:          Color(hex: "#B8860B"), // dark gold: bright #F1C40F fails 3:1 on white
+                .macroSplit:    Color(hex: "#16A085"), // teal
+            ],
+            expandedContentBackground: Color(hex: "#24503F"),
+            // Offsets left nil: a panel triggers the caption-beside layout, where they're inert
+            // (UIWheelXxxPlain.wheelWithCaption), so the one-call `.panel(…)` opt-in is enough.
+            pickerDressing: .panel(background: Color(hex: "#A8D5C4"), appearance: .light, width: 96)
         )
     )
 
