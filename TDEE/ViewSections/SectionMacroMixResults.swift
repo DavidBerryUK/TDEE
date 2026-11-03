@@ -17,23 +17,29 @@ struct SectionMacroMixResults: View {
         VStack{
             HStack{
                 UICardNumericResult(
-                    title: "protein \(calculationResults.proteinPercent)%",
+                    title: "protein",
                     value:  calculationResults.proteinGrams,
                     suffix:"g",
-                    color: palette.macroProtein
+                    color: palette.macroProtein,
+                    percent: calculationResults.proteinPercent,
+                    equalizeHeight: true
                 )
 
                 UICardNumericResult(
-                    title: "carbs \(calculationResults.carbsPercent)%",
+                    title: "carbs",
                     value: calculationResults.carbsGrams,
                     suffix:"g",
-                    color: palette.macroCarbs
+                    color: palette.macroCarbs,
+                    percent: calculationResults.carbsPercent,
+                    equalizeHeight: true
                 )
                 UICardNumericResult(
-                    title: "fats \(calculationResults.fatsPercent)%",
+                    title: "fats",
                     value: calculationResults.fatsGrams,
                     suffix:"g",
-                    color: palette.macroFat
+                    color: palette.macroFat,
+                    percent: calculationResults.fatsPercent,
+                    equalizeHeight: true
                 )
             }
         }.padding(Spacing.large) // <-- Using central constant
