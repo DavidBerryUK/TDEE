@@ -67,8 +67,11 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
                 // so the tint reads as a nested panel rather than a hard-edged block. Only the fill is
                 // rounded: the capsule tab and the already-rounded wheels sit inset, so nothing pokes out.
                 .background(background, in: RoundedRectangle(cornerRadius: 12))
-                // 2 pt off each edge: the panel stops butting against the card's left/right sides.
-                .padding(.horizontal, 2)
+                // 4 pt off each edge: the panel stops butting against the card's left/right sides.
+                .padding(.horizontal, 4)
+                // 4 pt below the panel too: a small gap so the tint doesn't butt against the card's
+                // bottom edge, mirroring the left/right insets.
+                .padding(.bottom, 4)
         } else {
             content
         }

@@ -22,6 +22,11 @@ struct MainSectionProfileInput: View {
         .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
         .animation(.easeInOut(duration: 0.3), value: profile.isWeightValid)
         .animation(.easeInOut(duration: 0.3), value: profile.isHeightValid)
+        // Body-fat expand/collapse: switching the method to Manual Entry grows the wheel in, so the
+        // whole card animates its height. Uses the section's own open/close spring (springDefault) so
+        // the inner picker panel and the card move identically — not the easeInOut the validity lines
+        // above use. Covers both the Classic and New body-fat variants, as both sit under this container.
+        .animation(AnimationParams.springDefault, value: profile.bodyFatPercentageMethod)
     }
 
     /// The sections, in display order — the surface the factory feeds to the main view.

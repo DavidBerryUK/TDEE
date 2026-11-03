@@ -28,12 +28,17 @@ struct SectionEditorBodyFatPercentage: View {
                     .accessibilityLabel("Body fat percentage calculation method selector")
             }
         ) {
-            // The active theme chooses the wheel's dressing (UIWheelBodyFatThemed vs Plain).
-            if palette.isPickerThemed {
-                UIWheelBodyFatThemed(value: $model.bodyFatPercentage)
-            } else {
-                UIWheelBodyFatPlain(value: $model.bodyFatPercentage)
+            Group {
+                // The active theme chooses the wheel's dressing (UIWheelBodyFatThemed vs Plain).
+                if palette.isPickerThemed {
+                    UIWheelBodyFatThemed(value: $model.bodyFatPercentage)
+                } else {
+                    UIWheelBodyFatPlain(value: $model.bodyFatPercentage)
+                }
             }
+            // Match the weight section: a 16pt (Spacing.large) top/bottom padding around the wheel so it
+            // breathes below the calculation-method segment instead of sitting tight under it.
+            .padding(.vertical, Spacing.large)
         }
         .accessibilityElement(children: .contain)
     }
