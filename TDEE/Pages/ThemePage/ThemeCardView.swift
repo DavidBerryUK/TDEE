@@ -55,10 +55,17 @@ struct ThemeCardView: View {
     }
 
     private func swatches(_ preview: ColorPalette) -> some View {
-        HStack(spacing: 0) {
-            ForEach(Array([preview.primary, preview.secondary, preview.surface,
-                           preview.macroProtein, preview.macroCarbs, preview.macroFat].enumerated()),
-                    id: \.offset) { _, color in
+        // A dressed theme (Pride) shows its per-section rainbow in input order; otherwise the fixed
+        // six-role row every other theme has always shown.
+        let colors: [Color]
+        if let dressing = preview.sectionDressing, !dressing.accents.isEmpty {
+            colors = SectionDressing.inputSections.map { dressing.accents[$0]?.swatch ?? .clear }
+        } else {
+            colors = [preview.primary, preview.secondary, preview.surface,
+                      preview.macroProtein, preview.macroCarbs, preview.macroFat]
+        }
+        return HStack(spacing: 0) {
+            ForEach(Array(colors.enumerated()), id: \.offset) { _, color in
                 color
             }
         }

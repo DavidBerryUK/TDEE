@@ -14,30 +14,44 @@ struct MainSectionProfileInput: View {
     let proxy: ScrollViewProxy?
 
     var body: some View {
-        VStack(spacing: 12) {
-            sections
-        }
-        .background(palette.surface)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
-        .animation(.easeInOut(duration: 0.3), value: profile.isWeightValid)
-        .animation(.easeInOut(duration: 0.3), value: profile.isHeightValid)
-        // Body-fat expand/collapse: switching the method to Manual Entry grows the wheel in, so the
-        // whole card animates its height. Uses the section's own open/close spring (springDefault) so
-        // the inner picker panel and the card move identically — not the easeInOut the validity lines
-        // above use. Covers both the Classic and New body-fat variants, as both sit under this container.
-        .animation(AnimationParams.springDefault, value: profile.bodyFatPercentageMethod)
+        inputCard
+            .animation(.easeInOut(duration: 0.3), value: profile.isWeightValid)
+            .animation(.easeInOut(duration: 0.3), value: profile.isHeightValid)
+            // Body-fat expand/collapse: switching the method to Manual Entry grows the wheel in, so the
+            // whole card animates its height. Uses the section's own open/close spring (springDefault) so
+            // the inner picker panel and the card move identically — not the easeInOut the validity lines
+            // above use. Covers both the Classic and New body-fat variants, as both sit under this container.
+            .animation(AnimationParams.springDefault, value: profile.bodyFatPercentageMethod)
     }
 
-    /// The sections, in display order — the surface the factory feeds to the main view.
+    /// The input sections, either as one card (undressed themes) or as six self-drawing cards (a
+    /// `sectionDressing` active, e.g. Pride — each `.sectionDressed(for:)` below draws its own card). When a
+    /// dressing is active the outer card is suppressed so the rainbow reads as six distinct cards; otherwise
+    /// the whole input is one card, exactly as before.
+    @ViewBuilder
+    private var inputCard: some View {
+        let stack = VStack(spacing: 12) {
+            sections
+        }
+        if palette.sectionDressing == nil {
+            stack
+                .background(palette.surface)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+                .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+        } else {
+            stack
+        }
+    }
+
+    /// The sections, in display order — each dressed with its own accent (a no-op for undressed themes).
     @ViewBuilder
     private var sections: some View {
-        genderSection
-        ageSection
-        heightSection
-        weightSection
-        activityLevelSection
-        bodyFatPercentageSection
+        genderSection.sectionDressed(for: .gender)
+        ageSection.sectionDressed(for: .age)
+        heightSection.sectionDressed(for: .height)
+        weightSection.sectionDressed(for: .weight)
+        activityLevelSection.sectionDressed(for: .activityLevel)
+        bodyFatPercentageSection.sectionDressed(for: .bodyFat)
     }
 
     @ViewBuilder

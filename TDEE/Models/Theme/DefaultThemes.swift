@@ -19,6 +19,7 @@ enum ThemeID: String, CaseIterable, Identifiable {
     case carrot
     case alizarin
     case highContrast
+    case pride
 
     var id: String { rawValue }
 }
@@ -37,6 +38,7 @@ enum DefaultThemes {
         carrot,
         alizarin,
         highContrast,
+        pride,
     ]
 
     static func theme(for id: ThemeID) -> Theme {
@@ -465,5 +467,54 @@ enum DefaultThemes {
             macroFat: Color(hex: "#FFC94D")
         )
     )
+
+
+    /// **Pride** — the LGBTQ+ rainbow as one theme that follows the system Light/Dark setting: the subtle
+    /// variant (each section a light tint of its swatch, wheels plain) in light mode, and the bold variant
+    /// (each section filled with its swatch, wheels dressed to match) in dark mode. The two palettes below
+    /// are the former `prideSoft` (light) and `pride` (dark) settings, **unchanged** — now sharing one
+    /// theme with no pinned scheme, so the user's Appearance choice decides which shows. The section colours
+    /// come from `SectionDressing.pride(...)`, expanded per section by `ColorPalette.resolved(for:)`; each
+    /// base palette also serves the non-section result/macro cards on its own surface.
+    static let pride: Theme = {
+        // Dark mode: bold — each section filled with its swatch on a near-black field.
+        let bold = ColorPalette(
+            primary: .white,
+            secondary: Color(hex: "#760089"),
+            background: Color(hex: "#0B0B0F"),          // near-black field
+            surface: Color(hex: "#1A1A22"),             // neutral card for the result/macro sections
+            text: .white,
+            textSecondary: Color(hex: "#C8C8D4"),
+            border: Color(hex: "#2A2A36"),
+            macroProtein: Color(hex: "#E91E63"),
+            macroCarbs: Color(hex: "#3498DB"),
+            macroFat: Color(hex: "#F1C40F"),
+            editText: .white,
+            highlight: .white,
+            selection: .white,
+            toolbar: .init(background: Color(hex: "#0B0B0F"), itemBackground: Color(hex: "#2A2A36")),
+            expandedContentBackground: Color(hex: "#1F1F2A"),
+            sectionDressing: SectionDressing.pride(.bold)
+        )
+        // Light mode: subtle — each section a light tint of its swatch on a warm off-white field, wheels plain.
+        let subtle = ColorPalette(
+            primary: Color(hex: "#5B0069"),   // deep magenta: reads on the light field for CTAs/selection
+            secondary: Color(hex: "#E70000"),
+            background: Color(hex: "#FBF7F5"), // warm off-white field
+            surface: .white,                   // per-section tints override this for the input card
+            text: Color(hex: "#1A1A22"),
+            textSecondary: Color(hex: "#6A6A78"),
+            border: Color(hex: "#ECE3E6"),
+            macroProtein: Color(hex: "#E91E63"),
+            macroCarbs: Color(hex: "#3498DB"),
+            macroFat: Color(hex: "#AE8E0A"),
+            toolbar: .init(background: Color(hex: "#FBF7F5"), itemBackground: Color(hex: "#F0E6EA")),
+            sectionDressing: SectionDressing.pride(.subtle)
+        )
+        return Theme(
+            id: .pride, name: "Pride", description: "LGBTQ+ rainbow — subtle in light, bold in dark",
+            light: subtle, dark: bold, colorScheme: nil
+        )
+    }()
 
 }

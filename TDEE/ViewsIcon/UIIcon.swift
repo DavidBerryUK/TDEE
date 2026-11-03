@@ -28,9 +28,10 @@ struct UIIcon: View {
     
     var body: some View {
         if let iconInfo = iconCatalog[icon] {
-            // A theme may override an icon's colour (e.g. to unify the section icons on-brand);
-            // fall back to the built-in catalog colour when it doesn't.
-            let iconColor = palette.iconColors?[icon] ?? iconInfo.color
+            // A theme may override an icon's colour (e.g. to unify the section icons on-brand); a
+            // per-section accent wins first (the Pride rainbow), then the theme-wide `iconColors`, then the
+            // built-in catalog colour.
+            let iconColor = palette.sectionAccent ?? palette.iconColors?[icon] ?? iconInfo.color
 
             // Determine symbol and colors based on style
             let (symbol, foreground, background, cornerRadius): (String, Color, Color?, CGFloat?) = {

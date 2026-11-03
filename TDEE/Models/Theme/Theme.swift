@@ -4,6 +4,7 @@
 //
 
 import SwiftUI
+import Foundation
 
 /// The colour roles every view draws from. See documentation/stories/story-018-themes/palettes.md.
 struct ColorPalette {
@@ -71,12 +72,85 @@ struct ColorPalette {
     /// caption can sit *between* them. `nil` (the default) uses the group's natural spacing.
     let pickerWheelSpacing: CGFloat?
 
+    /// This palette's own per-section accent — the swatch `UIIcon` colours its chip with, read *first*
+    /// before the theme-wide `iconColors`. Set by `resolved(for:)`; `nil` on a theme's base palette (so the
+    /// chip falls back to `iconColors`, then the built-in catalog colour).
+    let sectionAccent: Color?
+
+    /// The per-section dressing the theme adopts (`SectionDressing`); `nil` means no per-section dressing,
+    /// so every existing theme is untouched. `resolved(for:)` consumes it to produce a per-section palette
+    /// and clears it (to `nil`) on the result, so resolution never recurses.
+    let sectionDressing: SectionDressing?
+
     /// Whether the theme dresses the wheel picker — a panel or a forced appearance. A parent shows the
     /// themed wheel (`UIWheelXxxThemed`) when this is true and the plain wheel (`UIWheelXxxPlain`)
     /// otherwise; every theme that doesn't opt in leaves both picker fields `nil`, so its wheels stay
     /// plain.
     var isPickerThemed: Bool {
         pickerBackground != nil || pickerColorScheme != nil
+    }
+
+    /// This palette with the per-section fields for `icon` substituted, so a section's icon chip, text,
+    /// expanded panel and wheel/segment panel all cohere to its swatch — without editing the frozen picker
+    /// views (they read the resulting fields from the injected `@Environment(\.palette)`).
+    ///
+    /// Returns `self` unchanged when there is no dressing for this icon (or none at all), so a non-dressed
+    /// palette is a no-op and the existing themes render exactly as before. The result always clears
+    /// `sectionDressing` (to `nil`) so resolution never recurses.
+    func resolved(for icon: Icon) -> ColorPalette {
+        guard let dressing = sectionDressing, let accent = dressing.accents[icon] else {
+            return self
+        }
+        switch accent.mode {
+        case .bold:
+            // Fill the section with the swatch; text is the legible colour for that swatch (white on the
+            // dark swatches, near-black on yellow/orange). The wheel/segment panel is a light tint of the
+            // swatch with forced-light digits, exactly the Orange theme's treatment.
+            let onText = accent.onText
+            return ColorPalette(
+                primary: onText,
+                secondary: secondary,
+                background: background,
+                surface: accent.swatch,
+                text: onText,
+                textSecondary: onText.opacity(0.75),
+                border: border,
+                macroProtein: macroProtein,
+                macroCarbs: macroCarbs,
+                macroFat: macroFat,
+                editText: onText,
+                highlight: onText,
+                selection: onText,
+                toolbar: toolbar,
+                iconColors: iconColors,
+                expandedContentBackground: accent.swatch,
+                pickerDressing: .panel(background: accent.panelBackground, appearance: .light, width: 96),
+                sectionAccent: accent.swatch,
+                sectionDressing: nil
+            )
+        case .subtle:
+            // A light tint of the swatch on the field; text and selection stay the base palette's. Wheels
+            // stay plain (no per-section dressing) — the subtle variation keeps the rainbow on the card +
+            // the solid icon chip only.
+            return ColorPalette(
+                primary: primary,
+                secondary: secondary,
+                background: background,
+                surface: accent.swatch.opacity(dressing.subtleIntensity),
+                text: text,
+                textSecondary: textSecondary,
+                border: border,
+                macroProtein: macroProtein,
+                macroCarbs: macroCarbs,
+                macroFat: macroFat,
+                toolbar: toolbar,
+                iconColors: iconColors,
+                expandedContentBackground: accent.swatch.opacity(min(dressing.subtleIntensity + 0.08, 0.5)),
+                pickerDressing: nil,
+                sectionAccent: accent.swatch,
+                sectionDressing: nil
+            )
+        }
     }
 
     /// How a theme overrides the navigation bar. A `nil` `background` keeps
@@ -107,7 +181,8 @@ struct ColorPalette {
         editText: Color? = nil, highlight: Color? = nil, selection: Color? = nil,
         toolbar: Toolbar? = nil, iconColors: [Icon: Color]? = nil,
         expandedContentBackground: Color? = nil,
-        pickerDressing: PickerDressing? = nil
+        pickerDressing: PickerDressing? = nil,
+        sectionAccent: Color? = nil, sectionDressing: SectionDressing? = nil
     ) {
         self.primary = primary
         self.secondary = secondary
@@ -136,6 +211,8 @@ struct ColorPalette {
         self.pickerFeetLabelOffsetX = dressing.feetLabelOffsetX
         self.pickerFeetInchesLabelOffsetX = dressing.feetInchesLabelOffsetX
         self.pickerWheelSpacing = dressing.wheelSpacing
+        self.sectionAccent = sectionAccent
+        self.sectionDressing = sectionDressing
     }
 }
 
@@ -167,5 +244,49 @@ extension Color {
             green: Double((value >> 8) & 0xFF) / 255,
             blue: Double(value & 0xFF) / 255
         )
+    }
+
+    /// White or near-black, whichever has the better contrast against a solid `#hex` swatch — the per-section
+    /// text for the bold mode (a rainbow forces a per-section text colour; see `SectionAccent.onText`).
+    ///
+    /// `Color` exposes no RGB, so the decision is computed from the hex string: the swatch's relative
+    /// luminance decides which of white / near-black contrasts better.
+    static func legibleText(forHex hex: String) -> Color {
+        let luminance = relativeLuminance(rgbFromHex(hex))
+        let whiteContrast = (1.0 + 0.05) / (luminance + 0.05)
+        let blackContrast = (luminance + 0.05) / 0.05
+        return blackContrast > whiteContrast ? Color(hex: "#141414") : .white
+    }
+
+    /// A light tint of a `#hex` swatch, blended `ratio` toward white — used as a bold section's wheel/segment
+    /// panel so the forced-light digits read while the panel stays in the section's colour family.
+    static func lightTint(forHex hex: String, ratio: Double = 0.82) -> Color {
+        let rgb = rgbFromHex(hex)
+        func lighten(_ channel: Double) -> Double { channel + (1 - channel) * ratio }
+        return Color(
+            .sRGB,
+            red: lighten(rgb.0),
+            green: lighten(rgb.1),
+            blue: lighten(rgb.2)
+        )
+    }
+
+    /// The normalised sRGB channels (each 0…1) of a `#RRGGBB` string; invalid input gives black.
+    private static func rgbFromHex(_ hex: String) -> (Double, Double, Double) {
+        let digits = hex.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
+        let value = UInt32(digits, radix: 16) ?? 0
+        return (
+            Double((value >> 16) & 0xFF) / 255,
+            Double((value >> 8) & 0xFF) / 255,
+            Double(value & 0xFF) / 255
+        )
+    }
+
+    /// WCAG relative luminance of an sRGB colour, linearising each channel first.
+    private static func relativeLuminance(_ rgb: (Double, Double, Double)) -> Double {
+        func linear(_ c: Double) -> Double {
+            c <= 0.03928 ? c / 12.92 : pow((c + 0.055) / 1.055, 2.4)
+        }
+        return 0.2126 * linear(rgb.0) + 0.7152 * linear(rgb.1) + 0.0722 * linear(rgb.2)
     }
 }

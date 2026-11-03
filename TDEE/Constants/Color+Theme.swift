@@ -100,6 +100,42 @@ extension View {
     func segmentDressing() -> some View {
         modifier(SegmentDressingModifier())
     }
+
+    /// Dresses one input section with its own accent: injects `palette.resolved(for:)` for `icon` so the
+    /// section's icon chip, text, expanded panel and wheel/segment panel all cohere to its swatch, and
+    /// draws the section's own rounded card. No-op when the active palette has no `sectionDressing` — so every
+    /// existing theme (and the non-section result/macro cards) render exactly as before.
+    ///
+    /// The per-section palette is injected into the environment rather than passed in, so the *frozen* picker
+    /// views (`UIThemedWheelPicker`, `UISegment*`) pick up the section's dressing from
+    /// `@Environment(\.palette)` with no edits to them — the model-layer route the project's picker-freeze
+    /// rule requires.
+    func sectionDressed(for icon: Icon) -> some View {
+        modifier(SectionDressingModifier(icon: icon))
+    }
+}
+
+/// Injects `palette.resolved(for:)` for one section so the icon, text, wheel and segment panel cohere to its
+/// swatch, and draws the section's own rounded card. Identity when the palette has no `sectionDressing`, so
+/// undressed themes are byte-for-byte unchanged.
+struct SectionDressingModifier: ViewModifier {
+    let icon: Icon
+    @Environment(\.palette) private var palette
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        // No dressing for this palette: the section keeps the card the container draws around it.
+        if palette.sectionDressing != nil {
+            let resolved = palette.resolved(for: icon)
+            content
+                .environment(\.palette, resolved)          // flows to UIIcon + the frozen wheel/segment views
+                .foregroundStyle(resolved.text)            // titles/labels with no explicit colour inherit the legible
+                .tint(resolved.sectionAccent ?? resolved.primary)   // selection/highlight read in the section's own colour
+                .background(resolved.surface, in: RoundedRectangle(cornerRadius: 12))
+        } else {
+            content
+        }
+    }
 }
 
 /// Dresses a segmented control like its theme's wheel picker — reusing the palette's picker dressing
