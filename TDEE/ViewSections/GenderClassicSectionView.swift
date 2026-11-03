@@ -31,6 +31,7 @@ struct GenderClassicSectionView: View {
             },
             editorView: {
                 UISegmentGenderView(option: $model.gender)
+                    .segmentDressing()
                     .padding(.horizontal, 8)
             },
             proxy: proxy

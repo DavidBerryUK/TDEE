@@ -21,6 +21,7 @@ struct SectionEditorHeight: View {
     var body: some View {
         VStack {
             UISegmentUomLengthView(option: $model.heightUom)
+                .segmentDressing()
                 .padding(.horizontal, 8)
             Group {
                 // The active theme chooses the wheel's dressing (UIWheelHeightThemed vs UIWheelHeightPlain).

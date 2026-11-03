@@ -87,6 +87,7 @@ struct CalorieAdjustmentNewSectionView: View {
         } else {
             // Classic toggle, or accessibility sizes: the segmented control reused verbatim.
             UISegmentCalorieAdjustmentMethodView(option: $model.calorieAdjustmentMethod)
+                .segmentDressing()
         }
     }
 

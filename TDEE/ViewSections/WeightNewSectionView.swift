@@ -70,6 +70,7 @@ struct WeightNewSectionView: View {
         } else {
             // Classic toggle, or accessibility sizes: the segmented control reused verbatim.
             UISegmentUomWeightView(option: $model.weightUom)
+                .segmentDressing()
         }
     }
 

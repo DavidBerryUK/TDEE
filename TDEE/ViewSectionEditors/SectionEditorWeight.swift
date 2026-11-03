@@ -21,6 +21,7 @@ struct SectionEditorWeight: View {
     var body: some View {
         VStack {
             UISegmentUomWeightView(option: $model.weightUom)
+                .segmentDressing()
                 .padding(.horizontal, 8)
             Group {
                 // The active theme chooses the wheel's dressing (UIWheelWeightThemed vs UIWheelWeightPlain).

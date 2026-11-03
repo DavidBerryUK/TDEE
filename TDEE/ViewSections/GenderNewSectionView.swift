@@ -35,10 +35,12 @@ struct GenderNewSectionView: View {
                 Spacer(minLength: Spacing.large)
                 if !dynamicTypeSize.isAccessibilitySize {
                     UISegmentGenderView(option: $model.gender)
+                        .segmentDressing()
                 }
             }
             if dynamicTypeSize.isAccessibilitySize {
                 UISegmentGenderView(option: $model.gender)
+                    .segmentDressing()
             }
         }
         .padding(Spacing.large)

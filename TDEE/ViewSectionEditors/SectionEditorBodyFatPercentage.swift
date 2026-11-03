@@ -24,6 +24,7 @@ struct SectionEditorBodyFatPercentage: View {
             isOpen: $model.bodyFatPercentageShowManualEntry,
             header: {
                 UISegmentBodyFatCalcMethodView(option: $model.bodyFatPercentageMethod)
+                    .segmentDressing()
                     .padding(.horizontal, 8)
                     .accessibilityLabel("Body fat percentage calculation method selector")
             }

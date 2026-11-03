@@ -24,6 +24,7 @@ struct SectionEditorCalorieAdjustment: View {
                 isOpen: $model.calorieAdjustmentShowSliders,
                 header: {
                     UISegmentCalorieAdjustmentMethodView(option: $model.calorieAdjustmentMethod)
+                        .segmentDressing()
                         .padding(.leading, 16)
                         .padding(.trailing, 16)
                         .padding(.bottom, 8)

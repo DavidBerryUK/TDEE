@@ -86,6 +86,7 @@ struct BodyFatPercentageNewSectionView: View {
         } else {
             // Classic toggle, or accessibility sizes: the segmented control reused verbatim.
             UISegmentBodyFatCalcMethodView(option: $model.bodyFatPercentageMethod)
+                .segmentDressing()
         }
     }
 

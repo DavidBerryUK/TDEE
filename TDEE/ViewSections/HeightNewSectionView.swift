@@ -70,6 +70,7 @@ struct HeightNewSectionView: View {
         } else {
             // Classic toggle, or accessibility sizes: the segmented control reused verbatim.
             UISegmentUomLengthView(option: $model.heightUom)
+                .segmentDressing()
         }
     }
 

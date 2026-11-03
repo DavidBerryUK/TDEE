@@ -93,6 +93,31 @@ extension View {
             self
         }
     }
+
+    /// Inset a segmented control into the theme's light picker panel and force its appearance, so its
+    /// segments read on a distinct light field instead of washing out on a vivid surface (Orange). Only
+    /// picker-themed palettes opt in; every other theme leaves the control bare, exactly as before.
+    func segmentDressing() -> some View {
+        modifier(SegmentDressingModifier())
+    }
+}
+
+/// Dresses a segmented control like its theme's wheel picker — reusing the palette's picker dressing
+/// (`pickerBackground` / `pickerColorScheme`) rather than a parallel set of segment fields, so the
+/// control and the wheel stay coherent in one theme.
+struct SegmentDressingModifier: ViewModifier {
+    @Environment(\.palette) private var palette
+
+    func body(content: Content) -> some View {
+        if let background = palette.pickerBackground {
+            content
+                .environment(\.colorScheme, palette.pickerColorScheme ?? .light)
+                .padding(Spacing.small)
+                .background(background, in: RoundedRectangle(cornerRadius: 12))
+        } else {
+            content
+        }
+    }
 }
 
 /// A cluster of toolbar buttons that share one background.
