@@ -52,9 +52,9 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
     }
 
     /// The editor region shown when the section is open. When the theme supplies an
-    /// `expandedContentBackground`, the editor sits on that tint — a distinct panel below the
-    /// header — so the open content stands away from the section's `surface`. With no override the
-    /// content is unchanged and stays on `surface`, exactly as before.
+    /// `expandedContentBackground`, the editor sits on that tint — a rounded panel (12 pt, matching the
+    /// enclosing card) below the header — so the open content stands away from the section's `surface`.
+    /// With no override the content is unchanged and stays on `surface`, exactly as before.
     @ViewBuilder
     private var expandedContent: some View {
         let content = editorView()
@@ -63,7 +63,12 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
         if let background = palette.expandedContentBackground {
             content
                 .frame(maxWidth: .infinity)
-                .background(background)
+                // Rounded like the enclosing input card and the wheel panels it wraps (both 12 pt),
+                // so the tint reads as a nested panel rather than a hard-edged block. Only the fill is
+                // rounded: the capsule tab and the already-rounded wheels sit inset, so nothing pokes out.
+                .background(background, in: RoundedRectangle(cornerRadius: 12))
+                // 2 pt off each edge: the panel stops butting against the card's left/right sides.
+                .padding(.horizontal, 2)
         } else {
             content
         }
