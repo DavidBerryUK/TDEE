@@ -45,6 +45,9 @@ struct ThemeCardView: View {
                 RoundedRectangle(cornerRadius: 14)
                     .strokeBorder(isSelected ? palette.primary : preview.border, lineWidth: isSelected ? 3 : 1)
             }
+            // The Neon theme's own card glows in the picker — a bloom on the theme preview (nil for every
+            // other theme → unchanged).
+            .neonGlowBloom(preview.glow, color: preview.highlight)
         }
         .buttonStyle(.plain)
         .accessibilityElement(children: .ignore)

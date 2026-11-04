@@ -41,6 +41,10 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
             .font(.headline)
             .contentTransition(.interpolate)
             .animation(.easeInOut, value: title)
+            // A neon heading bloom in the section's own hue — the dressed input sections glow their rainbow
+            // hue, the non-dressed result/macro sections glow the house neon. `nil` for every theme that
+            // doesn't opt in → unchanged.
+            .neonHeading(palette.glow, color: palette.sectionAccent)
     }
 
     private var chevron: some View {

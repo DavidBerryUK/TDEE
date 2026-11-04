@@ -177,6 +177,26 @@ Maximum legibility, single strong accent
 | `macroCarbs` | `#0033CC` | `#7FB2FF` |
 | `macroFat` | `#B36B00` | `#FFC94D` |
 
+## Neon
+
+Per-section electric rainbow with a glow — a restrained glowing "neon card" on every scheme: neon-on-dark (a near-black field) and neon-on-light (a cooler, deeper grey field + a lit-tube core). The only theme that sets the new `glow` field (`GlowDressing`): a crisp rounded-rect outline plus a layered-shadow bloom on every card, and glowing section headings. On a light field an outer halo is nearly invisible, so the light scheme adds a `tubeCore` — a bright inner line on every card outline (the "lit tube") — and sits on a deeper grey so the halo has a ground to read against. Each input card is a faint tint of its hue with a solid glowing border in that hue (dark `subtleIntensity 0.1` matches the result/macro boxes' 0.1 fill; light uses 0.12) via `SectionDressing.neon(.subtle)`; the result/macro cards glow the house cyan. No `colorScheme` pin, so the user's Appearance choice decides which shows.
+
+| Token | Light | Dark |
+|---|---|---|
+| `primary` | `#005FBF` | `#19E6FF` |
+| `secondary` | `#B0006A` | `#FF2E9A` |
+| `background` | `#DCE2F1` | `#0A0A10` |
+| `surface` | `#F0F3FB` | `#14141C` |
+| `text` | `#141026` | `#F2F6FF` |
+| `textSecondary` | `#5B5E7A` | `#9DA3C9` |
+| `border` | `#C7D1E6` | `#2A2A40` |
+| `macroProtein` | `#C2185B` | `#FF2E9A` |
+| `macroCarbs` | `#0072BC` | `#19E6FF` |
+| `macroFat` | `#AE8E0A` | `#FFD23F` |
+| `glow` | `fullLightTube` — stroke `#005FBF`, core r1.5/0.6, halo r9/0.32, tube core white 0.75/inset 0.6 | `full` — stroke `#19E6FF`, core r2.5/0.95, halo r16/0.5 |
+
+Section hues (one table, both schemes, via `SectionDressing.neon(.subtle)`): gender `#1E5CFF`, age `#E6007A`, height `#F0C000`, weight `#00B85C`, activityLevel `#E65100`, bodyFat `#9B2BFF`. Each card is the hue tinted (dark 10%, light 12%) with a solid border and glow in the full hue; light adds a white tube core on the outline. Text is the scheme's base colour (light on dark, deep ink on light).
+
 ## Contrast summary (vs surface)
 
 | Theme | Mode | text | textSecondary | primary | lowest macro |
@@ -201,3 +221,5 @@ Maximum legibility, single strong accent
 | Alizarin | dark | 12.9 | 6.1 | 4.7 | 3.4 |
 | High Contrast | light | 21.0 | 15.1 | 9.0 | 4.2 |
 | High Contrast | dark | 17.4 | 13.2 | 8.1 | 7.9 |
+| Neon | light | 18.55 | 6.31 | 6.20 | 3.15 |
+| Neon | dark | 16.92 | 7.43 | 12.04 | 5.33 |

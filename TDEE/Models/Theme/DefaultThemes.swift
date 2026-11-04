@@ -20,6 +20,7 @@ enum ThemeID: String, CaseIterable, Identifiable {
     case alizarin
     case highContrast
     case pride
+    case neon
 
     var id: String { rawValue }
 }
@@ -39,6 +40,7 @@ enum DefaultThemes {
         alizarin,
         highContrast,
         pride,
+        neon,
     ]
 
     static func theme(for id: ThemeID) -> Theme {
@@ -515,6 +517,83 @@ enum DefaultThemes {
             id: .pride, name: "Pride", description: "LGBTQ+ rainbow — subtle in light, bold in dark",
             light: subtle, dark: bold, colorScheme: nil
         )
+    }()
+
+
+    /// **Neon** — a per-section electric rainbow on a near-black field, with a crisp rounded-rect outline and a
+    /// layered-shadow bloom on every card, plus glowing section headings. One net-new field, `glow: GlowDressing?`,
+    /// switches the whole look on; every effect is gated on it, so the other themes render byte-for-byte unchanged
+    /// and the frozen card/picker views are never edited.
+    ///
+    /// **Dark** is `SectionDressing.neon(.subtle, subtleIntensity: 0.1)`: each input card is a faint tint of its
+    /// hue with a solid glowing border and a glow in that hue — the same restrained "neon card" as the
+    /// result/macro boxes — on the near-black field; the result/macro cards glow the house cyan.
+    ///
+    /// **Light** is `SectionDressing.neon(.subtle, 0.12)` with a lit-tube glow (`.fullLightTube`): the same six
+    /// hues as faint tints on a light cool-grey field (`#E7EAF4` page, `#F5F7FC` cards — light enough to stay
+    /// clean, with just enough ground for a wide halo to register), a bright inner core on every card outline
+    /// (the "lit tube"), a widened halo (r15), and a near-white heading glow so the titles read as clean lit
+    /// text. The macros and the CTA/highlight are deepened (cyan `#19E6FF → #005FBF`) so text clears 4.5:1, and
+    /// `editText` stays deep ink so an expanded value reads on the faint tint.
+    ///
+    /// No `colorScheme` pin, so the user's Appearance choice decides which shows. The per-section glow colour
+    /// falls out of `resolved.sectionAccent`, so the rainbow needs no per-card field.
+    static let neon: Theme = {
+        let dark = ColorPalette(
+            primary: Color(hex: "#19E6FF"),
+            secondary: Color(hex: "#FF2E9A"),
+            background: Color(hex: "#0A0A10"),
+            surface: Color(hex: "#14141C"),
+            text: Color(hex: "#F2F6FF"),
+            textSecondary: Color(hex: "#9DA3C9"),
+            border: Color(hex: "#2A2A40"),
+            macroProtein: Color(hex: "#FF2E9A"),
+            macroCarbs: Color(hex: "#19E6FF"),
+            macroFat: Color(hex: "#FFD23F"),
+            editText: .white,
+            highlight: Color(hex: "#19E6FF"),
+            selection: Color(hex: "#19E6FF"),
+            toolbar: .init(background: Color(hex: "#0A0A10"), itemBackground: Color(hex: "#1E1E30")),
+            iconColors: [
+                .calorie:    Color(hex: "#FF7A1A"),
+                .protein:    Color(hex: "#FF2E9A"),
+                .carbs:      Color(hex: "#19E6FF"),
+                .fats:       Color(hex: "#FFD23F"),
+                .macroSplit: Color(hex: "#B14BFF"),
+            ],
+            expandedContentBackground: Color(hex: "#1A1A2C"),
+            sectionDressing: SectionDressing.neon(.subtle, subtleIntensity: 0.1),
+            glow: .full
+        )
+
+        let light = ColorPalette(
+            primary: Color(hex: "#005FBF"),
+            secondary: Color(hex: "#B0006A"),
+            background: Color(hex: "#E7EAF4"),
+            surface: Color(hex: "#F5F7FC"),
+            text: Color(hex: "#141026"),
+            textSecondary: Color(hex: "#5B5E7A"),
+            border: Color(hex: "#C7D1E6"),
+            macroProtein: Color(hex: "#C2185B"),
+            macroCarbs: Color(hex: "#0072BC"),
+            macroFat: Color(hex: "#AE8E0A"),
+            editText: Color(hex: "#141026"),
+            highlight: Color(hex: "#005FBF"),
+            selection: Color(hex: "#005FBF"),
+            toolbar: .init(background: Color(hex: "#E7EAF4"), itemBackground: Color(hex: "#DCE3F1")),
+            iconColors: [
+                .calorie:    Color(hex: "#E65100"),
+                .protein:    Color(hex: "#C2185B"),
+                .carbs:      Color(hex: "#0072BC"),
+                .fats:       Color(hex: "#AE8E0A"),
+                .macroSplit: Color(hex: "#7B2FE0"),
+            ],
+            expandedContentBackground: Color(hex: "#F4F6FC"),
+            sectionDressing: SectionDressing.neon(.subtle, subtleIntensity: 0.12),
+            glow: .fullLightTube
+        )
+
+        return Theme(id: .neon, name: "Neon", description: "Per-section electric rainbow with a glow — neon-on-dark, neon-on-light", light: light, dark: dark)
     }()
 
 }

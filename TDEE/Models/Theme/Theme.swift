@@ -82,6 +82,15 @@ struct ColorPalette {
     /// and clears it (to `nil`) on the result, so resolution never recurses.
     let sectionDressing: SectionDressing?
 
+    /// The theme's neon bloom — a crisp rounded-rect outline plus a layered-shadow glow on every card, and
+    /// (optionally) glowing section headings. `nil` (the default) means no glow, so every theme that doesn't
+    /// opt in renders byte-for-byte unchanged and the frozen card/picker views are never edited — the opt-in
+    /// discipline `PickerDressing`/`SectionDressing` use. The per-card glow *colour* falls out of the existing
+    /// resolution (`resolved.sectionAccent ?? glow.stroke`), so a multi-hue glow needs no per-card field.
+    /// `resolved(for:)` propagates it through *both* branches, or a dressed section would resolve to `glow ==
+    /// nil` and glow nothing.
+    let glow: GlowDressing?
+
     /// Whether the theme dresses the wheel picker — a panel or a forced appearance. A parent shows the
     /// themed wheel (`UIWheelXxxThemed`) when this is true and the plain wheel (`UIWheelXxxPlain`)
     /// otherwise; every theme that doesn't opt in leaves both picker fields `nil`, so its wheels stay
@@ -126,7 +135,8 @@ struct ColorPalette {
                 expandedContentBackground: accent.swatch,
                 pickerDressing: .panel(background: accent.panelBackground, appearance: .light, width: 96),
                 sectionAccent: accent.swatch,
-                sectionDressing: nil
+                sectionDressing: nil,
+                glow: glow
             )
         case .subtle:
             // A light tint of the swatch on the field; text and selection stay the base palette's. Wheels
@@ -148,7 +158,8 @@ struct ColorPalette {
                 expandedContentBackground: accent.swatch.opacity(min(dressing.subtleIntensity + 0.08, 0.5)),
                 pickerDressing: nil,
                 sectionAccent: accent.swatch,
-                sectionDressing: nil
+                sectionDressing: nil,
+                glow: glow
             )
         }
     }
@@ -182,7 +193,8 @@ struct ColorPalette {
         toolbar: Toolbar? = nil, iconColors: [Icon: Color]? = nil,
         expandedContentBackground: Color? = nil,
         pickerDressing: PickerDressing? = nil,
-        sectionAccent: Color? = nil, sectionDressing: SectionDressing? = nil
+        sectionAccent: Color? = nil, sectionDressing: SectionDressing? = nil,
+        glow: GlowDressing? = nil
     ) {
         self.primary = primary
         self.secondary = secondary
@@ -213,6 +225,7 @@ struct ColorPalette {
         self.pickerWheelSpacing = dressing.wheelSpacing
         self.sectionAccent = sectionAccent
         self.sectionDressing = sectionDressing
+        self.glow = glow
     }
 }
 

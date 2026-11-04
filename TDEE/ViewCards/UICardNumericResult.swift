@@ -57,7 +57,13 @@ struct UICardNumericResult: View {
         .overlay(
             RoundedRectangle(cornerRadius: 12)
                 .stroke(color ?? palette.highlight, lineWidth: 1.5)
+                // The neon bloom on the outline — tinted by the card's own colour (the macro colour when
+                // present, else the house highlight). `nil` for every theme that doesn't opt in → unchanged.
+                .neonGlowBloom(palette.glow, color: color ?? palette.highlight)
         )
+        // The lit-tube core (a bright inner line) on the card's own outline — the part that reads as "neon" on a
+        // light field. No-op for every theme that doesn't set a `tubeCore`, so the border alone is unchanged.
+        .neonTube(palette.glow, radius: 12)
     }
 
     /// The label plus, when present, a smaller, dimmer percentage on the same baseline.

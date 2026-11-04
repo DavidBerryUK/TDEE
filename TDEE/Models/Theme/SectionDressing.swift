@@ -74,4 +74,28 @@ struct SectionDressing: Equatable {
         }
         return SectionDressing(accents: accents)
     }
+
+    /// The Neon rainbow: the same six electric hues as a `[Icon: String]` table over `inputSections`, in one
+    /// source so both neon schemes share a single rainbow — mirroring `pride(_)`. Neon uses `.subtle` for
+    /// *both* schemes: a faint tint of the hue with a crisp neon outline and a glow — the restrained "neon card"
+    /// look that matches the result/macro boxes — on a near-black field in dark and a near-white one in light.
+    /// `subtleIntensity` tunes the tint (0.1 matches the macro cards exactly); `.bold` (a solid hue fill, white/
+    /// near-black text via `legibleText`) is still available for Pride-dark but no longer used by Neon.
+    static func neon(_ mode: SectionAccentMode, subtleIntensity: Double = 0.14) -> SectionDressing {
+        // Display order → swatch. Kept as a table so `inputSections` and the colours can't drift apart.
+        let swatches: [Icon: String] = [
+            .gender:        "#1E5CFF", // electric blue
+            .age:           "#E6007A", // hot magenta
+            .height:        "#F0C000", // neon yellow
+            .weight:        "#00B85C", // neon green
+            .activityLevel: "#E65100", // neon orange
+            .bodyFat:       "#9B2BFF", // electric violet
+        ]
+        let accents = inputSections.reduce(into: [Icon: SectionAccent]()) { accumulation, icon in
+            if let hex = swatches[icon] {
+                accumulation[icon] = SectionAccent(hex: hex, mode: mode)
+            }
+        }
+        return SectionDressing(accents: accents, subtleIntensity: subtleIntensity)
+    }
 }

@@ -113,6 +113,77 @@ extension View {
     func sectionDressed(for icon: Icon) -> some View {
         modifier(SectionDressingModifier(icon: icon))
     }
+
+    // MARK: Neon glow — gated on a palette's `glow`, a no-op for every theme that doesn't opt in, so the frozen
+    // card/picker views stay untouched and undressed themes render exactly as before.
+
+    /// A theme's neon bloom: a tight bright core inside a wide soft halo, each layer tinted by `color` and
+    /// compounding on the previous. `nil` (every theme that doesn't opt in) returns the view unchanged.
+    @ViewBuilder
+    func neonGlowBloom(_ glow: GlowDressing?, color: Color? = nil) -> some View {
+        if let glow {
+            let c = color ?? glow.stroke
+            self
+                .shadow(color: c.opacity(glow.core.opacity), radius: glow.core.radius, x: glow.core.x, y: glow.core.y)
+                .shadow(color: c.opacity(glow.halo.opacity), radius: glow.halo.radius, x: glow.halo.x, y: glow.halo.y)
+        } else {
+            self
+        }
+    }
+
+    /// A theme's full neon card treatment: a crisp rounded-rect outline in `color`, then the bloom above it.
+    /// `color` defaults to the dressing's `stroke`; a dressed section passes its own `sectionAccent`, so the
+    /// six-hue rainbow glows per card from a single field. `nil` returns the view unchanged.
+    @ViewBuilder
+    func neonCard(_ glow: GlowDressing?, color: Color? = nil, radius: CGFloat = 12) -> some View {
+        if let glow {
+            self
+                .overlay(RoundedRectangle(cornerRadius: radius).stroke(color ?? glow.stroke, lineWidth: glow.strokeWidth))
+                // The lit-tube core (a bright inner line) when the dressing has one — the part that reads on a
+                // light field. No-op for every dressing without a `tubeCore`.
+                .neonTube(glow, radius: radius)
+                .neonGlowBloom(glow, color: color)
+        } else {
+            self
+        }
+    }
+
+    /// A lit-tube core — a thin bright line drawn just *inside* a card's outline, so the border reads as a lit
+    /// neon tube rather than a flat stroke. On a *light* field, where an outer halo (a coloured shadow on
+    /// near-white) is nearly invisible, this inner line is what registers as "lit". No-op when the dressing has
+    /// no `tubeCore` (every theme that doesn't opt in), so undressed cards — and every non-neon theme — draw
+    /// their outline exactly as before.
+    @ViewBuilder
+    func neonTube(_ glow: GlowDressing?, radius: CGFloat = 12) -> some View {
+        if let glow, let tube = glow.tubeCore {
+            self
+                .overlay(
+                    RoundedRectangle(cornerRadius: radius - tube.inset)
+                        .stroke(tube.color, lineWidth: tube.width)
+                        .padding(tube.inset)
+                )
+        } else {
+            self
+        }
+    }
+
+    /// A neon text bloom for a section heading — a bright core inside a soft halo, tinted by `color`. Fires only
+    /// when the dressing has `headingGlow`, and `nil` (every non-neon theme) returns the text unchanged, so body
+    /// and value text is never bloomed.
+    @ViewBuilder
+    func neonHeading(_ glow: GlowDressing?, color: Color? = nil) -> some View {
+        if let glow, glow.headingGlow {
+            // A scheme can override the heading glow colour (`headingColor`) — light Neon uses a near-white so
+            // the titles read as clean lit text instead of a muddy saturated halo. `nil` (every other theme)
+            // keeps the per-section hue / house stroke.
+            let c = glow.headingColor ?? color ?? glow.stroke
+            self
+                .shadow(color: c.opacity(0.85), radius: 1.5)
+                .shadow(color: c.opacity(0.6), radius: 4)
+        } else {
+            self
+        }
+    }
 }
 
 /// Injects `palette.resolved(for:)` for one section so the icon, text, wheel and segment panel cohere to its
@@ -132,6 +203,8 @@ struct SectionDressingModifier: ViewModifier {
                 .foregroundStyle(resolved.text)            // titles/labels with no explicit colour inherit the legible
                 .tint(resolved.sectionAccent ?? resolved.primary)   // selection/highlight read in the section's own colour
                 .background(resolved.surface, in: RoundedRectangle(cornerRadius: 12))
+                // The neon bloom, in the section's own hue (nil for undressed themes → a no-op, so they're untouched).
+                .neonCard(resolved.glow, color: resolved.sectionAccent)
         } else {
             content
         }
