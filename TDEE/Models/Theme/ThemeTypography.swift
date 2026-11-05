@@ -34,6 +34,12 @@ struct ThemeTypography: Equatable {
     /// The clinical sans bundled with the Medical theme.
     static let sourceSans3 = ThemeTypography(familyName: "Source Sans 3")
 
+    /// The neon-tubing display face bundled with the Neon theme — a variable font with X/Y *rotation*
+    /// axes (no `wght`), so it loads upright at its default axes and the `weight` argument degrades to
+    /// its default. The family name must match the file's `name` table exactly (verified via CoreText),
+    /// or the role falls back to the system face.
+    static let tiltNeon = ThemeTypography(familyName: "Tilt Neon")
+
     // MARK: Resolution
 
     /// A Dynamic-Type role's `Font`: the exact system style when there's no custom family (so non-custom
@@ -91,7 +97,7 @@ struct ThemeTypography: Equatable {
     /// to the system face.
     static func registerBundledFonts(in bundle: Bundle = .main) {
         // One file per family; the filename is decoupled from the internal family name used above.
-        let files = ["SourceSans3"]
+        let files = ["SourceSans3", "TiltNeon"]
         for file in files {
             if let url = bundle.url(forResource: file, withExtension: "ttf") {
                 CTFontManagerRegisterFontsForURL(url as CFURL, .process, nil)

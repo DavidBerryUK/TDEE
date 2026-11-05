@@ -539,7 +539,9 @@ enum DefaultThemes {
     /// `editText` stays deep ink so an expanded value reads on the faint tint.
     ///
     /// No `colorScheme` pin, so the user's Appearance choice decides which shows. The per-section glow colour
-    /// falls out of `resolved.sectionAccent`, so the rainbow needs no per-card field.
+    /// falls out of `resolved.sectionAccent`, so the rainbow needs no per-card field. It also sets the theme's
+    /// `typeface` to `.tiltNeon` (a bundled neon-tubing display face), so the headings and values read as lit
+    /// signage; the system font is the default for every other theme.
     static let neon: Theme = {
         let dark = ColorPalette(
             primary: Color(hex: "#19E6FF"),
@@ -595,7 +597,16 @@ enum DefaultThemes {
             glow: .fullLightTube
         )
 
-        return Theme(id: .neon, name: "Neon", description: "Per-section electric rainbow with a glow — neon-on-dark, neon-on-light", light: light, dark: dark)
+        return Theme(
+            id: .neon,
+            name: "Neon",
+            description: "Per-section electric rainbow with a glow — neon-on-dark, neon-on-light",
+            light: light,
+            dark: dark,
+            // The neon-tubing display face so the headings and values read as lit signage rather than the
+            // default system type. No `colorScheme` pin, so the user's Appearance choice decides which shows.
+            typeface: .tiltNeon
+        )
     }()
 
 
