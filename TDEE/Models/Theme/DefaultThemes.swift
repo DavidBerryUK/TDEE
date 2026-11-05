@@ -21,6 +21,7 @@ enum ThemeID: String, CaseIterable, Identifiable {
     case highContrast
     case pride
     case neon
+    case medical
 
     var id: String { rawValue }
 }
@@ -41,6 +42,7 @@ enum DefaultThemes {
         highContrast,
         pride,
         neon,
+        medical,
     ]
 
     static func theme(for id: ThemeID) -> Theme {
@@ -594,6 +596,64 @@ enum DefaultThemes {
         )
 
         return Theme(id: .neon, name: "Neon", description: "Per-section electric rainbow with a glow — neon-on-dark, neon-on-light", light: light, dark: dark)
+    }()
+
+
+    /// **Medical** — a clean, clinical look: the design system's brand blue on a cool grey-5 page with
+    /// white cards (light) and a deep navy field with a lightened-blue accent (dark). A single blue accent
+    /// for links, CTAs, selection, highlight and every section icon — calm and legible, no glow or
+    /// per-section dressing (a plain two-palette theme, like Clouds). It also sets the only `typeface`
+    /// (`ThemeTypography.sourceSans3`, a bundled clinical sans); the system font is the default for every
+    /// other theme. No `colorScheme` pin, so the user's Appearance choice decides which scheme shows.
+    static let medical: Theme = {
+        // One clinical-blue accent for every section icon, in each scheme (lightened for the dark field).
+        func icons(_ hex: String) -> [Icon: Color] {
+            let blue = Color(hex: hex)
+            return Dictionary(Icon.allCases.map { ($0, blue) }, uniquingKeysWith: { first, _ in first })
+        }
+
+        // Light: brand blue on a cool grey-5 page, white cards. Clears the WCAG test — primary and
+        // textSecondary ~6.4:1 on both page and surface, the three macros ≥ 3:1 on white.
+        let light = ColorPalette(
+            primary: Color(hex: "#005EB8"),        // clinical blue: links, CTAs, selection, highlight
+            secondary: Color(hex: "#007F3B"),      // clinical green: success
+            background: Color(hex: "#F0F4F5"),     // cool grey-5 page
+            surface: .white,
+            text: Color(hex: "#212B32"),           // near-black body text
+            textSecondary: Color(hex: "#4C6272"),  // muted blue-grey captions
+            border: Color(hex: "#D8DDE0"),         // light grey dividers
+            macroProtein: Color(hex: "#E91E63"),   // shared CVD-safe macro trio
+            macroCarbs: Color(hex: "#3498DB"),
+            macroFat: Color(hex: "#AE8E0A"),
+            // editText / highlight / selection default to primary (clinical blue).
+            toolbar: .init(background: Color(hex: "#F0F4F5"), itemBackground: Color(hex: "#DCE6EC")),
+            iconColors: icons("#005EB8")
+        )
+
+        // Dark: a deep clinical navy field, a lightened-blue accent, white text.
+        let dark = ColorPalette(
+            primary: Color(hex: "#4C9BE8"),
+            secondary: Color(hex: "#7DC35A"),
+            background: Color(hex: "#0A1A24"),
+            surface: Color(hex: "#12222E"),
+            text: Color(hex: "#ECF0F1"),
+            textSecondary: Color(hex: "#9DB8C9"),
+            border: Color(hex: "#1E3A4A"),
+            macroProtein: Color(hex: "#E92366"),
+            macroCarbs: Color(hex: "#3498DB"),
+            macroFat: Color(hex: "#F1C40F"),
+            toolbar: .init(background: Color(hex: "#0A1A24"), itemBackground: Color(hex: "#16303F")),
+            iconColors: icons("#4C9BE8")
+        )
+
+        return Theme(
+            id: .medical,
+            name: "Medical",
+            description: "Clean clinical blue on a calm field — a bundled sans typeface",
+            light: light,
+            dark: dark,
+            typeface: .sourceSans3
+        )
     }()
 
 }

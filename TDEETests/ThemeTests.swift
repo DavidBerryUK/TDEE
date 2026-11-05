@@ -87,11 +87,11 @@ struct ShareCardThemeTests {
 @Suite("DefaultThemes Tests")
 struct DefaultThemesTests {
 
-    @Test("All 11 themes exist, one per ID, Default first")
+    @Test("All 14 themes exist, one per ID, Default first")
     func testAllThemes() {
         let ids = DefaultThemes.all.map(\.id)
 
-        #expect(ids.count == 11)
+        #expect(ids.count == 14)
         #expect(Set(ids) == Set(ThemeID.allCases))
         #expect(ids.first == .standard)
         for id in ThemeID.allCases {

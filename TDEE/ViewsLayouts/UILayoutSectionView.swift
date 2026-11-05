@@ -14,6 +14,7 @@ import UIKit
 /// The section can be expanded or collapsed to show/hide the editor view.
 struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: View {
     @Environment(\.palette) private var palette
+    @Environment(\.themeTypography) private var typography
 
     /// The section title displayed in the header
     let title: String
@@ -38,7 +39,7 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
 
     private var titleText: some View {
         Text(title)
-            .font(.headline)
+            .font(typography.headline)
             .contentTransition(.interpolate)
             .animation(.easeInOut, value: title)
             // A neon heading bloom in the section's own hue — the dressed input sections glow their rainbow
@@ -51,7 +52,7 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
         Image(systemName: "chevron.down")
             .rotationEffect(.degrees(isExpanded ? 180 : 0))
             .animation(AnimationParams.springDefault, value: isExpanded)
-            .font(.subheadline)
+            .font(typography.subheadline)
             .foregroundStyle(palette.textSecondary)
     }
 

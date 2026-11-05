@@ -17,6 +17,12 @@ struct TDEEApp: App {
     // starts on a half-opened store. A failure routes to the recovery screen instead of a trap.
     @State private var launch = LaunchStore()
 
+    init() {
+        // Register the bundled clinical typeface so the Medical theme's custom family resolves. No-op for
+        // the (default) system font; a missing file degrades to the system face. Done once at launch.
+        ThemeTypography.registerBundledFonts()
+    }
+
     var body: some Scene {
         WindowGroup {
             ThemedRoot(themeManager: themeManager, inputStyleManager: inputStyleManager) {

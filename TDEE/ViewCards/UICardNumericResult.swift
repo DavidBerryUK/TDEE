@@ -10,6 +10,14 @@ import SwiftUI
 /// A numeric result card displaying a value with a title and optional suffix.
 struct UICardNumericResult: View {
     @Environment(\.palette) private var palette
+    // The active theme's typeface; the default `.system` keeps every non-custom theme on the system
+    // font, byte-for-byte unchanged.
+    @Environment(\.themeTypography) private var typography
+    // A theme's custom family bakes its point size from the current content-size category, which
+    // SwiftUI doesn't observe on its own — reading dynamicTypeSize makes the card re-resolve the
+    // font on a Dynamic Type change. A no-op for the system-font themes: their roles return the
+    // intrinsically-scaling system style, so nothing changes.
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     /// The descriptive title for this result
     var title : String
@@ -33,7 +41,7 @@ struct UICardNumericResult: View {
         VStack(alignment: .center, spacing: 6.0) {
             HStack(alignment: .firstTextBaseline,spacing:0) {
                 Text("\(Int(value))")
-                    .font(.largeTitle)
+                    .font(typography.largeTitle)
                     .contentTransition(.numericText())
                     .animation(.easeInOut, value: value)
                 // The unit (e.g. "g") reads as a dimmer trailing glyph; the value stays primary.
@@ -70,15 +78,18 @@ struct UICardNumericResult: View {
     @ViewBuilder
     private var labelLine: some View {
         if let percent {
-            Text(title)
-                .font(.callout)
-            // The "NN%" is smaller and dimmer than the label — secondary to the gram value.
-                + Text(" \(percent)%")
-                    .font(.caption)
+            // The "NN%" is smaller and dimmer than the label — secondary to the gram value. Two
+            // baseline-aligned Texts replace the old `Text + Text` (deprecated in iOS 26.0).
+            HStack(alignment: .firstTextBaseline, spacing: 0) {
+                Text(title)
+                    .font(typography.callout)
+                Text(" \(percent)%")
+                    .font(typography.caption)
                     .foregroundStyle(palette.textSecondary)
+            }
         } else {
             Text(title)
-                .font(.callout)
+                .font(typography.callout)
         }
     }
 }

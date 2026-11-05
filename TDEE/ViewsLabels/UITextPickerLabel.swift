@@ -9,6 +9,9 @@ import SwiftUI
 
 struct UITextPickerLabel: View {
     @Environment(\.palette) private var palette
+    @Environment(\.themeTypography) private var typography
+    // Re-resolve the custom family on a Dynamic Type change (a no-op for the system-font themes).
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
     let text: String
     
     init(_ text: String = "") {
@@ -18,7 +21,7 @@ struct UITextPickerLabel: View {
     var body: some View {
         Text(text)
             .allowsHitTesting(false)
-            .font(.footnote)
+            .font(typography.footnote)
             .foregroundStyle(palette.textSecondary)
     }
 }

@@ -241,6 +241,11 @@ struct Theme: Identifiable {
     /// titles and list headers); `nil` (the default) follows the user's Appearance choice.
     var colorScheme: ColorScheme? = nil
 
+    /// The theme's typeface. `nil` (the default) keeps the system font, so every existing theme is
+    /// byte-for-byte unchanged; a present typeface (e.g. `ThemeTypography.sourceSans3`) is injected by
+    /// `PaletteResolver` and resolved by the central text components.
+    var typeface: ThemeTypography? = nil
+
     func palette(for colorScheme: ColorScheme) -> ColorPalette {
         colorScheme == .dark ? dark : light
     }

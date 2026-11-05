@@ -8,6 +8,11 @@ import SwiftUI
 extension EnvironmentValues {
     /// The active theme palette, resolved for the current colour scheme by `ThemedRoot`.
     @Entry var palette: ColorPalette = DefaultThemes.standard.light
+
+    /// The active theme's typeface, injected alongside `palette` by `ThemedRoot`. Defaults to `.system`,
+    /// so every view that reads it without a themed ancestor (and every theme that doesn't set one) keeps
+    /// the system font.
+    @Entry var themeTypography: ThemeTypography = .system
 }
 
 /// Applies the selected theme to its content: appearance mode, palette and accent tint.
@@ -42,6 +47,7 @@ private struct PaletteResolver<Content: View>: View {
         let palette = theme.palette(for: colorScheme)
         content
             .environment(\.palette, palette)
+            .environment(\.themeTypography, theme.typeface ?? .system)
             .tint(palette.primary)
     }
 }
