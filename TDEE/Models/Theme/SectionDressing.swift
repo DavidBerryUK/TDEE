@@ -98,4 +98,29 @@ struct SectionDressing: Equatable {
         }
         return SectionDressing(accents: accents, subtleIntensity: subtleIntensity)
     }
+
+    /// A warm *sunset* gradient across the six input sections, top to bottom — a gold → amber → orange →
+    /// pumpkin → red → deep-red progression over `inputSections`, so a dressed theme reads as a warm gradient
+    /// down its input card rather than a full-saturation rainbow. Kept as a table over `inputSections`,
+    /// mirroring `pride(_)`/`neon(_)`, so the order and the hues can't drift apart. Sunflower adopts it in
+    /// `.bold` on its dark scheme: each section filled with its hue and text auto-legible
+    /// (`SectionAccent.onText` — near-black on the bright top hues, white on the deep bottom ones).
+    static func warmGradient(_ mode: SectionAccentMode) -> SectionDressing {
+        // Display order → warm hue, a sunset progression. Kept as a table so `inputSections` and the
+        // colours can't drift apart.
+        let swatches: [Icon: String] = [
+            .gender:        "#FFC107", // amber gold
+            .age:           "#FF9800", // orange
+            .height:        "#FB8C00", // dark orange
+            .weight:        "#F4511E", // deep orange / pumpkin
+            .activityLevel: "#E53935", // warm red
+            .bodyFat:       "#B71C1C", // deep red
+        ]
+        let accents = inputSections.reduce(into: [Icon: SectionAccent]()) { accumulation, icon in
+            if let hex = swatches[icon] {
+                accumulation[icon] = SectionAccent(hex: hex, mode: mode)
+            }
+        }
+        return SectionDressing(accents: accents)
+    }
 }

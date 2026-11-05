@@ -349,11 +349,32 @@ enum DefaultThemes {
     )
 
 
-    static let sunflower = Theme(
-        id: .sunflower,
-        name: "Sunflower",
-        description: "Warm sunshine yellow",
-        light: ColorPalette(
+    /// **Sunflower** — warm sunshine yellow, and the first theme to use a *sequential* section dressing: a
+    /// warm sunset gradient (gold → deep red, top to bottom) across the six input sections on its dark
+    /// scheme, plus the full warm dressing on both schemes — the light dressed like Orange, the dark like
+    /// Emerald (themed toolbar, a warm icon palette, a warm expanded panel). The gradient is dark-only, so
+    /// the light scheme keeps one undressed input card like Orange's light. No `colorScheme` pin, so the
+    /// user's Appearance choice decides which shows.
+    static let sunflower: Theme = {
+        // Light scheme: a warm curated icon palette — a goldenrod-forward family with a teal and a plum for
+        // variety, each white-legible as a solid chip on the white surface — a warm analog of Orange's light
+        // set. No section dressing (the gradient is dark-only); no picker dressing, so the wheel stays a
+        // plain native field on white, like Orange's light.
+        let lightIcons: [Icon: Color] = [
+            .gender:        Color(hex: "#C8860B"), // goldenrod
+            .age:           Color(hex: "#D35400"), // pumpkin
+            .height:        Color(hex: "#E8633F"), // warm coral
+            .weight:        Color(hex: "#2A9D8F"), // teal — a cool accent for variety
+            .activityLevel: Color(hex: "#D64545"), // warm red
+            .bodyFat:       Color(hex: "#8E5BA6"), // plum — variety
+            .calorie:       Color(hex: "#D35400"), // pumpkin flame
+            .protein:       Color(hex: "#E91E63"),
+            .carbs:         Color(hex: "#3498DB"),
+            .fats:          Color(hex: "#AE8E0A"), // dark gold: bright #F1C40F fails 3:1 on white
+            .macroSplit:    Color(hex: "#C8860B"),
+        ]
+
+        let light = ColorPalette(
             primary: Color(hex: "#886E08"),
             secondary: Color(hex: "#DF7619"),
             background: Color(hex: "#FEFBEE"),
@@ -363,9 +384,34 @@ enum DefaultThemes {
             border: Color(hex: "#FCF3CF"),
             macroProtein: Color(hex: "#E91E63"),
             macroCarbs: Color(hex: "#3498DB"),
-            macroFat: Color(hex: "#AE8E0A")
-        ),
-        dark: ColorPalette(
+            macroFat: Color(hex: "#AE8E0A"),
+            toolbar: .init(background: Color(hex: "#FEFBEE"), itemBackground: Color(hex: "#FCEFCF")),
+            iconColors: lightIcons,
+            expandedContentBackground: Color(hex: "#FDF3D8") // a barely-there warm panel
+        )
+
+        // Dark scheme: a warm sunset gradient across the six input sections (`.bold`, filled) on a warm
+        // near-black field, with a themed warm toolbar, a warm icon palette for the result/macro cards, and
+        // a warm expanded panel. Each dressed section's picker/segment panel is a light tint of its OWN hue
+        // (`SectionAccent.panelBackground`), so no base `pickerDressing` is needed — the gradient's six
+        // sections supply their own. The input-icon entries in `warmIcons` match the gradient hues, so the
+        // result/macro cards (which aren't dressed) read as the same warm family whether `sectionAccent` or
+        // `iconColors` wins.
+        let warmIcons: [Icon: Color] = [
+            .gender:        Color(hex: "#FFC107"), // amber gold
+            .age:           Color(hex: "#FF9800"), // orange
+            .height:        Color(hex: "#FB8C00"), // dark orange
+            .weight:        Color(hex: "#F4511E"), // deep orange
+            .activityLevel: Color(hex: "#E53935"), // warm red
+            .bodyFat:       Color(hex: "#B71C1C"), // deep red
+            .calorie:       Color(hex: "#F4511E"), // flame
+            .protein:       Color(hex: "#E92366"),
+            .carbs:         Color(hex: "#3498DB"),
+            .fats:          Color(hex: "#F1C40F"),
+            .macroSplit:    Color(hex: "#FFC107"),
+        ]
+
+        let dark = ColorPalette(
             primary: Color(hex: "#F1C40F"),
             secondary: Color(hex: "#E67E22"),
             background: Color(hex: "#1E1E14"),
@@ -375,9 +421,21 @@ enum DefaultThemes {
             border: Color(hex: "#63571D"),
             macroProtein: Color(hex: "#EB2E6E"),
             macroCarbs: Color(hex: "#3498DB"),
-            macroFat: Color(hex: "#F1C40F")
+            macroFat: Color(hex: "#F1C40F"),
+            toolbar: .init(background: Color(hex: "#1E1E14"), itemBackground: Color(hex: "#4A3D15")),
+            iconColors: warmIcons,
+            expandedContentBackground: Color(hex: "#40381C"),
+            sectionDressing: .warmGradient(.bold)
         )
-    )
+
+        return Theme(
+            id: .sunflower,
+            name: "Sunflower",
+            description: "Warm sunshine yellow — a sunset gradient across the sections (dark)",
+            light: light,
+            dark: dark
+        )
+    }()
 
 
     static let carrot = Theme(
