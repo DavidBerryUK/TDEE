@@ -202,15 +202,26 @@ struct SectionDressingModifier: ViewModifier {
     @ViewBuilder
     func body(content: Content) -> some View {
         // No dressing for this palette: the section keeps the card the container draws around it.
-        if palette.sectionDressing != nil {
+        if let dressing = palette.sectionDressing {
+            // Inject the section's own palette on every dressed layout so its icon chip, text and the frozen
+            // wheel/segment views all cohere to its swatch.
             let resolved = palette.resolved(for: icon)
-            content
+            let dressed = content
                 .environment(\.palette, resolved)          // flows to UIIcon + the frozen wheel/segment views
                 .foregroundStyle(resolved.text)            // titles/labels with no explicit colour inherit the legible
                 .tint(resolved.sectionAccent ?? resolved.primary)   // selection/highlight read in the section's own colour
-                .background(resolved.surface, in: RoundedRectangle(cornerRadius: 12))
-                // The neon bloom, in the section's own hue (nil for undressed themes → a no-op, so they're untouched).
-                .neonCard(resolved.glow, color: resolved.sectionAccent)
+            if dressing.layout == .joined {
+                // One continuous card: a plain (unrounded, shadowless) fill per section — the container rounds
+                // and shadows the whole panel, so the tints abut into a single gradient with no gaps.
+                dressed
+                    .background(resolved.surface)
+            } else {
+                // .separate: the section's own rounded card; the container leaves a gap between them.
+                dressed
+                    .background(resolved.surface, in: RoundedRectangle(cornerRadius: 12))
+                    // The neon bloom, in the section's own hue (nil for undressed themes → a no-op, so they're untouched).
+                    .neonCard(resolved.glow, color: resolved.sectionAccent)
+            }
         } else {
             content
         }

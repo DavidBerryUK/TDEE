@@ -350,16 +350,21 @@ enum DefaultThemes {
 
 
     /// **Sunflower** — warm sunshine yellow, and the first theme to use a *sequential* section dressing: a
-    /// warm sunset gradient (gold → deep red, top to bottom) across the six input sections on its dark
-    /// scheme, plus the full warm dressing on both schemes — the light dressed like Orange, the dark like
-    /// Emerald (themed toolbar, a warm icon palette, a warm expanded panel). The gradient is dark-only, so
-    /// the light scheme keeps one undressed input card like Orange's light. No `colorScheme` pin, so the
-    /// user's Appearance choice decides which shows.
+    /// warm sunset gradient (gold → deep red, top to bottom) across the six input sections. Both schemes are
+    /// dressed the same way, in different modes: the dark scheme fills each section with its hue (`.bold` —
+    /// six separate cards, text auto-legible via `SectionAccent.onText`); the light scheme tints each section
+    /// a bold version of the same hue in `.subtle` + `.joined`, so the six tints abut into one continuous card
+    /// — a warm wash down a single panel, no gaps — while each section's inset editor stays a very pale tint
+    /// (a decoupled `expandedIntensity`), so a selected section reads as a soft editor on a bolder card.
+    /// Both schemes also carry a themed toolbar, a warm icon palette and a warm expanded panel. No `colorScheme`
+    /// pin, so the user's Appearance choice decides which shows.
     static let sunflower: Theme = {
         // Light scheme: a warm curated icon palette — a goldenrod-forward family with a teal and a plum for
-        // variety, each white-legible as a solid chip on the white surface — a warm analog of Orange's light
-        // set. No section dressing (the gradient is dark-only); no picker dressing, so the wheel stays a
-        // plain native field on white, like Orange's light.
+        // variety, each white-legible as a solid chip on the light surface. The input card adopts the warm
+        // gradient in `.subtle` + `.joined`: a bold tint of the six warm hues joined into one continuous card
+        // with no inter-section gaps (a warm wash rather than the default's undressed white card), with each
+        // section's inset editor decoupled to a very pale tint. No picker dressing, so the wheels stay plain
+        // native fields on the light tints.
         let lightIcons: [Icon: Color] = [
             .gender:        Color(hex: "#C8860B"), // goldenrod
             .age:           Color(hex: "#D35400"), // pumpkin
@@ -387,7 +392,23 @@ enum DefaultThemes {
             macroFat: Color(hex: "#AE8E0A"),
             toolbar: .init(background: Color(hex: "#FEFBEE"), itemBackground: Color(hex: "#FCEFCF")),
             iconColors: lightIcons,
-            expandedContentBackground: Color(hex: "#FDF3D8") // a barely-there warm panel
+            expandedContentBackground: Color(hex: "#FDF3D8"), // a barely-there warm panel (non-input sections)
+            // The input card adopts the same six warm hues as the dark gradient, but `.subtle` + `.joined`: the
+            // tints abut into one continuous card with no gaps, so the light scheme reads as a warm wash down
+            // the card rather than the default's undressed white card. The section surfaces are a bold tint
+            // (`subtleIntensity` 0.24), decoupled from the inset editor panels, which stay a very pale tint
+            // (`expandedIntensity` 0.08) so a selected section's editor reads as a soft field on the bolder
+            // card. The wheels stay plain native.
+            sectionDressing: .warmGradient(
+                .subtle,
+                subtleIntensity: 0.24,
+                expandedIntensity: 0.08,
+                layout: .joined
+            ),
+            // One card frame, shared by the input, Calories and macro cards, so the whole page reads as one
+            // framed system. A deep warm brown: high contrast on the pale-pink lower tints, so it reads strong
+            // all the way around rather than washed out at the bottom.
+            cardFrame: CardFrame(color: Color(hex: "#6E4A1E"), width: 2)
         )
 
         // Dark scheme: a warm sunset gradient across the six input sections (`.bold`, filled) on a warm
@@ -431,7 +452,7 @@ enum DefaultThemes {
         return Theme(
             id: .sunflower,
             name: "Sunflower",
-            description: "Warm sunshine yellow — a sunset gradient across the sections (dark)",
+            description: "Warm sunshine yellow — a warm gradient across the sections; a bold wash with pale editors in light, solid cards in dark",
             light: light,
             dark: dark
         )

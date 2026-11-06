@@ -20,6 +20,14 @@ struct MainSectionCaloriesAndAdjustments: View {
             .background(palette.surface)
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .shadow(color: Color.black.opacity(0.05), radius: 5, x: 0, y: 2)
+            // The theme's card outline (`cardFrame`) — the same frame the input card and macro card draw, so
+            // the result card reads as one system with them. `nil` for every theme that doesn't set it.
+            .overlay {
+                if let frame = palette.cardFrame {
+                    RoundedRectangle(cornerRadius: 12)
+                        .strokeBorder(frame.color, lineWidth: frame.width)
+                }
+            }
             .frame(maxHeight: profile.isValid ? .infinity : 0, alignment: .top)
             .clipped()
             .opacity(profile.isValid ? 1 : 0)

@@ -91,6 +91,13 @@ struct ColorPalette {
     /// nil` and glow nothing.
     let glow: GlowDressing?
 
+    /// An optional outline the theme draws around *each of its cards* — the input card, the result (Calories)
+    /// card and the macro card all read this one `cardFrame`, so a theme frames every card identically.
+    /// `nil` (the default) draws no frame, so every existing theme is unchanged. Unlike `glow`, it is a
+    /// container-level outline (drawn by each card view, not the resolved per-section palettes), so
+    /// `resolved(for:)` leaves it `nil` and does not propagate it.
+    let cardFrame: CardFrame?
+
     /// Whether the theme dresses the wheel picker — a panel or a forced appearance. A parent shows the
     /// themed wheel (`UIWheelXxxThemed`) when this is true and the plain wheel (`UIWheelXxxPlain`)
     /// otherwise; every theme that doesn't opt in leaves both picker fields `nil`, so its wheels stay
@@ -141,7 +148,9 @@ struct ColorPalette {
         case .subtle:
             // A light tint of the swatch on the field; text and selection stay the base palette's. Wheels
             // stay plain (no per-section dressing) — the subtle variation keeps the rainbow on the card +
-            // the solid icon chip only.
+            // the solid icon chip only. The expanded editor panel's strength is `expandedIntensity` when a
+            // theme decouples it (bold sections, a very pale editor); otherwise it tracks `subtleIntensity +
+            // 0.08`, today's coupling (Pride / Neon unchanged).
             return ColorPalette(
                 primary: primary,
                 secondary: secondary,
@@ -155,7 +164,7 @@ struct ColorPalette {
                 macroFat: macroFat,
                 toolbar: toolbar,
                 iconColors: iconColors,
-                expandedContentBackground: accent.swatch.opacity(min(dressing.subtleIntensity + 0.08, 0.5)),
+                expandedContentBackground: accent.swatch.opacity(dressing.expandedIntensity ?? min(dressing.subtleIntensity + 0.08, 0.5)),
                 pickerDressing: nil,
                 sectionAccent: accent.swatch,
                 sectionDressing: nil,
@@ -194,7 +203,8 @@ struct ColorPalette {
         expandedContentBackground: Color? = nil,
         pickerDressing: PickerDressing? = nil,
         sectionAccent: Color? = nil, sectionDressing: SectionDressing? = nil,
-        glow: GlowDressing? = nil
+        glow: GlowDressing? = nil,
+        cardFrame: CardFrame? = nil
     ) {
         self.primary = primary
         self.secondary = secondary
@@ -226,6 +236,7 @@ struct ColorPalette {
         self.sectionAccent = sectionAccent
         self.sectionDressing = sectionDressing
         self.glow = glow
+        self.cardFrame = cardFrame
     }
 }
 
