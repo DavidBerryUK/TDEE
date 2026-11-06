@@ -32,10 +32,42 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
     let sectionSummaryValueView: () -> SectionSummaryValueView
     /// A view builder that returns the editor view shown when expanded
     let editorView: () -> EditorView
+    /// Optional content shown whether or not the section is expanded, so a section can always surface
+    /// its summary output (e.g. result cards). `nil` — the default — keeps the classic behavior where
+    /// the whole section body collapses away. The macro card uses this to keep its protein/carbs/fats
+    /// results visible even when collapsed, the way the calories card always shows its result.
+    let persistentContent: (() -> any View)?
     /// A ScrollViewProxy for auto-scrolling when section expands
     let proxy: ScrollViewProxy?
 
     @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+
+    // An explicit initializer so `persistentContent` can carry a default (`nil`) at the call site.
+    // A `let` property whose type is an optional `any View`-returning closure is *excluded* from the
+    // synthesized memberwise initializer, so the default has to live on the parameter instead.
+    init(
+        title: String,
+        icon: Icon,
+        isExpanded: Binding<Bool>,
+        validationText: String,
+        accessibilityId: String?,
+        sectionId: String?,
+        sectionSummaryValueView: @escaping () -> SectionSummaryValueView,
+        editorView: @escaping () -> EditorView,
+        persistentContent: (() -> any View)? = nil,
+        proxy: ScrollViewProxy?
+    ) {
+        self.title = title
+        self.icon = icon
+        self._isExpanded = isExpanded
+        self.validationText = validationText
+        self.accessibilityId = accessibilityId
+        self.sectionId = sectionId
+        self.sectionSummaryValueView = sectionSummaryValueView
+        self.editorView = editorView
+        self.persistentContent = persistentContent
+        self.proxy = proxy
+    }
 
     private var titleText: some View {
         Text(title)
@@ -127,6 +159,13 @@ struct UILayoutSectionView<SectionSummaryValueView: View, EditorView: View>: Vie
                 UILabelValidationMessage(validationText)
                     .transition(.move(edge: .top).combined(with: .opacity))
                     .animation(AnimationParams.fastDuration, value: validationText)
+            }
+
+            // Persistent content: shown whether or not the section is expanded, so a section can always
+            // surface its summary output (e.g. the macro card's protein/carbs/fats result cards).
+            // `AnyView` erases the `any View` return so the builder accepts it.
+            if let persistentContent = persistentContent {
+                AnyView(persistentContent())
             }
 
             // Expanded content: outside of the error background

@@ -52,9 +52,6 @@ struct SectionMacroSplit: View {
                     } else {
                         SectionEditorMacroMix(profile: profile)
                     }
-                    SectionMacroMixResults(calculationResults: calculationResult)
-                        .padding(.top, Spacing.medium)
-                        .padding(.bottom, Spacing.small)
 
                     HStack {
                         // Customise button - Edit Current Macro
@@ -82,6 +79,12 @@ struct SectionMacroSplit: View {
                         .padding(.horizontal)
                     }
                 }
+            },
+            // The protein/carbs/fats results stay visible even when the section is collapsed — only the
+            // macro selector and the Customise / Edit Presets buttons above and below collapse away — the
+            // way the calories card always shows its adjusted-calories result.
+            persistentContent: {
+                SectionMacroMixResults(calculationResults: calculationResult)
             },
             proxy: proxy
         )
